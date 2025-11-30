@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 interface Perfume {
@@ -18,6 +18,7 @@ interface Perfume {
 
 export default function CreatorPage() {
   const params = useParams();
+  const router = useRouter();
   
   // State for the creator name and the list of perfumes
   const [creator, setCreator] = useState<string>('');
@@ -106,13 +107,16 @@ export default function CreatorPage() {
                      )}
                   </div>
                   <div className="text-center">
-                    <Link
-                      href={`/brands/${encodeURIComponent(p.brand?.name || 'Unknown House')}`}
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        router.push(`/brands/${encodeURIComponent(p.brand?.name || 'Unknown House')}`);
+                      }}
                       className="text-[10px] font-bold tracking-widest text-stone-400 uppercase mb-1 hover:text-stone-600 transition-colors"
-                      onClick={(e) => e.stopPropagation()}
                     >
                       {p.brand?.name}
-                    </Link>
+                    </button>
                     <div className="font-serif text-lg text-stone-900 leading-tight group-hover:text-stone-600 transition">{p.name}</div>
                     {p.rating && (
                       <div className="text-xs text-stone-400 mt-1">⭐ {p.rating}/5</div>

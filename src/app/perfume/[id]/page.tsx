@@ -87,83 +87,142 @@ export default function PerfumeDetail() {
     return dominantFamily && dominantFamily[1] >= 3 ? dominantFamily[0] : null;
   };
 
-  // CLIENT-SIDE DUPE DETECTION ALGORITHM (BASED ON OLFACTORY COMPOSITION)
+  // Helper function to convert price tier string to numeric value
+  const getPriceTierValue = (priceTier: string): number => {
+    if (!priceTier) return 0;
+    // Count the number of $ signs to determine price level
+    return priceTier.split('$').length - 1;
+  };
+
+  // Enhanced dupe detection with weighted note importance and stricter requirements
   const findClientSideDupes = (mainPerfume: any, allPerfumes: any[]) => {
     if (!mainPerfume || !allPerfumes) return [];
 
     const mainBrand = mainPerfume.brand?.name?.toLowerCase();
-    const mainNotes = mainPerfume.perfume_notes?.map((n: any) => n.note?.name?.toLowerCase()) || [];
+    const mainNotes = mainPerfume.perfume_notes || [];
     const mainVibes = mainPerfume.vibe_tags || [];
-    const mainFamily = categorizeScentFamily(mainNotes, mainVibes);
+    const mainFamily = categorizeScentFamily(
+      mainNotes.map((n: any) => n.note?.name?.toLowerCase()),
+      mainVibes
+    );
+
+    // Weight notes by their importance (top > heart > base)
+    const NOTE_WEIGHTS = {
+      'Top': 1.5,
+      'Heart': 2.0,
+      'Base': 1.0
+    };
 
     return allPerfumes
-      .filter((perfume: any) => {
+      .map((perfume: any) => {
         // Skip the same perfume
-        if (perfume.id === mainPerfume.id) return false;
+        if (perfume.id === mainPerfume.id) return null;
 
         const candidateBrand = perfume.brand?.name?.toLowerCase();
-        const candidateNotes = perfume.perfume_notes?.map((n: any) => n.note?.name?.toLowerCase()) || [];
+        const candidateNotes = perfume.perfume_notes || [];
         const candidateVibes = perfume.vibe_tags || [];
-        const candidateFamily = categorizeScentFamily(candidateNotes, candidateVibes);
-
-        // 1. Must be in the same scent family
-        if (mainFamily && candidateFamily && mainFamily !== candidateFamily) {
-          return false;
-        }
-
-        // 2. Shared notes detection (primary factor)
-        const sharedNotes = mainNotes.filter((note: string) =>
-          candidateNotes.includes(note)
+        const candidateFamily = categorizeScentFamily(
+          candidateNotes.map((n: any) => n.note?.name?.toLowerCase()),
+          candidateVibes
         );
 
-        // 3. Vibe tag matching (secondary factor)
+        // 1. Brand-based exclusion (don't match same brand)
+        const isDifferentBrand = mainBrand !== candidateBrand;
+        if (!isDifferentBrand) return null;
+
+        // 2. Price tier consideration
+        const isCheaperAlternative = perfume.price_tier && mainPerfume.price_tier &&
+          getPriceTierValue(perfume.price_tier) < getPriceTierValue(mainPerfume.price_tier);
+
+        // 3. Detailed note analysis with weighted scoring
+        let similarityScore = 0;
+        let sharedNotesCount = 0;
+        const sharedNotesByType: Record<string, string[]> = { Top: [], Heart: [], Base: [] };
+
+        // Analyze note overlap with type weighting
+        mainNotes.forEach((mainNote: any) => {
+          const matchingNote = candidateNotes.find((candidateNote: any) =>
+            candidateNote.note?.name?.toLowerCase() === mainNote.note?.name?.toLowerCase()
+          );
+          
+          if (matchingNote) {
+            const noteType = mainNote.type || 'Base';
+            const weight = NOTE_WEIGHTS[noteType as keyof typeof NOTE_WEIGHTS] || 1.0;
+            similarityScore += weight * 15;
+            sharedNotesCount++;
+            sharedNotesByType[noteType].push(mainNote.note?.name);
+          }
+        });
+
+        // 4. Vibe tag matching
         const sharedVibes = mainVibes.filter((vibe: string) =>
           candidateVibes.includes(vibe)
         );
+        similarityScore += sharedVibes.length * 8;
 
-        // 4. Brand-based exclusion (don't match same brand)
-        const isDifferentBrand = mainBrand !== candidateBrand;
-
-        // 5. Price tier consideration (prefer cheaper alternatives)
-        const isCheaperAlternative = perfume.price_tier && mainPerfume.price_tier &&
-          perfume.price_tier.length < mainPerfume.price_tier.length;
-
-        // Scoring system for dupe detection - focus on shared notes
-        let dupeScore = 0;
-
-        // High priority: Shared notes (more weight for more shared notes)
-        if (sharedNotes.length > 0) {
-          dupeScore += sharedNotes.length * 15;
-        }
-
-        // Medium priority: Shared vibe tags
-        if (sharedVibes.length > 0) {
-          dupeScore += sharedVibes.length * 8;
-        }
-
-        // Bonus for cheaper alternatives
-        if (isCheaperAlternative) {
-          dupeScore += 10;
-        }
-
-        // Bonus for same scent family (even if not explicitly tagged)
+        // 5. Scent family bonus
         if (mainFamily && candidateFamily && mainFamily === candidateFamily) {
-          dupeScore += 20;
+          similarityScore += 20;
         }
 
-        // Require minimum score and different brand
-        return dupeScore >= 40 && isDifferentBrand && sharedNotes.length >= 3;
+        // 6. Major bonus for cheaper alternatives
+        if (isCheaperAlternative) {
+          similarityScore += 35;
+        }
+
+        // 7. Calculate similarity percentage (0-100)
+        const maxPossibleScore = (mainNotes.length * 2.0 * 15) + (mainVibes.length * 8) + 55;
+        const similarityPercentage = Math.min(100, Math.round((similarityScore / maxPossibleScore) * 100));
+
+        // Determine match type based on similarity and price
+        let matchType = 'Similar Vibe';
+        if (similarityPercentage >= 75 && isCheaperAlternative) {
+          matchType = 'Excellent Dupe';
+        } else if (similarityPercentage >= 65 && isCheaperAlternative) {
+          matchType = 'Good Alternative';
+        } else if (similarityPercentage >= 75) {
+          matchType = 'Similar Profile';
+        }
+
+        return {
+          perfume,
+          similarityScore,
+          similarityPercentage,
+          sharedNotesCount,
+          sharedNotesByType,
+          sharedVibes,
+          isCheaperAlternative,
+          matchType
+        };
       })
-      .map((perfume: any) => ({
-        dupe_id: perfume.id,
-        dupe_name: perfume.name,
-        dupe_image_url: perfume.image_url,
-        brand_name: perfume.brand?.name,
-        match_type: 'Cheaper Alternative',
-        shared_notes: perfume.perfume_notes
-          ?.slice(0, 3)
-          .map((n: any) => n.note?.name)
-          .filter(Boolean) || []
+      .filter(Boolean)
+      .filter((result: any) => {
+        // Stricter filtering for true dupes
+        const { similarityPercentage, sharedNotesCount, isCheaperAlternative } = result;
+        
+        // Minimum requirements for consideration
+        if (sharedNotesCount < 3) return false;
+        
+        // Tiered acceptance criteria
+        if (similarityPercentage >= 75) return true; // Excellent match
+        if (similarityPercentage >= 65 && isCheaperAlternative) return true; // Good cheaper alternative
+        if (similarityPercentage >= 80) return true; // Very similar regardless of price
+        
+        return false;
+      })
+      .sort((a: any, b: any) => b.similarityPercentage - a.similarityPercentage)
+      .slice(0, 6) // Limit to top 6 matches
+      .map((result: any) => ({
+        dupe_id: result.perfume.id,
+        dupe_name: result.perfume.name,
+        dupe_image_url: result.perfume.image_url,
+        brand_name: result.perfume.brand?.name,
+        match_type: result.matchType,
+        similarity_percentage: result.similarityPercentage,
+        shared_notes: Object.values(result.sharedNotesByType)
+          .flat()
+          .slice(0, 4) || [],
+        is_cheaper: result.isCheaperAlternative
       }));
   };
 
@@ -221,7 +280,7 @@ export default function PerfumeDetail() {
           .filter((p: any) => p.vibe_tags?.some((t: string) => mainPerfume.vibe_tags.includes(t)))
           .sort((a: any, b: any) => getMatchDetails(mainPerfume, b).score - getMatchDetails(mainPerfume, a).score);
           
-        setRelatedPerfumes(matches.slice(0, 4));
+        setRelatedPerfumes(matches.slice(0, 12));
       }
 
       // 3. Use client-side dupe detection only (database function is unreliable)
@@ -435,23 +494,51 @@ export default function PerfumeDetail() {
       {/* SECTION 3: DUPES & RECS */}
       <div className="max-w-6xl mx-auto px-6 mt-20">
         
-        {/* Dupe Tracker */}
+        {/* Enhanced Dupe Finder */}
         {dupes.length > 0 && (
           <div className="mb-20">
-            <h3 className="font-serif text-2xl text-stone-900 mb-8 border-b border-stone-200 pb-4">Smart Dupe Finder</h3>
+            <h3 className="font-serif text-2xl text-stone-900 mb-4 border-b border-stone-200 pb-4">Smart Dupe Finder</h3>
+            <p className="text-sm text-stone-600 mb-6 max-w-2xl">
+              Found {dupes.length} potential alternatives with similar olfactory profiles.
+              Results are ranked by similarity and price advantage.
+            </p>
             <div className="grid md:grid-cols-2 gap-6">
               {dupes.map((d: any) => (
-                <Link key={d.dupe_id} href={`/perfume/${d.dupe_id}`} className="flex items-center gap-6 p-6 border border-stone-200 rounded-xl hover:border-stone-400 transition bg-white shadow-sm">
+                <Link key={d.dupe_id} href={`/perfume/${d.dupe_id}`} className="flex items-center gap-6 p-6 border border-stone-200 rounded-xl hover:border-stone-400 transition bg-white shadow-sm group">
                    <div className="w-20 h-24 flex-shrink-0 p-2 bg-stone-50 rounded-lg flex items-center justify-center">
-                      {d.dupe_image_url ? <img src={d.dupe_image_url} className="h-full object-contain" /> : <div className="text-stone-300 text-xs">No Image</div>}
+                      {d.dupe_image_url ? <img src={d.dupe_image_url} className="h-full object-contain group-hover:scale-105 transition" /> : <div className="text-stone-300 text-xs">No Image</div>}
                    </div>
-                   <div>
+                   <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-2 mb-2">
-                         <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide border ${d.match_type.includes('Cheaper') ? 'bg-green-50 text-green-700 border-green-200' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>{d.match_type}</span>
+                         <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide border ${
+                           d.match_type.includes('Excellent') ? 'bg-green-50 text-green-700 border-green-300' :
+                           d.match_type.includes('Good') ? 'bg-blue-50 text-blue-700 border-blue-300' :
+                           'bg-amber-50 text-amber-700 border-amber-300'
+                         }`}>
+                           {d.match_type}
+                         </span>
                          <span className="text-[9px] font-bold text-stone-400 uppercase tracking-widest">{d.brand_name}</span>
+                         {d.is_cheaper && (
+                           <span className="text-[9px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full border border-green-200">💰 Cheaper</span>
+                         )}
                       </div>
-                      <h4 className="font-serif text-lg text-stone-900 leading-tight mb-1">{d.dupe_name}</h4>
-                      <div className="text-xs text-stone-500 italic">Shares {d.shared_notes?.slice(0, 2).join(', ')}</div>
+                      <h4 className="font-serif text-lg text-stone-900 leading-tight mb-1 truncate">{d.dupe_name}</h4>
+                      
+                      {/* Similarity indicator */}
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-16 bg-stone-100 rounded-full h-2 overflow-hidden">
+                          <div
+                            className="h-full bg-stone-800 transition-all duration-500"
+                            style={{ width: `${d.similarity_percentage}%` }}
+                          ></div>
+                        </div>
+                        <span className="text-xs font-medium text-stone-600">{d.similarity_percentage}% match</span>
+                      </div>
+                      
+                      <div className="text-xs text-stone-500">
+                        <span className="font-medium">Shared notes: </span>
+                        {d.shared_notes.join(', ')}
+                      </div>
                    </div>
                 </Link>
               ))}

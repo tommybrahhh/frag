@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import VibeSelector from '@/components/VibeSelector';
 import SearchBar from '@/components/SearchBar';
 
 // Helper for horizontal rows
-const PerfumeRow = ({ title, items }: { title: string, items: any[] }) => (
+const PerfumeRow = ({ title, items, router }: { title: string, items: any[], router: any }) => (
   <div className="mb-16">
     <div className="flex justify-between items-end mb-6 px-6">
       <h3 className="font-serif text-2xl text-stone-900">{title}</h3>
@@ -32,10 +33,17 @@ const PerfumeRow = ({ title, items }: { title: string, items: any[] }) => (
              )}
           </div>
           <div className="text-center px-2">
-             {/* FIX: This is now a DIV, not a Link */}
-             <div className="text-[9px] font-bold tracking-widest text-stone-400 uppercase truncate mb-1">
+             {/* Clickable Brand Name */}
+             <button
+               onClick={(e) => {
+                 e.preventDefault();
+                 e.stopPropagation();
+                 router.push(`/brands/${encodeURIComponent(p.brand?.name || '')}`);
+               }}
+               className="text-[9px] font-bold tracking-widest text-stone-400 uppercase truncate mb-1 hover:text-stone-900 hover:underline relative z-10"
+             >
                {p.brand?.name}
-             </div>
+             </button>
              <div className="font-serif text-md text-stone-900 leading-tight group-hover:text-stone-600 transition truncate">
                {p.name}
              </div>
@@ -50,6 +58,7 @@ export default function Home() {
   const [perfumes, setPerfumes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedVibe, setSelectedVibe] = useState('All');
+  const router = useRouter();
 
   useEffect(() => {
     const fetchPerfumes = async () => {
@@ -143,8 +152,8 @@ export default function Home() {
 
       {/* 4. CURATED ROWS */}
       <div className="max-w-[1400px] mx-auto">
-        <PerfumeRow title="Winter Essentials" items={winterPerfumes} />
-        <PerfumeRow title="Date Night Weapons" items={datePerfumes} />
+        <PerfumeRow title="Winter Essentials" items={winterPerfumes} router={router} />
+        <PerfumeRow title="Date Night Weapons" items={datePerfumes} router={router} />
       </div>
 
       {/* 5. MAIN COLLECTION */}
@@ -167,10 +176,17 @@ export default function Home() {
                  )}
                </div>
                <div className="text-center px-1">
-                 {/* FIX: Just text, no nested Link */}
-                 <div className="text-[9px] font-bold tracking-widest text-stone-400 uppercase truncate mb-1">
+                 {/* Clickable Brand Name */}
+                 <button
+                   onClick={(e) => {
+                     e.preventDefault();
+                     e.stopPropagation();
+                     router.push(`/brands/${encodeURIComponent(p.brand?.name || '')}`);
+                   }}
+                   className="text-[9px] font-bold tracking-widest text-stone-400 uppercase truncate mb-1 hover:text-stone-900 hover:underline relative z-10"
+                 >
                    {p.brand?.name}
-                 </div>
+                 </button>
                  <div className="font-serif text-sm text-stone-900 leading-tight group-hover:text-stone-600 transition truncate">
                    {p.name}
                  </div>
