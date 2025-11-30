@@ -7,9 +7,11 @@ interface PerfumePickerProps {
   label: string;
   onSelect: (perfume: any) => void;
   selected?: any;
+  placeholder?: string;
+  filterOptions?: any[];
 }
 
-export default function PerfumePicker({ label, onSelect, selected }: PerfumePickerProps) {
+export default function PerfumePicker({ label, onSelect, selected, placeholder, filterOptions }: PerfumePickerProps) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<any[]>([]);
   const [isOpen, setIsOpen] = useState(false);
@@ -28,21 +30,30 @@ export default function PerfumePicker({ label, onSelect, selected }: PerfumePick
 
   // Search Logic
   useEffect(() => {
-    if (query.length < 2) {
+    if (filterOptions && filterOptions.length > 0) {
+      // Use filtered options if provided
+      const filtered = filterOptions.filter(p =>
+        p.name.toLowerCase().includes(query.toLowerCase()) ||
+        p.brand_name.toLowerCase().includes(query.toLowerCase())
+      );
+      setResults(filtered.slice(0, 5));
+      setIsOpen(query.length > 0);
+    } else if (query.length < 2) {
       setResults([]);
       return;
+    } else {
+      // Fetch from database
+      const fetchResults = async () => {
+        const supabase = createClient();
+        const { data } = await supabase.rpc('search_perfumes', { keyword: query }).limit(5);
+        setResults(data || []);
+        setIsOpen(true);
+      };
+      
+      const timer = setTimeout(fetchResults, 300);
+      return () => clearTimeout(timer);
     }
-    
-    const fetchResults = async () => {
-      const supabase = createClient();
-      const { data } = await supabase.rpc('search_perfumes', { keyword: query }).limit(5);
-      setResults(data || []);
-      setIsOpen(true);
-    };
-    
-    const timer = setTimeout(fetchResults, 300);
-    return () => clearTimeout(timer);
-  }, [query]);
+  }, [query, filterOptions]);
 
   // If a perfume is already selected, show the "Loaded" card
   if (selected) {
@@ -69,7 +80,7 @@ export default function PerfumePicker({ label, onSelect, selected }: PerfumePick
       <div className="absolute -top-3 left-4 bg-[#FDFBF7] px-2 text-[10px] font-bold uppercase tracking-widest text-stone-400 z-10">{label}</div>
       <input
         type="text"
-        placeholder="Search perfume..."
+        placeholder={placeholder || "Search perfume..."}
         className="w-full bg-white border border-stone-200 rounded-xl px-4 py-4 outline-none focus:border-stone-800 transition"
         value={query}
         onChange={(e) => setQuery(e.target.value)}

@@ -21,10 +21,14 @@ export interface Recommendation {
   personalityMatch: string[];
 }
 
-export function getRecommendations(answers: QuizAnswers, allPerfumes: Perfume[]): Recommendation[] {
+export function getRecommendations(answers: QuizAnswers, allPerfumes: Perfume[]): {
+  topMatches: Recommendation[];
+  possibleSwitches: Recommendation[];
+  newDiscoveries: Recommendation[];
+} {
   const profile = buildPersonalityProfile(answers);
   
-  return allPerfumes
+  const allScoredPerfumes = allPerfumes
     .map((perfume) => {
       let score = 0;
       let reasons: string[] = [];
@@ -66,7 +70,21 @@ export function getRecommendations(answers: QuizAnswers, allPerfumes: Perfume[])
         reasons.push("Complements your seasonal energy");
       }
 
-      // 6. GENDER COMPATIBILITY (Optional Filter)
+      // 6. SCENT FAMILY MATCHING (New)
+      const scentFamilyMatchScore = calculateScentFamilyMatch(perfume, profile);
+      score += scentFamilyMatchScore;
+      if (scentFamilyMatchScore > 0) {
+        reasons.push("Matches your preferred scent family");
+      }
+
+      // 7. NOTE PREFERENCE MATCHING (New)
+      const notePreferenceMatchScore = calculateNotePreferenceMatch(perfume, profile);
+      score += notePreferenceMatchScore;
+      if (notePreferenceMatchScore > 0) {
+        reasons.push("Features your favorite notes");
+      }
+
+      // 8. GENDER COMPATIBILITY (Optional Filter)
       if (answers.personality) {
         const archetype = getArchetypeGenderPreference(answers.personality);
         if (archetype && perfume.gender !== 'Unisex' && perfume.gender !== archetype) {
@@ -74,16 +92,92 @@ export function getRecommendations(answers: QuizAnswers, allPerfumes: Perfume[])
         }
       }
 
-      return { 
-        perfume, 
-        score: Math.max(0, score), 
+      return {
+        perfume,
+        score: Math.max(0, score),
         matchReason: reasons[0] || "Good potential match",
-        personalityMatch: personalityMatches
+        personalityMatch: personalityMatches,
+        matchType: score > 80 ? 'top' : score > 60 ? 'switch' : 'discovery'
       };
     })
     .filter((p) => p.score > 20) // Minimum threshold for meaningful matches
-    .sort((a, b) => b.score - a.score)
+    .sort((a, b) => b.score - a.score);
+
+  // Categorize into 3 groups of 3
+  const topMatches = allScoredPerfumes
+    .filter(p => p.matchType === 'top')
     .slice(0, 3);
+
+  const possibleSwitches = allScoredPerfumes
+    .filter(p => p.matchType === 'switch' && !topMatches.some(t => t.perfume.id === p.perfume.id))
+    .slice(0, 3);
+
+  const newDiscoveries = allScoredPerfumes
+    .filter(p => p.matchType === 'discovery' &&
+                !topMatches.some(t => t.perfume.id === p.perfume.id) &&
+                !possibleSwitches.some(s => s.perfume.id === p.perfume.id))
+    .slice(0, 3);
+
+  // Fill any gaps with the next best matches
+  const remainingPerfumes = allScoredPerfumes.filter(p =>
+    !topMatches.some(t => t.perfume.id === p.perfume.id) &&
+    !possibleSwitches.some(s => s.perfume.id === p.perfume.id) &&
+    !newDiscoveries.some(d => d.perfume.id === p.perfume.id)
+  );
+
+  if (topMatches.length < 3) {
+    topMatches.push(...remainingPerfumes.slice(0, 3 - topMatches.length));
+  }
+  
+  if (possibleSwitches.length < 3) {
+    const nextBatch = remainingPerfumes.slice(3, 6 - possibleSwitches.length);
+    possibleSwitches.push(...nextBatch);
+  }
+  
+  if (newDiscoveries.length < 3) {
+    const nextBatch = remainingPerfumes.slice(6, 9 - newDiscoveries.length);
+    newDiscoveries.push(...nextBatch);
+  }
+
+  return {
+    topMatches: topMatches.slice(0, 3),
+    possibleSwitches: possibleSwitches.slice(0, 3),
+    newDiscoveries: newDiscoveries.slice(0, 3)
+  };
+}
+
+function calculateScentFamilyMatch(perfume: Perfume, profile: PersonalityProfile): number {
+  let score = 0;
+  
+  // Check if perfume matches any scent family preferences
+  if (perfume.vibe_tags && profile.scentPreferences.length > 0) {
+    const scentFamilyKeywords = ['floral', 'woody', 'citrus', 'oriental', 'gourmand', 'fresh', 'aquatic'];
+    const matchingFamilies = perfume.vibe_tags.filter(tag =>
+      scentFamilyKeywords.some(family =>
+        tag.toLowerCase().includes(family) &&
+        profile.scentPreferences.some(pref => pref.toLowerCase().includes(family))
+      )
+    );
+    score += matchingFamilies.length * 25;
+  }
+
+  return score;
+}
+
+function calculateNotePreferenceMatch(perfume: Perfume, profile: PersonalityProfile): number {
+  let score = 0;
+  
+  // Check perfume notes against scent preferences
+  if (perfume.perfume_notes && profile.scentPreferences.length > 0) {
+    const noteMatches = perfume.perfume_notes.filter(note =>
+      profile.scentPreferences.some(pref =>
+        note.note.name.toLowerCase().includes(pref.toLowerCase())
+      )
+    ).length;
+    score += noteMatches * 18;
+  }
+
+  return score;
 }
 
 function calculatePersonalityMatch(perfume: Perfume, profile: PersonalityProfile): number {
@@ -91,7 +185,7 @@ function calculatePersonalityMatch(perfume: Perfume, profile: PersonalityProfile
   
   // Check vibe tags against personality traits
   if (perfume.vibe_tags && profile.traits.length > 0) {
-    const matchingTraits = perfume.vibe_tags.filter(tag => 
+    const matchingTraits = perfume.vibe_tags.filter(tag =>
       profile.traits.some(trait => tag.toLowerCase().includes(trait.toLowerCase()))
     );
     score += matchingTraits.length * 15;

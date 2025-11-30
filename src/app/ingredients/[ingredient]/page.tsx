@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 interface Perfume {
@@ -23,21 +23,19 @@ interface Note {
 
 export default function IngredientPage() {
   const params = useParams();
+  const router = useRouter();
   
-  // State for the ingredient details AND the list of perfumes
   const [note, setNote] = useState<Note | null>(null);
   const [perfumes, setPerfumes] = useState<Perfume[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Handle the async params safely
-    const slug = params?.slug || params?.ingredient; // Handle different folder naming conventions
+    const slug = params?.slug || params?.ingredient;
     if (!slug) return;
 
     const fetchData = async () => {
       try {
-        // Decode the URL (e.g. "Sea%20Salt" -> "Sea Salt")
         const term = decodeURIComponent(slug as string);
         
         const res = await fetch(`/api/ingredients/${term}`);
@@ -46,12 +44,10 @@ export default function IngredientPage() {
         
         const data = await res.json();
 
-        // FIX: Handle the Object response { note: ..., perfumes: ... }
         if (data.note) {
           setNote(data.note);
           setPerfumes(data.perfumes || []);
         } else if (Array.isArray(data)) {
-          // Fallback for old API version
           setPerfumes(data);
         } else {
           throw new Error('Invalid API response format');
@@ -121,13 +117,17 @@ export default function IngredientPage() {
                      )}
                   </div>
                   <div className="text-center">
-                    <Link
-                      href={`/brands/${encodeURIComponent(p.brand?.name || 'Unknown House')}`}
+                    {/* FIX: Changed from Link to button to prevent hydration error */}
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        router.push(`/brands/${encodeURIComponent(p.brand?.name || 'Unknown House')}`);
+                      }}
                       className="text-[10px] font-bold tracking-widest text-stone-400 uppercase mb-1 hover:text-stone-600 transition-colors"
-                      onClick={(e) => e.stopPropagation()}
                     >
                       {p.brand?.name}
-                    </Link>
+                    </button>
                     <div className="font-serif text-lg text-stone-900 leading-tight group-hover:text-stone-600 transition">{p.name}</div>
                   </div>
                 </Link>

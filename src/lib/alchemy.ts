@@ -1,3 +1,5 @@
+import { createClient } from '@/lib/supabase';
+
 // Define complex interaction rules for perfume mixing
 interface AlchemyRules {
   MAJOR_CLASHES: Record<string, string[]>;
@@ -55,6 +57,35 @@ const SCORE_WEIGHTS = {
   DIVERSITY_PENALTY: 15, // Penalty for too many different vibe categories
   BASE_RISK: 10 // Base risk for any combination
 };
+
+// Function to get compatible perfumes based on the selected base
+export async function getCompatiblePerfumes(basePerfume: any): Promise<any[]> {
+  const supabase = createClient();
+  
+  // Get all perfumes from the database
+  const { data: allPerfumes } = await supabase
+    .from('perfumes')
+    .select('*')
+    .limit(100); // Limit for performance
+
+  if (!allPerfumes) return [];
+
+  // Score perfumes based on compatibility with base
+  const scoredPerfumes = allPerfumes
+    .filter((p: any) => p.id !== basePerfume.id) // Exclude the base perfume itself
+    .map((perfume: any) => {
+      const tempResult = mixPerfumes(basePerfume, perfume);
+      return {
+        ...perfume,
+        compatibilityScore: tempResult.safety,
+        compatibilityTips: tempResult.tips,
+        compatibilityWarnings: tempResult.warnings
+      };
+    })
+    .sort((a: any, b: any) => b.compatibilityScore - a.compatibilityScore); // Sort by best compatibility
+
+  return scoredPerfumes.slice(0, 10); // Return top 10 most compatible
+}
 
 export function mixPerfumes(p1: any, p2: any) {
   // 1. GENERATE CREATIVE NAME

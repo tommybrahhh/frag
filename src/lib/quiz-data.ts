@@ -205,6 +205,141 @@ export const questions: QuizQuestion[] = [
         description: "Your essence transcends seasons and trends"
       }
     ]
+  },
+  {
+    id: 'scent_family',
+    question: "Which scent family speaks to your soul?",
+    description: "Every fragrance has a family. Which one feels like home?",
+    type: 'single',
+    options: [
+      {
+        label: "Floral Bouquets",
+        value: "floral",
+        scentPreferences: ['rose', 'jasmine', 'lily', 'peony', 'violet'],
+        personalityTraits: ['romantic', 'feminine', 'graceful'],
+        description: "Elegant, romantic, and timeless floral compositions"
+      },
+      {
+        label: "Woody & Earthy",
+        value: "woody",
+        scentPreferences: ['sandalwood', 'cedar', 'vetiver', 'patchouli', 'oakmoss'],
+        personalityTraits: ['grounded', 'earthy', 'authentic'],
+        description: "Deep, warm, and nature-connected scents"
+      },
+      {
+        label: "Citrus & Fresh",
+        value: "citrus",
+        scentPreferences: ['bergamot', 'lemon', 'orange', 'grapefruit', 'neroli'],
+        personalityTraits: ['energetic', 'optimistic', 'refreshing'],
+        description: "Bright, uplifting, and invigorating aromas"
+      },
+      {
+        label: "Oriental & Spicy",
+        value: "oriental",
+        scentPreferences: ['vanilla', 'amber', 'cinnamon', 'clove', 'incense'],
+        personalityTraits: ['exotic', 'sensual', 'mysterious'],
+        description: "Warm, spicy, and luxurious exotic blends"
+      },
+      {
+        label: "Gourmand & Sweet",
+        value: "gourmand",
+        scentPreferences: ['caramel', 'chocolate', 'coffee', 'honey', 'praline'],
+        personalityTraits: ['comforting', 'indulgent', 'playful'],
+        description: "Delicious, edible-inspired sweet treats"
+      }
+    ]
+  },
+  {
+    id: 'longevity',
+    question: "How long should your scent journey last?",
+    description: "Some fragrances are fleeting moments, others are day-long companions.",
+    type: 'single',
+    options: [
+      {
+        label: "Ephemeral Whispers (2-4 hours)",
+        value: "short",
+        intensityProfile: { min: 1, max: 2 },
+        personalityTraits: ['spontaneous', 'versatile', 'fresh'],
+        description: "Perfect for quick refresh and versatility throughout the day"
+      },
+      {
+        label: "Daytime Companion (4-8 hours)",
+        value: "medium",
+        intensityProfile: { min: 3, max: 4 },
+        personalityTraits: ['reliable', 'balanced', 'practical'],
+        description: "Lasts through work or daily activities without reapplication"
+      },
+      {
+        label: "Signature Sillage (8+ hours)",
+        value: "long",
+        intensityProfile: { min: 4, max: 5 },
+        personalityTraits: ['confident', 'memorable', 'dramatic'],
+        description: "Makes a statement that lingers long after you've left"
+      },
+      {
+        label: "Skin Scent Intimacy (varies)",
+        value: "intimate",
+        intensityProfile: { min: 1, max: 2 },
+        personalityTraits: ['personal', 'subtle', 'intimate'],
+        description: "Develops uniquely on your skin, discovered only by proximity"
+      }
+    ]
+  },
+  {
+    id: 'note_preference',
+    question: "Which notes make your heart skip a beat?",
+    description: "The magic is in the details. Which accords captivate you most?",
+    type: 'multiple',
+    options: [
+      {
+        label: "Citrus Zest",
+        value: "citrus_notes",
+        scentPreferences: ['bergamot', 'lemon', 'mandarin', 'grapefruit'],
+        description: "Bright, energizing top notes that sparkle"
+      },
+      {
+        label: "Floral Heart",
+        value: "floral_notes",
+        scentPreferences: ['rose', 'jasmine', 'ylang-ylang', 'tuberose'],
+        description: "Romantic, elegant floral bouquets"
+      },
+      {
+        label: "Woody Base",
+        value: "woody_notes",
+        scentPreferences: ['sandalwood', 'cedar', 'vetiver', 'patchouli'],
+        description: "Deep, grounding foundation notes"
+      },
+      {
+        label: "Spicy Accents",
+        value: "spicy_notes",
+        scentPreferences: ['cinnamon', 'cardamom', 'pepper', 'nutmeg'],
+        description: "Warm, exotic spice blends"
+      },
+      {
+        label: "Gourmand Treats",
+        value: "gourmand_notes",
+        scentPreferences: ['vanilla', 'caramel', 'chocolate', 'coffee'],
+        description: "Sweet, edible-inspired delights"
+      },
+      {
+        label: "Fresh Greens",
+        value: "green_notes",
+        scentPreferences: ['grass', 'mint', 'tea', 'galbanum'],
+        description: "Crisp, natural green accords"
+      },
+      {
+        label: "Aquatic Breezes",
+        value: "aquatic_notes",
+        scentPreferences: ['sea salt', 'ozone', 'water notes', 'calone'],
+        description: "Fresh, marine-inspired scents"
+      },
+      {
+        label: "Leather & Tobacco",
+        value: "leather_notes",
+        scentPreferences: ['leather', 'tobacco', 'suede', 'birch tar'],
+        description: "Sophisticated, classic masculine notes"
+      }
+    ]
   }
 ];
 
@@ -214,6 +349,9 @@ export interface QuizAnswers {
   lifestyle?: string;
   intimacy?: string;
   season?: string;
+  scent_family?: string;
+  longevity?: string;
+  note_preference?: string;
   [key: string]: string | undefined;
 }
 
