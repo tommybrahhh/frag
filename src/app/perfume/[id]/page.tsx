@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
 import Link from 'next/link';
+import { RecommendationEngine, RecommendationCategory } from '@/lib/recommendation-engine';
 
 export default function PerfumeDetail() {
   const params = useParams();
@@ -11,7 +12,11 @@ export default function PerfumeDetail() {
   const [perfume, setPerfume] = useState<any>(null);
   const [relatedPerfumes, setRelatedPerfumes] = useState<any[]>([]);
   const [dupes, setDupes] = useState<any[]>([]);
+  const [recommendationCategories, setRecommendationCategories] = useState<RecommendationCategory[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeCategory, setActiveCategory] = useState<string>('similar');
+  const [sortBy, setSortBy] = useState<'score' | 'price' | 'name'>('score');
+  const [priceFilter, setPriceFilter] = useState<'all' | 'cheaper' | 'similar' | 'premium'>('all');
 
   // SMART MATCHING LOGIC
   const getMatchDetails = (current: any, candidate: any) => {
@@ -291,6 +296,16 @@ export default function PerfumeDetail() {
       }
       
       setDupes(finalDupes);
+
+      // 4. Get enhanced recommendations
+      if (mainPerfume) {
+        const enhancedRecs = await RecommendationEngine.getEnhancedRecommendations(mainPerfume);
+        setRecommendationCategories(enhancedRecs);
+        if (enhancedRecs.length > 0) {
+          setActiveCategory(enhancedRecs[0].type);
+        }
+      }
+
       setLoading(false);
     };
 
@@ -546,42 +561,173 @@ export default function PerfumeDetail() {
           </div>
         )}
 
-        {/* Recommendations */}
-        {relatedPerfumes.length > 0 && (
-          <div>
-            <h3 className="font-serif text-2xl text-stone-900 mb-8 border-b border-stone-200 pb-4">You Might Also Like</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {relatedPerfumes.map((p) => {
-                const match = getMatchDetails(perfume, p);
-                return (
-                  <Link key={p.id} href={`/perfume/${p.id}`} className="group block bg-white rounded-xl p-4 hover:shadow-xl transition duration-500 border border-transparent hover:border-stone-100 relative">
-                    
-                    {/* THE FIX: Button instead of Link for VS */}
+        {/* Enhanced Recommendations */}
+        {recommendationCategories.length > 0 && (
+          <div className="mt-20">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-8 border-b border-stone-200 pb-4 gap-4">
+              <h3 className="font-serif text-2xl text-stone-900">Discover More</h3>
+              
+              <div className="flex flex-col sm:flex-row gap-4">
+                {/* Category selector */}
+                <div className="flex gap-2 flex-wrap">
+                  {recommendationCategories.map((category) => (
                     <button
-                      onClick={(e) => {
-                        e.preventDefault(); // Stop parent link from firing
-                        e.stopPropagation(); // Stop bubbling
-                        router.push(`/compare?a=${perfume.id}&b=${p.id}`);
-                      }}
-                      className="absolute top-2 right-2 bg-white border border-stone-200 text-[10px] font-bold px-2 py-1 rounded hover:bg-stone-900 hover:text-white transition z-10 cursor-pointer"
+                      key={category.type}
+                      onClick={() => setActiveCategory(category.type)}
+                      className={`text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border transition-colors ${
+                        activeCategory === category.type
+                          ? 'bg-stone-900 text-white border-stone-900'
+                          : 'bg-white text-stone-500 border-stone-200 hover:bg-stone-100'
+                      }`}
                     >
-                      VS
+                      {category.title}
                     </button>
-                    <div className="flex justify-between items-start mb-4">
-                       <span className="text-[9px] font-bold tracking-widest text-stone-400 uppercase truncate">{p.brand?.name}</span>
-                       <span className="text-[9px] font-bold text-stone-600 bg-stone-100 px-2 py-0.5 rounded">{match.score}%</span>
-                    </div>
-                    <div className="h-40 mb-4 overflow-hidden flex items-center justify-center p-2">
-                        {p.image_url ? <img src={p.image_url} className="h-full object-contain group-hover:scale-110 transition duration-700" /> : <div className="text-stone-300 text-xs">No Image</div>}
-                    </div>
-                    <div>
-                      <div className="font-serif text-lg text-stone-900 leading-tight mb-1 group-hover:text-stone-600 transition truncate">{p.name}</div>
-                      <div className="text-xs text-stone-400 italic truncate">{match.reason}</div>
-                    </div>
-                  </Link>
-                );
-              })}
+                  ))}
+                </div>
+                
+                {/* Filter and sort controls */}
+                <div className="flex gap-2 items-center">
+                  {/* Price filter */}
+                  <select
+                    value={priceFilter}
+                    onChange={(e) => setPriceFilter(e.target.value as any)}
+                    className="text-xs border border-stone-200 rounded px-2 py-1.5 bg-white"
+                  >
+                    <option value="all">All Prices</option>
+                    <option value="cheaper">More Affordable</option>
+                    <option value="similar">Similar Price</option>
+                    <option value="premium">Premium</option>
+                  </select>
+                  
+                  {/* Sort by */}
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as any)}
+                    className="text-xs border border-stone-200 rounded px-2 py-1.5 bg-white"
+                  >
+                    <option value="score">Best Match</option>
+                    <option value="price">Price</option>
+                    <option value="name">Name</option>
+                  </select>
+                </div>
+              </div>
             </div>
+
+            {/* Category description */}
+            {recommendationCategories
+              .filter(cat => cat.type === activeCategory)
+              .map(category => (
+                <div key={category.type} className="mb-6">
+                  <p className="text-sm text-stone-600 max-w-2xl mb-6">
+                    {category.description}
+                  </p>
+                  
+                  {/* Filtered and sorted recommendations */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {category.recommendations
+                      .filter(rec => {
+                        if (priceFilter === 'all') return true;
+                        if (priceFilter === 'cheaper') return rec.priceComparison === 'cheaper';
+                        if (priceFilter === 'similar') return rec.priceComparison === 'similar';
+                        if (priceFilter === 'premium') return rec.priceComparison === 'premium';
+                        return true;
+                      })
+                      .sort((a, b) => {
+                        if (sortBy === 'score') return b.score - a.score;
+                        if (sortBy === 'price') {
+                          const getPriceValue = (tier: string) => tier?.split('$').length - 1 || 0;
+                          const aPrice = getPriceValue(a.perfume.price_tier);
+                          const bPrice = getPriceValue(b.perfume.price_tier);
+                          return aPrice - bPrice;
+                        }
+                        if (sortBy === 'name') {
+                          return a.perfume.name.localeCompare(b.perfume.name);
+                        }
+                        return 0;
+                      })
+                      .map((rec) => (
+                      <Link
+                        key={rec.perfume.id}
+                        href={`/perfume/${rec.perfume.id}`}
+                        className="group block bg-white rounded-xl p-4 hover:shadow-xl transition duration-500 border border-stone-100 hover:border-stone-300 relative"
+                      >
+                        {/* Compare button */}
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            router.push(`/compare?a=${perfume.id}&b=${rec.perfume.id}`);
+                          }}
+                          className="absolute top-2 right-2 bg-white border border-stone-200 text-[10px] font-bold px-2 py-1 rounded hover:bg-stone-900 hover:text-white transition z-10 cursor-pointer"
+                        >
+                          VS
+                        </button>
+                        
+                        {/* Brand and score */}
+                        <div className="flex justify-between items-start mb-4">
+                          <span className="text-[9px] font-bold tracking-widest text-stone-400 uppercase truncate">
+                            {rec.perfume.brand?.name}
+                          </span>
+                          <span className="text-[9px] font-bold text-stone-600 bg-stone-100 px-2 py-0.5 rounded">
+                            {rec.score}%
+                          </span>
+                        </div>
+                        
+                        {/* Image */}
+                        <div className="h-40 mb-4 overflow-hidden flex items-center justify-center p-2">
+                          {rec.perfume.image_url ? (
+                            <img
+                              src={rec.perfume.image_url}
+                              className="h-full object-contain group-hover:scale-110 transition duration-700"
+                              alt={rec.perfume.name}
+                            />
+                          ) : (
+                            <div className="text-stone-300 text-xs">No Image</div>
+                          )}
+                        </div>
+                        
+                        {/* Content */}
+                        <div>
+                          <div className="font-serif text-lg text-stone-900 leading-tight mb-2 group-hover:text-stone-600 transition truncate">
+                            {rec.perfume.name}
+                          </div>
+                          <div className="text-xs text-stone-500 mb-2 italic">
+                            {rec.reason}
+                          </div>
+                          
+                          {/* Shared notes/vibes */}
+                          {rec.sharedNotes && rec.sharedNotes.length > 0 && (
+                            <div className="text-[10px] text-stone-400">
+                              <span className="font-medium">Notes: </span>
+                              {rec.sharedNotes.join(', ')}
+                            </div>
+                          )}
+                          {rec.sharedVibes && rec.sharedVibes.length > 0 && (
+                            <div className="text-[10px] text-stone-400 mt-1">
+                              <span className="font-medium">Vibes: </span>
+                              {rec.sharedVibes.join(', ')}
+                            </div>
+                          )}
+                          
+                          {/* Price comparison badge */}
+                          {rec.priceComparison && (
+                            <div className={`mt-2 text-[9px] font-bold px-2 py-0.5 rounded-full inline-block ${
+                              rec.priceComparison === 'cheaper'
+                                ? 'bg-green-100 text-green-700 border border-green-200'
+                                : rec.priceComparison === 'premium'
+                                ? 'bg-blue-100 text-blue-700 border border-blue-200'
+                                : 'bg-stone-100 text-stone-600 border border-stone-200'
+                            }`}>
+                              {rec.priceComparison === 'cheaper' ? '💰 More affordable' :
+                               rec.priceComparison === 'premium' ? '💎 Premium' : 'Similar price'}
+                            </div>
+                          )}
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              ))}
           </div>
         )}
       </div>

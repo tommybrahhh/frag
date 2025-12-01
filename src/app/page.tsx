@@ -127,7 +127,7 @@ export default function Home() {
       </div>
 
       {/* 3. TOOLS NAVIGATION */}
-      <div className="max-w-5xl mx-auto px-6 grid md:grid-cols-3 gap-6 mb-24">
+      <div className="max-w-5xl mx-auto px-6 grid md:grid-cols-4 gap-6 mb-24">
          <Link href="/quiz" className="bg-white p-8 rounded-2xl border border-stone-100 shadow-sm hover:shadow-md transition text-center group">
             <div className="text-3xl mb-4 group-hover:scale-110 transition">🧬</div>
             <h3 className="font-serif text-xl mb-2">Scent Quiz</h3>
@@ -138,6 +138,12 @@ export default function Home() {
             <div className="text-3xl mb-4 group-hover:scale-110 transition">⚗️</div>
             <h3 className="font-serif text-xl mb-2">Layering Lab</h3>
             <p className="text-xs text-stone-400">Mix two perfumes to create something unique.</p>
+         </Link>
+
+         <Link href="/ingredients/combine" className="bg-white p-8 rounded-2xl border border-stone-100 shadow-sm hover:shadow-md transition text-center group">
+            <div className="text-3xl mb-4 group-hover:scale-110 transition">🧪</div>
+            <h3 className="font-serif text-xl mb-2">Ingredient Combiner</h3>
+            <p className="text-xs text-stone-400">Find perfumes with multiple specific notes.</p>
          </Link>
 
          <div className="bg-white p-8 rounded-2xl border border-stone-100 shadow-sm hover:shadow-md transition text-center group relative overflow-visible">
