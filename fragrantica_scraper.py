@@ -16,7 +16,7 @@ def scrape_fragrantica(url):
         print("Attempting to bypass Cloudflare protection...")
         
         scraper = cloudscraper.create_scraper()
-        time.sleep(random.uniform(2, 5))
+        time.sleep(random.uniform(10, 20))
         
         print(f"Making request to: {url}")
         
@@ -111,7 +111,7 @@ if __name__ == "__main__":
     all_perfume_data_rows = []
     
     try:
-        with open(input_filename, 'r', newline='', encoding='utf-8') as infile:
+        with open(input_filename, 'r', newline='', encoding='latin-1') as infile:
             reader = csv.reader(infile, delimiter=';')
             header = next(reader) # Read header
             

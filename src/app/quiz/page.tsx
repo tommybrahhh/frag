@@ -182,9 +182,13 @@ export default function QuizPage() {
     });
   };
 
+  const exitQuiz = () => {
+    router.push('/');
+  };
+
   if (isComplete) {
     return (
-      <div className="min-h-screen bg-[#FDFBF7] flex items-center justify-center px-6 py-12">
+      <div className="min-h-screen bg-white flex items-center justify-center px-6 py-12">
         <div className="max-w-4xl w-full">
           {quizState.isSubmitting ? (
             <div className="text-center">
@@ -249,13 +253,21 @@ export default function QuizPage() {
                 </div>
               </div>
               
-              <div className="text-center">
+              <div className="text-center space-y-4">
                 <button
                   onClick={restartQuiz}
                   className="bg-white border border-stone-300 text-stone-700 px-8 py-3 rounded-lg hover:bg-stone-50 transition-colors text-sm font-medium"
                 >
                   Take Quiz Again
                 </button>
+                <div>
+                  <button
+                    onClick={exitQuiz}
+                    className="text-stone-400 hover:text-stone-600 text-sm px-4 py-2 transition-colors"
+                  >
+                    Exit Quiz
+                  </button>
+                </div>
               </div>
             </div>
           )}
@@ -265,7 +277,7 @@ export default function QuizPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] flex items-center justify-center px-6 py-12">
+    <div className="min-h-screen bg-white flex items-center justify-center px-6 py-12">
       <div className="max-w-2xl w-full">
         {/* Progress Bar */}
         <div className="mb-8">
@@ -285,6 +297,16 @@ export default function QuizPage() {
               }}
             ></div>
           </div>
+        </div>
+
+        {/* Exit Button - Top Right */}
+        <div className="absolute top-4 right-4">
+          <button
+            onClick={exitQuiz}
+            className="text-stone-400 hover:text-stone-600 text-sm px-3 py-1 transition-colors"
+          >
+            Exit
+          </button>
         </div>
 
         {/* Question Card */}

@@ -195,6 +195,63 @@ export function mixPerfumes(p1: any, p2: any) {
     description = "Strong potential for discordant notes";
   }
 
+  // Calculate performance metrics
+  const calculatePerformance = () => {
+    let longevity = 8; // Base hours
+    let sillage = 3; // Base sillage (1-5 scale)
+    let projection = 2; // Base projection (1-5 scale)
+    
+    // Adjust based on perfume characteristics
+    if (p1.vibe_tags?.includes('Oriental') || p2.vibe_tags?.includes('Oriental')) {
+      longevity += 2;
+      sillage += 1;
+    }
+    if (p1.vibe_tags?.includes('Woody') || p2.vibe_tags?.includes('Woody')) {
+      longevity += 1;
+      projection += 1;
+    }
+    if (p1.vibe_tags?.includes('Fresh') || p2.vibe_tags?.includes('Fresh')) {
+      longevity -= 2;
+      projection -= 1;
+    }
+    if (p1.vibe_tags?.includes('Citrus') || p2.vibe_tags?.includes('Citrus')) {
+      longevity -= 1;
+    }
+    
+    return {
+      longevity: Math.max(2, Math.min(12, longevity)),
+      sillage: Math.max(1, Math.min(5, sillage)),
+      projection: Math.max(1, Math.min(5, projection))
+    };
+  };
+
+  const performance = calculatePerformance();
+
+  // Generate visual representation
+  const generateVisualization = () => {
+    const dominantVibes = combinedVibes.slice(0, 3);
+    const colors: Record<string, string> = {
+      'Floral': '#FF9FF3',
+      'Woody': '#A55EEA',
+      'Oriental': '#FD7272',
+      'Fresh': '#2ECC71',
+      'Gourmand': '#FEA47F',
+      'Spicy': '#EAB543',
+      'Citrus': '#F97F51',
+      'Aquatic': '#25CCF7',
+      'Green': '#55E6C1',
+      'Amber': '#D6A2E8'
+    };
+
+    return dominantVibes.map(vibe => ({
+      vibe,
+      color: colors[vibe] || '#BDC581',
+      intensity: Math.random() * 0.5 + 0.5 // Random intensity between 0.5-1
+    }));
+  };
+
+  const visualization = generateVisualization();
+
   return {
     mixName,
     safety: Math.round(safety),
@@ -207,6 +264,13 @@ export function mixPerfumes(p1: any, p2: any) {
       totalVibes: uniqueVibeCount,
       clashCount: warnings.length,
       harmonyCount: tips.length
-    }
+    },
+    performance,
+    visualization,
+    mixingTips: [
+      safety >= 70 ? "Apply base first, wait 2 minutes, then layer top" : "Test on skin first before full application",
+      safety >= 50 ? "70/30 ratio recommended" : "50/50 ratio with caution",
+      uniqueVibeCount > 4 ? "Consider simplifying - focus on 2-3 dominant notes" : "Good complexity level"
+    ]
   };
 }

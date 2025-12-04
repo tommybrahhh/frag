@@ -9,12 +9,14 @@ interface PerfumePickerProps {
   selected?: any;
   placeholder?: string;
   filterOptions?: any[];
+  showFilters?: boolean;
 }
 
-export default function PerfumePicker({ label, onSelect, selected, placeholder, filterOptions }: PerfumePickerProps) {
+export default function PerfumePicker({ label, onSelect, selected, placeholder, filterOptions, showFilters }: PerfumePickerProps) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<any[]>([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState<string>('all');
   const pickerRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown if clicking outside
@@ -32,20 +34,41 @@ export default function PerfumePicker({ label, onSelect, selected, placeholder, 
   useEffect(() => {
     if (filterOptions && filterOptions.length > 0) {
       // Use filtered options if provided
-      const filtered = filterOptions.filter(p =>
+      let filtered = filterOptions;
+      
+      // Apply vibe filter if selected
+      if (selectedFilter !== 'all') {
+        filtered = filtered.filter(p =>
+          p.vibe_tags?.includes(selectedFilter)
+        );
+      }
+      
+      // Apply text search
+      filtered = filtered.filter(p =>
         p.name.toLowerCase().includes(query.toLowerCase()) ||
         p.brand_name.toLowerCase().includes(query.toLowerCase())
       );
+      
       setResults(filtered.slice(0, 5));
-      setIsOpen(query.length > 0);
-    } else if (query.length < 2) {
+      setIsOpen(query.length > 0 || selectedFilter !== 'all');
+    } else if (query.length < 2 && selectedFilter === 'all') {
       setResults([]);
       return;
     } else {
-      // Fetch from database
+      // Fetch from database with filters
       const fetchResults = async () => {
         const supabase = createClient();
-        const { data } = await supabase.rpc('search_perfumes', { keyword: query }).limit(5);
+        let queryBuilder = supabase.from('perfumes').select('*');
+        
+        if (query.length >= 2) {
+          queryBuilder = queryBuilder.or(`name.ilike.%${query}%,brand_name.ilike.%${query}%`);
+        }
+        
+        if (selectedFilter !== 'all') {
+          queryBuilder = queryBuilder.contains('vibe_tags', [selectedFilter]);
+        }
+        
+        const { data } = await queryBuilder.limit(5);
         setResults(data || []);
         setIsOpen(true);
       };
@@ -53,7 +76,7 @@ export default function PerfumePicker({ label, onSelect, selected, placeholder, 
       const timer = setTimeout(fetchResults, 300);
       return () => clearTimeout(timer);
     }
-  }, [query, filterOptions]);
+  }, [query, filterOptions, selectedFilter]);
 
   // If a perfume is already selected, show the "Loaded" card
   if (selected) {
@@ -62,7 +85,7 @@ export default function PerfumePicker({ label, onSelect, selected, placeholder, 
         <div className="absolute -top-3 left-4 bg-white px-2 text-[10px] font-bold uppercase tracking-widest text-stone-400 z-10">{label}</div>
         <div className="border border-stone-300 rounded-xl p-4 flex items-center gap-4 bg-white shadow-sm hover:border-red-300 transition">
           <div className="w-12 h-16 bg-stone-50 rounded-md flex items-center justify-center">
-             {selected.image_url ? <img src={selected.image_url} className="h-full object-contain" /> : null}
+             {selected.image_url ? <img src={selected.image_url} className="h-full object-contain mix-blend-multiply" /> : null}
           </div>
           <div>
             <div className="text-[10px] font-bold uppercase text-stone-400">{selected.brand_name}</div>
@@ -77,7 +100,27 @@ export default function PerfumePicker({ label, onSelect, selected, placeholder, 
   // Otherwise show the Search Input
   return (
     <div className="relative w-full" ref={pickerRef}>
-      <div className="absolute -top-3 left-4 bg-[#FDFBF7] px-2 text-[10px] font-bold uppercase tracking-widest text-stone-400 z-10">{label}</div>
+      <div className="absolute -top-3 left-4 bg-white px-2 text-[10px] font-bold uppercase tracking-widest text-stone-400 z-10">{label}</div>
+      
+      {/* Filter Bar */}
+      {showFilters && (
+        <div className="flex gap-1 mb-2">
+          {['all', 'Floral', 'Woody', 'Oriental', 'Fresh', 'Gourmand'].map((filter) => (
+            <button
+              key={filter}
+              onClick={() => setSelectedFilter(filter)}
+              className={`px-2 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full border transition ${
+                selectedFilter === filter
+                  ? 'bg-stone-900 text-white border-stone-900'
+                  : 'bg-white text-stone-400 border-stone-200 hover:border-stone-400'
+              }`}
+            >
+              {filter === 'all' ? 'All' : filter}
+            </button>
+          ))}
+        </div>
+      )}
+      
       <input
         type="text"
         placeholder={placeholder || "Search perfume..."}
@@ -101,7 +144,7 @@ export default function PerfumePicker({ label, onSelect, selected, placeholder, 
               }}
             >
                <div className="w-8 h-8 bg-stone-100 rounded flex items-center justify-center">
-                 {p.image_url && <img src={p.image_url} className="h-full object-contain" />}
+                 {p.image_url && <img src={p.image_url} className="h-full object-contain mix-blend-multiply" />}
                </div>
                <div>
                  <div className="text-xs font-bold text-stone-900">{p.name}</div>

@@ -23,10 +23,10 @@ const PerfumeRow = ({ title, items, router }: { title: string, items: any[], rou
         >
           <div className="bg-white rounded-xl h-64 flex items-center justify-center p-6 border border-transparent group-hover:border-stone-200 transition-all duration-500 relative mb-4">
              {p.image_url ? (
-               <img 
-                 src={p.image_url} 
-                 alt={p.name} 
-                 className="h-full w-full object-contain mix-blend-multiply group-hover:scale-110 transition duration-700" 
+               <img
+                 src={p.image_url}
+                 alt={p.name}
+                 className="h-full w-full object-contain mix-blend-multiply group-hover:scale-110 transition duration-700"
                />
              ) : (
                <span className="text-xs text-stone-300">No Image</span>
@@ -64,11 +64,13 @@ export default function Home() {
     const fetchPerfumes = async () => {
       try {
         const res = await fetch('/api/perfumes');
-        if (!res.ok) throw new Error('Failed');
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         const data = await res.json();
         setPerfumes(data);
       } catch (err) {
-        console.error(err);
+        console.error('Failed to fetch perfumes:', err);
+        // Set empty array instead of leaving it undefined
+        setPerfumes([]);
       } finally {
         setLoading(false);
       }
@@ -83,77 +85,40 @@ export default function Home() {
     ? perfumes 
     : perfumes.filter(p => p.vibe_tags?.includes(selectedVibe));
 
-  if (loading) return <div className="min-h-screen bg-[#FDFBF7] flex items-center justify-center text-stone-400 uppercase tracking-widest">Loading Collection...</div>;
+  if (loading) return <div className="min-h-screen bg-white flex items-center justify-center text-stone-400 uppercase tracking-widest">Loading Collection...</div>;
 
   return (
-    <main className="min-h-screen bg-[#FDFBF7] text-stone-800 font-sans selection:bg-stone-900 selection:text-white pb-24">
+    <main className="min-h-screen bg-white text-stone-800 font-sans selection:bg-stone-900 selection:text-white pb-24">
       
-      {/* 1. NAVBAR */}
-      <nav className="px-6 py-6 flex justify-between items-center max-w-[1400px] mx-auto">
-        <div className="text-xl font-serif font-bold tracking-tighter">PI.</div>
-        <div className="flex gap-6 text-[10px] font-bold uppercase tracking-widest text-stone-400">
-          <Link href="/layering" className="hover:text-stone-900 transition">Layering Lab</Link>
-          <Link href="/quiz" className="hover:text-stone-900 transition text-stone-900">Scent Quiz</Link>
+      {/* 1. CENTERED HEADER SECTION */}
+      <div className="max-w-4xl mx-auto px-6 py-12 text-center">
+        {/* Title */}
+        <h1 className="text-5xl md:text-6xl font-serif font-medium text-stone-900 mb-8 leading-tight">
+          Perfume Intuition
+        </h1>
+        
+        {/* Search Bar */}
+        <div className="max-w-md mx-auto mb-12">
+          <SearchBar />
         </div>
-      </nav>
-
-      {/* 2. HERO SPOTLIGHT */}
-      <div className="max-w-[1400px] mx-auto px-6 py-12 mb-20">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-           <div className="order-2 md:order-1 text-center md:text-left">
-              <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-stone-400 mb-4 block">Featured Essence</span>
-              <h1 className="text-5xl md:text-7xl font-serif text-stone-900 mb-6 leading-none">Black Opium Over Red</h1>
-              <p className="text-stone-500 max-w-md mb-8 leading-relaxed mx-auto md:mx-0">
-                A captivating blend of warmth and mystery. The perfect signature scent for those who appreciate depth and sophistication.
-              </p>
-              <Link 
-                href="/perfume/search?q=Black%20Opium" 
-                className="inline-block bg-stone-900 text-white px-8 py-4 rounded-full text-xs font-bold uppercase tracking-widest hover:scale-105 transition shadow-lg"
-              >
-                Discover Your Scent
-              </Link>
-           </div>
-           
-           {/* Dynamic Hero Image */}
-           <div className="order-1 md:order-2 h-[400px] md:h-[500px] flex items-center justify-center relative">
-              {perfumes.find(p => p.name.includes('Black Opium')) && (
-                <img 
-                  src={perfumes.find(p => p.name.includes('Black Opium'))?.image_url} 
-                  className="h-full w-full object-contain mix-blend-multiply drop-shadow-2xl" 
-                />
-              )}
-           </div>
-        </div>
-      </div>
-
-      {/* 3. TOOLS NAVIGATION */}
-      <div className="max-w-5xl mx-auto px-6 grid md:grid-cols-4 gap-6 mb-24">
-         <Link href="/quiz" className="bg-white p-8 rounded-2xl border border-stone-100 shadow-sm hover:shadow-md transition text-center group">
-            <div className="text-3xl mb-4 group-hover:scale-110 transition">🧬</div>
-            <h3 className="font-serif text-xl mb-2">Scent Quiz</h3>
+        
+        {/* Tool Cards */}
+        <div className="grid md:grid-cols-3 gap-6 max-w-3xl mx-auto">
+          <Link href="/quiz" className="bg-white p-6 rounded-2xl border border-stone-100 shadow-sm hover:bg-stone-50 transition text-center group">
+            <h3 className="font-serif text-xl mb-1">Scent Quiz</h3>
             <p className="text-xs text-stone-400">Find your signature scent based on your personality.</p>
-         </Link>
-         
-         <Link href="/layering" className="bg-white p-8 rounded-2xl border border-stone-100 shadow-sm hover:shadow-md transition text-center group">
-            <div className="text-3xl mb-4 group-hover:scale-110 transition">⚗️</div>
-            <h3 className="font-serif text-xl mb-2">Layering Lab</h3>
+          </Link>
+          
+          <Link href="/layering" className="bg-white p-6 rounded-2xl border border-stone-100 shadow-sm hover:bg-stone-50 transition text-center group">
+            <h3 className="font-serif text-xl mb-1">Layering Lab</h3>
             <p className="text-xs text-stone-400">Mix two perfumes to create something unique.</p>
-         </Link>
+          </Link>
 
-         <Link href="/ingredients/combine" className="bg-white p-8 rounded-2xl border border-stone-100 shadow-sm hover:shadow-md transition text-center group">
-            <div className="text-3xl mb-4 group-hover:scale-110 transition">🧪</div>
-            <h3 className="font-serif text-xl mb-2">Ingredient Combiner</h3>
+          <Link href="/ingredients/combine" className="bg-white p-6 rounded-2xl border border-stone-100 shadow-sm hover:bg-stone-50 transition text-center group">
+            <h3 className="font-serif text-xl mb-1">Ingredient Combiner</h3>
             <p className="text-xs text-stone-400">Find perfumes with multiple specific notes.</p>
-         </Link>
-
-         <div className="bg-white p-8 rounded-2xl border border-stone-100 shadow-sm hover:shadow-md transition text-center group relative overflow-visible">
-            <div className="text-3xl mb-4 group-hover:scale-110 transition">🔍</div>
-            <h3 className="font-serif text-xl mb-2">Smart Search</h3>
-            <div className="absolute left-4 right-4 bottom-4">
-               {/* Search bar is visual here, real functionality is in header/overlay usually */}
-            </div>
-            <p className="text-xs text-stone-400">Search by notes, brands, or vibes instantly.</p>
-         </div>
+          </Link>
+        </div>
       </div>
 
       {/* 4. CURATED ROWS */}

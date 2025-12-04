@@ -9,9 +9,11 @@ interface Perfume {
   id: string;
   name: string;
   image_url: string;
+  price_tier?: string;
   brand: {
     name: string;
   };
+  ingredient_positions?: Record<string, string>;
 }
 
 interface Note {
@@ -160,6 +162,13 @@ export default function CombineIngredientsPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {perfumes.map((p) => (
                       <Link key={p.id} href={`/perfume/${p.id}`} className="group block bg-white rounded-xl p-4 hover:shadow-xl transition duration-500 border border-transparent hover:border-stone-100">
+                        {/* Price badge */}
+                        {p.price_tier && (
+                          <div className="absolute top-3 right-3 bg-stone-900 text-white px-2 py-1 rounded-full text-[10px] font-bold tracking-widest">
+                            {p.price_tier}
+                          </div>
+                        )}
+                        
                         <div className="h-48 mb-4 overflow-hidden flex items-center justify-center p-2">
                           {p.image_url ? (
                             <img src={p.image_url} className="h-full object-contain group-hover:scale-110 transition duration-700" />
@@ -167,6 +176,7 @@ export default function CombineIngredientsPage() {
                             <div className="text-stone-300 text-xs">No Image</div>
                           )}
                         </div>
+                        
                         <div className="text-center">
                           <button
                             onClick={(e) => {
@@ -178,7 +188,18 @@ export default function CombineIngredientsPage() {
                           >
                             {p.brand?.name}
                           </button>
-                          <div className="font-serif text-lg text-stone-900 leading-tight group-hover:text-stone-600 transition">{p.name}</div>
+                          
+                          <div className="font-serif text-lg text-stone-900 leading-tight group-hover:text-stone-600 transition mb-2">
+                            {p.name}
+                          </div>
+                          
+                          {/* Ingredient positions */}
+                          {p.ingredient_positions && Object.entries(p.ingredient_positions).map(([ingredient, position]) => (
+                            <div key={ingredient} className="text-xs text-stone-500 mb-1">
+                              <span className="font-medium capitalize">{ingredient}</span>
+                              <span className="text-stone-400 ml-1">({position})</span>
+                            </div>
+                          ))}
                         </div>
                       </Link>
                     ))}

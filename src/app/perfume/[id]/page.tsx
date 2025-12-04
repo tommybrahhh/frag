@@ -312,14 +312,14 @@ export default function PerfumeDetail() {
     fetchData();
   }, [params?.id]);
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#FDFBF7] text-gray-500">Loading essence...</div>;
-  if (!perfume) return <div className="min-h-screen flex items-center justify-center bg-[#FDFBF7]">Perfume not found.</div>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-white text-gray-500">Loading essence...</div>;
+  if (!perfume) return <div className="min-h-screen flex items-center justify-center bg-white">Perfume not found.</div>;
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] text-gray-800 pb-20 font-sans selection:bg-stone-900 selection:text-white">
-      
+    <div className="min-h-screen bg-white text-gray-800 pb-20 font-sans selection:bg-stone-900 selection:text-white">
+
       {/* Navbar */}
-      <div className="px-6 py-4 sticky top-0 bg-[#FDFBF7]/90 backdrop-blur-md z-20 flex justify-between items-center border-b border-stone-200">
+      <div className="px-6 py-4 sticky top-0 bg-white/90 backdrop-blur-md z-20 flex justify-between items-center border-b border-stone-200">
         <Link href="/" className="text-xs font-semibold uppercase tracking-widest hover:opacity-60 transition">← Collection</Link>
         <span className="text-[10px] font-mono uppercase tracking-widest text-stone-400">Perfume Intuition</span>
       </div>
@@ -330,7 +330,7 @@ export default function PerfumeDetail() {
         {/* LEFT: Image */}
         <div className="bg-white rounded-3xl h-[400px] flex items-center justify-center relative shadow-sm border border-stone-100 p-10">
           {perfume.image_url ? (
-            <img src={perfume.image_url} alt={perfume.name} className="h-full w-full object-contain drop-shadow-2xl" />
+            <img src={perfume.image_url} alt={perfume.name} className="h-full w-full object-contain mix-blend-multiply drop-shadow-2xl" />
           ) : (
              <span className="text-stone-300 font-serif italic">No Image Available</span>
           )}
@@ -521,7 +521,7 @@ export default function PerfumeDetail() {
               {dupes.map((d: any) => (
                 <Link key={d.dupe_id} href={`/perfume/${d.dupe_id}`} className="flex items-center gap-6 p-6 border border-stone-200 rounded-xl hover:border-stone-400 transition bg-white shadow-sm group">
                    <div className="w-20 h-24 flex-shrink-0 p-2 bg-stone-50 rounded-lg flex items-center justify-center">
-                      {d.dupe_image_url ? <img src={d.dupe_image_url} className="h-full object-contain group-hover:scale-105 transition" /> : <div className="text-stone-300 text-xs">No Image</div>}
+                      {d.dupe_image_url ? <img src={d.dupe_image_url} className="h-full object-contain mix-blend-multiply group-hover:scale-105 transition" /> : <div className="text-stone-300 text-xs">No Image</div>}
                    </div>
                    <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-2 mb-2">
@@ -622,110 +622,189 @@ export default function PerfumeDetail() {
                     {category.description}
                   </p>
                   
-                  {/* Filtered and sorted recommendations */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {category.recommendations
-                      .filter(rec => {
-                        if (priceFilter === 'all') return true;
-                        if (priceFilter === 'cheaper') return rec.priceComparison === 'cheaper';
-                        if (priceFilter === 'similar') return rec.priceComparison === 'similar';
-                        if (priceFilter === 'premium') return rec.priceComparison === 'premium';
-                        return true;
-                      })
-                      .sort((a, b) => {
-                        if (sortBy === 'score') return b.score - a.score;
-                        if (sortBy === 'price') {
-                          const getPriceValue = (tier: string) => tier?.split('$').length - 1 || 0;
-                          const aPrice = getPriceValue(a.perfume.price_tier);
-                          const bPrice = getPriceValue(b.perfume.price_tier);
-                          return aPrice - bPrice;
-                        }
-                        if (sortBy === 'name') {
-                          return a.perfume.name.localeCompare(b.perfume.name);
-                        }
-                        return 0;
-                      })
-                      .map((rec) => (
-                      <Link
-                        key={rec.perfume.id}
-                        href={`/perfume/${rec.perfume.id}`}
-                        className="group block bg-white rounded-xl p-4 hover:shadow-xl transition duration-500 border border-stone-100 hover:border-stone-300 relative"
-                      >
-                        {/* Compare button */}
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            router.push(`/compare?a=${perfume.id}&b=${rec.perfume.id}`);
-                          }}
-                          className="absolute top-2 right-2 bg-white border border-stone-200 text-[10px] font-bold px-2 py-1 rounded hover:bg-stone-900 hover:text-white transition z-10 cursor-pointer"
+                  {/* Special handling for seasonal recommendations */}
+                  {category.type === 'seasonal' ? (
+                    // Group seasonal recommendations by season
+                    <div className="space-y-8">
+                      {Object.entries(
+                        category.recommendations.reduce((groups: Record<string, any[]>, rec) => {
+                          const season = rec.reason;
+                          if (!groups[season]) groups[season] = [];
+                          groups[season].push(rec);
+                          return groups;
+                        }, {})
+                      ).map(([season, seasonPerfumes]) => (
+                        <div key={season}>
+                          <h4 className="font-serif text-xl text-stone-800 mb-4 border-b border-stone-200 pb-2">
+                            {season} Season
+                          </h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {seasonPerfumes.map((rec) => (
+                              <Link
+                                key={rec.perfume.id}
+                                href={`/perfume/${rec.perfume.id}`}
+                                className="group block bg-white rounded-xl p-4 hover:shadow-xl transition duration-500 border border-stone-100 hover:border-stone-300 relative"
+                              >
+                                {/* Compare button */}
+                                <button
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    router.push(`/compare?a=${perfume.id}&b=${rec.perfume.id}`);
+                                  }}
+                                  className="absolute bottom-4 right-4 bg-white border border-stone-200 text-[10px] font-bold px-3 py-1 rounded-full hover:bg-stone-900 hover:text-white transition z-10 cursor-pointer shadow-sm"
+                                >
+                                  VS
+                                </button>
+                                
+                                {/* Brand */}
+                                <div className="flex justify-between items-start mb-4">
+                                  <span className="text-[9px] font-bold tracking-widest text-stone-400 uppercase truncate">
+                                    {rec.perfume.brand?.name}
+                                  </span>
+                                </div>
+                                
+                                {/* Image */}
+                                <div className="h-40 mb-4 overflow-hidden flex items-center justify-center p-2">
+                                  {rec.perfume.image_url ? (
+                                    <img
+                                      src={rec.perfume.image_url}
+                                      className="h-full object-contain mix-blend-multiply group-hover:scale-110 transition duration-700"
+                                      alt={rec.perfume.name}
+                                    />
+                                  ) : (
+                                    <div className="text-stone-300 text-xs">No Image</div>
+                                  )}
+                                </div>
+                                
+                                {/* Content */}
+                                <div>
+                                  <div className="font-serif text-lg text-stone-900 leading-tight mb-2 group-hover:text-stone-600 transition truncate">
+                                    {rec.perfume.name}
+                                  </div>
+                                  
+                                  {/* Shared notes/vibes */}
+                                  {rec.sharedVibes && rec.sharedVibes.length > 0 && (
+                                    <div className="text-[10px] text-stone-400 mt-1">
+                                      <span className="font-medium">Vibes: </span>
+                                      {rec.sharedVibes.join(', ')}
+                                    </div>
+                                  )}
+                                </div>
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {category.recommendations
+                        .filter(rec => {
+                          if (priceFilter === 'all') return true;
+                          if (priceFilter === 'cheaper') return rec.priceComparison === 'cheaper';
+                          if (priceFilter === 'similar') return rec.priceComparison === 'similar';
+                          if (priceFilter === 'premium') return rec.priceComparison === 'premium';
+                          return true;
+                        })
+                        .sort((a, b) => {
+                          if (sortBy === 'score') return b.score - a.score;
+                          if (sortBy === 'price') {
+                            const getPriceValue = (tier: string) => tier?.split('$').length - 1 || 0;
+                            const aPrice = getPriceValue(a.perfume.price_tier);
+                            const bPrice = getPriceValue(b.perfume.price_tier);
+                            return aPrice - bPrice;
+                          }
+                          if (sortBy === 'name') {
+                            return a.perfume.name.localeCompare(b.perfume.name);
+                          }
+                          return 0;
+                        })
+                        .map((rec) => (
+                        <Link
+                          key={rec.perfume.id}
+                          href={`/perfume/${rec.perfume.id}`}
+                          className="group block bg-white border border-stone-100 rounded-xl p-4 hover:border-stone-300 transition-all relative h-full"
                         >
-                          VS
-                        </button>
-                        
-                        {/* Brand and score */}
-                        <div className="flex justify-between items-start mb-4">
-                          <span className="text-[9px] font-bold tracking-widest text-stone-400 uppercase truncate">
-                            {rec.perfume.brand?.name}
-                          </span>
-                          <span className="text-[9px] font-bold text-stone-600 bg-stone-100 px-2 py-0.5 rounded">
-                            {rec.score}%
-                          </span>
-                        </div>
-                        
-                        {/* Image */}
-                        <div className="h-40 mb-4 overflow-hidden flex items-center justify-center p-2">
-                          {rec.perfume.image_url ? (
-                            <img
-                              src={rec.perfume.image_url}
-                              className="h-full object-contain group-hover:scale-110 transition duration-700"
-                              alt={rec.perfume.name}
-                            />
-                          ) : (
-                            <div className="text-stone-300 text-xs">No Image</div>
-                          )}
-                        </div>
-                        
-                        {/* Content */}
-                        <div>
-                          <div className="font-serif text-lg text-stone-900 leading-tight mb-2 group-hover:text-stone-600 transition truncate">
-                            {rec.perfume.name}
+                          {/* Card Header */}
+                          <div className="flex justify-between items-start mb-4">
+                            <div className="text-[10px] font-bold tracking-widest text-stone-400 uppercase">
+                              {rec.perfume.brand?.name}
+                            </div>
+                            {/* Match Score Badge - only show for non-seasonal, non-same-brand */}
+                            {rec.type !== 'same-brand' && rec.type !== 'seasonal' && (
+                              <div className="bg-stone-100 text-stone-600 text-[10px] font-bold px-2 py-1 rounded">
+                                {rec.score}% Match
+                              </div>
+                            )}
                           </div>
-                          <div className="text-xs text-stone-500 mb-2 italic">
-                            {rec.reason}
+
+                          {/* Card Image */}
+                          <div className="h-40 flex items-center justify-center mb-4">
+                            {rec.perfume.image_url ? (
+                              <img
+                                src={rec.perfume.image_url}
+                                alt={rec.perfume.name}
+                                className="h-full object-contain mix-blend-multiply group-hover:scale-105 transition duration-500"
+                              />
+                            ) : (
+                              <div className="text-xs text-stone-300">No Image</div>
+                            )}
                           </div>
-                          
-                          {/* Shared notes/vibes */}
-                          {rec.sharedNotes && rec.sharedNotes.length > 0 && (
-                            <div className="text-[10px] text-stone-400">
-                              <span className="font-medium">Notes: </span>
-                              {rec.sharedNotes.join(', ')}
-                            </div>
-                          )}
-                          {rec.sharedVibes && rec.sharedVibes.length > 0 && (
-                            <div className="text-[10px] text-stone-400 mt-1">
-                              <span className="font-medium">Vibes: </span>
-                              {rec.sharedVibes.join(', ')}
-                            </div>
-                          )}
-                          
-                          {/* Price comparison badge */}
-                          {rec.priceComparison && (
-                            <div className={`mt-2 text-[9px] font-bold px-2 py-0.5 rounded-full inline-block ${
-                              rec.priceComparison === 'cheaper'
-                                ? 'bg-green-100 text-green-700 border border-green-200'
-                                : rec.priceComparison === 'premium'
-                                ? 'bg-blue-100 text-blue-700 border border-blue-200'
-                                : 'bg-stone-100 text-stone-600 border border-stone-200'
-                            }`}>
-                              {rec.priceComparison === 'cheaper' ? '💰 More affordable' :
-                               rec.priceComparison === 'premium' ? '💎 Premium' : 'Similar price'}
-                            </div>
-                          )}
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
+
+                          {/* Card Info */}
+                          <div className="mb-8">
+                            <h4 className="font-serif text-lg text-stone-900 leading-tight mb-1 group-hover:text-stone-600 transition">
+                              {rec.perfume.name}
+                            </h4>
+                            <p className="text-xs text-stone-500 italic line-clamp-2">
+                              {rec.reason}
+                            </p>
+                            
+                            {/* Extra Info (Notes/Vibes) */}
+                            {rec.sharedNotes && rec.sharedNotes.length > 0 && (
+                              <div className="mt-2 text-[10px] text-stone-400">
+                                <span className="font-medium">Notes: </span>
+                                {rec.sharedNotes.slice(0, 3).join(', ')}
+                              </div>
+                            )}
+                            {rec.sharedVibes && rec.sharedVibes.length > 0 && (
+                              <div className="mt-1 text-[10px] text-stone-400">
+                                <span className="font-medium">Vibes: </span>
+                                {rec.sharedVibes.slice(0, 2).join(', ')}
+                              </div>
+                            )}
+                            
+                            {/* Price comparison badge */}
+                            {rec.priceComparison && (
+                              <div className={`mt-2 text-[9px] font-bold px-2 py-0.5 rounded-full inline-block ${
+                                rec.priceComparison === 'cheaper'
+                                  ? 'bg-green-100 text-green-700 border border-green-200'
+                                  : rec.priceComparison === 'premium'
+                                  ? 'bg-blue-100 text-blue-700 border border-blue-200'
+                                  : 'bg-stone-100 text-stone-600 border border-stone-200'
+                              }`}>
+                                {rec.priceComparison === 'cheaper' ? '💰 More affordable' :
+                                 rec.priceComparison === 'premium' ? '💎 Premium' : 'Similar price'}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* VS Button positioned absolutely at bottom-right */}
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault(); // Prevent card link navigation
+                              e.stopPropagation(); // Stop event bubbling
+                              router.push(`/compare?a=${perfume.id}&b=${rec.perfume.id}`);
+                            }}
+                            className="absolute bottom-4 right-4 bg-white border border-stone-200 text-stone-600 text-[10px] font-bold px-3 py-1.5 rounded hover:bg-stone-900 hover:text-white hover:border-stone-900 transition-colors z-10 cursor-pointer shadow-sm"
+                          >
+                            VS
+                          </button>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
           </div>

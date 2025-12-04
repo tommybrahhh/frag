@@ -90,41 +90,55 @@ export class RecommendationEngine {
   private static getSimilarRecommendations(mainPerfume: any, allPerfumes: any[], count: number = 6): Recommendation[] {
     const mainProfile = this.analyzeScentProfile(mainPerfume);
     
+    // Calculate maximum possible score for normalization
+    const maxNotesScore = mainProfile.notes.length * 15;
+    const maxVibesScore = mainProfile.vibes.length * 10;
+    const maxFamiliesScore = mainProfile.dominantFamilies.length * 25;
+    const maxBrandScore = 20; // Brand bonus
+    const maxSeasonsScore = mainPerfume.best_season?.length * 8 || 0;
+    
+    const maxPossibleScore = maxNotesScore + maxVibesScore + maxFamiliesScore + maxBrandScore + maxSeasonsScore;
+    
     return allPerfumes
       .filter(p => p.id !== mainPerfume.id)
       .map(candidate => {
         const candidateProfile = this.analyzeScentProfile(candidate);
         
-        // Calculate similarity score
-        let score = 0;
+        // Calculate raw similarity score
+        let rawScore = 0;
         const sharedNotes = mainProfile.notes.filter((note: string) => candidateProfile.notes.includes(note));
         const sharedVibes = mainProfile.vibes.filter((vibe: string) => candidateProfile.vibes.includes(vibe));
-        const sharedFamilies = mainProfile.dominantFamilies.filter(family => 
+        const sharedFamilies = mainProfile.dominantFamilies.filter(family =>
           candidateProfile.dominantFamilies.includes(family)
         );
 
-        score += sharedNotes.length * 15;
-        score += sharedVibes.length * 10;
-        score += sharedFamilies.length * 25;
+        rawScore += sharedNotes.length * 15;
+        rawScore += sharedVibes.length * 10;
+        rawScore += sharedFamilies.length * 25;
 
         // Brand bonus
         if (mainPerfume.brand?.name === candidate.brand?.name) {
-          score += 20;
+          rawScore += 20;
         }
 
         // Season compatibility
-        const sharedSeasons = mainPerfume.best_season?.filter((s: string) => 
+        const sharedSeasons = mainPerfume.best_season?.filter((s: string) =>
           candidate.best_season?.includes(s)
         ) || [];
-        score += sharedSeasons.length * 8;
+        rawScore += sharedSeasons.length * 8;
+
+        // Normalize score to 0-100 scale
+        const normalizedScore = maxPossibleScore > 0
+          ? Math.min(100, Math.round((rawScore / maxPossibleScore) * 100))
+          : 0;
 
         return {
           perfume: candidate,
           type: 'similar' as const,
-          score,
-          reason: sharedFamilies.length > 0 
-            ? `Shares ${sharedFamilies.join(', ')} scent family` 
-            : sharedNotes.length > 0 
+          score: normalizedScore,
+          reason: sharedFamilies.length > 0
+            ? `Shares ${sharedFamilies.join(', ')} scent family`
+            : sharedNotes.length > 0
               ? `Shares ${sharedNotes.slice(0, 3).join(', ')} notes`
               : 'Similar vibe profile',
           sharedNotes: sharedNotes.slice(0, 5),
@@ -135,20 +149,110 @@ export class RecommendationEngine {
       .slice(0, count);
   }
 
-  // Complementary recommendations using alchemy rules
+  // Complementary recommendations with scent description for layering
   private static getComplementaryRecommendations(mainPerfume: any, allPerfumes: any[], count: number = 4): Recommendation[] {
+    const mainProfile = this.analyzeScentProfile(mainPerfume);
+    
+    // Scent combination descriptions
+    const combinationDescriptions: Record<string, string> = {
+      'Fresh+Oriental': 'creates a sparkling oriental with bright top notes',
+      'Citrus+Woody': 'combines zesty freshness with warm, earthy depth',
+      'Floral+Spicy': 'adds warmth and complexity to delicate florals',
+      'Gourmand+Fresh': 'balances sweetness with refreshing counterpoints',
+      'Woody+Citrus': 'grounds citrus notes with woody sophistication',
+      'Oriental+Fresh': 'adds airy freshness to rich oriental bases',
+      'Floral+Woody': 'creates a sophisticated floral-woody harmony',
+      'Spicy+Sweet': 'tempers sweetness with spicy complexity',
+      'Aquatic+Amber': 'combines marine freshness with warm amber glow',
+      'Fruity+Woody': 'adds natural sweetness to woody compositions',
+      'Green+Floral': 'creates a fresh, natural floral bouquet',
+      'Leather+Floral': 'adds intriguing contrast to delicate florals'
+    };
+    
     return allPerfumes
       .filter(p => p.id !== mainPerfume.id)
       .map(candidate => {
+        const candidateProfile = this.analyzeScentProfile(candidate);
         const mixResult = mixPerfumes(mainPerfume, candidate);
+        
+        // Layering-focused scoring (0-100 scale)
+        let layeringScore = 50; // Start with neutral base
+        
+        // 1. Complementary scent families (weighted most heavily)
+        const complementaryFamilyPairs = [
+          ['Fresh', 'Oriental'], ['Citrus', 'Woody'], ['Floral', 'Spicy'],
+          ['Gourmand', 'Fresh'], ['Woody', 'Citrus'], ['Oriental', 'Fresh'],
+          ['Floral', 'Woody'], ['Spicy', 'Sweet'], ['Aquatic', 'Amber'],
+          ['Fruity', 'Woody'], ['Green', 'Floral'], ['Leather', 'Floral']
+        ];
+        
+        let familyScore = 0;
+        let combinationKey = '';
+        
+        mainProfile.dominantFamilies.forEach(mainFamily => {
+          candidateProfile.dominantFamilies.forEach(candidateFamily => {
+            const pairKey = `${mainFamily}+${candidateFamily}`;
+            const reverseKey = `${candidateFamily}+${mainFamily}`;
+            
+            if (complementaryFamilyPairs.some(pair =>
+              (pair[0] === mainFamily && pair[1] === candidateFamily) ||
+              (pair[1] === mainFamily && pair[0] === candidateFamily)
+            )) {
+              familyScore += 20;
+              combinationKey = combinationDescriptions[pairKey] || combinationDescriptions[reverseKey] || '';
+            } else if (mainFamily === candidateFamily) {
+              familyScore -= 10; // Penalty for same family
+            }
+          });
+        });
+        
+        // 2. Note diversity and harmony
+        const uniqueNotes = new Set([...mainProfile.notes, ...candidateProfile.notes]);
+        const noteDiversityScore = Math.min(25, (uniqueNotes.size - Math.min(mainProfile.notes.length, candidateProfile.notes.length)) * 5);
+        
+        // 3. Safety adjustment from alchemy
+        const safetyAdjustment = (mixResult.safety - 50) * 0.3;
+        
+        // 4. Season compatibility
+        const sharedSeasons = mainPerfume.best_season?.filter((s: string) =>
+          candidate.best_season?.includes(s)
+        ) || [];
+        const seasonScore = Math.min(10, sharedSeasons.length * 3);
+        
+        // Calculate final layering score
+        const finalScore = Math.min(95, Math.max(40,
+          layeringScore + familyScore + noteDiversityScore + safetyAdjustment + seasonScore
+        ));
+        
+        // Generate scent description and layering guidance
+        let scentDescription = '';
+        let layeringGuidance = '';
+        
+        if (finalScore >= 85) {
+          scentDescription = `Perfect pairing - ${combinationKey || 'exceptional harmony'}`;
+          layeringGuidance = 'Apply base first, wait 2 minutes, then layer complement';
+        } else if (finalScore >= 70) {
+          scentDescription = `Great combination - ${combinationKey || 'harmonious blend'}`;
+          layeringGuidance = '70% base + 30% complement creates balanced depth';
+        } else if (finalScore >= 55) {
+          scentDescription = `Interesting mix - ${combinationKey || 'intriguing contrast'}`;
+          layeringGuidance = 'Test on skin first, apply lightly to pulse points';
+        } else {
+          scentDescription = `Experimental pairing - ${combinationKey || 'bold combination'}`;
+          layeringGuidance = 'Use sparingly, focus on single application points';
+        }
+        
+        // Add specific note combinations if available
+        const sharedNotes = mainProfile.notes.filter((note: string) => candidateProfile.notes.includes(note));
+        if (sharedNotes.length > 0) {
+          scentDescription += ` with shared ${sharedNotes.slice(0, 2).join(', ')} notes`;
+        }
         
         return {
           perfume: candidate,
           type: 'complementary' as const,
-          score: mixResult.safety,
-          reason: mixResult.safety >= 70 
-            ? `Creates harmonious blend (${mixResult.safety}% compatibility)`
-            : `Experimental combination (${mixResult.safety}% compatibility)`,
+          score: Math.round(finalScore),
+          reason: `${scentDescription}. ${layeringGuidance}`,
           sharedVibes: mixResult.combinedVibes.slice(0, 3)
         };
       })
@@ -166,42 +270,47 @@ export class RecommendationEngine {
       .map(candidate => ({
         perfume: candidate,
         type: 'same-brand' as const,
-        score: 80, // Base score for same brand
-        reason: `From the same house: ${mainBrand}`,
-        sharedVibes: mainPerfume.vibe_tags?.filter((v: string) => 
+        score: 0, // No percentage score needed
+        reason: '',
+        sharedVibes: mainPerfume.vibe_tags?.filter((v: string) =>
           candidate.vibe_tags?.includes(v)
         )?.slice(0, 3) || []
       }))
-      .sort((a, b) => b.score - a.score)
       .slice(0, count);
   }
 
-  // Seasonal alternatives
-  private static getSeasonalRecommendations(mainPerfume: any, allPerfumes: any[], count: number = 4): Recommendation[] {
-    const mainSeasons = mainPerfume.best_season || [];
+  // Seasonal alternatives grouped by season
+  private static getSeasonalRecommendations(mainPerfume: any, allPerfumes: any[], count: number = 6): Recommendation[] {
+    const mainSeasons: string[] = mainPerfume.best_season || [];
     if (mainSeasons.length === 0) return [];
 
-    return allPerfumes
-      .filter(p => p.id !== mainPerfume.id)
-      .map(candidate => {
-        const sharedSeasons = mainSeasons.filter((s: string) => 
-          candidate.best_season?.includes(s)
-        );
-        
-        return {
-          perfume: candidate,
+    // Group perfumes by season
+    const seasonalGroups: Record<string, any[]> = {};
+    
+    mainSeasons.forEach((season: string) => {
+      seasonalGroups[season] = allPerfumes
+        .filter((p: any) => p.id !== mainPerfume.id && p.best_season?.includes(season))
+        .slice(0, 3); // Limit to 3 perfumes per season
+    });
+
+    // Flatten and format recommendations
+    const recommendations: Recommendation[] = [];
+    
+    Object.entries(seasonalGroups).forEach(([season, perfumes]) => {
+      perfumes.forEach((perfume: any) => {
+        recommendations.push({
+          perfume,
           type: 'seasonal' as const,
-          score: sharedSeasons.length * 25,
-          reason: sharedSeasons.length > 0 
-            ? `Perfect for ${sharedSeasons.join(', ')} seasons`
-            : 'Seasonally versatile',
-          sharedVibes: mainPerfume.vibe_tags?.filter((v: string) => 
-            candidate.vibe_tags?.includes(v)
+          score: 0, // No percentage score
+          reason: season, // Use season as reason for grouping
+          sharedVibes: mainPerfume.vibe_tags?.filter((v: string) =>
+            perfume.vibe_tags?.includes(v)
           )?.slice(0, 2) || []
-        };
-      })
-      .sort((a, b) => b.score - a.score)
-      .slice(0, count);
+        });
+      });
+    });
+
+    return recommendations.slice(0, count);
   }
 
   // Price alternatives

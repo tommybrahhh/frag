@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 export default function SearchBar() {
+  const router = useRouter();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<any[]>([]);
   const [isOpen, setIsOpen] = useState(false);
@@ -82,7 +83,7 @@ export default function SearchBar() {
               key={perfume.id} 
               href={`/perfume/${perfume.id}`}
               onClick={() => setIsOpen(false)}
-              className="flex items-center gap-4 p-3 hover:bg-stone-50 transition border-b border-stone-50 last:border-0"
+              className="flex items-center gap-4 p-3 hover:bg-stone-50 transition border-b border-stone-50 last:border-0 group"
             >
               {/* Tiny Image */}
               <div className="w-10 h-10 bg-white rounded-md border border-stone-100 flex items-center justify-center overflow-hidden">
@@ -96,13 +97,19 @@ export default function SearchBar() {
               {/* Text Info */}
               <div>
                 <div className="text-sm font-serif text-stone-800">{perfume.name}</div>
-                <Link
-                  href={`/brands/${encodeURIComponent(perfume.brand?.name || 'Unknown House')}`}
-                  className="text-[10px] font-bold tracking-widest text-stone-400 uppercase hover:text-stone-600 transition-colors"
-                  onClick={(e) => e.stopPropagation()}
+                
+                {/* FIX: Changed nested Link to Button */}
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setIsOpen(false);
+                    router.push(`/brands/${encodeURIComponent(perfume.brand?.name || 'Unknown House')}`);
+                  }}
+                  className="text-[10px] font-bold tracking-widest text-stone-400 uppercase hover:text-stone-600 transition-colors text-left"
                 >
                   {perfume.brand?.name}
-                </Link>
+                </button>
               </div>
             </Link>
           ))}

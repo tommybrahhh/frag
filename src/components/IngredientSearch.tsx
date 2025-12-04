@@ -37,10 +37,29 @@ export default function IngredientSearch({ onIngredientsChange, selectedIngredie
   // Fetch Logic (Debounced slightly by manual typing speed)
   useEffect(() => {
     const fetchResults = async () => {
-      if (query.length < 2) {
-        setResults([]);
+      // Always show popular ingredients when input is empty, regardless of selected ingredients
+      if (query.length === 0) {
+        setLoading(true);
+        try {
+          const res = await fetch('/api/notes/popular');
+          const data = await res.json();
+          setResults(data);
+          setIsOpen(true);
+        } catch (err) {
+          console.error('Failed to fetch popular ingredients:', err);
+          setResults([]);
+        } finally {
+          setLoading(false);
+        }
         return;
       }
+
+      if (query.length < 2) {
+        setResults([]);
+        setIsOpen(false);
+        return;
+      }
+      
       setLoading(true);
       try {
         const res = await fetch(`/api/notes/search?q=${query}`);
@@ -100,7 +119,7 @@ export default function IngredientSearch({ onIngredientsChange, selectedIngredie
           placeholder="Add an ingredient..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          onFocus={() => query.length >= 2 && setIsOpen(true)}
+          onFocus={() => setIsOpen(true)}
           className="w-full bg-white border border-stone-200 text-stone-800 text-sm px-4 py-3 pl-10 rounded-full outline-none focus:border-stone-400 focus:shadow-sm transition-all placeholder:text-stone-400"
         />
         {/* Search Icon */}
@@ -110,38 +129,46 @@ export default function IngredientSearch({ onIngredientsChange, selectedIngredie
       </div>
 
       {/* Results Dropdown */}
-      {isOpen && (results.length > 0 || loading) && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-stone-100 overflow-hidden z-50">
-          
-          {loading && (
-            <div className="p-4 text-center text-xs text-stone-400 tracking-widest">SEARCHING...</div>
-          )}
+     {isOpen && (results.length > 0 || loading) && (
+       <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-stone-100 overflow-hidden z-50 max-h-64 overflow-y-auto">
+         
+         {loading && (
+           <div className="p-4 text-center text-xs text-stone-400 tracking-widest">SEARCHING...</div>
+         )}
 
-          {!loading && results.length === 0 && (
-            <div className="p-4 text-center text-xs text-stone-400 italic">No ingredients found.</div>
-          )}
+         {!loading && query.length === 0 && results.length > 0 && (
+           <div className="p-3 border-b border-stone-100 bg-stone-50 sticky top-0">
+             <div className="text-xs font-medium text-stone-500 uppercase tracking-wider">
+               {selectedIngredients.length === 0 ? 'Popular Ingredients' : 'Search Ingredients'}
+             </div>
+           </div>
+         )}
 
-          {!loading && results.map((note) => (
-            <button
-              key={note.id}
-              onClick={() => addIngredient(note.name)}
-              className="w-full flex items-center gap-3 p-3 hover:bg-stone-50 transition border-b border-stone-50 last:border-0 text-left"
-            >
-              {/* Color indicator */}
-              <div 
-                className="w-4 h-4 rounded-full border-2 border-stone-100"
-                style={{ backgroundColor: note.color_hex || '#ddd' }}
-              ></div>
-              
-              {/* Text Info */}
-              <div className="flex-1">
-                <div className="text-sm font-serif text-stone-800 capitalize">{note.name}</div>
-                <div className="text-xs text-stone-400 capitalize">{note.family} Family</div>
-              </div>
-            </button>
-          ))}
-        </div>
-      )}
+         {!loading && results.length === 0 && query.length > 0 && (
+           <div className="p-4 text-center text-xs text-stone-400 italic">No ingredients found.</div>
+         )}
+
+         {!loading && results.map((note) => (
+           <button
+             key={note.id}
+             onClick={() => addIngredient(note.name)}
+             className="w-full flex items-center gap-3 p-3 hover:bg-stone-50 transition border-b border-stone-50 last:border-0 text-left"
+           >
+             {/* Color indicator */}
+             <div
+               className="w-4 h-4 rounded-full border-2 border-stone-100"
+               style={{ backgroundColor: note.color_hex || '#ddd' }}
+             ></div>
+             
+             {/* Text Info */}
+             <div className="flex-1">
+               <div className="text-sm font-serif text-stone-800 capitalize">{note.name}</div>
+               <div className="text-xs text-stone-400 capitalize">{note.family} Family</div>
+             </div>
+           </button>
+         ))}
+       </div>
+     )}
     </div>
   );
 }

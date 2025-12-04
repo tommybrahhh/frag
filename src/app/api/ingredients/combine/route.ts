@@ -42,8 +42,13 @@ export async function GET(request: Request) {
         id,
         name,
         image_url,
+        price_tier,
         brand:brands!perfumes_brand_id_fkey(name),
-        perfume_notes!inner(note_id)
+        perfume_notes!inner(
+          note_id,
+          type,
+          note:notes(name)
+        )
       `)
       .in('perfume_notes.note_id', noteIds)
       .limit(50);
@@ -58,13 +63,30 @@ export async function GET(request: Request) {
       return matchingNotes.length === noteIds.length;
     }) || [];
 
-    // Remove the perfume_notes from the response to match the expected format
-    const formattedPerfumes = filteredPerfumes.map(perfume => ({
-      id: perfume.id,
-      name: perfume.name,
-      image_url: perfume.image_url,
-      brand: perfume.brand
-    }));
+    // Enhance the response with price and note position information
+    const formattedPerfumes = filteredPerfumes.map(perfume => {
+      // Find the position of each searched ingredient in this perfume
+      const ingredientPositions: Record<string, string> = {};
+      
+      noteIds.forEach(noteId => {
+        const noteInfo = perfume.perfume_notes?.find((pn: any) => pn.note_id === noteId);
+        if (noteInfo) {
+          const noteName = notes.find(n => n.id === noteId)?.name;
+          if (noteName) {
+            ingredientPositions[noteName] = noteInfo.type || 'Base';
+          }
+        }
+      });
+
+      return {
+        id: perfume.id,
+        name: perfume.name,
+        image_url: perfume.image_url,
+        price_tier: perfume.price_tier,
+        brand: perfume.brand,
+        ingredient_positions: ingredientPositions
+      };
+    });
 
     return NextResponse.json({
       ingredients: notes,

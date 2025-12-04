@@ -157,12 +157,12 @@ function CompareContent() {
               className="bg-white rounded-xl p-4 shadow-sm border border-stone-100 hover:shadow-md hover:border-stone-300 transition-all text-left group"
             >
               <div className="h-24 mb-3 flex items-center justify-center p-2">
-                {perfume.image_url ? (
-                  <Image src={perfume.image_url} width={96} height={96} className="h-full object-contain group-hover:scale-105 transition duration-500" alt={perfume.name || 'Perfume image'} />
-                ) : (
-                  <div className="text-stone-300 text-[10px]">No Image</div>
-                )}
-              </div>
+                  {perfume.image_url ? (
+                    <Image src={perfume.image_url} width={96} height={96} className="h-full object-contain mix-blend-multiply group-hover:scale-105 transition duration-500" alt={perfume.name || 'Perfume image'} />
+                  ) : (
+                    <div className="text-stone-300 text-[10px]">No Image</div>
+                  )}
+                </div>
               
               {/* FIX: Removed <Link>, just text now */}
               <div className="text-[9px] font-bold tracking-widest text-stone-400 uppercase truncate">
@@ -179,7 +179,6 @@ function CompareContent() {
   // --- VIEW: BATTLE ARENA ---
   if (error || !perfumeA || !perfumeB) return (
     <div className="min-h-[60vh] flex flex-col items-center justify-center gap-6 text-center px-4">
-      <div className="text-4xl">⚔️</div>
       <h2 className="font-serif text-2xl text-stone-800">Arena Empty</h2>
       <p className="text-stone-500 max-w-md text-sm">{error}</p>
       <Link href="/" className="px-6 py-2 bg-stone-900 text-white rounded-full text-xs uppercase font-bold tracking-widest">
@@ -196,8 +195,8 @@ function CompareContent() {
   };
 
   // Comparison Logic Helpers
-  const getWinnerClass = (valA: number, valB: number, isA: boolean) => {
-    if (!valA || !valB) return 'text-stone-400';
+  const getWinnerClass = (valA: number | null, valB: number | null, isA: boolean) => {
+    if (valA === null || valB === null) return 'text-stone-400';
     if (valA > valB) return isA ? 'text-green-600 font-bold' : 'text-stone-300';
     if (valB > valA) return !isA ? 'text-green-600 font-bold' : 'text-stone-300';
     return 'text-stone-800 font-medium'; // Tie
@@ -208,14 +207,14 @@ function CompareContent() {
       {/* THE FIGHTERS */}
       <div className="grid grid-cols-2 gap-4 md:gap-12 items-end mb-12">
         {[perfumeA, perfumeB].map((p, i) => (
-           <div key={i} className="text-center">
-             <div className="bg-white rounded-2xl p-6 shadow-sm border border-stone-100 mb-4 h-48 md:h-64 flex items-center justify-center">
-                {p.image_url ? <Image src={p.image_url} width={200} height={200} className="h-full object-contain" alt={p.name || 'Perfume image'} /> : "No Image"}
-             </div>
-             <div className="text-[10px] font-bold tracking-widest text-stone-400 uppercase mb-1">{p.brand?.name}</div>
-             <h2 className="font-serif text-lg md:text-3xl text-stone-900 leading-tight">{p.name}</h2>
+         <div key={i} className="text-center">
+           <div className="bg-white rounded-2xl p-6 shadow-sm border border-stone-100 mb-4 h-48 md:h-64 flex items-center justify-center">
+              {p.image_url ? <Image src={p.image_url} width={200} height={200} className="h-full object-contain mix-blend-multiply" alt={p.name || 'Perfume image'} /> : "No Image"}
            </div>
-        ))}
+           <div className="text-[10px] font-bold tracking-widest text-stone-400 uppercase mb-1">{p.brand?.name}</div>
+           <h2 className="font-serif text-lg md:text-3xl text-stone-900 leading-tight">{p.name}</h2>
+         </div>
+      ))}
       </div>
 
       {/* THE STATS TABLE */}
@@ -260,7 +259,7 @@ function CompareContent() {
 
 export default function ComparePage() {
   return (
-    <div className="min-h-screen bg-[#FDFBF7] text-gray-800 font-sans">
+    <div className="min-h-screen bg-white text-gray-800 font-sans">
       <div className="px-6 py-4 border-b border-stone-200 flex justify-between items-center bg-white/50 backdrop-blur sticky top-0 z-10">
         <Link href="/" className="text-xs font-bold tracking-widest uppercase hover:text-stone-500">← Home</Link>
         <span className="font-serif text-xl italic">Scent Battle</span>
