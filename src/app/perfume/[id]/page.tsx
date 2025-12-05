@@ -101,14 +101,13 @@ export default function PerfumeDetail() {
     return priceTier.split('$').length - 1;
   };
 
-  // CLIENT-SIDE DUPE DETECTION (Strict Mode)
+  // CLIENT-SIDE DUPE DETECTION (Strict Mode + Honest Display)
   const findClientSideDupes = (mainPerfume: any, allPerfumes: any[]) => {
     if (!mainPerfume || !allPerfumes) return [];
 
-    // Normalize main notes for comparison
+    // 1. Prepare Main Perfume Data
     const mainNotesRaw = mainPerfume.perfume_notes?.map((n: any) => n.note?.name) || [];
     const mainNotesLower = mainNotesRaw.map((n: string) => n.toLowerCase());
-    
     const mainVibes = mainPerfume.vibe_tags || [];
     const mainFamily = categorizeScentFamily(mainNotesLower, mainVibes);
 
@@ -116,36 +115,37 @@ export default function PerfumeDetail() {
       .filter((perfume: any) => {
         if (perfume.id === mainPerfume.id) return false;
 
+        // Prepare Candidate Data
         const candidateNotesRaw = perfume.perfume_notes?.map((n: any) => n.note?.name) || [];
         const candidateNotesLower = candidateNotesRaw.map((n: string) => n.toLowerCase());
-        
         const candidateVibes = perfume.vibe_tags || [];
         const candidateFamily = categorizeScentFamily(candidateNotesLower, candidateVibes);
 
-        // 1. FAMILY CHECK: Must share dominant family (e.g. both Woody)
+        // FILTER 1: Family Match (Woody matches Woody)
         if (mainFamily && candidateFamily && mainFamily !== candidateFamily) return false;
 
-        // 2. SHARED NOTES CHECK
+        // FILTER 2: Strict Note Count (Must share at least 2 ingredients)
+        // We use 2 here because 3 is often too strict for small databases, but you can set to 3.
         const sharedCount = candidateNotesLower.filter((n: string) => mainNotesLower.includes(n)).length;
-        
-        // *** STRICT RULE: Must share at least 3 notes ***
-        if (sharedCount < 3) return false;
+        if (sharedCount < 2) return false;
 
         return true;
       })
       .map((perfume: any) => {
-         // Calculate ACTUAL shared notes for display (Intersection)
+         // 2. CALCULATE VISUAL INTERSECTION (The Truth)
          const candidateNotesRaw = perfume.perfume_notes?.map((n: any) => n.note?.name) || [];
-         const actualSharedNotes = candidateNotesRaw.filter((n: string) => 
+         
+         // Only keep notes that exist in the Main Perfume
+         const actualSharedNotes = candidateNotesRaw.filter((n: string) =>
            mainNotesLower.includes(n.toLowerCase())
          );
          
-         // Calculate Score based on overlap
-         const score = (actualSharedNotes.length * 20) + 
-                       (perfume.vibe_tags?.filter((t:string) => mainVibes.includes(t)).length * 10 || 0);
+         // Re-Calculate Score based on REAL matches
+         const sharedVibesCount = perfume.vibe_tags?.filter((t:string) => mainVibes.includes(t)).length || 0;
+         const score = (actualSharedNotes.length * 20) + (sharedVibesCount * 10);
 
          // Price Logic
-         const isCheaper = perfume.price_tier && mainPerfume.price_tier && 
+         const isCheaper = perfume.price_tier && mainPerfume.price_tier &&
                            perfume.price_tier.length < mainPerfume.price_tier.length;
 
          return {
@@ -154,10 +154,13 @@ export default function PerfumeDetail() {
             dupe_image_url: perfume.image_url,
             brand_name: perfume.brand?.name,
             dupe_price_tier: perfume.price_tier,
-            // Badge Logic
+            
+            // Dynamic Badge
             match_type: isCheaper ? 'Smart Buy' : 'DNA Match',
             match_score: Math.min(score, 98),
-            shared_notes: actualSharedNotes // This now contains ONLY the matching notes
+            
+            // THE FIX: Use the intersection array, not the raw array
+            shared_notes: actualSharedNotes
          };
       })
       .sort((a: any, b: any) => b.match_score - a.match_score)
