@@ -135,8 +135,9 @@ export default function PerfumeDetail() {
         const isLuxuryTarget = mainPerfume.price_tier === '$$$$' || mainPerfume.price_tier === '$$$';
         const isCheapie = perfume.price_tier === '$';
         
-        const minNotes = (isLuxuryTarget && isCheapie) ? 3 : 2;
+        const minNotes = 3;
         
+
         if (sharedNotes.length < minNotes) return false;
 
         return true;
@@ -515,7 +516,7 @@ export default function PerfumeDetail() {
 
                        {/* Shared Notes Pills */}
                        <div className="flex flex-wrap gap-1.5">
-                         {d.shared_notes?.slice(0, 3).map((note: string) => (
+                         {Array.from(new Set(d.shared_notes as string[]))?.slice(0, 3).map((note: string) => (
                            <span key={note} className="text-[9px] px-2 py-1 bg-stone-100 text-stone-600 rounded-md border border-stone-200 uppercase tracking-wide">
                              {note}
                            </span>

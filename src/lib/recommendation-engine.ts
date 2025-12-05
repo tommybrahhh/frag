@@ -102,8 +102,13 @@ export class RecommendationEngine {
     
     return allPerfumes
       .filter(p => p.id !== mainPerfume.id)
+      .filter(candidate => { // New filter for minimum shared notes
+        const candidateProfile = RecommendationEngine.analyzeScentProfile(candidate);
+        const sharedNotes = mainProfile.notes.filter((note: string) => candidateProfile.notes.includes(note));
+        return sharedNotes.length >= 3;
+      })
       .map(candidate => {
-        const candidateProfile = this.analyzeScentProfile(candidate);
+        const candidateProfile = RecommendationEngine.analyzeScentProfile(candidate);
         
         // Calculate raw similarity score
         let rawScore = 0;
@@ -112,6 +117,8 @@ export class RecommendationEngine {
         const sharedFamilies = mainProfile.dominantFamilies.filter(family =>
           candidateProfile.dominantFamilies.includes(family)
         );
+
+
 
         rawScore += sharedNotes.length * 15;
         rawScore += sharedVibes.length * 10;
@@ -147,7 +154,7 @@ export class RecommendationEngine {
         };
       })
       .sort((a, b) => b.score - a.score)
-      .slice(0, count);
+      .slice(0, count) as Recommendation[];
   }
 
   // Complementary recommendations with scent description for layering
