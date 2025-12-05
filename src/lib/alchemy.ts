@@ -87,6 +87,71 @@ export async function getCompatiblePerfumes(basePerfume: any): Promise<any[]> {
   return scoredPerfumes.slice(0, 10); // Return top 10 most compatible
 }
 
+// New function to find layering matches for smart suggestions
+export function findLayeringMatches(basePerfume: any, allPerfumes: any[]): any[] {
+  if (!basePerfume || !allPerfumes.length) return [];
+
+  // Filter out the base perfume
+  const otherPerfumes = allPerfumes.filter(p => p.id !== basePerfume.id);
+
+  // Filter out clashing families
+  const baseVibes = basePerfume.vibe_tags || [];
+  const clashingVibes = new Set<string>();
+  
+  // Find all clashing vibes for the base perfume
+  baseVibes.forEach((vibe: string) => {
+    if (PERFUME_ALCHEMY_RULES.MAJOR_CLASHES[vibe]) {
+      PERFUME_ALCHEMY_RULES.MAJOR_CLASHES[vibe].forEach(clash => clashingVibes.add(clash));
+    }
+  });
+
+  // Filter perfumes that don't have clashing vibes
+  const nonClashingPerfumes = otherPerfumes.filter(p => {
+    const perfumeVibes = p.vibe_tags || [];
+    return !perfumeVibes.some((vibe: string) => clashingVibes.has(vibe));
+  });
+
+  // Score each perfume based on compatibility factors
+  const scoredPerfumes = nonClashingPerfumes.map(perfume => {
+    let score = 0;
+    const perfumeVibes = perfume.vibe_tags || [];
+
+    // Boost: Perfumes with simple profiles (Musk, Vanilla, Iso E Super)
+    const simpleProfiles = ['Musk', 'Vanilla', 'Iso E Super'];
+    const hasSimpleProfile = perfumeVibes.some((vibe: string) =>
+      simpleProfiles.some(simple => vibe.toLowerCase().includes(simple.toLowerCase()))
+    );
+    if (hasSimpleProfile) score += 20;
+
+    // Boost: Perfumes from the same brand
+    if (basePerfume.brand_name === perfume.brand_name) score += 15;
+
+    // Boost: Shared harmonious vibes
+    baseVibes.forEach((baseVibe: string) => {
+      perfumeVibes.forEach((perfumeVibe: string) => {
+        if (PERFUME_ALCHEMY_RULES.HARMONIOUS_PAIRS[baseVibe]?.includes(perfumeVibe)) {
+          score += 10;
+        }
+      });
+    });
+
+    // Boost: Synergistic families
+    PERFUME_ALCHEMY_RULES.SYNERGISTIC_FAMILIES.forEach(([family1, family2]) => {
+      if ((baseVibes.includes(family1) && perfumeVibes.includes(family2)) ||
+          (baseVibes.includes(family2) && perfumeVibes.includes(family1))) {
+        score += 12;
+      }
+    });
+
+    return { ...perfume, compatibilityScore: score };
+  });
+
+  // Sort by score and return top 4
+  return scoredPerfumes
+    .sort((a, b) => b.compatibilityScore - a.compatibilityScore)
+    .slice(0, 4);
+}
+
 export function mixPerfumes(p1: any, p2: any) {
   // 1. GENERATE CREATIVE NAME
   const nameOptions = [
@@ -195,6 +260,17 @@ export function mixPerfumes(p1: any, p2: any) {
     description = "Strong potential for discordant notes";
   }
 
+  // NEW: Calculate Merged Profile (Taking the MAX intensity of each trait)
+  // If p1 or p2 is missing a profile, default to 0
+  const getVal = (p: any, key: string) => p.scent_profile?.[key] || 0;
+
+  const newProfile = {
+    fresh: Math.max(getVal(p1, 'fresh'), getVal(p2, 'fresh')),
+    sweet: Math.max(getVal(p1, 'sweet'), getVal(p2, 'sweet')),
+    spicy: Math.max(getVal(p1, 'spicy'), getVal(p2, 'spicy')),
+    depth: Math.max(getVal(p1, 'depth'), getVal(p2, 'depth')),
+  };
+
   // Calculate performance metrics
   const calculatePerformance = () => {
     let longevity = 8; // Base hours
@@ -260,6 +336,7 @@ export function mixPerfumes(p1: any, p2: any) {
     warnings,
     tips,
     combinedVibes: combinedVibes.slice(0, 6),
+    newProfile, // <--- The new Visual Data
     riskFactors: {
       totalVibes: uniqueVibeCount,
       clashCount: warnings.length,

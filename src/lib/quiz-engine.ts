@@ -84,11 +84,36 @@ export function getRecommendations(answers: QuizAnswers, allPerfumes: Perfume[])
         reasons.push("Features your favorite notes");
       }
 
-      // 8. GENDER COMPATIBILITY (Optional Filter)
-      if (answers.personality) {
+      // 8. GENDER COMPATIBILITY (Direct Preference)
+      if (answers.gender) {
+        const userGenderPreference = answers.gender;
+        const perfumeGender = perfume.gender?.toLowerCase() || '';
+        
+        // Map user preference to database gender values
+        const genderMapping: Record<string, string[]> = {
+          'feminine': ['female', 'feminine', 'women'],
+          'masculine': ['male', 'masculine', 'men'],
+          'unisex': ['unisex', 'shared'],
+          'genderless': ['unisex', 'shared', 'genderless', 'neutral']
+        };
+        
+        const userPreferredGenders = genderMapping[userGenderPreference] || [];
+        
+        // Check if perfume gender matches user preference
+        const isGenderMatch = userPreferredGenders.some(gender =>
+          perfumeGender.toLowerCase().includes(gender)
+        );
+        
+        if (!isGenderMatch) {
+          score -= 40; // Penalty for gender mismatch
+        } else {
+          score += 25; // Bonus for gender match
+        }
+      } else if (answers.personality) {
+        // Fallback to archetype-based gender preference
         const archetype = getArchetypeGenderPreference(answers.personality);
         if (archetype && perfume.gender !== 'Unisex' && perfume.gender !== archetype) {
-          score -= 50; // Significant penalty for gender mismatch with archetype
+          score -= 30; // Reduced penalty for archetype mismatch
         }
       }
 

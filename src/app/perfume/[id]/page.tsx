@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
 import Link from 'next/link';
 import { RecommendationEngine, RecommendationCategory } from '@/lib/recommendation-engine';
+import { ratingToHourRange, ratingToDescription } from '@/lib/longevity-utils';
 
 export default function PerfumeDetail() {
   const params = useParams();
@@ -54,15 +55,16 @@ export default function PerfumeDetail() {
 
   // SCENT FAMILY CATEGORIZATION
   const categorizeScentFamily = (notes: string[], vibes: string[]) => {
-    const noteCategories = {
-      citrus: ['lemon', 'bergamot', 'orange', 'grapefruit', 'mandarin', 'citrus'],
-      floral: ['rose', 'jasmine', 'lily', 'orchid', 'tuberose', 'violet', 'ylang'],
-      woody: ['sandalwood', 'cedar', 'oak', 'patchouli', 'vetiver', 'amber', 'oud'],
-      spicy: ['pepper', 'cinnamon', 'clove', 'nutmeg', 'cardamom', 'ginger'],
-      gourmand: ['vanilla', 'chocolate', 'caramel', 'coffee', 'honey', 'tonka'],
-      fresh: ['mint', 'green', 'aquatic', 'ozonic', 'marine', 'herbal'],
-      tobacco: ['tobacco', 'tobacco leaf', 'pipe tobacco'],
-      leather: ['leather', 'suede', 'birch tar']
+    const noteCategories: Record<string, string[]> = {
+      citrus: ['lemon', 'bergamot', 'orange', 'grapefruit', 'mandarin', 'lime'],
+      fruity: ['apple', 'pear', 'berry', 'cherry', 'pineapple', 'currant', 'fig', 'coconut'],
+      floral: ['rose', 'jasmine', 'lily', 'orchid', 'tuberose', 'violet', 'ylang', 'lavender', 'orange blossom'],
+      woody: ['sandalwood', 'cedar', 'oak', 'patchouli', 'vetiver', 'oud', 'guaiac', 'birch'],
+      oriental: ['amber', 'incense', 'myrrh', 'resins', 'benzoin', 'olibanum'],
+      spicy: ['pepper', 'cinnamon', 'clove', 'nutmeg', 'cardamom', 'ginger', 'saffron'],
+      gourmand: ['vanilla', 'chocolate', 'caramel', 'coffee', 'honey', 'tonka', 'sugar', 'praline'],
+      fresh: ['mint', 'green', 'aquatic', 'ozonic', 'marine', 'herbal', 'sage', 'tea'],
+      leather: ['leather', 'suede', 'birch tar', 'labdanum']
     };
 
     const familyScores: Record<string, number> = {};
@@ -99,136 +101,69 @@ export default function PerfumeDetail() {
     return priceTier.split('$').length - 1;
   };
 
-  // Enhanced dupe detection with weighted note importance and stricter requirements
+  // REFINED DUPE ALGORITHM
   const findClientSideDupes = (mainPerfume: any, allPerfumes: any[]) => {
     if (!mainPerfume || !allPerfumes) return [];
 
-    const mainBrand = mainPerfume.brand?.name?.toLowerCase();
-    const mainNotes = mainPerfume.perfume_notes || [];
+    const mainNotes = mainPerfume.perfume_notes?.map((n: any) => n.note?.name?.toLowerCase()) || [];
     const mainVibes = mainPerfume.vibe_tags || [];
-    const mainFamily = categorizeScentFamily(
-      mainNotes.map((n: any) => n.note?.name?.toLowerCase()),
-      mainVibes
-    );
-
-    // Weight notes by their importance (top > heart > base)
-    const NOTE_WEIGHTS = {
-      'Top': 1.5,
-      'Heart': 2.0,
-      'Base': 1.0
-    };
+    const mainFamily = categorizeScentFamily(mainNotes, mainVibes);
+    
+    // Helper: count matches
+    const getOverlap = (arr1: string[], arr2: string[]) => arr1.filter(item => arr2.includes(item));
 
     return allPerfumes
-      .map((perfume: any) => {
-        // Skip the same perfume
-        if (perfume.id === mainPerfume.id) return null;
+      .filter((perfume: any) => {
+        if (perfume.id === mainPerfume.id) return false;
 
-        const candidateBrand = perfume.brand?.name?.toLowerCase();
-        const candidateNotes = perfume.perfume_notes || [];
+        const candidateNotes = perfume.perfume_notes?.map((n: any) => n.note?.name?.toLowerCase()) || [];
         const candidateVibes = perfume.vibe_tags || [];
-        const candidateFamily = categorizeScentFamily(
-          candidateNotes.map((n: any) => n.note?.name?.toLowerCase()),
-          candidateVibes
-        );
+        const candidateFamily = categorizeScentFamily(candidateNotes, candidateVibes);
 
-        // 1. Brand-based exclusion (don't match same brand)
-        const isDifferentBrand = mainBrand !== candidateBrand;
-        if (!isDifferentBrand) return null;
+        // 1. FAMILY LOCK: Must share the same dominant family (e.g. Woody vs Woody)
+        if (mainFamily && candidateFamily && mainFamily !== candidateFamily) return false;
 
-        // 2. Price tier consideration
-        const isCheaperAlternative = perfume.price_tier && mainPerfume.price_tier &&
-          getPriceTierValue(perfume.price_tier) < getPriceTierValue(mainPerfume.price_tier);
+        // 2. CLASH PROTECTION: Don't match Dark/Oud with Fresh/Citrus
+        const isMainDark = mainVibes.some((v:string) => ['dark', 'oud', 'smoky', 'leather'].includes(v.toLowerCase()));
+        const isCandFresh = candidateVibes.some((v:string) => ['fresh', 'citrus', 'marine', 'aquatic'].includes(v.toLowerCase()));
+        if (isMainDark && isCandFresh) return false;
 
-        // 3. Detailed note analysis with weighted scoring
-        let similarityScore = 0;
-        let sharedNotesCount = 0;
-        const sharedNotesByType: Record<string, string[]> = { Top: [], Heart: [], Base: [] };
+        // 3. NOTE THRESHOLD (The "DNA" Test)
+        const sharedNotes = getOverlap(mainNotes, candidateNotes);
+        
+        // If targeting a Luxury perfume with a Cheapie, be stricter
+        const isLuxuryTarget = mainPerfume.price_tier === '$$$$' || mainPerfume.price_tier === '$$$';
+        const isCheapie = perfume.price_tier === '$';
+        
+        const minNotes = (isLuxuryTarget && isCheapie) ? 3 : 2;
+        
+        if (sharedNotes.length < minNotes) return false;
 
-        // Analyze note overlap with type weighting
-        mainNotes.forEach((mainNote: any) => {
-          const matchingNote = candidateNotes.find((candidateNote: any) =>
-            candidateNote.note?.name?.toLowerCase() === mainNote.note?.name?.toLowerCase()
-          );
-          
-          if (matchingNote) {
-            const noteType = mainNote.type || 'Base';
-            const weight = NOTE_WEIGHTS[noteType as keyof typeof NOTE_WEIGHTS] || 1.0;
-            similarityScore += weight * 15;
-            sharedNotesCount++;
-            sharedNotesByType[noteType].push(mainNote.note?.name);
-          }
-        });
-
-        // 4. Vibe tag matching
-        const sharedVibes = mainVibes.filter((vibe: string) =>
-          candidateVibes.includes(vibe)
-        );
-        similarityScore += sharedVibes.length * 8;
-
-        // 5. Scent family bonus
-        if (mainFamily && candidateFamily && mainFamily === candidateFamily) {
-          similarityScore += 20;
-        }
-
-        // 6. Major bonus for cheaper alternatives
-        if (isCheaperAlternative) {
-          similarityScore += 35;
-        }
-
-        // 7. Calculate similarity percentage (0-100)
-        const maxPossibleScore = (mainNotes.length * 2.0 * 15) + (mainVibes.length * 8) + 55;
-        const similarityPercentage = Math.min(100, Math.round((similarityScore / maxPossibleScore) * 100));
-
-        // Determine match type based on similarity and price
-        let matchType = 'Similar Vibe';
-        if (similarityPercentage >= 75 && isCheaperAlternative) {
-          matchType = 'Excellent Dupe';
-        } else if (similarityPercentage >= 65 && isCheaperAlternative) {
-          matchType = 'Good Alternative';
-        } else if (similarityPercentage >= 75) {
-          matchType = 'Similar Profile';
-        }
-
-        return {
-          perfume,
-          similarityScore,
-          similarityPercentage,
-          sharedNotesCount,
-          sharedNotesByType,
-          sharedVibes,
-          isCheaperAlternative,
-          matchType
-        };
+        return true;
       })
-      .filter(Boolean)
-      .filter((result: any) => {
-        // Stricter filtering for true dupes
-        const { similarityPercentage, sharedNotesCount, isCheaperAlternative } = result;
-        
-        // Minimum requirements for consideration
-        if (sharedNotesCount < 3) return false;
-        
-        // Tiered acceptance criteria
-        if (similarityPercentage >= 75) return true; // Excellent match
-        if (similarityPercentage >= 65 && isCheaperAlternative) return true; // Good cheaper alternative
-        if (similarityPercentage >= 80) return true; // Very similar regardless of price
-        
-        return false;
+      .map((perfume: any) => {
+         // Recalculate score for sorting
+         const candidateNotes = perfume.perfume_notes?.map((n: any) => n.note?.name?.toLowerCase()) || [];
+         const candidateVibes = perfume.vibe_tags || [];
+         const sharedNotes = getOverlap(mainNotes, candidateNotes);
+         const sharedVibes = getOverlap(mainVibes, candidateVibes);
+         
+         let score = (sharedNotes.length * 20) + (sharedVibes.length * 10);
+         if (perfume.price_tier && mainPerfume.price_tier && perfume.price_tier.length < mainPerfume.price_tier.length) score += 15;
+         
+         return {
+            dupe_id: perfume.id,
+            dupe_name: perfume.name,
+            dupe_image_url: perfume.image_url,
+            brand_name: perfume.brand?.name,
+            dupe_price_tier: perfume.price_tier,
+            match_type: score > 80 ? 'Excellent Alternative' : 'Good Alternative',
+            match_score: Math.min(score, 98),
+            shared_notes: sharedNotes
+         };
       })
-      .sort((a: any, b: any) => b.similarityPercentage - a.similarityPercentage)
-      .slice(0, 6) // Limit to top 6 matches
-      .map((result: any) => ({
-        dupe_id: result.perfume.id,
-        dupe_name: result.perfume.name,
-        dupe_image_url: result.perfume.image_url,
-        brand_name: result.perfume.brand?.name,
-        match_type: result.matchType,
-        similarity_percentage: result.similarityPercentage,
-        shared_notes: Object.values(result.sharedNotesByType)
-          .flat()
-          .slice(0, 4) || [],
-        is_cheaper: result.isCheaperAlternative
-      }));
+      .sort((a: any, b: any) => b.match_score - a.match_score)
+      .slice(0, 3);
   };
 
   useEffect(() => {
@@ -316,7 +251,7 @@ export default function PerfumeDetail() {
   if (!perfume) return <div className="min-h-screen flex items-center justify-center bg-white">Perfume not found.</div>;
 
   return (
-    <div className="min-h-screen bg-white text-gray-800 pb-20 font-sans selection:bg-stone-900 selection:text-white">
+    <div className="min-h-screen bg-stone-50 text-gray-800 pb-20 font-sans selection:bg-stone-900 selection:text-white">
 
       {/* Navbar */}
       <div className="px-6 py-4 sticky top-0 bg-white/90 backdrop-blur-md z-20 flex justify-between items-center border-b border-stone-200">
@@ -327,15 +262,23 @@ export default function PerfumeDetail() {
       {/* SECTION 1: HERO (Emotion & Vibe) */}
       <div className="max-w-6xl mx-auto px-6 grid lg:grid-cols-2 gap-16 mt-10 mb-16">
         
-        {/* LEFT: Image */}
-        <div className="bg-white rounded-3xl h-[400px] flex items-center justify-center relative shadow-sm border border-stone-100 p-10">
+        {/* LEFT: Hero Image - Floating & Blended */}
+        <div className="h-[500px] flex items-center justify-center relative p-0">
           {perfume.image_url ? (
-            <img src={perfume.image_url} alt={perfume.name} className="h-full w-full object-contain mix-blend-multiply drop-shadow-2xl" />
+            <img
+              src={perfume.image_url}
+              alt={perfume.name}
+              className="h-full w-full object-contain mix-blend-multiply drop-shadow-xl"
+            />
           ) : (
-             <span className="text-stone-300 font-serif italic">No Image Available</span>
+             <span className="text-stone-300 font-serif italic">No Image</span>
           )}
-          <div className="absolute top-6 right-6 flex gap-2">
-            <span className="bg-stone-900 text-white px-4 py-1 rounded-full text-xs font-bold tracking-widest">{perfume.price_tier || '$$$'}</span>
+          
+          {/* Keep the Price Badge */}
+          <div className="absolute top-0 right-0">
+            <span className="bg-stone-900 text-white px-4 py-1 rounded-full text-xs font-bold tracking-widest">
+                {perfume.price_tier || '$$$'}
+            </span>
           </div>
         </div>
 
@@ -437,7 +380,7 @@ export default function PerfumeDetail() {
               <div className="flex justify-between items-baseline mb-2">
                 <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-400">Longevity</h4>
                 <span className="text-[10px] font-bold text-stone-800 uppercase">
-                   {perfume.longevity_rating}/5
+                   {ratingToHourRange(perfume.longevity_rating)}
                 </span>
               </div>
               <div className="h-2 w-full bg-stone-100 rounded-full overflow-hidden">
@@ -447,7 +390,7 @@ export default function PerfumeDetail() {
                 ></div>
               </div>
               <p className="text-[10px] text-stone-400 mt-2 text-right">
-                {perfume.longevity_rating >= 4 ? 'Long Lasting' : perfume.longevity_rating <= 2 ? 'Weak' : 'Moderate'}
+                {ratingToDescription(perfume.longevity_rating)}
               </p>
             </div>
 
@@ -509,54 +452,92 @@ export default function PerfumeDetail() {
       {/* SECTION 3: DUPES & RECS */}
       <div className="max-w-6xl mx-auto px-6 mt-20">
         
-        {/* Enhanced Dupe Finder */}
+        {/* SMART ALTERNATIVES SECTION */}
         {dupes.length > 0 && (
-          <div className="mb-20">
-            <h3 className="font-serif text-2xl text-stone-900 mb-4 border-b border-stone-200 pb-4">Smart Dupe Finder</h3>
-            <p className="text-sm text-stone-600 mb-6 max-w-2xl">
-              Found {dupes.length} potential alternatives with similar olfactory profiles.
-              Results are ranked by similarity and price advantage.
-            </p>
-            <div className="grid md:grid-cols-2 gap-6">
-              {dupes.map((d: any) => (
-                <Link key={d.dupe_id} href={`/perfume/${d.dupe_id}`} className="flex items-center gap-6 p-6 border border-stone-200 rounded-xl hover:border-stone-400 transition bg-white shadow-sm group">
-                   <div className="w-20 h-24 flex-shrink-0 p-2 bg-stone-50 rounded-lg flex items-center justify-center">
-                      {d.dupe_image_url ? <img src={d.dupe_image_url} className="h-full object-contain mix-blend-multiply group-hover:scale-105 transition" /> : <div className="text-stone-300 text-xs">No Image</div>}
-                   </div>
-                   <div className="flex-1 min-w-0">
-                      <div className="flex flex-wrap items-center gap-2 mb-2">
-                         <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide border ${
-                           d.match_type.includes('Excellent') ? 'bg-green-50 text-green-700 border-green-300' :
-                           d.match_type.includes('Good') ? 'bg-blue-50 text-blue-700 border-blue-300' :
-                           'bg-amber-50 text-amber-700 border-amber-300'
-                         }`}>
-                           {d.match_type}
-                         </span>
-                         <span className="text-[9px] font-bold text-stone-400 uppercase tracking-widest">{d.brand_name}</span>
-                         {d.is_cheaper && (
-                           <span className="text-[9px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full border border-green-200">💰 Cheaper</span>
+          <div className="max-w-6xl mx-auto px-6 mt-20 mb-20">
+            <div className="flex items-baseline justify-between mb-8 border-b border-stone-200 pb-4">
+              <h3 className="font-serif text-2xl text-stone-900">Alternative Options</h3>
+              <span className="text-xs font-bold tracking-widest text-stone-400 uppercase">
+                Based on Scent DNA
+              </span>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-6">
+              {dupes.map((d: any) => {
+                // Determine Badge Color based on match score
+                const badgeClass = d.match_score > 80
+                  ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
+                  : 'bg-amber-50 text-amber-800 border-amber-200';
+                const badgeText = `${d.match_score}% Match`;
+
+                return (
+                  <div key={d.dupe_id} className="group bg-white rounded-2xl p-5 border border-stone-200 hover:border-stone-400 hover:shadow-lg transition-all duration-500 flex flex-col relative">
+                     
+                     {/* HEADER: Brand & Badge */}
+                     <div className="flex justify-between items-start mb-4">
+                       <span className="text-[10px] font-bold tracking-widest text-stone-400 uppercase truncate pr-2">
+                         {d.brand_name}
+                       </span>
+                       <span className={`text-[9px] font-bold px-2 py-1 rounded-full uppercase tracking-wide border ${badgeClass}`}>
+                         {badgeText}
+                       </span>
+                     </div>
+
+                     {/* IMAGE */}
+                     <div className="h-48 mb-6 flex items-center justify-center p-4 bg-stone-50/50 rounded-xl group-hover:bg-stone-50 transition-colors">
+                        {d.dupe_image_url ? (
+                          <img
+                            src={d.dupe_image_url}
+                            className="h-full w-full object-contain mix-blend-multiply group-hover:scale-110 transition duration-700"
+                            alt={d.dupe_name}
+                          />
+                        ) : (
+                          <span className="text-xs text-stone-300">No Image</span>
+                        )}
+                     </div>
+
+                     {/* INFO */}
+                     <div className="mb-6 flex-grow">
+                       <h4 className="font-serif text-xl text-stone-900 leading-tight mb-2">
+                         {d.dupe_name}
+                       </h4>
+                       
+                       {/* Price Comparison Visual */}
+                       {d.dupe_price_tier && perfume.price_tier && d.dupe_price_tier.length < perfume.price_tier.length ? (
+                         <div className="flex items-center gap-2 text-xs mb-3">
+                            <span className="text-stone-300 line-through decoration-stone-300">{perfume.price_tier}</span>
+                            <span className="text-stone-400">→</span>
+                            <span className="font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">{d.dupe_price_tier}</span>
+                         </div>
+                       ) : (
+                         <div className="text-xs font-bold text-stone-500 mb-3">{d.dupe_price_tier || 'N/A'}</div>
+                       )}
+
+                       {/* Shared Notes Pills */}
+                       <div className="flex flex-wrap gap-1.5">
+                         {d.shared_notes?.slice(0, 3).map((note: string) => (
+                           <span key={note} className="text-[9px] px-2 py-1 bg-stone-100 text-stone-600 rounded-md border border-stone-200 uppercase tracking-wide">
+                             {note}
+                           </span>
+                         ))}
+                         {d.shared_notes?.length > 3 && (
+                           <span className="text-[9px] px-1.5 py-1 text-stone-400">+ more</span>
                          )}
-                      </div>
-                      <h4 className="font-serif text-lg text-stone-900 leading-tight mb-1 truncate">{d.dupe_name}</h4>
-                      
-                      {/* Similarity indicator */}
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="w-16 bg-stone-100 rounded-full h-2 overflow-hidden">
-                          <div
-                            className="h-full bg-stone-800 transition-all duration-500"
-                            style={{ width: `${d.similarity_percentage}%` }}
-                          ></div>
-                        </div>
-                        <span className="text-xs font-medium text-stone-600">{d.similarity_percentage}% match</span>
-                      </div>
-                      
-                      <div className="text-xs text-stone-500">
-                        <span className="font-medium">Shared notes: </span>
-                        {d.shared_notes.join(', ')}
-                      </div>
-                   </div>
-                </Link>
-              ))}
+                       </div>
+                     </div>
+
+                     {/* FOOTER ACTION */}
+                     <button
+                        onClick={() => router.push(`/compare?a=${perfume.id}&b=${d.dupe_id}`)}
+                        className="w-full py-3 rounded-xl border border-stone-200 text-xs font-bold uppercase tracking-widest text-stone-500 hover:bg-stone-900 hover:text-white hover:border-stone-900 transition-all flex items-center justify-center gap-2"
+                     >
+                        <span>Compare Specs</span>
+                        <span className="text-lg leading-none">→</span>
+                     </button>
+
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
@@ -777,15 +758,9 @@ export default function PerfumeDetail() {
                             
                             {/* Price comparison badge */}
                             {rec.priceComparison && (
-                              <div className={`mt-2 text-[9px] font-bold px-2 py-0.5 rounded-full inline-block ${
-                                rec.priceComparison === 'cheaper'
-                                  ? 'bg-green-100 text-green-700 border border-green-200'
-                                  : rec.priceComparison === 'premium'
-                                  ? 'bg-blue-100 text-blue-700 border border-blue-200'
-                                  : 'bg-stone-100 text-stone-600 border border-stone-200'
-                              }`}>
-                                {rec.priceComparison === 'cheaper' ? '💰 More affordable' :
-                                 rec.priceComparison === 'premium' ? '💎 Premium' : 'Similar price'}
+                              <div className="mt-2 text-[9px] font-bold px-2 py-0.5 rounded-full inline-block border border-stone-200 text-stone-500">
+                                {rec.priceComparison === 'cheaper' ? 'More affordable' :
+                                 rec.priceComparison === 'premium' ? 'Premium' : 'Similar price'}
                               </div>
                             )}
                           </div>

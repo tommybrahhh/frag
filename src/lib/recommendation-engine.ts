@@ -8,6 +8,7 @@ export interface Recommendation {
   reason: string;
   sharedNotes?: string[];
   sharedVibes?: string[];
+  sharedFamilies?: string[];
   priceComparison?: 'cheaper' | 'similar' | 'premium';
 }
 
@@ -313,40 +314,89 @@ export class RecommendationEngine {
     return recommendations.slice(0, count);
   }
 
-  // Price alternatives
-  private static getPriceAlternatives(mainPerfume: any, allPerfumes: any[], count: number = 4): Recommendation[] {
+  // Enhanced Price alternatives with scent similarity scoring
+  private static getPriceAlternatives(mainPerfume: any, allPerfumes: any[], count: number = 6): Recommendation[] {
     const mainPriceTier = mainPerfume.price_tier;
     if (!mainPriceTier) return [];
 
+    const mainProfile = this.analyzeScentProfile(mainPerfume);
     const priceTierValue = (tier: string) => tier?.split('$').length - 1 || 0;
     const mainPriceValue = priceTierValue(mainPriceTier);
 
     return allPerfumes
       .filter(p => p.id !== mainPerfume.id && p.price_tier)
       .map(candidate => {
+        const candidateProfile = this.analyzeScentProfile(candidate);
         const candidatePriceValue = priceTierValue(candidate.price_tier);
-        let priceComparison: 'cheaper' | 'similar' | 'premium' = 'similar';
         
+        // Calculate scent similarity score (0-100)
+        const sharedNotes = mainProfile.notes.filter((note: string) =>
+          candidateProfile.notes.includes(note)
+        );
+        const sharedVibes = mainProfile.vibes.filter((vibe: string) =>
+          candidateProfile.vibes.includes(vibe)
+        );
+        const sharedFamilies = mainProfile.dominantFamilies.filter(family =>
+          candidateProfile.dominantFamilies.includes(family)
+        );
+
+        // Base similarity score (0-100)
+        let similarityScore = 0;
+        similarityScore += sharedNotes.length * 10; // Up to 50 points for notes
+        similarityScore += sharedVibes.length * 15; // Up to 45 points for vibes
+        similarityScore += sharedFamilies.length * 25; // Up to 75 points for families
+        similarityScore = Math.min(100, similarityScore);
+
+        // Determine price comparison
+        let priceComparison: 'cheaper' | 'similar' | 'premium' = 'similar';
         if (candidatePriceValue < mainPriceValue - 1) priceComparison = 'cheaper';
         else if (candidatePriceValue > mainPriceValue + 1) priceComparison = 'premium';
 
-        const score = priceComparison === 'cheaper' ? 85 : 
-                     priceComparison === 'premium' ? 75 : 60;
+        // Enhanced scoring: combine price advantage with scent similarity
+        let finalScore = 0;
+        let reason = '';
+
+        if (priceComparison === 'cheaper') {
+          // For cheaper alternatives: prioritize good scent matches (min 30% similarity)
+          if (similarityScore >= 30) {
+            finalScore = Math.min(95, 70 + Math.round(similarityScore * 0.5));
+            reason = `Excellent affordable alternative (${finalScore}% match)`;
+          } else {
+            // Skip perfumes with very low similarity
+            return null;
+          }
+        } else if (priceComparison === 'premium') {
+          // For premium alternatives: require higher scent similarity (min 40%)
+          if (similarityScore >= 40) {
+            finalScore = Math.min(90, 60 + Math.round(similarityScore * 0.6));
+            reason = `Premium upgrade (${finalScore}% match)`;
+          } else {
+            return null;
+          }
+        } else {
+          // Similar price: require good scent similarity (min 35%)
+          if (similarityScore >= 35) {
+            finalScore = Math.min(85, 50 + Math.round(similarityScore * 0.7));
+            reason = `Similar price (${finalScore}% match)`;
+          } else {
+            return null;
+          }
+        }
 
         return {
           perfume: candidate,
           type: 'price-alternative' as const,
-          score,
-          reason: priceComparison === 'cheaper' ? 'More affordable alternative' :
-                 priceComparison === 'premium' ? 'Premium alternative' : 'Similar price point',
+          score: finalScore,
+          reason,
           priceComparison,
-          sharedVibes: mainPerfume.vibe_tags?.filter((v: string) => 
-            candidate.vibe_tags?.includes(v)
-          )?.slice(0, 2) || []
+          sharedNotes: sharedNotes.slice(0, 5),
+          sharedVibes: sharedVibes.slice(0, 3),
+          sharedFamilies: sharedFamilies
         };
       })
-      .sort((a, b) => b.score - a.score)
-      .slice(0, count);
+      .filter(result => result !== null) // Remove null entries from filtering
+      .sort((a, b) => b!.score - a!.score)
+      .slice(0, count) as Recommendation[];
   }
 
   // Discovery recommendations (similar but different)

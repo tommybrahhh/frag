@@ -19,6 +19,42 @@ export interface QuizOption {
 
 export const questions: QuizQuestion[] = [
   {
+    id: 'gender',
+    question: "Which gender expression resonates with your scent preference?",
+    description: "Scents transcend gender, but we all have personal preferences. Choose what feels right for you.",
+    type: 'single',
+    options: [
+      {
+        label: "Feminine & Elegant",
+        value: "feminine",
+        scentPreferences: ['floral', 'sweet', 'powdery', 'fruity'],
+        personalityTraits: ['graceful', 'romantic', 'elegant'],
+        description: "Soft, romantic, and traditionally feminine scents"
+      },
+      {
+        label: "Masculine & Bold",
+        value: "masculine",
+        scentPreferences: ['woody', 'spicy', 'leather', 'tobacco'],
+        personalityTraits: ['confident', 'bold', 'authoritative'],
+        description: "Strong, confident, and traditionally masculine scents"
+      },
+      {
+        label: "Unisex & Fluid",
+        value: "unisex",
+        scentPreferences: ['citrus', 'fresh', 'clean', 'herbal'],
+        personalityTraits: ['versatile', 'open-minded', 'modern'],
+        description: "Scents that transcend traditional gender boundaries"
+      },
+      {
+        label: "Genderless & Unique",
+        value: "genderless",
+        scentPreferences: ['unique', 'minimal', 'abstract', 'conceptual'],
+        personalityTraits: ['individualistic', 'progressive', 'authentic'],
+        description: "Scents that defy categorization and celebrate individuality"
+      }
+    ]
+  },
+  {
     id: 'personality',
     question: "Which archetype resonates most with your personality?",
     description: "Your essence speaks before you do. Choose the energy that feels most authentic to you.",
@@ -344,6 +380,7 @@ export const questions: QuizQuestion[] = [
 ];
 
 export interface QuizAnswers {
+  gender?: string;
   personality?: string;
   energy?: string;
   lifestyle?: string;

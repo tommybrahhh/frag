@@ -2,91 +2,57 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import Image from 'next/image'; // Import Image component
 import { createClient } from '@/lib/supabase';
 import Link from 'next/link';
-
-interface Brand {
-  name: string;
-}
-
-interface PerfumeLite {
-  id: string;
-  name: string;
-  image_url: string | null;
-  brand: Brand | null;
-}
-
-interface Perfume extends PerfumeLite {
-  price_tier: string | null;
-  longevity_rating: number | null;
-  sillage_rating: number | null;
-  best_season: string[] | null;
-  vibe_tags: string[] | null;
-}
+import { ratingToHourRange } from '@/lib/longevity-utils';
 
 function CompareContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [perfumeA, setPerfumeA] = useState<Perfume | null>(null);
-  const [perfumeB, setPerfumeB] = useState<Perfume | null>(null);
+  const [perfumeA, setPerfumeA] = useState<any>(null);
+  const [perfumeB, setPerfumeB] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
-  // Opponent Selection State
   const [selectingOpponent, setSelectingOpponent] = useState(false);
-  const [allPerfumes, setAllPerfumes] = useState<PerfumeLite[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [allPerfumes, setAllPerfumes] = useState<any[]>([]);
 
   useEffect(() => {
     const idA = searchParams.get('a');
     const idB = searchParams.get('b');
 
-    // Case 1: User clicked "Compare" on a detail page (Only ID A exists)
     if (idA && !idB) {
       setSelectingOpponent(true);
       fetchPerfumeAAndAllOthers(idA);
       return;
     }
 
-    // Case 2: Missing ID A (Invalid URL)
-    if (!idA) {
-      setError("Invalid comparison link.");
+    if (!idA || !idB) {
+      setError("Battle requires two perfumes. Please select a second option.");
       setLoading(false);
       return;
     }
 
-    // Case 3: Both IDs exist (Render Battle)
-    fetchBattleData(idA, idB!);
+    fetchBattleData(idA, idB);
   }, [searchParams]);
 
   const fetchPerfumeAAndAllOthers = async (idA: string) => {
     try {
       const supabase = createClient();
-      
-      // 1. Fetch Fighter A
-      const { data: perfumeAData, error: aError } = await supabase
+      const { data: perfumeAData } = await supabase
         .from('perfumes')
         .select('id, name, image_url, brand:brands!perfumes_brand_id_fkey(name)')
         .eq('id', idA)
         .single();
-
-      if (aError) throw aError;
       setPerfumeA(perfumeAData);
 
-      // 2. Fetch Candidates (Lightweight query)
-      const { data: candidates, error: cError } = await supabase
+      const { data: candidates } = await supabase
         .from('perfumes')
         .select('id, name, image_url, brand:brands!perfumes_brand_id_fkey(name)')
         .neq('id', idA)
         .order('name');
-
-      if (cError) throw cError;
       setAllPerfumes(candidates || []);
-
     } catch (err) {
       console.error(err);
-      setError("Could not load selection list.");
     } finally {
       setLoading(false);
     }
@@ -94,7 +60,18 @@ function CompareContent() {
 
   const fetchBattleData = async (idA: string, idB: string) => {
     const supabase = createClient();
-    const queryStr = 'id, name, image_url, price_tier, longevity_rating, sillage_rating, best_season, vibe_tags, brand:brands!perfumes_brand_id_fkey(name)';
+    // EXPANDED QUERY: Perfumer, Year, Notes, Profile, Scenario
+    const queryStr = `
+      id, name, image_url, price_tier, 
+      longevity_rating, sillage_rating, 
+      best_season, vibe_tags, perfumer, release_year,
+      scenario, scent_profile,
+      brand:brands!perfumes_brand_id_fkey(name),
+      perfume_notes(
+        type,
+        note:notes(name, color_hex)
+      )
+    `;
 
     try {
       const [resA, resB] = await Promise.all([
@@ -120,55 +97,36 @@ function CompareContent() {
     router.push(`/compare?a=${idA}&b=${opponentId}`);
   };
 
-  // Filter perfumes for the search bar
-  const filteredCandidates = allPerfumes.filter(p => 
-    p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    p.brand?.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  if (loading) return <div className="pt-40 text-center text-stone-400 uppercase tracking-widest">Preparing Battle Arena...</div>;
+  if (loading) return <div className="pt-40 text-center text-stone-400 uppercase tracking-widest">Preparing Analysis...</div>;
 
   // --- VIEW: SELECT OPPONENT ---
   if (selectingOpponent && perfumeA) {
     return (
       <div className="max-w-4xl mx-auto px-6 mt-12 pb-20">
         <div className="text-center mb-10">
-          <h1 className="font-serif text-3xl text-stone-900 mb-2">Choose Opponent</h1>
-          <p className="text-stone-500 text-sm">Who will battle against <span className="font-bold">{perfumeA.name}</span>?</p>
+          <h1 className="font-serif text-3xl text-stone-900 mb-2">Select Opponent</h1>
+          <p className="text-stone-500 text-sm">Comparing against <span className="font-bold">{perfumeA.name}</span></p>
         </div>
-
-        {/* Search Bar */}
-        <div className="max-w-md mx-auto mb-10">
-          <input 
-            type="text" 
-            placeholder="Search perfume or brand..." 
-            className="w-full p-3 rounded-xl border border-stone-200 bg-white text-stone-800 focus:outline-none focus:border-stone-400 transition"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-
-        {/* Selection Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {filteredCandidates.map((perfume) => (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {allPerfumes.map((perfume) => (
             <button
               key={perfume.id}
               onClick={() => selectOpponent(perfume.id)}
-              className="bg-white rounded-xl p-4 shadow-sm border border-stone-100 hover:shadow-md hover:border-stone-300 transition-all text-left group"
+              className="group bg-white rounded-2xl p-5 border border-stone-200 hover:border-stone-400 hover:shadow-lg transition-all duration-500 text-left h-full flex flex-col"
             >
-              <div className="h-24 mb-3 flex items-center justify-center p-2">
-                  {perfume.image_url ? (
-                    <Image src={perfume.image_url} width={96} height={96} className="h-full object-contain mix-blend-multiply group-hover:scale-105 transition duration-500" alt={perfume.name || 'Perfume image'} />
-                  ) : (
-                    <div className="text-stone-300 text-[10px]">No Image</div>
-                  )}
-                </div>
-              
-              {/* FIX: Removed <Link>, just text now */}
-              <div className="text-[9px] font-bold tracking-widest text-stone-400 uppercase truncate">
-                {perfume.brand?.name}
+              <div className="h-40 mb-4 flex items-center justify-center p-4 bg-stone-50/50 rounded-xl group-hover:bg-stone-50 transition-colors">
+                {perfume.image_url ? (
+                  <img
+                    src={perfume.image_url}
+                    className="h-full w-full object-contain mix-blend-multiply group-hover:scale-110 transition duration-700"
+                    alt={perfume.name}
+                  />
+                ) : (
+                  <span className="text-xs text-stone-300">No Image</span>
+                )}
               </div>
-              <div className="font-serif text-sm text-stone-900 truncate">{perfume.name}</div>
+              <div className="text-[10px] font-bold tracking-widest text-stone-400 uppercase truncate mb-1">{perfume.brand?.name}</div>
+              <div className="font-serif text-lg text-stone-900 leading-tight truncate flex-grow">{perfume.name}</div>
             </button>
           ))}
         </div>
@@ -176,16 +134,18 @@ function CompareContent() {
     );
   }
 
-  // --- VIEW: BATTLE ARENA ---
-  if (error || !perfumeA || !perfumeB) return (
-    <div className="min-h-[60vh] flex flex-col items-center justify-center gap-6 text-center px-4">
-      <h2 className="font-serif text-2xl text-stone-800">Arena Empty</h2>
-      <p className="text-stone-500 max-w-md text-sm">{error}</p>
-      <Link href="/" className="px-6 py-2 bg-stone-900 text-white rounded-full text-xs uppercase font-bold tracking-widest">
-        Return Home
-      </Link>
-    </div>
-  );
+  if (error || !perfumeA || !perfumeB) return <div className="pt-40 text-center text-stone-500">{error}</div>;
+
+  // Comparison Helpers
+  const getProfileKeys = () => {
+    const keysA = perfumeA.scent_profile ? Object.keys(perfumeA.scent_profile) : [];
+    const keysB = perfumeB.scent_profile ? Object.keys(perfumeB.scent_profile) : [];
+    return Array.from(new Set([...keysA, ...keysB]));
+  };
+
+  const getNotes = (p: any, type: string) => {
+    return p.perfume_notes?.filter((n: any) => n.type === type) || [];
+  };
 
   // Helper function to convert price tier string to numeric value
   const getPriceTierValue = (priceTier: string | null): number => {
@@ -197,73 +157,170 @@ function CompareContent() {
   // Comparison Logic Helpers
   const getWinnerClass = (valA: number | null, valB: number | null, isA: boolean) => {
     if (valA === null || valB === null) return 'text-stone-400';
-    if (valA > valB) return isA ? 'text-green-600 font-bold' : 'text-stone-300';
-    if (valB > valA) return !isA ? 'text-green-600 font-bold' : 'text-stone-300';
-    return 'text-stone-800 font-medium'; // Tie
+    if (valA > valB) return isA ? 'text-stone-900 font-bold text-xl' : 'text-stone-300 text-lg';
+    if (valB > valA) return !isA ? 'text-stone-900 font-bold text-xl' : 'text-stone-300 text-lg';
+    return 'text-stone-600 font-medium'; // Tie
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 mt-12 mb-20">
-      {/* THE FIGHTERS */}
-      <div className="grid grid-cols-2 gap-4 md:gap-12 items-end mb-12">
+    <div className="max-w-6xl mx-auto px-4 mt-12 mb-20">
+      
+      {/* 1. HEAD-TO-HEAD HEADER */}
+      <div className="grid grid-cols-2 gap-4 md:gap-12 items-end mb-16 border-b border-stone-200 pb-12">
         {[perfumeA, perfumeB].map((p, i) => (
-         <div key={i} className="text-center">
-           <div className="bg-white rounded-2xl p-6 shadow-sm border border-stone-100 mb-4 h-48 md:h-64 flex items-center justify-center">
-              {p.image_url ? <Image src={p.image_url} width={200} height={200} className="h-full object-contain mix-blend-multiply" alt={p.name || 'Perfume image'} /> : "No Image"}
+           <div key={i} className="text-center">
+             <div className="bg-white rounded-2xl p-6 border border-stone-100 mb-6 h-56 md:h-72 flex items-center justify-center relative">
+                {p.image_url ? <img src={p.image_url} className="h-full object-contain mix-blend-multiply" /> : "No Image"}
+             </div>
+             <div className="text-[10px] font-bold tracking-widest text-stone-400 uppercase mb-2">{p.brand?.name}</div>
+             <Link href={`/perfume/${p.id}`}>
+               <h2 className="font-serif text-xl md:text-4xl text-stone-900 leading-tight mb-2 hover:text-stone-600 cursor-pointer transition-colors">{p.name}</h2>
+             </Link>
+             <div className="flex justify-center gap-4 text-xs text-stone-500 italic">
+               <span>{p.perfumer || 'Unknown Nose'}</span>
+               <span>•</span>
+               <span>{p.release_year || 'N/A'}</span>
+             </div>
            </div>
-           <div className="text-[10px] font-bold tracking-widest text-stone-400 uppercase mb-1">{p.brand?.name}</div>
-           <h2 className="font-serif text-lg md:text-3xl text-stone-900 leading-tight">{p.name}</h2>
-         </div>
-      ))}
+        ))}
       </div>
 
-      {/* THE STATS TABLE */}
-      <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-sm">
+      {/* 2. BASIC METRICS COMPARISON */}
+      <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-sm mb-16">
         
         {/* Price */}
         <div className="grid grid-cols-3 border-b border-stone-100 py-6 items-center hover:bg-stone-50 transition">
-           <div className={`text-center text-lg ${getPriceTierValue(perfumeA.price_tier) < getPriceTierValue(perfumeB.price_tier) ? 'text-green-600 font-bold' : 'text-stone-400'}`}>{perfumeA.price_tier || '-'}</div>
+           <div className={`text-center text-lg ${getPriceTierValue(perfumeA.price_tier) < getPriceTierValue(perfumeB.price_tier) ? 'text-stone-900 font-bold text-xl' : 'text-stone-300 text-lg'}`}>{perfumeA.price_tier || '-'}</div>
            <div className="text-center text-[9px] font-bold uppercase tracking-[0.2em] text-stone-400">Price</div>
-           <div className={`text-center text-lg ${getPriceTierValue(perfumeB.price_tier) < getPriceTierValue(perfumeA.price_tier) ? 'text-green-600 font-bold' : 'text-stone-400'}`}>{perfumeB.price_tier || '-'}</div>
+           <div className={`text-center text-lg ${getPriceTierValue(perfumeB.price_tier) < getPriceTierValue(perfumeA.price_tier) ? 'text-stone-900 font-bold text-xl' : 'text-stone-300 text-lg'}`}>{perfumeB.price_tier || '-'}</div>
         </div>
 
         {/* Longevity */}
         <div className="grid grid-cols-3 border-b border-stone-100 py-6 items-center hover:bg-stone-50 transition">
-           <div className={`text-center text-xl ${getWinnerClass(perfumeA.longevity_rating, perfumeB.longevity_rating, true)}`}>{perfumeA.longevity_rating}/5</div>
+           <div className={`text-center ${getWinnerClass(perfumeA.longevity_rating, perfumeB.longevity_rating, true)}`}>
+             {perfumeA.longevity_rating ? ratingToHourRange(perfumeA.longevity_rating) : '-'}
+           </div>
            <div className="text-center text-[9px] font-bold uppercase tracking-[0.2em] text-stone-400">Longevity</div>
-           <div className={`text-center text-xl ${getWinnerClass(perfumeA.longevity_rating, perfumeB.longevity_rating, false)}`}>{perfumeB.longevity_rating}/5</div>
+           <div className={`text-center ${getWinnerClass(perfumeA.longevity_rating, perfumeB.longevity_rating, false)}`}>
+             {perfumeB.longevity_rating ? ratingToHourRange(perfumeB.longevity_rating) : '-'}
+           </div>
         </div>
 
         {/* Sillage */}
         <div className="grid grid-cols-3 border-b border-stone-100 py-6 items-center hover:bg-stone-50 transition">
-           <div className={`text-center text-xl ${getWinnerClass(perfumeA.sillage_rating, perfumeB.sillage_rating, true)}`}>{perfumeA.sillage_rating}/5</div>
+           <div className={`text-center ${getWinnerClass(perfumeA.sillage_rating, perfumeB.sillage_rating, true)}`}>{perfumeA.sillage_rating}/5</div>
            <div className="text-center text-[9px] font-bold uppercase tracking-[0.2em] text-stone-400">Sillage</div>
-           <div className={`text-center text-xl ${getWinnerClass(perfumeA.sillage_rating, perfumeB.sillage_rating, false)}`}>{perfumeB.sillage_rating}/5</div>
+           <div className={`text-center ${getWinnerClass(perfumeA.sillage_rating, perfumeB.sillage_rating, false)}`}>{perfumeB.sillage_rating}/5</div>
         </div>
 
         {/* Seasons */}
         <div className="grid grid-cols-3 py-8 items-center hover:bg-stone-50 transition">
            <div className="flex justify-center gap-1 flex-wrap px-4">
-             {perfumeA.best_season?.map((s:string) => <span key={s} className="text-[9px] border border-stone-200 px-2 py-1 rounded text-stone-600 bg-white">{s}</span>)}
+             {perfumeA.best_season?.map((s:string) => <span key={s} className="text-[10px] border border-stone-200 px-2 py-1 rounded text-stone-500 uppercase">{s}</span>)}
            </div>
            <div className="text-center text-[9px] font-bold uppercase tracking-[0.2em] text-stone-400">Seasons</div>
            <div className="flex justify-center gap-1 flex-wrap px-4">
-             {perfumeB.best_season?.map((s:string) => <span key={s} className="text-[9px] border border-stone-200 px-2 py-1 rounded text-stone-600 bg-white">{s}</span>)}
+             {perfumeB.best_season?.map((s:string) => <span key={s} className="text-[10px] border border-stone-200 px-2 py-1 rounded text-stone-500 uppercase">{s}</span>)}
            </div>
         </div>
 
       </div>
+
+      {/* 3. THE STORY BATTLE */}
+      <div className="grid md:grid-cols-2 gap-8 mb-16">
+        {[perfumeA, perfumeB].map((p, i) => (
+          <div key={i} className="bg-stone-50 p-8 rounded-2xl border border-stone-100">
+             <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-3">The Vibe</h4>
+             <p className="font-serif text-lg text-stone-800 italic leading-relaxed">"{p.scenario || 'No description available.'}"</p>
+          </div>
+        ))}
+      </div>
+
+      {/* 3. SCENT DNA ANALYSIS (Radar Bars) */}
+      <div className="mb-16">
+        <h3 className="font-serif text-2xl text-stone-900 mb-8 text-center">Olfactory DNA</h3>
+        <div className="bg-white rounded-2xl border border-stone-200 p-8">
+          {getProfileKeys().map((key) => {
+            const valA = perfumeA.scent_profile?.[key] || 0;
+            const valB = perfumeB.scent_profile?.[key] || 0;
+            return (
+              <div key={key} className="mb-6 last:mb-0">
+                <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-2">
+                  <span>{valA}/10</span>
+                  <span className="text-stone-900">{key}</span>
+                  <span>{valB}/10</span>
+                </div>
+                <div className="flex gap-1 h-2">
+                  {/* Left Bar (Right Aligned) */}
+                  <div className="flex-1 flex justify-end bg-stone-50 rounded-l-full overflow-hidden">
+                    <div className="h-full bg-stone-400" style={{ width: `${valA * 10}%` }}></div>
+                  </div>
+                  {/* Center Divider */}
+                  <div className="w-0.5 bg-stone-200"></div>
+                  {/* Right Bar (Left Aligned) */}
+                  <div className="flex-1 flex justify-start bg-stone-50 rounded-r-full overflow-hidden">
+                    <div className="h-full bg-stone-900" style={{ width: `${valB * 10}%` }}></div>
+                  </div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* 4. NOTE-FOR-NOTE BREAKDOWN */}
+      <div className="mb-20">
+        <h3 className="font-serif text-2xl text-stone-900 mb-8 text-center">Composition Battle</h3>
+        <div className="grid gap-4">
+           {['Top', 'Heart', 'Base'].map((type) => (
+             <div key={type} className="grid grid-cols-3 border-b border-stone-200 pb-6 last:border-0">
+                {/* Perfume A Notes */}
+                <div className="flex flex-wrap gap-2 justify-end content-start">
+                  {getNotes(perfumeA, type).map((n: any) => (
+                    <Link
+                      key={n.note.name}
+                      href={`/ingredients/${encodeURIComponent(n.note.name.toLowerCase())}`}
+                      className="flex items-center gap-1 px-2 py-1 bg-stone-50 border border-stone-100 rounded text-[10px] text-stone-600 hover:bg-stone-100 hover:border-stone-300 transition-colors"
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: n.note.color_hex }}></span>
+                      <span>{n.note.name}</span>
+                    </Link>
+                  ))}
+                </div>
+                
+                {/* Label */}
+                <div className="text-center text-[10px] font-bold uppercase tracking-[0.2em] text-stone-300 pt-1">
+                  {type}
+                </div>
+
+                {/* Perfume B Notes */}
+                <div className="flex flex-wrap gap-2 justify-start content-start">
+                  {getNotes(perfumeB, type).map((n: any) => (
+                    <Link
+                      key={n.note.name}
+                      href={`/ingredients/${encodeURIComponent(n.note.name.toLowerCase())}`}
+                      className="flex items-center gap-1 px-2 py-1 bg-stone-50 border border-stone-100 rounded text-[10px] text-stone-600 hover:bg-stone-100 hover:border-stone-300 transition-colors"
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: n.note.color_hex }}></span>
+                      <span>{n.note.name}</span>
+                    </Link>
+                  ))}
+                </div>
+             </div>
+           ))}
+        </div>
+      </div>
+
     </div>
   );
 }
 
 export default function ComparePage() {
   return (
-    <div className="min-h-screen bg-white text-gray-800 font-sans">
-      <div className="px-6 py-4 border-b border-stone-200 flex justify-between items-center bg-white/50 backdrop-blur sticky top-0 z-10">
-        <Link href="/" className="text-xs font-bold tracking-widest uppercase hover:text-stone-500">← Home</Link>
-        <span className="font-serif text-xl italic">Scent Battle</span>
-        <div className="w-8"></div>
+    <div className="min-h-screen bg-stone-50 text-gray-800 font-sans">
+      <div className="px-6 py-4 border-b border-stone-200 flex justify-between items-center bg-white/90 backdrop-blur-md sticky top-0 z-10">
+        <Link href="/" className="text-xs font-semibold uppercase tracking-widest hover:opacity-60 transition">← Collection</Link>
+        <span className="text-[10px] font-mono uppercase tracking-widest text-stone-400">Perfume Intuition</span>
       </div>
       <Suspense fallback={<div className="pt-40 text-center text-stone-400">Loading...</div>}>
         <CompareContent />

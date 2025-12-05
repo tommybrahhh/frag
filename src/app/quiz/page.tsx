@@ -299,15 +299,6 @@ export default function QuizPage() {
           </div>
         </div>
 
-        {/* Exit Button - Top Right */}
-        <div className="absolute top-4 right-4">
-          <button
-            onClick={exitQuiz}
-            className="text-stone-400 hover:text-stone-600 text-sm px-3 py-1 transition-colors"
-          >
-            Exit
-          </button>
-        </div>
 
         {/* Question Card */}
         <div className="bg-white rounded-2xl p-8 border border-stone-100 shadow-sm">
@@ -331,14 +322,22 @@ export default function QuizPage() {
             ))}
           </div>
           
-          <div className="flex justify-between">
-            <button
-              onClick={handleBack}
-              disabled={quizState.currentStep === 0}
-              className="px-6 py-2 text-stone-600 disabled:opacity-30 disabled:cursor-not-allowed"
-            >
-              Back
-            </button>
+          <div className="flex justify-between items-center">
+            <div className="flex space-x-4">
+              <button
+                onClick={exitQuiz}
+                className="text-stone-400 hover:text-stone-600 text-sm px-3 py-2 transition-colors"
+              >
+                Exit
+              </button>
+              <button
+                onClick={handleBack}
+                disabled={quizState.currentStep === 0}
+                className="px-6 py-2 text-stone-600 disabled:opacity-30 disabled:cursor-not-allowed"
+              >
+                Back
+              </button>
+            </div>
             
             <button
               onClick={handleNext}

@@ -124,7 +124,7 @@ export default function PerfumePicker({ label, onSelect, selected, placeholder, 
       <input
         type="text"
         placeholder={placeholder || "Search perfume..."}
-        className="w-full bg-white border border-stone-200 rounded-xl px-4 py-4 outline-none focus:border-stone-800 transition"
+        className="w-full bg-transparent border-0 border-b border-stone-300 px-4 py-3 outline-none focus:border-stone-800 transition placeholder:text-stone-400"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         onFocus={() => setIsOpen(true)}
@@ -133,17 +133,17 @@ export default function PerfumePicker({ label, onSelect, selected, placeholder, 
       
       {/* Dropdown Results */}
       {isOpen && results.length > 0 && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-stone-200 rounded-xl shadow-xl z-50 overflow-hidden">
+        <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-2xl shadow-xl z-50 overflow-hidden border border-stone-100">
           {results.map((p) => (
-            <div key={p.id} 
-              className="flex items-center gap-3 p-3 hover:bg-stone-50 cursor-pointer border-b border-stone-50 last:border-0"
+            <div key={p.id}
+              className="flex items-center gap-3 p-3 hover:bg-stone-50 cursor-pointer border-b border-stone-50 last:border-0 transition"
               onClick={() => {
                 onSelect(p); // Pass the full perfume object back
                 setQuery('');
                 setIsOpen(false);
               }}
             >
-               <div className="w-8 h-8 bg-stone-100 rounded flex items-center justify-center">
+               <div className="w-8 h-10 bg-white rounded flex items-center justify-center">
                  {p.image_url && <img src={p.image_url} className="h-full object-contain mix-blend-multiply" />}
                </div>
                <div>
