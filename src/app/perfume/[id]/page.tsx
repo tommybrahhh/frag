@@ -101,66 +101,63 @@ export default function PerfumeDetail() {
     return priceTier.split('$').length - 1;
   };
 
-  // REFINED DUPE ALGORITHM
+  // CLIENT-SIDE DUPE DETECTION (Strict Mode)
   const findClientSideDupes = (mainPerfume: any, allPerfumes: any[]) => {
     if (!mainPerfume || !allPerfumes) return [];
 
-    const mainNotes = mainPerfume.perfume_notes?.map((n: any) => n.note?.name?.toLowerCase()) || [];
-    const mainVibes = mainPerfume.vibe_tags || [];
-    const mainFamily = categorizeScentFamily(mainNotes, mainVibes);
+    // Normalize main notes for comparison
+    const mainNotesRaw = mainPerfume.perfume_notes?.map((n: any) => n.note?.name) || [];
+    const mainNotesLower = mainNotesRaw.map((n: string) => n.toLowerCase());
     
-    // Helper: count matches
-    const getOverlap = (arr1: string[], arr2: string[]) => arr1.filter(item => arr2.includes(item));
+    const mainVibes = mainPerfume.vibe_tags || [];
+    const mainFamily = categorizeScentFamily(mainNotesLower, mainVibes);
 
     return allPerfumes
       .filter((perfume: any) => {
         if (perfume.id === mainPerfume.id) return false;
 
-        const candidateNotes = perfume.perfume_notes?.map((n: any) => n.note?.name?.toLowerCase()) || [];
+        const candidateNotesRaw = perfume.perfume_notes?.map((n: any) => n.note?.name) || [];
+        const candidateNotesLower = candidateNotesRaw.map((n: string) => n.toLowerCase());
+        
         const candidateVibes = perfume.vibe_tags || [];
-        const candidateFamily = categorizeScentFamily(candidateNotes, candidateVibes);
+        const candidateFamily = categorizeScentFamily(candidateNotesLower, candidateVibes);
 
-        // 1. FAMILY LOCK: Must share the same dominant family (e.g. Woody vs Woody)
+        // 1. FAMILY CHECK: Must share dominant family (e.g. both Woody)
         if (mainFamily && candidateFamily && mainFamily !== candidateFamily) return false;
 
-        // 2. CLASH PROTECTION: Don't match Dark/Oud with Fresh/Citrus
-        const isMainDark = mainVibes.some((v:string) => ['dark', 'oud', 'smoky', 'leather'].includes(v.toLowerCase()));
-        const isCandFresh = candidateVibes.some((v:string) => ['fresh', 'citrus', 'marine', 'aquatic'].includes(v.toLowerCase()));
-        if (isMainDark && isCandFresh) return false;
-
-        // 3. NOTE THRESHOLD (The "DNA" Test)
-        const sharedNotes = getOverlap(mainNotes, candidateNotes);
+        // 2. SHARED NOTES CHECK
+        const sharedCount = candidateNotesLower.filter((n: string) => mainNotesLower.includes(n)).length;
         
-        // If targeting a Luxury perfume with a Cheapie, be stricter
-        const isLuxuryTarget = mainPerfume.price_tier === '$$$$' || mainPerfume.price_tier === '$$$';
-        const isCheapie = perfume.price_tier === '$';
-        
-        const minNotes = 3;
-        
-
-        if (sharedNotes.length < minNotes) return false;
+        // *** STRICT RULE: Must share at least 3 notes ***
+        if (sharedCount < 3) return false;
 
         return true;
       })
       .map((perfume: any) => {
-         // Recalculate score for sorting
-         const candidateNotes = perfume.perfume_notes?.map((n: any) => n.note?.name?.toLowerCase()) || [];
-         const candidateVibes = perfume.vibe_tags || [];
-         const sharedNotes = getOverlap(mainNotes, candidateNotes);
-         const sharedVibes = getOverlap(mainVibes, candidateVibes);
+         // Calculate ACTUAL shared notes for display (Intersection)
+         const candidateNotesRaw = perfume.perfume_notes?.map((n: any) => n.note?.name) || [];
+         const actualSharedNotes = candidateNotesRaw.filter((n: string) => 
+           mainNotesLower.includes(n.toLowerCase())
+         );
          
-         let score = (sharedNotes.length * 20) + (sharedVibes.length * 10);
-         if (perfume.price_tier && mainPerfume.price_tier && perfume.price_tier.length < mainPerfume.price_tier.length) score += 15;
-         
+         // Calculate Score based on overlap
+         const score = (actualSharedNotes.length * 20) + 
+                       (perfume.vibe_tags?.filter((t:string) => mainVibes.includes(t)).length * 10 || 0);
+
+         // Price Logic
+         const isCheaper = perfume.price_tier && mainPerfume.price_tier && 
+                           perfume.price_tier.length < mainPerfume.price_tier.length;
+
          return {
             dupe_id: perfume.id,
             dupe_name: perfume.name,
             dupe_image_url: perfume.image_url,
             brand_name: perfume.brand?.name,
             dupe_price_tier: perfume.price_tier,
-            match_type: score > 80 ? 'Excellent Alternative' : 'Good Alternative',
+            // Badge Logic
+            match_type: isCheaper ? 'Smart Buy' : 'DNA Match',
             match_score: Math.min(score, 98),
-            shared_notes: sharedNotes
+            shared_notes: actualSharedNotes // This now contains ONLY the matching notes
          };
       })
       .sort((a: any, b: any) => b.match_score - a.match_score)
