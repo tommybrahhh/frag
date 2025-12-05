@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 
 interface Note {
@@ -21,20 +21,23 @@ export default function IngredientSearch({ onIngredientsChange, selectedIngredie
   const [results, setResults] = useState<Note[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
   const searchRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // Close dropdown if clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
         setIsOpen(false);
+        setSelectedIndex(-1);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Fetch Logic (Debounced slightly by manual typing speed)
+  // Fetch Logic (Debounced)
   useEffect(() => {
     const fetchResults = async () => {
       // Always show popular ingredients when input is empty, regardless of selected ingredients
@@ -45,6 +48,7 @@ export default function IngredientSearch({ onIngredientsChange, selectedIngredie
           const data = await res.json();
           setResults(data);
           setIsOpen(true);
+          setSelectedIndex(-1);
         } catch (err) {
           console.error('Failed to fetch popular ingredients:', err);
           setResults([]);
@@ -57,15 +61,17 @@ export default function IngredientSearch({ onIngredientsChange, selectedIngredie
       if (query.length < 2) {
         setResults([]);
         setIsOpen(false);
+        setSelectedIndex(-1);
         return;
       }
       
       setLoading(true);
       try {
-        const res = await fetch(`/api/notes/search?q=${query}`);
+        const res = await fetch(`/api/notes/search?q=${encodeURIComponent(query)}`);
         const data = await res.json();
         setResults(data);
         setIsOpen(true);
+        setSelectedIndex(-1);
       } catch (err) {
         console.error(err);
       } finally {
@@ -73,9 +79,64 @@ export default function IngredientSearch({ onIngredientsChange, selectedIngredie
       }
     };
 
-    const timeoutId = setTimeout(fetchResults, 300); // 300ms delay
+    const timeoutId = setTimeout(fetchResults, 200); // Reduced debounce time for better responsiveness
     return () => clearTimeout(timeoutId);
   }, [query]);
+
+  // Keyboard navigation
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!isOpen || results.length === 0) return;
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setSelectedIndex(prev =>
+          prev < results.length - 1 ? prev + 1 : 0
+        );
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setSelectedIndex(prev =>
+          prev > 0 ? prev - 1 : results.length - 1
+        );
+        break;
+      case 'Enter':
+        e.preventDefault();
+        if (selectedIndex >= 0 && selectedIndex < results.length) {
+          addIngredient(results[selectedIndex].name);
+        }
+        break;
+      case 'Escape':
+        e.preventDefault();
+        setIsOpen(false);
+        setSelectedIndex(-1);
+        break;
+      case 'Tab':
+        if (selectedIndex >= 0 && selectedIndex < results.length) {
+          e.preventDefault();
+          addIngredient(results[selectedIndex].name);
+        }
+        break;
+    }
+  }, [isOpen, results, selectedIndex]);
+
+  // Highlight matched text
+  const highlightMatch = useCallback((text: string, query: string) => {
+    if (!query || query.length < 2) return text;
+    
+    const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    const parts = text.split(regex);
+    
+    return parts.map((part, index) =>
+      regex.test(part) ? (
+        <span key={index} className="bg-yellow-100 text-stone-900 font-medium">
+          {part}
+        </span>
+      ) : (
+        part
+      )
+    );
+  }, []);
 
   const addIngredient = (ingredient: string) => {
     if (!selectedIngredients.includes(ingredient)) {
@@ -83,6 +144,10 @@ export default function IngredientSearch({ onIngredientsChange, selectedIngredie
     }
     setQuery('');
     setIsOpen(false);
+    setSelectedIndex(-1);
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
   };
 
   const removeIngredient = (ingredient: string) => {
@@ -115,12 +180,17 @@ export default function IngredientSearch({ onIngredientsChange, selectedIngredie
       {/* Search Input */}
       <div className="relative group">
         <input
+          ref={inputRef}
           type="text"
           placeholder="Add an ingredient..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setIsOpen(true)}
+          onKeyDown={handleKeyDown}
           className="w-full bg-white border border-stone-200 text-stone-800 text-sm px-4 py-3 pl-10 rounded-full outline-none focus:border-stone-400 focus:shadow-sm transition-all placeholder:text-stone-400"
+          aria-autocomplete="list"
+          aria-controls="ingredient-results"
+          aria-expanded={isOpen}
         />
         {/* Search Icon */}
         <svg className="w-4 h-4 text-stone-400 absolute left-3.5 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -130,7 +200,11 @@ export default function IngredientSearch({ onIngredientsChange, selectedIngredie
 
       {/* Results Dropdown */}
      {isOpen && (results.length > 0 || loading) && (
-       <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-stone-100 overflow-hidden z-50 max-h-64 overflow-y-auto">
+       <div
+         id="ingredient-results"
+         className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-stone-100 overflow-hidden z-50 max-h-64 overflow-y-auto"
+         role="listbox"
+       >
          
          {loading && (
            <div className="p-4 text-center text-xs text-stone-400 tracking-widest">SEARCHING...</div>
@@ -148,11 +222,18 @@ export default function IngredientSearch({ onIngredientsChange, selectedIngredie
            <div className="p-4 text-center text-xs text-stone-400 italic">No ingredients found.</div>
          )}
 
-         {!loading && results.map((note) => (
+         {!loading && results.map((note, index) => (
            <button
              key={note.id}
              onClick={() => addIngredient(note.name)}
-             className="w-full flex items-center gap-3 p-3 hover:bg-stone-50 transition border-b border-stone-50 last:border-0 text-left"
+             onMouseEnter={() => setSelectedIndex(index)}
+             className={`w-full flex items-center gap-3 p-3 transition border-b border-stone-50 last:border-0 text-left ${
+               index === selectedIndex
+                 ? 'bg-stone-100 border-stone-200'
+                 : 'hover:bg-stone-50'
+             }`}
+             role="option"
+             aria-selected={index === selectedIndex}
            >
              {/* Color indicator */}
              <div
@@ -162,7 +243,9 @@ export default function IngredientSearch({ onIngredientsChange, selectedIngredie
              
              {/* Text Info */}
              <div className="flex-1">
-               <div className="text-sm font-serif text-stone-800 capitalize">{note.name}</div>
+               <div className="text-sm font-serif text-stone-800 capitalize">
+                 {query.length >= 2 ? highlightMatch(note.name, query) : note.name}
+               </div>
                <div className="text-xs text-stone-400 capitalize">{note.family} Family</div>
              </div>
            </button>

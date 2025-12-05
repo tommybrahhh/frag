@@ -30,15 +30,14 @@ export async function GET(
       return NextResponse.json({ error: 'Ingredient not found' }, { status: 404 });
     }
 
-    // 4. Fetch perfumes that use this note
+    // 4. Fetch perfumes that use this note (removed limit to show all perfumes)
     const { data: perfumes, error: perfumeError } = await supabase
       .from('perfumes')
       .select(`
         id, name, image_url, brand:brands!perfumes_brand_id_fkey(name),
-        perfume_notes!inner(note_id) 
+        perfume_notes!inner(note_id)
       `)
-      .eq('perfume_notes.note_id', note.id)
-      .limit(20);
+      .eq('perfume_notes.note_id', note.id);
 
     if (perfumeError) throw perfumeError;
 
