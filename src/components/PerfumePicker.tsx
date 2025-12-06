@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { createClient } from '@/lib/supabase';
 
 interface PerfumePickerProps {
@@ -17,13 +17,16 @@ export default function PerfumePicker({ label, onSelect, selected, placeholder, 
   const [results, setResults] = useState<any[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState<string>('all');
+  const [selectedIndex, setSelectedIndex] = useState(-1);
   const pickerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // Close dropdown if clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (pickerRef.current && !pickerRef.current.contains(event.target as Node)) {
         setIsOpen(false);
+        setSelectedIndex(-1);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -51,8 +54,10 @@ export default function PerfumePicker({ label, onSelect, selected, placeholder, 
       
       setResults(filtered.slice(0, 5));
       setIsOpen(query.length > 0 || selectedFilter !== 'all');
+      setSelectedIndex(-1);
     } else if (query.length < 2 && selectedFilter === 'all') {
       setResults([]);
+      setSelectedIndex(-1);
       return;
     } else {
       // Fetch from database with filters
@@ -61,7 +66,7 @@ export default function PerfumePicker({ label, onSelect, selected, placeholder, 
         let queryBuilder = supabase.from('perfumes').select('*');
         
         if (query.length >= 2) {
-          queryBuilder = queryBuilder.or(`name.ilike.%${query}%,brand_name.ilike.%${query}%`);
+          queryBuilder = queryBuilder.ilike('name', `%${query}%`);
         }
         
         if (selectedFilter !== 'all') {
@@ -71,12 +76,78 @@ export default function PerfumePicker({ label, onSelect, selected, placeholder, 
         const { data } = await queryBuilder.limit(5);
         setResults(data || []);
         setIsOpen(true);
+        setSelectedIndex(-1);
       };
       
-      const timer = setTimeout(fetchResults, 300);
+      const timer = setTimeout(fetchResults, 200); // Reduced debounce time
       return () => clearTimeout(timer);
     }
   }, [query, filterOptions, selectedFilter]);
+
+  // Keyboard navigation
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!isOpen || results.length === 0) return;
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setSelectedIndex(prev =>
+          prev < results.length - 1 ? prev + 1 : 0
+        );
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setSelectedIndex(prev =>
+          prev > 0 ? prev - 1 : results.length - 1
+        );
+        break;
+      case 'Enter':
+        e.preventDefault();
+        if (selectedIndex >= 0 && selectedIndex < results.length) {
+          handleSelect(results[selectedIndex]);
+        }
+        break;
+      case 'Escape':
+        e.preventDefault();
+        setIsOpen(false);
+        setSelectedIndex(-1);
+        break;
+      case 'Tab':
+        if (selectedIndex >= 0 && selectedIndex < results.length) {
+          e.preventDefault();
+          handleSelect(results[selectedIndex]);
+        }
+        break;
+    }
+  }, [isOpen, results, selectedIndex]);
+
+  const handleSelect = (perfume: any) => {
+    onSelect(perfume);
+    setQuery('');
+    setIsOpen(false);
+    setSelectedIndex(-1);
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
+
+  // Highlight matched text
+  const highlightMatch = useCallback((text: string, query: string) => {
+    if (!query || query.length < 2) return text;
+    
+    const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    const parts = text.split(regex);
+    
+    return parts.map((part, index) =>
+      regex.test(part) ? (
+        <span key={index} className="bg-yellow-100 text-stone-900 font-medium">
+          {part}
+        </span>
+      ) : (
+        part
+      )
+    );
+  }, []);
 
   // If a perfume is already selected, show the "Loaded" card
   if (selected) {
