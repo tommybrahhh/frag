@@ -74,7 +74,7 @@ export async function getCompatiblePerfumes(basePerfume: any): Promise<any[]> {
   const scoredPerfumes = allPerfumes
     .filter((p: any) => p.id !== basePerfume.id) // Exclude the base perfume itself
     .map((perfume: any) => {
-      const tempResult = mixPerfumes(basePerfume, perfume);
+      const tempResult = mixPerfumes(basePerfume, perfume, 0.5);
       return {
         ...perfume,
         compatibilityScore: tempResult.safety,
@@ -121,10 +121,10 @@ export function findLayeringMatches(basePerfume: any, allPerfumes: any[]): any[]
     const hasSimpleProfile = perfumeVibes.some((vibe: string) =>
       simpleProfiles.some(simple => vibe.toLowerCase().includes(simple.toLowerCase()))
     );
-    if (hasSimpleProfile) score += 20;
+    if (hasSimpleProfile) score += 10; // Reduced from 20
 
     // Boost: Perfumes from the same brand
-    if (basePerfume.brand_name === perfume.brand_name) score += 15;
+    if (basePerfume.brand_name === perfume.brand_name) score += 10; // Reduced from 15
 
     // Boost: Shared harmonious vibes
     baseVibes.forEach((baseVibe: string) => {
@@ -143,6 +143,30 @@ export function findLayeringMatches(basePerfume: any, allPerfumes: any[]): any[]
       }
     });
 
+    // NEW: Scent Profile Compatibility (Complementary Scoring)
+    const baseProfile = basePerfume.scent_profile || {};
+    const perfumeProfile = perfume.scent_profile || {};
+    const traits = ['fresh', 'sweet', 'spicy', 'depth'];
+    let complementaryProfileScore = 0;
+
+    if (Object.keys(baseProfile).length > 0 && Object.keys(perfumeProfile).length > 0) {
+      traits.forEach(trait => {
+        const baseVal = baseProfile[trait] || 0;
+        const perfumeVal = perfumeProfile[trait] || 0;
+
+        if (baseVal < 4 && perfumeVal > 6) {
+          complementaryProfileScore += 20; // Strong complement: Fills a gap (increased from 10)
+        } else if (baseVal >= 4 && baseVal <= 6 && perfumeVal > 6) {
+          complementaryProfileScore += 10; // Enhancement: Boosts a moderate aspect (increased from 5)
+        } else if (baseVal > 6 && perfumeVal < 4) {
+          complementaryProfileScore -= 10; // Potential dilution: Weakens a strong aspect (increased from -5)
+        } else {
+          complementaryProfileScore += 2; // Neutral or slight boost for presence (increased from 1)
+        }
+      });
+      score += Math.max(0, complementaryProfileScore * 2); // Ensure non-negative and add to score (multiplied by 2)
+    }
+
     return { ...perfume, compatibilityScore: score };
   });
 
@@ -152,7 +176,7 @@ export function findLayeringMatches(basePerfume: any, allPerfumes: any[]): any[]
     .slice(0, 4);
 }
 
-export function mixPerfumes(p1: any, p2: any) {
+export function mixPerfumes(p1: any, p2: any, ratio: number = 0.5) {
   // 1. GENERATE CREATIVE NAME
   const nameOptions = [
     // Option 1: First word of P1 + Last word of P2
@@ -237,6 +261,19 @@ export function mixPerfumes(p1: any, p2: any) {
     warnings.push(`🌀 Complex: ${uniqueVibeCount} different vibe categories may create chaos`);
   }
 
+  // Safety adjustments for extreme ratios
+  let safetyAdjustment = 0;
+  if (ratio >= 0.9 || ratio <= 0.1) {
+    // Extreme ratios (90/10 or 10/90) reduce clash risk significantly
+    safetyAdjustment = 20;
+  } else if (ratio >= 0.8 || ratio <= 0.2) {
+    // High ratios (80/20 or 20/80) reduce clash risk moderately
+    safetyAdjustment = 10;
+  }
+
+  // Apply safety adjustment to risk score
+  riskScore = Math.max(0, riskScore - safetyAdjustment);
+
   // Normalize score and determine verdict
   const safety = Math.max(0, Math.min(100, 100 - riskScore));
 
@@ -260,15 +297,15 @@ export function mixPerfumes(p1: any, p2: any) {
     description = "Strong potential for discordant notes";
   }
 
-  // NEW: Calculate Merged Profile (Taking the MAX intensity of each trait)
+  // NEW: Calculate Weighted Profile using ratio
   // If p1 or p2 is missing a profile, default to 0
   const getVal = (p: any, key: string) => p.scent_profile?.[key] || 0;
 
   const newProfile = {
-    fresh: Math.max(getVal(p1, 'fresh'), getVal(p2, 'fresh')),
-    sweet: Math.max(getVal(p1, 'sweet'), getVal(p2, 'sweet')),
-    spicy: Math.max(getVal(p1, 'spicy'), getVal(p2, 'spicy')),
-    depth: Math.max(getVal(p1, 'depth'), getVal(p2, 'depth')),
+    fresh: (getVal(p1, 'fresh') * ratio) + (getVal(p2, 'fresh') * (1 - ratio)),
+    sweet: (getVal(p1, 'sweet') * ratio) + (getVal(p2, 'sweet') * (1 - ratio)),
+    spicy: (getVal(p1, 'spicy') * ratio) + (getVal(p2, 'spicy') * (1 - ratio)),
+    depth: (getVal(p1, 'depth') * ratio) + (getVal(p2, 'depth') * (1 - ratio)),
   };
 
   // Calculate performance metrics
@@ -303,9 +340,22 @@ export function mixPerfumes(p1: any, p2: any) {
 
   const performance = calculatePerformance();
 
+  // Dominant notes ordering: If ratio > 0.7, base perfume's notes appear first
+  let orderedCombinedVibes = combinedVibes;
+  if (ratio > 0.7) {
+    // Sort vibes: p1's vibes first, then p2's, then others
+    const p1Vibes = p1.vibe_tags || [];
+    const p2Vibes = p2.vibe_tags || [];
+    orderedCombinedVibes = [
+      ...p1Vibes.filter((v: string) => combinedVibes.includes(v)),
+      ...p2Vibes.filter((v: string) => combinedVibes.includes(v) && !p1Vibes.includes(v)),
+      ...combinedVibes.filter((v: string) => !p1Vibes.includes(v) && !p2Vibes.includes(v))
+    ];
+  }
+
   // Generate visual representation
   const generateVisualization = () => {
-    const dominantVibes = combinedVibes.slice(0, 3);
+    const dominantVibes = orderedCombinedVibes.slice(0, 3);
     const colors: Record<string, string> = {
       'Floral': '#FF9FF3',
       'Woody': '#A55EEA',
@@ -335,7 +385,7 @@ export function mixPerfumes(p1: any, p2: any) {
     description,
     warnings,
     tips,
-    combinedVibes: combinedVibes.slice(0, 6),
+    combinedVibes: orderedCombinedVibes.slice(0, 6),
     newProfile, // <--- The new Visual Data
     riskFactors: {
       totalVibes: uniqueVibeCount,

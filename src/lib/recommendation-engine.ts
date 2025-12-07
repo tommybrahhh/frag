@@ -181,7 +181,7 @@ export class RecommendationEngine {
       .filter(p => p.id !== mainPerfume.id)
       .map(candidate => {
         const candidateProfile = this.analyzeScentProfile(candidate);
-        const mixResult = mixPerfumes(mainPerfume, candidate);
+        const mixResult = mixPerfumes(mainPerfume, candidate, 0.5);
         
         // Layering-focused scoring (0-100 scale)
         let layeringScore = 50; // Start with neutral base

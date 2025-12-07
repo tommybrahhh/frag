@@ -40,14 +40,47 @@ export default function NotePicker({ label, selectedNotes, onAddNote, onRemoveNo
         {label}
       </label>
       
-      {/* Active Tags */}
-      <div className="flex flex-wrap gap-2 mb-3">
-        {selectedNotes.map(note => (
-          <span key={note} className={`text-xs px-3 py-1 rounded-full flex items-center gap-2 border ${colorTheme === 'green' ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800'}`}>
-            {note}
-            <button onClick={() => onRemoveNote(note)} className="hover:font-bold">×</button>
-          </span>
-        ))}
+      {/* Selected Tags Display */}
+      <div className="mb-4">
+        {selectedNotes.length === 0 ? (
+          <p className="text-xs text-stone-400 italic pl-1">No ingredients selected</p>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {selectedNotes.map(note => (
+              <span
+                key={note}
+                className={`
+                  flex items-center gap-2 pl-3 pr-2 py-1.5 rounded-full border transition-all duration-200
+                  ${colorTheme === 'green'
+                    ? 'bg-emerald-50 border-emerald-100 text-emerald-800'
+                    : 'bg-rose-50 border-rose-100 text-rose-800'
+                  }
+                `}
+              >
+                <span className="text-[10px] font-bold uppercase tracking-widest">{note}</span>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRemoveNote(note);
+                  }}
+                  className={`
+                    w-5 h-5 flex items-center justify-center rounded-full transition-colors
+                    ${colorTheme === 'green'
+                      ? 'hover:bg-emerald-200 text-emerald-600'
+                      : 'hover:bg-rose-200 text-rose-600'
+                    }
+                  `}
+                >
+                  {/* SVG Close Icon */}
+                  <svg width="8" height="8" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M13 1L1 13M1 1l12 12"/>
+                  </svg>
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Search Input */}
