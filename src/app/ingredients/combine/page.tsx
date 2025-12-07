@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import IngredientSearch from '@/components/IngredientSearch';
+import { analyzeIngredientCombination, classifyNoteVolatility } from '@/lib/alchemy';
 
 interface Perfume {
   id: string;
@@ -31,6 +32,27 @@ export default function CombineIngredientsPage() {
   const [perfumes, setPerfumes] = useState<Perfume[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [alchemyAnalysis, setAlchemyAnalysis] = useState<{
+    warnings: string[];
+    tips: string[];
+    hasClash: boolean;
+    hasHarmony: boolean;
+  }>({
+    warnings: [],
+    tips: [],
+    hasClash: false,
+    hasHarmony: false
+  });
+
+  // Group ingredients by volatility
+  const groupedIngredients = ingredientsData.reduce((acc, note) => {
+    const volatility = classifyNoteVolatility(note.name);
+    if (!acc[volatility]) {
+      acc[volatility] = [];
+    }
+    acc[volatility].push(note);
+    return acc;
+  }, {} as Record<string, typeof ingredientsData>);
 
   useEffect(() => {
     const fetchCombinedPerfumes = async () => {
@@ -54,8 +76,18 @@ export default function CombineIngredientsPage() {
         if (data.ingredients) {
           setIngredientsData(data.ingredients);
           setPerfumes(data.perfumes || []);
+          
+          // Run alchemy analysis on the ingredients
+          const analysis = analyzeIngredientCombination(data.ingredients);
+          setAlchemyAnalysis(analysis);
         } else {
           setPerfumes(data.perfumes || []);
+          setAlchemyAnalysis({
+            warnings: [],
+            tips: [],
+            hasClash: false,
+            hasHarmony: false
+          });
         }
 
       } catch (err: any) {
@@ -96,9 +128,10 @@ export default function CombineIngredientsPage() {
           </p>
 
           <div className="max-w-2xl mx-auto">
-            <IngredientSearch 
+            <IngredientSearch
               onIngredientsChange={handleIngredientsChange}
               selectedIngredients={selectedIngredients}
+              resolvedNotes={ingredientsData}
             />
           </div>
         </div>
@@ -110,25 +143,76 @@ export default function CombineIngredientsPage() {
               Selected Ingredients
             </h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {ingredientsData.map((note) => (
-                <div key={note.id} className="text-center">
-                  <div className="flex justify-center mb-4">
-                    <div 
-                      className="w-12 h-12 rounded-full shadow-inner border-4 border-stone-50"
-                      style={{ backgroundColor: note.color_hex || '#ddd' }}
-                    ></div>
-                  </div>
-                  <div className="text-xs font-bold uppercase tracking-[0.2em] text-stone-400 mb-1">
-                    {note.family} Family
-                  </div>
-                  <h3 className="font-serif text-lg text-stone-900 capitalize mb-2">
-                    {note.name}
-                  </h3>
-                  <p className="text-sm text-stone-600 leading-relaxed">
-                    {note.description || 'No description available.'}
-                  </p>
+            {/* Alchemy Analysis Warnings */}
+            {alchemyAnalysis.hasClash && (
+              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <h3 className="font-semibold text-red-800 mb-2">⚠️ Potential Clash Warning</h3>
+                <div className="text-red-700 text-sm">
+                  {alchemyAnalysis.warnings.map((warning, index) => (
+                    <div key={index} className="mb-1">• {warning}</div>
+                  ))}
                 </div>
+              </div>
+            )}
+
+            {/* Alchemy Analysis Tips */}
+            {alchemyAnalysis.hasHarmony && (
+              <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <h3 className="font-semibold text-green-800 mb-2">✨ Harmony Detected</h3>
+                <div className="text-green-700 text-sm">
+                  {alchemyAnalysis.tips.map((tip, index) => (
+                    <div key={index} className="mb-1">• {tip}</div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Educational Section */}
+            <div className="mb-8 p-6 bg-stone-50 border border-stone-200 rounded-2xl">
+              <h3 className="font-serif text-xl text-stone-900 mb-4">Understanding Scent Structure</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="text-center">
+                  <div className="text-sm font-bold uppercase tracking-widest text-stone-400 mb-2">Top Notes</div>
+                  <p className="text-sm text-stone-600">First impression, evaporates quickly (15-30 min). Citrus, fresh, light aromatics.</p>
+                </div>
+                <div className="text-center">
+                  <div className="text-sm font-bold uppercase tracking-widest text-stone-400 mb-2">Heart Notes</div>
+                  <p className="text-sm text-stone-600">Core character, lasts 2-4 hours. Floral, spice, green, fruity notes.</p>
+                </div>
+                <div className="text-center">
+                  <div className="text-sm font-bold uppercase tracking-widest text-stone-400 mb-2">Base Notes</div>
+                  <p className="text-sm text-stone-600">Foundation, lasts 4-8+ hours. Woody, musk, amber, vanilla, deep notes.</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Grouped Ingredients by Volatility */}
+            <div className="space-y-6">
+              {['Top', 'Heart', 'Base'].map((volatility) => (
+                groupedIngredients[volatility]?.length > 0 && (
+                  <div key={volatility} className="border border-stone-200 rounded-2xl p-6">
+                    <h3 className="font-serif text-xl text-stone-900 mb-4">
+                      {volatility} Notes
+                      <span className="ml-2 text-sm font-normal text-stone-400">
+                        ({groupedIngredients[volatility].length} ingredients)
+                      </span>
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {groupedIngredients[volatility].map((note) => (
+                        <div key={note.id} className="flex items-center p-3 bg-stone-50 rounded-xl">
+                          <div
+                            className="w-8 h-8 rounded-full border-2 border-stone-100 mr-3"
+                            style={{ backgroundColor: note.color_hex || '#e5e7eb' }}
+                          ></div>
+                          <div className="flex-1">
+                            <div className="font-medium text-stone-900 capitalize">{note.name}</div>
+                            <div className="text-xs text-stone-500">{note.family} Family</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )
               ))}
             </div>
           </div>

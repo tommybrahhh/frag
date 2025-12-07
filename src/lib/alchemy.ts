@@ -46,6 +46,39 @@ const PERFUME_ALCHEMY_RULES: AlchemyRules = {
   ]
 };
 
+// Volatility classification for notes
+const VOLATILITY_CLASSIFICATION: Record<string, string[]> = {
+  Top: [
+    'bergamot', 'lemon', 'orange', 'grapefruit', 'mandarin', 'lime', 'neroli',
+    'petitgrain', 'lavender', 'rosemary', 'basil', 'mint', 'eucalyptus',
+    'black pepper', 'anise', 'aldehydes', 'green notes', 'light fruits'
+  ],
+  Heart: [
+    'rose', 'jasmine', 'ylang ylang', 'tuberose', 'lily', 'carnation', 'iris',
+    'geranium', 'chamomile', 'clove', 'cinnamon', 'cardamom', 'nutmeg',
+    'cumin', 'sage', 'thyme', 'tea', 'fruity notes', 'spicy notes'
+  ],
+  Base: [
+    'sandalwood', 'cedar', 'patchouli', 'oakmoss', 'vetiver', 'amber', 'vanilla',
+    'tonka', 'benzoin', 'labdanum', 'musk', 'leather', 'tobacco', 'incense',
+    'myrrh', 'frankincense', 'oud', 'gourmand notes', 'woody notes'
+  ]
+};
+
+// Function to classify note by volatility
+export function classifyNoteVolatility(noteName: string): string {
+  const name = noteName.toLowerCase();
+  
+  for (const [volatility, notes] of Object.entries(VOLATILITY_CLASSIFICATION)) {
+    if (notes.some(note => name.includes(note) || note.includes(name))) {
+      return volatility;
+    }
+  }
+  
+  // Default to Heart for unknown notes
+  return 'Heart';
+}
+
 // Weighted scoring system
 const SCORE_WEIGHTS = {
   MAJOR_CLASH: 40,
@@ -176,7 +209,108 @@ export function findLayeringMatches(basePerfume: any, allPerfumes: any[]): any[]
     .slice(0, 4);
 }
 
+// Function to analyze ingredient combinations for clashes and harmonies
+export function analyzeIngredientCombination(ingredients: any[]): {
+  warnings: string[];
+  tips: string[];
+  hasClash: boolean;
+  hasHarmony: boolean;
+} {
+  const warnings: string[] = [];
+  const tips: string[] = [];
+  
+  const families = ingredients.map(ing => ing.family).filter(Boolean);
+  const uniqueFamilies = Array.from(new Set(families));
+
+  // Check for major clashes
+  uniqueFamilies.forEach(family1 => {
+    uniqueFamilies.forEach(family2 => {
+      if (family1 !== family2) {
+        if (PERFUME_ALCHEMY_RULES.MAJOR_CLASHES[family1]?.includes(family2)) {
+          warnings.push(`🚫 Warning: ${family1} and ${family2} notes often clash`);
+        }
+        if (PERFUME_ALCHEMY_RULES.MINOR_CLASHES[family1]?.includes(family2)) {
+          warnings.push(`⚠️ Note: ${family1} and ${family2} can be challenging to balance`);
+        }
+        if (PERFUME_ALCHEMY_RULES.HARMONIOUS_PAIRS[family1]?.includes(family2)) {
+          tips.push(`✨ Classic: ${family1} and ${family2} create beautiful harmony`);
+        }
+      }
+    });
+  });
+
+  // Check for classic accords
+  const ingredientNames = ingredients.map(ing => ing.name.toLowerCase());
+  
+  // Classic Chypre: Oakmoss + Bergamot + Patchouli/Labdanum
+  const hasChypre = (
+    ingredientNames.includes('oakmoss') && 
+    ingredientNames.includes('bergamot') &&
+    (ingredientNames.includes('patchouli') || ingredientNames.includes('labdanum'))
+  );
+
+  // Classic Fougère: Lavender + Oakmoss + Coumarin
+  const hasFougere = (
+    ingredientNames.includes('lavender') && 
+    ingredientNames.includes('oakmoss') &&
+    ingredientNames.includes('coumarin')
+  );
+
+  // Oriental Accord: Vanilla + Amber + Spices
+  const hasOriental = (
+    ingredientNames.includes('vanilla') && 
+    ingredientNames.includes('amber') &&
+    (ingredientNames.includes('cinnamon') || ingredientNames.includes('clove') || ingredientNames.includes('cardamom'))
+  );
+
+  // Citrus Aromatic: Citrus + Herbal notes
+  const hasCitrusAromatic = (
+    (ingredientNames.includes('bergamot') || ingredientNames.includes('lemon') || ingredientNames.includes('orange')) &&
+    (ingredientNames.includes('lavender') || ingredientNames.includes('rosemary') || ingredientNames.includes('thyme'))
+  );
+
+  if (hasChypre) {
+    tips.push('🏛️ Classic Chypre Accord Detected: Timeless elegance with mossy depth');
+  }
+  if (hasFougere) {
+    tips.push('🌿 Classic Fougère Accord Detected: Aromatic fougère structure');
+  }
+  if (hasOriental) {
+    tips.push('🌅 Classic Oriental Accord Detected: Warm, spicy, and sensual');
+  }
+  if (hasCitrusAromatic) {
+    tips.push('🍋 Citrus Aromatic Accord Detected: Fresh and invigorating');
+  }
+
+  // Check for synergistic families
+  PERFUME_ALCHEMY_RULES.SYNERGISTIC_FAMILIES.forEach(([family1, family2]) => {
+    if (families.includes(family1) && families.includes(family2)) {
+      tips.push(`🌟 Synergy: ${family1} and ${family2} families complement each other perfectly`);
+    }
+  });
+
+  return {
+    warnings: Array.from(new Set(warnings)), // Remove duplicates
+    tips: Array.from(new Set(tips)), // Remove duplicates
+    hasClash: warnings.length > 0,
+    hasHarmony: tips.length > 0
+  };
+}
+
 export function mixPerfumes(p1: any, p2: any, ratio: number = 0.5) {
+  // Helper to extract and deduplicate notes by type
+  const getNotes = (pos: string) => {
+    const n1 = p1.perfume_notes?.filter((n:any) => n.type === pos).map((n:any) => n.note.name) || [];
+    const n2 = p2.perfume_notes?.filter((n:any) => n.type === pos).map((n:any) => n.note.name) || [];
+    return Array.from(new Set([...n1, ...n2])); // Deduplicate
+  };
+
+  const pyramid = {
+    top: getNotes('Top'),
+    heart: getNotes('Heart'),
+    base: getNotes('Base')
+  };
+
   // 1. GENERATE CREATIVE NAME
   const nameOptions = [
     // Option 1: First word of P1 + Last word of P2
@@ -394,6 +528,7 @@ export function mixPerfumes(p1: any, p2: any, ratio: number = 0.5) {
     },
     performance,
     visualization,
+    pyramid,
     mixingTips: [
       safety >= 70 ? "Apply base first, wait 2 minutes, then layer top" : "Test on skin first before full application",
       safety >= 50 ? "70/30 ratio recommended" : "50/50 ratio with caution",

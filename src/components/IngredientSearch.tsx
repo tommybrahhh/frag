@@ -14,9 +14,10 @@ interface Note {
 interface IngredientSearchProps {
   onIngredientsChange: (ingredients: string[]) => void;
   selectedIngredients: string[];
+  resolvedNotes?: any[];
 }
 
-export default function IngredientSearch({ onIngredientsChange, selectedIngredients }: IngredientSearchProps) {
+export default function IngredientSearch({ onIngredientsChange, selectedIngredients, resolvedNotes }: IngredientSearchProps) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Note[]>([]);
   const [isOpen, setIsOpen] = useState(false);
@@ -46,7 +47,8 @@ export default function IngredientSearch({ onIngredientsChange, selectedIngredie
         try {
           const res = await fetch('/api/notes/popular');
           const data = await res.json();
-          setResults(data);
+          // Ensure data is always an array
+          setResults(Array.isArray(data) ? data : []);
           setIsOpen(true);
           setSelectedIndex(-1);
         } catch (err) {
@@ -60,7 +62,7 @@ export default function IngredientSearch({ onIngredientsChange, selectedIngredie
 
       if (query.length < 2) {
         setResults([]);
-        setIsOpen(false);
+        setIsOpen(true); // Keep dropdown open even for short queries to show "No ingredients found"
         setSelectedIndex(-1);
         return;
       }
@@ -69,11 +71,13 @@ export default function IngredientSearch({ onIngredientsChange, selectedIngredie
       try {
         const res = await fetch(`/api/notes/search?q=${encodeURIComponent(query)}`);
         const data = await res.json();
-        setResults(data);
+        // Ensure data is always an array
+        setResults(Array.isArray(data) ? data : []);
         setIsOpen(true);
         setSelectedIndex(-1);
       } catch (err) {
         console.error(err);
+        setResults([]);
       } finally {
         setLoading(false);
       }
@@ -147,7 +151,16 @@ export default function IngredientSearch({ onIngredientsChange, selectedIngredie
     setSelectedIndex(-1);
     if (inputRef.current) {
       inputRef.current.focus();
+      // Reopen the dropdown after adding an ingredient - wait for popular ingredients to load
+      setTimeout(() => {
+        setIsOpen(true);
+      }, 100);
     }
+  };
+
+  const getColor = (name: string) => {
+    const note = resolvedNotes?.find((n: any) => n.name === name) || results.find((n: any) => n.name === name);
+    return note?.color_hex || '#e5e7eb'; // Default gray
   };
 
   const removeIngredient = (ingredient: string) => {
@@ -157,22 +170,35 @@ export default function IngredientSearch({ onIngredientsChange, selectedIngredie
   return (
     <div ref={searchRef} className="relative w-full">
       
-      {/* Selected Ingredients */}
+      {/* Selected Ingredients (New UI) */}
       {selectedIngredients.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-4">
           {selectedIngredients.map((ingredient) => (
-            <div
+            <span
               key={ingredient}
-              className="flex items-center gap-2 bg-white border border-stone-200 rounded-full px-3 py-1 text-sm"
+              className="flex items-center gap-2 pl-2 pr-1 py-1 bg-white border border-stone-200 rounded-full shadow-sm text-xs text-stone-700 transition-all hover:border-stone-300"
             >
-              <span className="text-stone-700">{ingredient}</span>
+              {/* The Color Dot */}
+              <span
+                className="w-2 h-2 rounded-full"
+                style={{ backgroundColor: getColor(ingredient) }}
+              ></span>
+              
+              <span className="font-medium">{ingredient}</span>
+              
+              {/* The Close Button */}
               <button
-                onClick={() => removeIngredient(ingredient)}
-                className="text-stone-400 hover:text-stone-600 text-xs"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeIngredient(ingredient);
+                }}
+                className="w-5 h-5 flex items-center justify-center rounded-full hover:bg-stone-100 text-stone-400 hover:text-red-500 transition-colors"
               >
-                ×
+                <svg width="10" height="10" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M13 1L1 13M1 1l12 12"/>
+                </svg>
               </button>
-            </div>
+            </span>
           ))}
         </div>
       )}
@@ -199,59 +225,61 @@ export default function IngredientSearch({ onIngredientsChange, selectedIngredie
       </div>
 
       {/* Results Dropdown */}
-     {isOpen && (results.length > 0 || loading) && (
-       <div
-         id="ingredient-results"
-         className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-stone-100 overflow-hidden z-50 max-h-64 overflow-y-auto"
-         role="listbox"
-       >
-         
-         {loading && (
-           <div className="p-4 text-center text-xs text-stone-400 tracking-widest">SEARCHING...</div>
-         )}
+      {isOpen && (
+        <div
+          id="ingredient-results"
+          className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-stone-100 overflow-hidden z-50 max-h-64 overflow-y-auto"
+          role="listbox"
+        >
+          
+          {loading && (
+            <div className="p-4 text-center text-xs text-stone-400 tracking-widest">SEARCHING...</div>
+          )}
 
-         {!loading && query.length === 0 && results.length > 0 && (
-           <div className="p-3 border-b border-stone-100 bg-stone-50 sticky top-0">
-             <div className="text-xs font-medium text-stone-500 uppercase tracking-wider">
-               {selectedIngredients.length === 0 ? 'Popular Ingredients' : 'Search Ingredients'}
-             </div>
-           </div>
-         )}
+          {!loading && query.length === 0 && results.length > 0 && (
+            <div className="p-3 border-b border-stone-100 bg-stone-50 sticky top-0">
+              <div className="text-xs font-medium text-stone-500 uppercase tracking-wider">
+                Popular Ingredients
+              </div>
+            </div>
+          )}
 
-         {!loading && results.length === 0 && query.length > 0 && (
-           <div className="p-4 text-center text-xs text-stone-400 italic">No ingredients found.</div>
-         )}
+          {!loading && results.length === 0 && query.length > 0 && (
+            <div className="p-4 text-center text-xs text-stone-400 italic">
+              {query.length < 2 ? 'Type at least 2 characters to search...' : 'No ingredients found.'}
+            </div>
+          )}
 
-         {!loading && results.map((note, index) => (
-           <button
-             key={note.id}
-             onClick={() => addIngredient(note.name)}
-             onMouseEnter={() => setSelectedIndex(index)}
-             className={`w-full flex items-center gap-3 p-3 transition border-b border-stone-50 last:border-0 text-left ${
-               index === selectedIndex
-                 ? 'bg-stone-100 border-stone-200'
-                 : 'hover:bg-stone-50'
-             }`}
-             role="option"
-             aria-selected={index === selectedIndex}
-           >
-             {/* Color indicator */}
-             <div
-               className="w-4 h-4 rounded-full border-2 border-stone-100"
-               style={{ backgroundColor: note.color_hex || '#ddd' }}
-             ></div>
-             
-             {/* Text Info */}
-             <div className="flex-1">
-               <div className="text-sm font-serif text-stone-800 capitalize">
-                 {query.length >= 2 ? highlightMatch(note.name, query) : note.name}
-               </div>
-               <div className="text-xs text-stone-400 capitalize">{note.family} Family</div>
-             </div>
-           </button>
-         ))}
-       </div>
-     )}
+          {!loading && Array.isArray(results) && results.map((note, index) => (
+            <button
+              key={note.id}
+              onClick={() => addIngredient(note.name)}
+              onMouseEnter={() => setSelectedIndex(index)}
+              className={`w-full flex items-center gap-3 p-3 transition border-b border-stone-50 last:border-0 text-left ${
+                index === selectedIndex
+                  ? 'bg-stone-100 border-stone-200'
+                  : 'hover:bg-stone-50'
+              }`}
+              role="option"
+              aria-selected={index === selectedIndex}
+            >
+              {/* Color indicator */}
+              <div
+                className="w-4 h-4 rounded-full border-2 border-stone-100"
+                style={{ backgroundColor: note.color_hex || '#ddd' }}
+              ></div>
+              
+              {/* Text Info */}
+              <div className="flex-1">
+                <div className="text-sm font-serif text-stone-800 capitalize">
+                  {query.length >= 2 ? highlightMatch(note.name, query) : note.name}
+                </div>
+                <div className="text-xs text-stone-400 capitalize">{note.family} Family</div>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

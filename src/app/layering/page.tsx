@@ -21,7 +21,7 @@ export default function LayeringLab() {
       const supabase = createClient();
       const { data } = await supabase.from('perfumes')
         .select(`
-          id, name, image_url, vibe_tags,
+          id, name, image_url, vibe_tags, price_tier,
           brand:brands!perfumes_brand_id_fkey(name),
           perfume_notes(type, note:notes(name, color_hex))
         `);
@@ -40,6 +40,40 @@ export default function LayeringLab() {
     }
     setResult(null); // Reset result on change
   }, [slot1, allPerfumes]);
+
+  // Helper to fetch full perfume details with notes
+  const hydrateAndSet = async (perfume: any, setSlot: (p: any) => void) => {
+    if (!perfume) {
+      setSlot(null);
+      return;
+    }
+
+    // If notes are already present, just set it
+    if (perfume.perfume_notes && perfume.perfume_notes.length > 0) {
+      setSlot(perfume);
+      return;
+    }
+
+    // Otherwise, fetch the full details
+    const supabase = createClient();
+    const { data } = await supabase
+      .from('perfumes')
+      .select(`
+        id, name, image_url, vibe_tags, price_tier,
+        scent_profile,
+        brand:brands!perfumes_brand_id_fkey(name),
+        perfume_notes(
+          type,
+          note:notes(name, color_hex)
+        )
+      `)
+      .eq('id', perfume.id)
+      .single();
+
+    if (data) {
+      setSlot(data);
+    }
+  };
 
   // 3. Auto-Mix when both are selected (using current ratio)
   useEffect(() => {
@@ -70,7 +104,7 @@ export default function LayeringLab() {
           {/* SLOT 1 */}
           <div className="space-y-4">
              <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 text-center">Base Layer</div>
-             <PerfumePicker label="Search Base..." onSelect={setSlot1} selected={slot1} />
+             <PerfumePicker label="Search Base..." onSelect={(p) => hydrateAndSet(p, setSlot1)} selected={slot1} />
           </div>
           
           {/* MIX CONTROL PANEL */}
@@ -124,7 +158,7 @@ export default function LayeringLab() {
           {/* SLOT 2 */}
           <div className="space-y-4">
              <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 text-center">Top Layer</div>
-             <PerfumePicker label="Search Top..." onSelect={setSlot2} selected={slot2} />
+             <PerfumePicker label="Search Top..." onSelect={(p) => hydrateAndSet(p, setSlot2)} selected={slot2} />
              
              {/* SMART SUGGESTIONS */}
              {suggestions.length > 0 && !slot2 && (
@@ -132,9 +166,9 @@ export default function LayeringLab() {
                  <div className="text-[9px] font-bold uppercase tracking-widest text-stone-400 mb-2 text-center">Suggested Pairings</div>
                  <div className="space-y-2">
                    {suggestions.map(s => (
-                     <button 
-                       key={s.id} 
-                       onClick={() => setSlot2(s)}
+                     <button
+                       key={s.id}
+                       onClick={() => hydrateAndSet(s, setSlot2)}
                        className="w-full flex items-center gap-3 p-2 bg-stone-50 hover:bg-stone-100 rounded-xl transition text-left border border-transparent hover:border-stone-200"
                      >
                         <div className="w-8 h-10 flex-shrink-0 bg-white rounded flex items-center justify-center">
@@ -164,13 +198,16 @@ export default function LayeringLab() {
                 <p className="text-sm text-stone-500 italic mb-8">{result.description}</p>
                 
                 {/* Scent Pyramid */}
-                <div className="mb-8">
-                  <MixPyramid
-                    perfumeA={slot1}
-                    perfumeB={slot2}
-                    ratio={ratio}
-                  />
-                </div>
+                {slot1 && slot2 && (
+                  <div className="mt-12 border-t border-stone-100 pt-8">
+                    <h3 className="font-serif text-2xl text-stone-900 mb-6 text-center">New Scent Structure</h3>
+                    <MixPyramid
+                      perfumeA={slot1}
+                      perfumeB={slot2}
+                      ratio={ratio}
+                    />
+                  </div>
+                )}
                 
                 {/* New Profile Visualizer */}
                 {result.newProfile && (
