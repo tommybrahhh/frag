@@ -1,0 +1,11 @@
+{
+  "name": "supabase-mcp-server",
+  "version": "0.1.0",
+  "description": "MCP server for Supabase integration",
+  "servers": {
+    "supabase": {
+      "type": "http",
+      "url": "https://mcp.supabase.com/mcp?project_ref=fmtqqpnhnexwmgpeaidb"
+    }
+  }
+}

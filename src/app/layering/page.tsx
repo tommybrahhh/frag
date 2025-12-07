@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase';
 import PerfumePicker from '@/components/PerfumePicker';
 import MixPyramid from '@/components/MixPyramid';
+import ScentRadar from '@/components/ScentRadar';
 import { mixPerfumes, findLayeringMatches } from '@/lib/alchemy';
 import Link from 'next/link';
 
@@ -98,92 +99,83 @@ export default function LayeringLab() {
           <p className="text-stone-500 text-sm tracking-wide uppercase">Select a base to see smart pairings</p>
         </div>
 
-        {/* THE MIXER */}
-        <div className="grid md:grid-cols-[1fr_auto_1fr] gap-8 items-start">
+        {/* THE MIXER AREA */}
+        <div className="flex flex-col gap-8">
           
-          {/* SLOT 1 */}
-          <div className="space-y-4">
-             <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 text-center">Base Layer</div>
-             <PerfumePicker label="Search Base..." onSelect={(p) => hydrateAndSet(p, setSlot1)} selected={slot1} />
-          </div>
-          
-          {/* MIX CONTROL PANEL */}
-          <div className="flex flex-col items-center space-y-4 self-center">
-            <div className="text-4xl text-stone-200 font-serif italic">+</div>
-            
-            {slot1 && slot2 && (
-              <div className="bg-white border border-stone-200 rounded-2xl p-4 w-64 space-y-4">
-                <div className="text-center">
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-2">Mix Control</div>
-                  
-                  {/* Ratio Slider */}
-                  <div className="space-y-2">
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={ratio}
-                      onChange={(e) => setRatio(Number(e.target.value))}
-                      className="w-full h-2 bg-stone-100 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-stone-800"
-                    />
-                    
-                    {/* Visual Labels */}
-                    <div className="flex justify-between text-[10px] text-stone-400 font-medium">
-                      <span>Mostly Base</span>
-                      <span>Mostly Top</span>
-                    </div>
-                    
-                    {/* Current Ratio Display */}
-                    <div className="text-xs text-stone-600 text-center">
-                      {ratio}% Base / {100 - ratio}% Top
-                    </div>
-                  </div>
-                  
-                  {/* Swap Button */}
-                  <button
-                    onClick={() => {
-                      const temp = slot1;
-                      setSlot1(slot2);
-                      setSlot2(temp);
-                    }}
-                    className="mt-4 w-full py-2 bg-stone-100 hover:bg-stone-200 rounded-lg text-stone-600 transition-colors text-sm font-medium"
-                  >
-                    🔄 Swap Scents
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-          
-          {/* SLOT 2 */}
-          <div className="space-y-4">
-             <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 text-center">Top Layer</div>
-             <PerfumePicker label="Search Top..." onSelect={(p) => hydrateAndSet(p, setSlot2)} selected={slot2} />
+          {/* Row 1: The Slots */}
+          <div className="grid md:grid-cols-2 gap-6 items-start">
+             <div className="space-y-3">
+               <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 text-center">Base Layer</div>
+               <PerfumePicker label="Select Base..." onSelect={(p) => hydrateAndSet(p, setSlot1)} selected={slot1} />
+             </div>
              
-             {/* SMART SUGGESTIONS */}
-             {suggestions.length > 0 && !slot2 && (
-               <div className="animate-in fade-in slide-in-from-top-2 duration-500">
-                 <div className="text-[9px] font-bold uppercase tracking-widest text-stone-400 mb-2 text-center">Suggested Pairings</div>
-                 <div className="space-y-2">
-                   {suggestions.map(s => (
-                     <button
-                       key={s.id}
-                       onClick={() => hydrateAndSet(s, setSlot2)}
-                       className="w-full flex items-center gap-3 p-2 bg-stone-50 hover:bg-stone-100 rounded-xl transition text-left border border-transparent hover:border-stone-200"
-                     >
-                        <div className="w-8 h-10 flex-shrink-0 bg-white rounded flex items-center justify-center">
-                          {s.image_url && <img src={s.image_url} className="h-full object-contain mix-blend-multiply" />}
-                        </div>
-                        <div>
-                          <div className="text-xs font-bold text-stone-800 leading-tight">{s.name}</div>
-                          <div className="text-[9px] uppercase text-stone-400">{s.brand?.name}</div>
-                        </div>
-                     </button>
-                   ))}
+             <div className="space-y-3">
+               <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 text-center">Top Layer</div>
+               <PerfumePicker label="Select Top..." onSelect={(p) => hydrateAndSet(p, setSlot2)} selected={slot2} />
+               
+               {/* SMART SUGGESTIONS */}
+               {suggestions.length > 0 && !slot2 && (
+                 <div className="animate-in fade-in slide-in-from-top-2 duration-500">
+                   <div className="text-[9px] font-bold uppercase tracking-widest text-stone-400 mb-2 text-center">Suggested Pairings</div>
+                   <div className="space-y-2">
+                     {suggestions.map(s => (
+                       <button
+                         key={s.id}
+                         onClick={() => hydrateAndSet(s, setSlot2)}
+                         className="w-full flex items-center gap-3 p-2 bg-stone-50 hover:bg-stone-100 rounded-xl transition text-left border border-transparent hover:border-stone-200"
+                       >
+                          <div className="w-8 h-10 flex-shrink-0 bg-white rounded flex items-center justify-center">
+                            {s.image_url && <img src={s.image_url} className="h-full object-contain mix-blend-multiply" />}
+                          </div>
+                          <div>
+                            <div className="text-xs font-bold text-stone-800 leading-tight">{s.name}</div>
+                            <div className="text-[9px] uppercase text-stone-400">{s.brand?.name}</div>
+                          </div>
+                       </button>
+                     ))}
+                   </div>
                  </div>
-               </div>
-             )}
+               )}
+             </div>
           </div>
+
+          {/* Row 2: The Controls (Only visible if both selected) */}
+          {slot1 && slot2 && (
+            <div className="animate-in fade-in slide-in-from-top-4 duration-500">
+              <div className="bg-stone-50 border border-stone-100 rounded-2xl p-6 max-w-xl mx-auto flex flex-col md:flex-row items-center gap-6">
+                
+                {/* Slider Section */}
+                <div className="flex-1 w-full space-y-2">
+                  <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-stone-400">
+                    <span>{ratio}% Base</span>
+                    <span>{100 - ratio}% Top</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={ratio}
+                    onChange={(e) => setRatio(Number(e.target.value))}
+                    className="w-full h-1.5 bg-stone-200 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-stone-800"
+                  />
+                </div>
+
+                {/* Swap Action */}
+                <button
+                  onClick={() => {
+                    const temp = slot1;
+                    setSlot1(slot2);
+                    setSlot2(temp);
+                  }}
+                  className="p-3 bg-white border border-stone-200 rounded-full hover:bg-stone-900 hover:text-white hover:border-stone-900 transition-all shadow-sm group"
+                  title="Swap Layers"
+                >
+                  <span className="text-xl leading-none group-hover:rotate-180 transition-transform block">⇄</span>
+                </button>
+
+              </div>
+            </div>
+          )}
         </div>
 
         {/* THE RESULT (Appears Automatically) */}
@@ -209,17 +201,15 @@ export default function LayeringLab() {
                   </div>
                 )}
                 
-                {/* New Profile Visualizer */}
+                {/* NEW: Radial Scent Profile */}
                 {result.newProfile && (
-                  <div className="max-w-xs mx-auto space-y-2">
-                     {Object.entries(result.newProfile).map(([k, v]: any) => (
-                       <div key={k} className="flex items-center gap-3">
-                         <span className="w-12 text-[9px] font-bold uppercase text-stone-400 text-right">{k}</span>
-                         <div className="flex-1 h-1 bg-white rounded-full overflow-hidden">
-                           <div className="h-full bg-stone-800" style={{ width: `${v * 10}%` }}></div>
-                         </div>
-                       </div>
-                     ))}
+                  <div className="mt-8 mb-8">
+                    <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-4 text-center">
+                      Olfactory Geometry
+                    </h4>
+                    <div className="bg-white/50 rounded-2xl p-4 border border-stone-100">
+                      <ScentRadar profile={result.newProfile} />
+                    </div>
                   </div>
                 )}
               </div>

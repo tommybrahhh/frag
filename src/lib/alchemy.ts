@@ -312,21 +312,19 @@ export function mixPerfumes(p1: any, p2: any, ratio: number = 0.5) {
   };
 
   // 1. GENERATE CREATIVE NAME
+  const b1 = p1.brand?.name || p1.brand_name || 'Unknown';
+  const b2 = p2.brand?.name || p2.brand_name || 'Unknown';
+  const n1 = p1.name || 'Scent A';
+  const n2 = p2.name || 'Scent B';
+
   const nameOptions = [
-    // Option 1: First word of P1 + Last word of P2
-    () => `${p1.name.split(' ')[0]} ${p2.name.split(' ')[p2.name.split(' ').length - 1]}`,
-    // Option 2: Creative combinations
-    () => `${p1.name.split(' ')[0]} & ${p2.name.split(' ')[0]}`,
-    // Option 3: Brand-based naming
-    () => p1.brand_name === p2.brand_name
-      ? `${p1.brand_name} Fusion`
-      : `${p1.name.split(' ')[0]} ${p2.brand_name}`,
-    // Option 4: Vibe-based naming
+    () => `${n1.split(' ')[0]} ${n2.split(' ').pop()}`,
+    () => `${n1.split(' ')[0]} & ${n2.split(' ')[0]}`,
+    // Only use brand name if it's valid
+    () => (b1 !== 'Unknown' && b1 === b2) ? `${b1} Fusion` : `${n1.split(' ')[0]} ${b2}`,
     () => {
-      const sharedVibes = p1.vibe_tags?.filter((v: string) => p2.vibe_tags?.includes(v)) || [];
-      return sharedVibes.length > 0
-        ? `${sharedVibes[0]} Nocturne`
-        : `${p1.name.split(' ')[0]} Essence`;
+      const shared = p1.vibe_tags?.filter((v: string) => p2.vibe_tags?.includes(v)) || [];
+      return shared.length > 0 ? `${shared[0]} Nocturne` : `The ${n1.split(' ')[0]} Blend`;
     }
   ];
   

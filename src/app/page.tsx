@@ -63,18 +63,30 @@ const FilterPanel = ({ onFilterChange }: { onFilterChange: (filters: any) => voi
     gender: string[];
     longevity: string[];
     season: string[];
+    concentration: string[];
+    tier: string[];
+    moment: string[];
+    occasion: string[];
   }>({
     price: [],
     gender: [],
     longevity: [],
-    season: []
+    season: [],
+    concentration: [],
+    tier: [],
+    moment: [],
+    occasion: []
   });
 
   const filterOptions = {
     price: ['$', '$$', '$$$', '$$$$'],
     gender: ['Male', 'Female', 'Unisex'],
     longevity: getAllHourRanges(),
-    season: ['Spring', 'Summer', 'Fall', 'Winter']
+    season: ['Spring', 'Summer', 'Fall', 'Winter'],
+    concentration: ['EDT', 'EDP', 'Parfum', 'Extrait'],
+    tier: ['Designer', 'Niche'],
+    moment: ['Day', 'Night'],
+    occasion: ['Date', 'Office', 'Party', 'Daily']
   };
 
   const toggleFilter = (category: keyof typeof selectedFilters, value: string) => {
@@ -95,7 +107,11 @@ const FilterPanel = ({ onFilterChange }: { onFilterChange: (filters: any) => voi
       price: [],
       gender: [],
       longevity: [],
-      season: []
+      season: [],
+      concentration: [],
+      tier: [],
+      moment: [],
+      occasion: []
     };
     setSelectedFilters(emptyFilters);
     onFilterChange(emptyFilters);
@@ -117,69 +133,106 @@ const FilterPanel = ({ onFilterChange }: { onFilterChange: (filters: any) => voi
       {/* COLLAPSIBLE FILTER PANEL */}
       <div className={`overflow-hidden transition-all duration-500 ease-in-out ${isFiltersOpen ? 'max-h-[500px] opacity-100 mb-12' : 'max-h-0 opacity-0'}`}>
         <div className="bg-stone-50 rounded-2xl p-8 max-w-[1400px] mx-auto mx-6 border border-stone-100">
-          <div className="grid md:grid-cols-4 gap-8">
+          {/* The 2x4 Grid Matrix */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-12">
             
-            {/* PRICE GROUP */}
+            {/* --- ROW 1: IDENTITY --- */}
+            
+            {/* 1. Price */}
             <div>
-              <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-4">Price</h4>
+              <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-3">Price Point</h4>
               <div className="flex flex-col gap-2">
-                 {filterOptions.price.map((price) => (
-                   <button
-                     key={price}
-                     onClick={() => toggleFilter('price', price)}
-                     className={`text-left text-sm ${selectedFilters.price.includes(price) ? 'font-bold text-stone-900 underline decoration-1 underline-offset-4' : 'text-stone-400 hover:text-stone-600 cursor-pointer'}`}
-                   >
-                     {price}
-                   </button>
-                 ))}
+                {['$', '$$', '$$$', '$$$$'].map((p) => (
+                  <button key={p} onClick={() => toggleFilter('price', p)} className={`text-left text-sm transition-colors ${selectedFilters.price.includes(p) ? 'font-bold text-stone-900' : 'text-stone-500 hover:text-stone-800'}`}>
+                    {p}
+                  </button>
+                ))}
               </div>
             </div>
 
-            {/* GENDER GROUP */}
+            {/* 2. Gender */}
             <div>
-              <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-4">Gender</h4>
+              <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-3">Gender</h4>
               <div className="flex flex-col gap-2">
-                 {filterOptions.gender.map((gender) => (
-                   <button
-                     key={gender}
-                     onClick={() => toggleFilter('gender', gender)}
-                     className={`text-left text-sm ${selectedFilters.gender.includes(gender) ? 'font-bold text-stone-900 underline decoration-1 underline-offset-4' : 'text-stone-400 hover:text-stone-600 cursor-pointer'}`}
-                   >
-                     {gender}
-                   </button>
-                 ))}
+                {['Male', 'Female', 'Unisex'].map((g) => (
+                  <button key={g} onClick={() => toggleFilter('gender', g)} className={`text-left text-sm transition-colors ${selectedFilters.gender.includes(g) ? 'font-bold text-stone-900' : 'text-stone-500 hover:text-stone-800'}`}>
+                    {g}
+                  </button>
+                ))}
               </div>
             </div>
 
-            {/* LONGEVITY GROUP */}
+            {/* 3. Concentration (New) */}
             <div>
-              <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-4">Longevity</h4>
+              <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-3">Intensity</h4>
               <div className="flex flex-col gap-2">
-                 {filterOptions.longevity.map((longevity) => (
-                   <button
-                     key={longevity}
-                     onClick={() => toggleFilter('longevity', longevity)}
-                     className={`text-left text-sm ${selectedFilters.longevity.includes(longevity) ? 'font-bold text-stone-900 underline decoration-1 underline-offset-4' : 'text-stone-400 hover:text-stone-600 cursor-pointer'}`}
-                   >
-                     {longevity}
-                   </button>
-                 ))}
+                {['EDT', 'EDP', 'Parfum', 'Extrait'].map((c) => (
+                  <button key={c} onClick={() => toggleFilter('concentration', c)} className={`text-left text-sm transition-colors ${selectedFilters.concentration.includes(c) ? 'font-bold text-stone-900' : 'text-stone-500 hover:text-stone-800'}`}>
+                    {c}
+                  </button>
+                ))}
               </div>
             </div>
 
-            {/* SEASON GROUP */}
+            {/* 4. Market Tier (New) */}
             <div>
-              <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-4">Season</h4>
+              <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-3">Market</h4>
               <div className="flex flex-col gap-2">
-                 {filterOptions.season.map((season) => (
-                   <button
-                     key={season}
-                     onClick={() => toggleFilter('season', season)}
-                     className={`text-left text-sm ${selectedFilters.season.includes(season) ? 'font-bold text-stone-900 underline decoration-1 underline-offset-4' : 'text-stone-400 hover:text-stone-600 cursor-pointer'}`}
-                   >
-                     {season}
-                   </button>
-                 ))}
+                {['Designer', 'Niche', 'Indie'].map((t) => (
+                  <button key={t} onClick={() => toggleFilter('tier', t)} className={`text-left text-sm transition-colors ${selectedFilters.tier.includes(t) ? 'font-bold text-stone-900' : 'text-stone-500 hover:text-stone-800'}`}>
+                    {t}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* --- ROW 2: CONTEXT --- */}
+            
+            {/* 5. Longevity */}
+            <div>
+              <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-3">Longevity</h4>
+              <div className="flex flex-col gap-2">
+                {['1-2 hours', '3-4 hours', '5-6 hours', '7-8 hours', '8+ hours'].map((l) => (
+                  <button key={l} onClick={() => toggleFilter('longevity', l)} className={`text-left text-sm transition-colors ${selectedFilters.longevity.includes(l) ? 'font-bold text-stone-900' : 'text-stone-500 hover:text-stone-800'}`}>
+                    {l}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 6. Season */}
+            <div>
+              <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-3">Season</h4>
+              <div className="flex flex-col gap-2">
+                {['Spring', 'Summer', 'Fall', 'Winter'].map((s) => (
+                  <button key={s} onClick={() => toggleFilter('season', s)} className={`text-left text-sm transition-colors ${selectedFilters.season.includes(s) ? 'font-bold text-stone-900' : 'text-stone-500 hover:text-stone-800'}`}>
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 7. Moment (New) */}
+            <div>
+              <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-3">Time of Day</h4>
+              <div className="flex flex-col gap-2">
+                {['Day', 'Night', 'All Day'].map((m) => (
+                  <button key={m} onClick={() => toggleFilter('moment', m)} className={`text-left text-sm transition-colors ${selectedFilters.moment.includes(m) ? 'font-bold text-stone-900' : 'text-stone-500 hover:text-stone-800'}`}>
+                    {m}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 8. Occasion (New) */}
+            <div>
+              <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-3">Occasion</h4>
+              <div className="flex flex-col gap-2">
+                {['Office', 'Date', 'Party', 'Daily'].map((o) => (
+                  <button key={o} onClick={() => toggleFilter('occasion', o)} className={`text-left text-sm transition-colors ${selectedFilters.occasion.includes(o) ? 'font-bold text-stone-900' : 'text-stone-500 hover:text-stone-800'}`}>
+                    {o}
+                  </button>
+                ))}
               </div>
             </div>
 
@@ -211,11 +264,19 @@ export default function Home() {
     gender: string[];
     longevity: string[];
     season: string[];
+    concentration: string[];
+    tier: string[];
+    moment: string[];
+    occasion: string[];
   }>({
     price: [],
     gender: [],
     longevity: [],
-    season: []
+    season: [],
+    concentration: [],
+    tier: [],
+    moment: [],
+    occasion: []
   });
 
   // Memoize the filter parameters to prevent useEffect dependency issues
@@ -224,7 +285,11 @@ export default function Home() {
       price: filters.price.join(','),
       gender: filters.gender.join(','),
       longevity: filters.longevity.join(','),
-      season: filters.season.join(',')
+      season: filters.season.join(','),
+      concentration: filters.concentration.join(','),
+      tier: filters.tier.join(','),
+      moment: filters.moment.join(','),
+      occasion: filters.occasion.join(',')
     };
   }, [filters]);
   const router = useRouter();
@@ -238,6 +303,10 @@ export default function Home() {
         if (filterParams.gender) params.append('gender', filterParams.gender);
         if (filterParams.longevity) params.append('longevity', filterParams.longevity);
         if (filterParams.season) params.append('season', filterParams.season);
+        if (filterParams.concentration) params.append('concentration', filterParams.concentration);
+        if (filterParams.tier) params.append('tier', filterParams.tier);
+        if (filterParams.moment) params.append('moment', filterParams.moment);
+        if (filterParams.occasion) params.append('occasion', filterParams.occasion);
 
         const url = params.toString() ? `/api/perfumes?${params}` : '/api/perfumes';
         const res = await fetch(url);

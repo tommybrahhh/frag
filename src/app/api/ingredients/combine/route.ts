@@ -7,45 +7,57 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const ingredients = searchParams.get('ingredients');
 
-  if (!ingredients) {
-    return NextResponse.json({ error: 'No ingredients provided' }, { status: 400 });
-  }
+  if (!ingredients) return NextResponse.json({ error: 'No ingredients provided' }, { status: 400 });
 
   const ingredientNames = ingredients.split(',').map(name => decodeURIComponent(name.trim()));
-  
-  if (ingredientNames.length === 0) {
-    return NextResponse.json({ error: 'No valid ingredients provided' }, { status: 400 });
-  }
-
   const supabase = createClient();
 
   try {
-    // 1. Get the IDs of the selected notes
+    // 1. Get IDs for the requested notes
+    // We use a broader search to ensure we catch capitalized/lowercase variations if possible, 
+    // but .in() is case-sensitive. Ideally, ensure your inputs match DB casing.
     const { data: notes, error: notesError } = await supabase
       .from('notes')
       .select('id, name, description, family, color_hex')
       .in('name', ingredientNames);
 
     if (notesError) throw notesError;
-    if (!notes || notes.length === 0) return NextResponse.json({ perfumes: [] });
+    if (!notes || notes.length === 0) {
+      return NextResponse.json({ ingredients: [], perfumes: [] });
+    }
 
     const noteIds = notes.map(n => n.id);
 
-    // 2. FAST FILTER: Call the Database Function
-    // This returns ONLY the IDs of perfumes that have ALL these notes
-    const { data: matchingIds, error: rpcError } = await supabase
-      .rpc('get_perfume_ids_by_notes', { filter_note_ids: noteIds });
+    // 2. ROBUST MATCHING (No RPC)
+    // Fetch all connections for these specific notes.
+    // This is fast because we only fetch 2 columns (perfume_id, note_id).
+    const { data: relationships, error: relError } = await supabase
+      .from('perfume_notes')
+      .select('perfume_id, note_id')
+      .in('note_id', noteIds);
 
-    if (rpcError) throw rpcError;
+    if (relError) throw relError;
 
-    if (!matchingIds || matchingIds.length === 0) {
+    // 3. INTERSECTION LOGIC (Find perfumes that have ALL the notes)
+    const perfumeMatchCounts: Record<string, Set<string>> = {};
+
+    relationships?.forEach((row: any) => {
+      if (!perfumeMatchCounts[row.perfume_id]) {
+        perfumeMatchCounts[row.perfume_id] = new Set();
+      }
+      perfumeMatchCounts[row.perfume_id].add(row.note_id);
+    });
+
+    // Filter: Keep only perfumes where the unique note count matches our search count
+    const targetPerfumeIds = Object.entries(perfumeMatchCounts)
+      .filter(([_, matchedSet]) => matchedSet.size === noteIds.length)
+      .map(([id, _]) => id);
+
+    if (targetPerfumeIds.length === 0) {
       return NextResponse.json({ ingredients: notes, perfumes: [] });
     }
 
-    // Extract just the UUIDs
-    const targetPerfumeIds = matchingIds.map((row: any) => row.id);
-
-    // 3. EFFICIENT FETCH: Get details for ONLY the matching perfumes
+    // 4. FETCH DETAILS (Only for the winners)
     const { data: perfumes, error: perfumeError } = await supabase
       .from('perfumes')
       .select(`
@@ -55,19 +67,18 @@ export async function GET(request: Request) {
           note_id, type, note:notes(name)
         )
       `)
-      .in('id', targetPerfumeIds) // <--- Only fetch the winners
+      .in('id', targetPerfumeIds)
       .limit(50);
 
     if (perfumeError) throw perfumeError;
 
-    // 4. Formatting (Calculate positions like "Rose (Heart)")
+    // 5. FORMATTING
     const formattedPerfumes = perfumes?.map((perfume: any) => {
       const ingredientPositions: Record<string, string> = {};
       
       noteIds.forEach(noteId => {
         const noteInfo = perfume.perfume_notes?.find((pn: any) => pn.note_id === noteId);
         const noteName = notes.find(n => n.id === noteId)?.name;
-        
         if (noteInfo && noteName) {
           ingredientPositions[noteName] = noteInfo.type || 'Base';
         }
@@ -90,6 +101,6 @@ export async function GET(request: Request) {
 
   } catch (error: any) {
     console.error('Combiner API Error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error.message || 'Unknown error' }, { status: 500 });
   }
 }

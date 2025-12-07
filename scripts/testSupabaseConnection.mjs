@@ -1,4 +1,4 @@
-import { createClient } from '../src/lib/supabase.ts';
+import { createClient } from '../src/lib/supabase.js';
 
 async function testSupabaseConnection() {
   console.log('Attempting to connect to Supabase...');

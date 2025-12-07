@@ -83,7 +83,7 @@ export default function IngredientSearch({ onIngredientsChange, selectedIngredie
       }
     };
 
-    const timeoutId = setTimeout(fetchResults, 200); // Reduced debounce time for better responsiveness
+    const timeoutId = setTimeout(fetchResults, 300); // 300ms debounce time as requested
     return () => clearTimeout(timeoutId);
   }, [query]);
 
@@ -151,7 +151,7 @@ export default function IngredientSearch({ onIngredientsChange, selectedIngredie
     setSelectedIndex(-1);
     if (inputRef.current) {
       inputRef.current.focus();
-      // Reopen the dropdown after adding an ingredient - wait for popular ingredients to load
+      // Reopen the dropdown after adding an ingredient to show popular ingredients
       setTimeout(() => {
         setIsOpen(true);
       }, 100);
