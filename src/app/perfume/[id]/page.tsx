@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import CommentsSection from '@/components/CommentsSection';
+import ScentRadar from '@/components/ScentRadar';
 
 export default function PerfumeDetail() {
   const params = useParams();
@@ -464,6 +465,15 @@ export default function PerfumeDetail() {
                 <div className="h-full bg-stone-500" style={{ width: `${(perfume.sillage_rating / 5) * 100}%` }}></div>
               </div>
               <p className="text-[10px] text-right text-stone-500 mt-1">{perfume.sillage_rating}/5</p>
+            </div>
+
+            {/* NEW: Olfactory DNA Radar */}
+            <div className="pt-8 border-t border-stone-200 mt-8">
+              <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-4">Olfactory Profile</h4>
+              <div className="bg-white rounded-2xl border border-stone-200 p-2 shadow-sm">
+                {/* Fallback to default if profile is missing to prevent crash */}
+                <ScentRadar profile={perfume.scent_profile || { fresh: 5, sweet: 5, spicy: 5, woody: 5, floral: 5 }} />
+              </div>
             </div>
           </div>
 
