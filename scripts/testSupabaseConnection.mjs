@@ -1,14 +1,31 @@
-import { createClient } from '../src/lib/supabase.js';
+import { createClient } from '../src/lib/supabase.ts';
 
 async function testSupabaseConnection() {
   console.log('Attempting to connect to Supabase...');
   try {
     const supabase = createClient();
 
-    // IMPORTANT: Replace 'your_table_name' with an actual table name from your Supabase project
-    // For example, if you have a 'perfumes' table, change it to:
-    // const { data, error } = await supabase.from('perfumes').select('*').limit(5);
-    const { data, error } = await supabase.from('your_table_name').select('*').limit(5);
+    // Test the brands table to check the tier column
+    const { data: brandsData, error: brandsError } = await supabase.from('brands').select('id, name, tier').limit(10);
+    
+    if (brandsError) {
+      console.error('Error fetching brands:', brandsError.message);
+      return;
+    }
+
+    console.log('Brands with tier information:');
+    console.log(brandsData);
+
+    // Also check perfumes to see the relationship
+    const { data: perfumesData, error: perfumesError } = await supabase.from('perfumes').select('id, name, brand_id').limit(5);
+    
+    if (perfumesError) {
+      console.error('Error fetching perfumes:', perfumesError.message);
+      return;
+    }
+
+    console.log('Sample perfumes with brand_id:');
+    console.log(perfumesData);
 
     if (error) {
       console.error('Error fetching data:', error.message);

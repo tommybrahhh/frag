@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import VibeSelector from '@/components/VibeSelector';
 import SearchBar from '@/components/SearchBar';
 import { getAllHourRanges } from '@/lib/longevity-utils';
+import { useAuth } from '@/context/AuthContext';
 
 // Helper for horizontal rows
 const PerfumeRow = ({ title, items, router }: { title: string, items: any[], router: any }) => (
@@ -293,6 +294,7 @@ export default function Home() {
     };
   }, [filters]);
   const router = useRouter();
+  const { user, signOut } = useAuth();
 
   useEffect(() => {
     const fetchPerfumes = async () => {
@@ -336,6 +338,27 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-white text-stone-800 font-sans selection:bg-stone-900 selection:text-white pb-24">
       
+      {/* Authentication Header */}
+      <div className="absolute top-6 right-6 z-50">
+        {user ? (
+          <div className="flex items-center gap-4">
+            <Link href="/profile" className="text-xs font-bold uppercase tracking-widest text-stone-600 hover:text-stone-900">
+              My Shelf
+            </Link>
+            <button onClick={signOut} className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-red-500">
+              Sign Out
+            </button>
+          </div>
+        ) : (
+          <Link
+            href="/login"
+            className="bg-stone-900 text-white px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-stone-800 transition shadow-lg"
+          >
+            Sign In
+          </Link>
+        )}
+      </div>
+
       {/* 1. CENTERED HEADER SECTION */}
       <div className="max-w-4xl mx-auto px-6 py-12 text-center">
         {/* Title */}
@@ -351,35 +374,8 @@ export default function Home() {
         {/* New Premium Filter Panel */}
         <FilterPanel onFilterChange={(filters) => setFilters(filters)} />
         
-        {/* Tool Cards */}
-        <div className="grid md:grid-cols-4 gap-6 max-w-4xl mx-auto">
-          <Link href="/quiz" className="bg-white p-6 rounded-2xl border border-stone-100 shadow-sm hover:bg-stone-50 transition text-center group">
-            <h3 className="font-serif text-xl mb-1">Find Your Perfume</h3>
-            <p className="text-xs text-stone-400">Discover your perfect scent based on your preferences.</p>
-          </Link>
-          
-          <Link href="/layering" className="bg-white p-6 rounded-2xl border border-stone-100 shadow-sm hover:bg-stone-50 transition text-center group">
-            <h3 className="font-serif text-xl mb-1">Layering Lab</h3>
-            <p className="text-xs text-stone-400">Mix two perfumes to create something unique.</p>
-          </Link>
-
-          <Link href="/ingredients/combine" className="bg-white p-6 rounded-2xl border border-stone-100 shadow-sm hover:bg-stone-50 transition text-center group">
-            <h3 className="font-serif text-xl mb-1">Ingredient Mix</h3>
-            <p className="text-xs text-stone-400">Find perfumes with multiple specific notes.</p>
-          </Link>
-
-          <Link href="/search/advanced" className="bg-white p-6 rounded-2xl border border-stone-100 shadow-sm hover:bg-stone-50 transition text-center group">
-            <h3 className="font-serif text-xl mb-1">Note Laboratory</h3>
-            <p className="text-xs text-stone-400">Advanced search with include/exclude filters.</p>
-          </Link>
-        </div>
       </div>
 
-      {/* 4. CURATED ROWS */}
-      <div className="max-w-[1400px] mx-auto">
-        <PerfumeRow title="Winter Essentials" items={winterPerfumes} router={router} />
-        <PerfumeRow title="Date Night Weapons" items={datePerfumes} router={router} />
-      </div>
 
       {/* 5. MAIN COLLECTION */}
       <div id="collection" className="max-w-[1400px] mx-auto px-6 mt-20">

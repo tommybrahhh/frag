@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
 import Link from 'next/link';
+import { useAuth } from '@/context/AuthContext';
 
 export default function PerfumeDetail() {
   const params = useParams();
@@ -13,6 +14,9 @@ export default function PerfumeDetail() {
   const [relatedPerfumes, setRelatedPerfumes] = useState<any[]>([]);
   const [dupes, setDupes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [inCollection, setInCollection] = useState(false);
+  const { user } = useAuth();
+  const supabase = createClient();
 
   // --- 1. HELPER: Normalize Note Names (Fuzzy Matcher) ---
   // Turns "Calabrian Bergamot" -> "bergamot"
@@ -165,17 +169,47 @@ export default function PerfumeDetail() {
       .slice(0, 3);
   };
 
+  // Check if perfume is in user's collection
   useEffect(() => {
+    const checkCollectionStatus = async () => {
+      if (!user || !perfume) return;
+      const { data } = await supabase
+        .from('user_collections')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('perfume_id', perfume.id)
+        .maybeSingle();
+      
+      setInCollection(!!data);
+    };
+
+    checkCollectionStatus();
+  }, [user, perfume]);
+
+  const toggleCollection = async () => {
+    if (!user) return router.push('/login');
+    if (inCollection) {
+      await supabase.from('user_collections').delete().eq('user_id', user.id).eq('perfume_id', perfume.id);
+      setInCollection(false);
+    } else {
+      await supabase.from('user_collections').insert({ user_id: user.id, perfume_id: perfume.id });
+      setInCollection(true);
+    }
+  };
+
+  useEffect(() => {
+    console.log('Params received:', params);
     const id = params?.id;
+    console.log('Perfume ID from params:', id);
     if (!id || id === 'undefined') {
+      console.log('No valid ID found, stopping');
       setLoading(false);
       return;
     }
 
     const fetchData = async () => {
-      const supabase = createClient();
-      
       // 1. Fetch Main Perfume
+      console.log('Fetching perfume with ID:', id);
       const { data: mainPerfume, error } = await supabase
         .from('perfumes')
         .select(`
@@ -190,7 +224,7 @@ export default function PerfumeDetail() {
           )
         `)
         .eq('id', id)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error('Error fetching perfume:', error);
@@ -198,11 +232,13 @@ export default function PerfumeDetail() {
         return;
       }
       
+      console.log('Fetched perfume:', mainPerfume);
+      // If no perfume found, this will be null, and your UI correctly handles it below
       setPerfume(mainPerfume);
 
       // 2. Fetch ALL Perfumes for Comparison
       // IMPORTANT: We must fetch notes to do the logic!
-      const { data: allPerfumes } = await supabase
+      const { data: allPerfumes, error: allPerfumesError } = await supabase
         .from('perfumes')
         .select(`
           id, name, image_url, price_tier, best_season, vibe_tags, gender,
@@ -212,6 +248,10 @@ export default function PerfumeDetail() {
           )
         `)
         .neq('id', id);
+        
+      if (allPerfumesError) {
+        console.error('Error fetching all perfumes:', allPerfumesError);
+      }
 
       // 3. Run Logic
       if (allPerfumes && mainPerfume) {
@@ -295,12 +335,24 @@ export default function PerfumeDetail() {
               >
                 {perfume.brand?.name}
               </Link>
-              <button
-                onClick={() => router.push(`/compare?a=${perfume.id}`)}
-                className="border border-stone-300 text-[10px] uppercase px-4 py-2 rounded-full hover:bg-stone-900 hover:text-white transition"
-              >
-                Compare
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={toggleCollection}
+                  className={`text-[10px] uppercase px-4 py-2 rounded-full transition ${
+                    inCollection
+                      ? 'bg-stone-900 text-white'
+                      : 'border border-stone-300 hover:bg-stone-50'
+                  }`}
+                >
+                  {inCollection ? 'In Wardrobe ✓' : '+ Add to Shelf'}
+                </button>
+                <button
+                  onClick={() => router.push(`/compare?a=${perfume.id}`)}
+                  className="border border-stone-300 text-[10px] uppercase px-4 py-2 rounded-full hover:bg-stone-900 hover:text-white transition"
+                >
+                  Compare
+                </button>
+              </div>
             </div>
             <h1 className="text-5xl md:text-6xl font-serif font-medium text-stone-900 mb-4 leading-tight">{perfume.name}</h1>
             {perfume.perfumer && (
