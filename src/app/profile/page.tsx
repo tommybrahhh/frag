@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
 import Link from 'next/link';
+import WardrobeAnalytics from '@/components/WardrobeAnalytics';
 
 export default function ProfilePage() {
   const { user, loading } = useAuth();
@@ -13,6 +14,13 @@ export default function ProfilePage() {
   const [savedMixes, setSavedMixes] = useState<any[]>([]);
   const [collection, setCollection] = useState<any[]>([]);
   const [loadingData, setLoadingData] = useState(true);
+
+  // Profile State
+  const [profile, setProfile] = useState<any>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [displayName, setDisplayName] = useState('');
+  const [bio, setBio] = useState('');
+  const [savingProfile, setSavingProfile] = useState(false);
 
   // 1. Redirect if not logged in
   useEffect(() => {
@@ -28,7 +36,20 @@ export default function ProfilePage() {
       
       const supabase = createClient();
       
-      // Fetch Saved Mixes
+      // A. Fetch Profile
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .maybeSingle();
+      
+      if (profileData) {
+        setProfile(profileData);
+        setDisplayName(profileData.display_name || '');
+        setBio(profileData.bio || '');
+      }
+
+      // B. Fetch Saved Mixes
       const { data: mixes } = await supabase
         .from('saved_mixes')
         .select(`
@@ -39,36 +60,111 @@ export default function ProfilePage() {
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
-      // Fetch User Collection
-      const { data: userCollection } = await supabase
+      setSavedMixes(mixes || []);
+
+      // C. Fetch Wardrobe (Collection)
+      const { data: collectionData } = await supabase
         .from('user_collections')
         .select(`
           id,
           perfume:perfumes(id, name, image_url, brand:brands(name))
         `)
         .eq('user_id', user.id);
-
-      setSavedMixes(mixes || []);
-      setCollection(userCollection || []);
+        
+      setCollection(collectionData || []);
       setLoadingData(false);
     };
 
     fetchData();
   }, [user]);
 
+  // 3. Save Profile Changes
+  const handleSaveProfile = async () => {
+    if (!user) return;
+    setSavingProfile(true);
+    const supabase = createClient();
+
+    const updates = {
+      id: user.id,
+      display_name: displayName,
+      bio: bio,
+    };
+
+    const { error } = await supabase.from('profiles').upsert(updates);
+
+    if (!error) {
+      setProfile(updates);
+      setIsEditing(false);
+    } else {
+      alert('Failed to save profile');
+    }
+    setSavingProfile(false);
+  };
+
   if (loading || !user) return null;
 
   return (
     <div className="min-h-screen bg-white text-stone-900 font-sans pb-24">
       
-      {/* Header */}
+      {/* Header / Profile Card */}
       <div className="bg-stone-50 border-b border-stone-200 px-6 py-12 mb-12">
-        <div className="max-w-5xl mx-auto flex justify-between items-end">
-          <div>
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+          
+          <div className="flex-1">
             <div className="text-xs font-bold uppercase tracking-widest text-stone-400 mb-2">Member Profile</div>
-            <h1 className="font-serif text-4xl text-stone-900">{user.email?.split('@')[0]}'s Shelf</h1>
+            
+            {isEditing ? (
+              <div className="bg-white p-6 rounded-xl border border-stone-200 shadow-sm max-w-md animate-in fade-in zoom-in-95 duration-200">
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-stone-400 block mb-1">Display Name</label>
+                    <input 
+                      value={displayName}
+                      onChange={(e) => setDisplayName(e.target.value)}
+                      className="w-full p-2 border-b border-stone-200 focus:border-stone-900 outline-none font-serif text-xl"
+                      placeholder="Your Name"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-stone-400 block mb-1">Bio / Signature</label>
+                    <textarea 
+                      value={bio}
+                      onChange={(e) => setBio(e.target.value)}
+                      className="w-full p-2 border border-stone-200 rounded-lg focus:border-stone-900 outline-none text-sm h-20 resize-none"
+                      placeholder="Favorite notes, scent memories..."
+                    />
+                  </div>
+                  <div className="flex gap-2 justify-end">
+                    <button onClick={() => setIsEditing(false)} className="text-xs text-stone-500 hover:text-stone-900 px-3 py-2">Cancel</button>
+                    <button 
+                      onClick={handleSaveProfile}
+                      disabled={savingProfile}
+                      className="bg-stone-900 text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-stone-800 transition"
+                    >
+                      {savingProfile ? 'Saving...' : 'Save Profile'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <h1 className="font-serif text-4xl text-stone-900 mb-2">
+                  {profile?.display_name || user.email?.split('@')[0]}'s Shelf
+                </h1>
+                <p className="text-stone-500 text-sm max-w-lg italic">
+                  {profile?.bio || "No bio yet."}
+                </p>
+                <button 
+                  onClick={() => setIsEditing(true)}
+                  className="mt-4 text-[10px] font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 border-b border-dashed border-stone-300 hover:border-stone-900 pb-0.5 transition-all"
+                >
+                  Edit Profile
+                </button>
+              </div>
+            )}
           </div>
-          <Link href="/" className="text-xs font-bold uppercase tracking-widest text-stone-500 hover:text-stone-900">
+
+          <Link href="/" className="text-xs font-bold uppercase tracking-widest text-stone-500 hover:text-stone-900 self-start md:self-center">
             ← Back to Shop
           </Link>
         </div>
@@ -137,20 +233,20 @@ export default function ProfilePage() {
                       <div className="text-[10px] font-bold text-stone-500 mt-1">{100 - mix.mix_ratio}%</div>
                     </div>
                   </div>
-
-                  {/* Actions */}
-                  <button className="w-full py-3 border-t border-stone-100 text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 transition">
-                    View Details →
-                  </button>
                 </div>
               ))
             )}
           </div>
         )}
 
-        {/* Content: COLLECTION */}
+        {/* Content: WARDROBE */}
         {activeTab === 'collection' && (
           <>
+            {/* Analytics Module */}
+            {collection.length > 0 && (
+              <WardrobeAnalytics collection={collection} />
+            )}
+            
             {collection.length === 0 ? (
               <div className="text-center py-20 bg-stone-50 rounded-2xl border border-stone-100 border-dashed">
                 <p className="text-stone-400 italic mb-4">Your wardrobe is empty.</p>

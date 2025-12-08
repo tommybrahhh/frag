@@ -6,6 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
+import CommentsSection from '@/components/CommentsSection';
 
 export default function PerfumeDetail() {
   const params = useParams();
@@ -16,7 +17,6 @@ export default function PerfumeDetail() {
   const [loading, setLoading] = useState(true);
   const [inCollection, setInCollection] = useState(false);
   const { user } = useAuth();
-  const supabase = createClient();
 
   // --- 1. HELPER: Normalize Note Names (Fuzzy Matcher) ---
   // Turns "Calabrian Bergamot" -> "bergamot"
@@ -45,6 +45,28 @@ export default function PerfumeDetail() {
     if (notes.includes('vanilla') || notes.includes('amber') || vibes.includes('gourmand')) return 'gourmand';
     if (notes.includes('cedar') || notes.includes('sandalwood') || notes.includes('oakmoss') || vibes.includes('woody')) return 'woody';
     return null;
+  };
+
+  // --- HELPER: Generate Profile if Missing ---
+  const generateProfileFromVibes = (vibes: string[]) => {
+    const profile = { fresh: 3, sweet: 3, spicy: 3, woody: 3, floral: 3 };
+    if (!vibes || vibes.length === 0) return profile; // Return default balanced
+
+    const lowerVibes = vibes.map(v => v.toLowerCase());
+
+    if (lowerVibes.some(v => v.includes('citrus') || v.includes('fresh') || v.includes('aquatic') || v.includes('blue'))) profile.fresh += 6;
+    if (lowerVibes.some(v => v.includes('gourmand') || v.includes('vanilla') || v.includes('sweet') || v.includes('fruity'))) profile.sweet += 6;
+    if (lowerVibes.some(v => v.includes('spicy') || v.includes('warm') || v.includes('oriental') || v.includes('amber'))) profile.spicy += 6;
+    if (lowerVibes.some(v => v.includes('woody') || v.includes('earthy') || v.includes('mossy') || v.includes('leather'))) profile.woody += 6;
+    if (lowerVibes.some(v => v.includes('floral') || v.includes('rose') || v.includes('white flower'))) profile.floral += 6;
+
+    // Cap at 10
+    Object.keys(profile).forEach(k => {
+      // @ts-ignore
+      if (profile[k] > 10) profile[k] = 10;
+    });
+
+    return profile;
   };
 
   // --- 2. SMART MATCHING LOGIC (For "You Might Also Like") ---
@@ -169,10 +191,11 @@ export default function PerfumeDetail() {
       .slice(0, 3);
   };
 
-  // Check if perfume is in user's collection
+  // Check if already in collection
   useEffect(() => {
-    const checkCollectionStatus = async () => {
+    const checkCollection = async () => {
       if (!user || !perfume) return;
+      const supabase = createClient();
       const { data } = await supabase
         .from('user_collections')
         .select('id')
@@ -180,14 +203,16 @@ export default function PerfumeDetail() {
         .eq('perfume_id', perfume.id)
         .maybeSingle();
       
-      setInCollection(!!data);
+      if (data) setInCollection(true);
     };
-
-    checkCollectionStatus();
+    checkCollection();
   }, [user, perfume]);
-
+  // Toggle Function
   const toggleCollection = async () => {
     if (!user) return router.push('/login');
+    
+    const supabase = createClient(); // <--- ADD THIS LINE HERE
+    
     if (inCollection) {
       await supabase.from('user_collections').delete().eq('user_id', user.id).eq('perfume_id', perfume.id);
       setInCollection(false);
@@ -196,7 +221,6 @@ export default function PerfumeDetail() {
       setInCollection(true);
     }
   };
-
   useEffect(() => {
     console.log('Params received:', params);
     const id = params?.id;
@@ -208,6 +232,7 @@ export default function PerfumeDetail() {
     }
 
     const fetchData = async () => {
+      const supabase = createClient(); // <--- ADD THIS LINE
       // 1. Fetch Main Perfume
       console.log('Fetching perfume with ID:', id);
       const { data: mainPerfume, error } = await supabase
@@ -233,6 +258,12 @@ export default function PerfumeDetail() {
       }
       
       console.log('Fetched perfume:', mainPerfume);
+      
+      // If scent_profile is missing, calculate it on the fly
+      if (mainPerfume && !mainPerfume.scent_profile) {
+        mainPerfume.scent_profile = generateProfileFromVibes(mainPerfume.vibe_tags || []);
+      }
+      
       // If no perfume found, this will be null, and your UI correctly handles it below
       setPerfume(mainPerfume);
 
@@ -328,24 +359,27 @@ export default function PerfumeDetail() {
         {/* Info */}
         <div className="flex flex-col justify-center">
           <div className="mb-6">
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-3 mb-3 justify-between">
               <Link
                 href={`/brands/${encodeURIComponent(perfume.brand?.name || '')}`}
                 className="uppercase text-xs font-bold tracking-[0.2em] text-stone-500 hover:text-stone-700 transition-colors"
               >
                 {perfume.brand?.name}
               </Link>
+              
               <div className="flex gap-2">
+                {/* NEW: Add to Shelf Button */}
                 <button
                   onClick={toggleCollection}
-                  className={`text-[10px] uppercase px-4 py-2 rounded-full transition ${
+                  className={`text-[10px] uppercase px-4 py-2 rounded-full transition border ${
                     inCollection
-                      ? 'bg-stone-900 text-white'
-                      : 'border border-stone-300 hover:bg-stone-50'
+                      ? 'bg-stone-900 text-white border-stone-900'
+                      : 'border-stone-300 hover:bg-stone-50 text-stone-600'
                   }`}
                 >
                   {inCollection ? 'In Wardrobe ✓' : '+ Add to Shelf'}
                 </button>
+
                 <button
                   onClick={() => router.push(`/compare?a=${perfume.id}`)}
                   className="border border-stone-300 text-[10px] uppercase px-4 py-2 rounded-full hover:bg-stone-900 hover:text-white transition"
@@ -555,6 +589,8 @@ export default function PerfumeDetail() {
         </div>
       )}
 
+      {/* COMMENTS SECTION */}
+      <CommentsSection perfumeId={perfume.id} />
     </div>
   );
 }
