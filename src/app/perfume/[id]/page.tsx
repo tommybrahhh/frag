@@ -472,7 +472,13 @@ export default function PerfumeDetail() {
               <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-4">Olfactory Profile</h4>
               <div className="bg-white rounded-2xl border border-stone-200 p-2 shadow-sm">
                 {/* Fallback to default if profile is missing to prevent crash */}
-                <ScentRadar profile={perfume.scent_profile || { fresh: 5, sweet: 5, spicy: 5, woody: 5, floral: 5 }} />
+                <ScentRadar
+                  profile={
+                    (perfume.scent_profile && Object.keys(perfume.scent_profile).length > 0)
+                      ? perfume.scent_profile
+                      : { fresh: 5, sweet: 5, spicy: 5, woody: 5, floral: 5 }
+                  }
+                />
               </div>
             </div>
           </div>

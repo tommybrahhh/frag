@@ -1,37 +1,48 @@
 'use client';
 
-import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } from 'recharts';
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer, PolarRadiusAxis } from 'recharts';
 
+// 1. Updated Interface to match your generator function (fresh, woody, floral...)
 interface ScentRadarProps {
   profile: {
-    fresh: number;
-    sweet: number;
-    spicy: number;
-    depth: number;
-    [key: string]: number; // Allow for expansion
+    fresh?: number;
+    sweet?: number;
+    spicy?: number;
+    woody?: number;
+    floral?: number;
+    depth?: number;
+    [key: string]: number | undefined; 
   };
 }
 
 export default function ScentRadar({ profile }: ScentRadarProps) {
-  // Transform the object { fresh: 8, ... } into Array [{ subject: 'Fresh', A: 8 }, ...]
-  const data = Object.entries(profile).map(([key, value]) => ({
-    subject: key.charAt(0).toUpperCase() + key.slice(1), // Capitalize
-    A: value,
-    fullMark: 10,
-  }));
+  // Safety Check
+  if (!profile) return <div className="h-full flex items-center justify-center text-xs text-stone-300">No Data</div>;
+
+  // 2. Transform Data & Filter non-numbers
+  const data = Object.entries(profile)
+    .filter(([_, value]) => typeof value === 'number') 
+    .map(([key, value]) => ({
+      subject: key.charAt(0).toUpperCase() + key.slice(1),
+      A: value || 0,
+      fullMark: 10,
+    }));
 
   return (
     <div className="w-full h-[250px] flex items-center justify-center">
       <ResponsiveContainer width="100%" height="100%">
         <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data}>
-          {/* The Web Grid */}
+          {/* Grid lines */}
           <PolarGrid stroke="#e5e7eb" />
           
-          {/* The Labels (Fresh, Sweet...) */}
+          {/* Labels */}
           <PolarAngleAxis
             dataKey="subject"
-            tick={{ fill: '#a8a29e', fontSize: 10, fontWeight: 'bold' }}
+            tick={{ fill: '#78716c', fontSize: 10, fontWeight: 'bold' }}
           />
+          
+          {/* 3. FIX: Force Scale to 0-10 so the shape is always relative to max score */}
+          <PolarRadiusAxis angle={30} domain={[0, 10]} tick={false} axisLine={false} />
           
           {/* The Shape */}
           <Radar
@@ -40,7 +51,7 @@ export default function ScentRadar({ profile }: ScentRadarProps) {
             stroke="#1c1917" // Stone-900
             strokeWidth={2}
             fill="#1c1917"   // Stone-900
-            fillOpacity={0.1} // Subtle transparency
+            fillOpacity={0.2} 
           />
         </RadarChart>
       </ResponsiveContainer>

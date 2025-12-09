@@ -149,7 +149,7 @@ export default function ProfilePage() {
             ) : (
               <div>
                 <h1 className="font-serif text-4xl text-stone-900 mb-2">
-                  {profile?.display_name || user.email?.split('@')[0]}'s Shelf
+                  {user.display_name || profile?.display_name || user.email?.split('@')[0]}'s Shelf
                 </h1>
                 <p className="text-stone-500 text-sm max-w-lg italic">
                   {profile?.bio || "No bio yet."}

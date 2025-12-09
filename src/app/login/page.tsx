@@ -6,7 +6,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
+  // Renamed 'email' to 'identifier' to reflect it can be either
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -23,22 +24,44 @@ export default function LoginPage() {
 
     try {
       if (isSignUp) {
-        // SIGN UP LOGIC
+        // --- SIGN UP FLOW (Strictly Email) ---
+        if (!identifier.includes('@')) {
+          throw new Error('Please use a valid email address to sign up.');
+        }
+
         const { error } = await supabase.auth.signUp({
-          email,
+          email: identifier,
           password,
         });
         if (error) throw error;
-        setMessage('Account created! check your email to confirm.');
+        setMessage('Account created! Check your email to confirm.');
+        
       } else {
-        // SIGN IN LOGIC
+        // --- LOGIN FLOW (Email OR Username) ---
+        let emailToUse = identifier;
+
+        // 1. If it doesn't look like an email, treat it as a Username
+        if (!identifier.includes('@')) {
+          const { data: lookedUpEmail, error: lookupError } = await supabase
+            .rpc('get_email_by_username', { username_input: identifier });
+
+          if (lookupError) throw lookupError;
+          if (!lookedUpEmail) {
+            throw new Error('Username not found.');
+          }
+          emailToUse = lookedUpEmail;
+        }
+
+        // 2. Perform actual Login
         const { error } = await supabase.auth.signInWithPassword({
-          email,
+          email: emailToUse,
           password,
         });
+        
         if (error) throw error;
-        router.push('/'); // Redirect to home
-        router.refresh();
+        
+        // Force a hard reload to ensure all states update
+        window.location.href = '/';
       }
     } catch (err: any) {
       setError(err.message);
@@ -50,7 +73,6 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#FDFBF7] p-6">
       
-      {/* Home Link */}
       <Link href="/" className="absolute top-6 left-6 text-xs font-bold tracking-widest text-stone-400 uppercase hover:text-stone-900">
         ← Return Home
       </Link>
@@ -67,14 +89,16 @@ export default function LoginPage() {
 
         <form onSubmit={handleAuth} className="space-y-4">
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-widest text-stone-400 block mb-2">Email</label>
+            <label className="text-[10px] font-bold uppercase tracking-widest text-stone-400 block mb-2">
+              {isSignUp ? 'Email Address' : 'Email or Username'}
+            </label>
             <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="text" // Changed from 'email' to 'text' to allow usernames
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
               required
               className="w-full p-3 bg-stone-50 border border-stone-200 rounded-xl focus:border-stone-800 outline-none transition"
-              placeholder="you@example.com"
+              placeholder={isSignUp ? "you@example.com" : "Email or Display Name"}
             />
           </div>
 
@@ -104,7 +128,11 @@ export default function LoginPage() {
 
         <div className="mt-6 text-center">
           <button
-            onClick={() => setIsSignUp(!isSignUp)}
+            onClick={() => {
+              setIsSignUp(!isSignUp);
+              setError(null);
+              setMessage(null);
+            }}
             className="text-xs text-stone-500 hover:text-stone-900 underline underline-offset-4"
           >
             {isSignUp ? 'Already have an account? Sign In' : 'New here? Create an Account'}

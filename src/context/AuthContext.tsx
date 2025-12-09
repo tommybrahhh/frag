@@ -19,18 +19,81 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const supabase = createClient();
 
   useEffect(() => {
-    // 1. Check active session on load
+    // 1. Check active session on load and fetch profile
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user || null);
+      
+      if (session?.user) {
+        try {
+          // Fetch user profile with nickname
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('display_name')
+            .eq('id', session.user.id)
+            .maybeSingle();
+          
+          if (profileError) {
+            console.error('Error fetching profile:', profileError);
+            // Still set user but without profile data
+            setUser({
+              ...session.user,
+              display_name: session.user.email?.split('@')[0]
+            });
+          } else {
+            setUser({
+              ...session.user,
+              display_name: profile?.display_name || session.user.email?.split('@')[0]
+            });
+          }
+        } catch (error) {
+          console.error('Error in profile fetch:', error);
+          setUser({
+            ...session.user,
+            display_name: session.user.email?.split('@')[0]
+          });
+        }
+      } else {
+        setUser(null);
+      }
       setLoading(false);
     };
 
     checkUser();
 
     // 2. Listen for changes (Login, Logout, Auto-refresh)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (session?.user) {
+        try {
+          // Fetch user profile with nickname
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('display_name')
+            .eq('id', session.user.id)
+            .maybeSingle();
+          
+          if (profileError) {
+            console.error('Error fetching profile:', profileError);
+            // Still set user but without profile data
+            setUser({
+              ...session.user,
+              display_name: session.user.email?.split('@')[0]
+            });
+          } else {
+            setUser({
+              ...session.user,
+              display_name: profile?.display_name || session.user.email?.split('@')[0]
+            });
+          }
+        } catch (error) {
+          console.error('Error in profile fetch:', error);
+          setUser({
+            ...session.user,
+            display_name: session.user.email?.split('@')[0]
+          });
+        }
+      } else {
+        setUser(null);
+      }
       setLoading(false);
     });
 
