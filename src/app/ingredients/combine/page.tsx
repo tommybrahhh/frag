@@ -109,7 +109,7 @@ export default function CombineIngredientsPage() {
   return (
     <div className="min-h-screen bg-[#FDFBF7] text-gray-800 pb-20 font-sans">
       {/* Nav */}
-      <div className="px-6 py-4 border-b border-stone-200 flex justify-between items-center bg-white/50 backdrop-blur sticky top-0 z-20">
+      <div className="px-6 py-4 border-b border-stone-200 flex justify-between items-center bg-white/50 backdrop-blur sticky top-16 z-20">
         <Link href="/" className="text-xs font-bold tracking-widest uppercase hover:text-stone-500">← Home</Link>
         <span className="font-serif text-xl italic">Ingredient Combiner</span>
         <div className="w-8"></div>

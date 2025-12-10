@@ -85,9 +85,9 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#FDFBF7] p-6">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#FDFBF7] p-6 pt-24">
       
-      <Link href="/" className="absolute top-6 left-6 text-xs font-bold tracking-widest text-stone-400 uppercase hover:text-stone-900">
+      <Link href="/" className="absolute top-24 left-6 text-xs font-bold tracking-widest text-stone-800 uppercase hover:text-stone-900">
         ← Return Home
       </Link>
 
@@ -96,14 +96,14 @@ export default function LoginPage() {
           <h1 className="font-serif text-3xl text-stone-900 mb-2">
             {isSignUp ? 'Join the Club' : 'Welcome Back'}
           </h1>
-          <p className="text-stone-500 text-sm">
+          <p className="text-stone-700 text-sm">
             {isSignUp ? 'Create your olfactory profile' : 'Sign in to access your collection'}
           </p>
         </div>
 
         <form onSubmit={handleAuth} className="space-y-4">
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-widest text-stone-400 block mb-2">
+            <label className="text-[10px] font-bold uppercase tracking-widest text-stone-800 block mb-2">
               {isSignUp ? 'Email Address' : 'Email or Username'}
             </label>
             <input
@@ -117,7 +117,7 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-widest text-stone-400 block mb-2">Password</label>
+            <label className="text-[10px] font-bold uppercase tracking-widest text-stone-800 block mb-2">Password</label>
             <input
               type="password"
               value={password}
@@ -147,7 +147,7 @@ export default function LoginPage() {
               setError(null);
               setMessage(null);
             }}
-            className="text-xs text-stone-500 hover:text-stone-900 underline underline-offset-4"
+            className="text-xs text-stone-700 hover:text-stone-900 underline underline-offset-4"
           >
             {isSignUp ? 'Already have an account? Sign In' : 'New here? Create an Account'}
           </button>

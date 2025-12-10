@@ -318,7 +318,7 @@ function CompareContent() {
 export default function ComparePage() {
   return (
     <div className="min-h-screen bg-stone-50 text-gray-800 font-sans">
-      <div className="px-6 py-4 border-b border-stone-200 flex justify-between items-center bg-white/90 backdrop-blur-md sticky top-0 z-10">
+      <div className="px-6 py-4 border-b border-stone-200 flex justify-between items-center bg-white/90 backdrop-blur-md sticky top-16 z-10">
         <Link href="/" className="text-xs font-semibold uppercase tracking-widest hover:opacity-60 transition">← Collection</Link>
         <span className="text-[10px] font-mono uppercase tracking-widest text-stone-400">Perfume Intuition</span>
       </div>

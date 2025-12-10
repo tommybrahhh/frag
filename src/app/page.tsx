@@ -337,28 +337,6 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-white text-stone-800 font-sans selection:bg-stone-900 selection:text-white pb-24">
-      
-      {/* Authentication Header */}
-      <div className="absolute top-6 right-6 z-50">
-        {user ? (
-          <div className="flex items-center gap-4">
-            <Link href="/profile" className="text-xs font-bold uppercase tracking-widest text-stone-600 hover:text-stone-900">
-              My Shelf
-            </Link>
-            <button onClick={signOut} className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-red-500">
-              Sign Out
-            </button>
-          </div>
-        ) : (
-          <Link
-            href="/login"
-            className="bg-stone-900 text-white px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-stone-800 transition shadow-lg"
-          >
-            Sign In
-          </Link>
-        )}
-      </div>
-
       {/* 1. CENTERED HEADER SECTION */}
       <div className="max-w-4xl mx-auto px-6 py-12 text-center">
         {/* Title */}
