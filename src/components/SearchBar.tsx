@@ -25,6 +25,8 @@ export default function SearchBar() {
 
   // Fetch Logic (Debounced slightly by manual typing speed)
   useEffect(() => {
+    const controller = new AbortController();
+
     const fetchResults = async () => {
       if (query.length < 2) {
         setResults([]);
@@ -32,19 +34,29 @@ export default function SearchBar() {
       }
       setLoading(true);
       try {
-        const res = await fetch(`/api/search?q=${query}`);
+        const res = await fetch(`/api/search?q=${query}`, {
+          signal: controller.signal
+        });
+        if (!res.ok) throw new Error('Search failed');
         const data = await res.json();
         setResults(data);
         setIsOpen(true);
-      } catch (err) {
-        console.error(err);
+      } catch (err: any) {
+        if (err.name !== 'AbortError') {
+          console.error(err);
+        }
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
       }
     };
 
     const timeoutId = setTimeout(fetchResults, 300); // 300ms delay
-    return () => clearTimeout(timeoutId);
+    return () => {
+      clearTimeout(timeoutId);
+      controller.abort();
+    };
   }, [query]);
 
   return (

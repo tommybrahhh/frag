@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
 import Link from 'next/link';
@@ -18,6 +18,9 @@ export default function PerfumeDetail() {
   const [loading, setLoading] = useState(true);
   const [inCollection, setInCollection] = useState(false);
   const { user } = useAuth();
+  
+  // Memoize Supabase client
+  const supabase = useMemo(() => createClient(), []);
 
   // --- 1. HELPER: Normalize Note Names (Fuzzy Matcher) ---
   // Turns "Calabrian Bergamot" -> "bergamot"
@@ -99,12 +102,9 @@ export default function PerfumeDetail() {
 
     // Normalize main notes for comparison
     const mainNotesRaw = mainPerfume.perfume_notes?.map((n: any) => n.note?.name) || [];
-    // DEBUG: Check for null/undefined notes
-    console.log(`Main perfume ${mainPerfume.name} raw notes:`, mainNotesRaw);
     const mainNotesLower = mainNotesRaw
       .filter((n: string) => n != null && n.trim() !== '')
       .map((n: string) => n.toLowerCase());
-    console.log(`Main perfume ${mainPerfume.name} lower notes:`, mainNotesLower);
     const mainVibes = mainPerfume.vibe_tags || [];
     const mainFamily = categorizeScentFamily(mainNotesLower, mainVibes);
 
@@ -113,12 +113,9 @@ export default function PerfumeDetail() {
         if (perfume.id === mainPerfume.id) return false;
 
         const candidateNotesRaw = perfume.perfume_notes?.map((n: any) => n.note?.name) || [];
-        // DEBUG: Check for null/undefined notes
-        console.log(`Candidate ${perfume.name} raw notes:`, candidateNotesRaw);
         const candidateNotesLower = candidateNotesRaw
           .filter((n: string) => n != null && n.trim() !== '')
           .map((n: string) => n.toLowerCase());
-        console.log(`Candidate ${perfume.name} lower notes:`, candidateNotesLower);
         const candidateVibes = perfume.vibe_tags || [];
         const candidateFamily = categorizeScentFamily(candidateNotesLower, candidateVibes);
 
@@ -127,16 +124,10 @@ export default function PerfumeDetail() {
 
         // 2. 70% OLFACTORY COMPOSITION MATCH: Calculate percentage match
         const totalMainNotes = mainNotesLower.length;
+        if (totalMainNotes === 0) return false;
+        
         const sharedCount = candidateNotesLower.filter((n: string) => mainNotesLower.includes(n)).length;
         const matchPercentage = (sharedCount / totalMainNotes) * 100;
-        
-        // DEBUG: Log matching details
-        if (matchPercentage >= 70) {
-          console.log(`MATCH FOUND: ${perfume.name} shares ${sharedCount}/${totalMainNotes} notes (${matchPercentage.toFixed(1)}%) with ${mainPerfume.name}`);
-          console.log('Main notes:', mainNotesLower);
-          console.log('Candidate notes:', candidateNotesLower);
-          console.log('Shared notes:', candidateNotesLower.filter((n: string) => mainNotesLower.includes(n)));
-        }
         
         if (matchPercentage < 70) return false; // Strict 70% minimum
 
@@ -159,14 +150,6 @@ export default function PerfumeDetail() {
              .filter((n: string) => n != null && n.trim() !== '')
              .filter((n: string) => mainNotesLower.includes(n.toLowerCase()))
          ));
-         
-         // DEBUG: Check the shared notes calculation
-         console.log(`Shared notes calculation for ${perfume.name}:`, {
-           candidateNotesRaw,
-           mainNotesLower,
-           actualSharedNotes,
-           matchPercentage: `${matchPercentage.toFixed(1)}%`
-         });
          
          const sharedVibesCount = perfume.vibe_tags?.filter((t:string) => mainVibes.includes(t)).length || 0;
          
@@ -196,7 +179,7 @@ export default function PerfumeDetail() {
   useEffect(() => {
     const checkCollection = async () => {
       if (!user || !perfume) return;
-      const supabase = createClient();
+      
       const { data } = await supabase
         .from('user_collections')
         .select('id')
@@ -207,12 +190,11 @@ export default function PerfumeDetail() {
       if (data) setInCollection(true);
     };
     checkCollection();
-  }, [user, perfume]);
+  }, [user, perfume, supabase]);
+
   // Toggle Function
   const toggleCollection = async () => {
     if (!user) return router.push('/login');
-    
-    const supabase = createClient(); // <--- ADD THIS LINE HERE
     
     if (inCollection) {
       await supabase.from('user_collections').delete().eq('user_id', user.id).eq('perfume_id', perfume.id);
@@ -222,20 +204,16 @@ export default function PerfumeDetail() {
       setInCollection(true);
     }
   };
+
   useEffect(() => {
-    console.log('Params received:', params);
     const id = params?.id;
-    console.log('Perfume ID from params:', id);
     if (!id || id === 'undefined') {
-      console.log('No valid ID found, stopping');
       setLoading(false);
       return;
     }
 
     const fetchData = async () => {
-      const supabase = createClient();
       // 1. Fetch Main Perfume
-      console.log('Fetching perfume with ID:', id);
       const { data: mainPerfume, error } = await supabase
         .from('perfumes')
         .select(`
@@ -258,19 +236,22 @@ export default function PerfumeDetail() {
         return;
       }
       
-      console.log('Fetched perfume:', mainPerfume);
-      
       // If scent_profile is missing, calculate it on the fly
       if (mainPerfume && !mainPerfume.scent_profile) {
         mainPerfume.scent_profile = generateProfileFromVibes(mainPerfume.vibe_tags || []);
       }
       
-      // If no perfume found, this will be null, and your UI correctly handles it below
       setPerfume(mainPerfume);
 
-      // 2. Fetch ALL Perfumes for Comparison
-      // IMPORTANT: We must fetch notes to do the logic!
-      const { data: allPerfumes, error: allPerfumesError } = await supabase
+      if (!mainPerfume) {
+        setLoading(false);
+        return;
+      }
+
+      // 2. Fetch CANDIDATE Perfumes for Comparison (Optimized)
+      // Only fetch perfumes that share at least one vibe tag.
+      // This drastically reduces the payload compared to fetching the entire DB.
+      let query = supabase
         .from('perfumes')
         .select(`
           id, name, image_url, price_tier, best_season, vibe_tags, gender,
@@ -280,13 +261,20 @@ export default function PerfumeDetail() {
           )
         `)
         .neq('id', id);
+
+      if (mainPerfume.vibe_tags && mainPerfume.vibe_tags.length > 0) {
+        // Use 'overlaps' to find perfumes that share tags
+        query = query.overlaps('vibe_tags', mainPerfume.vibe_tags);
+      }
         
+      const { data: allPerfumes, error: allPerfumesError } = await query.limit(200); // Limit to top 200 candidates
+
       if (allPerfumesError) {
-        console.error('Error fetching all perfumes:', allPerfumesError);
+        console.error('Error fetching candidate perfumes:', allPerfumesError);
       }
 
-      // 3. Run Logic
-      if (allPerfumes && mainPerfume) {
+      // 3. Run Logic (on filtered set)
+      if (allPerfumes) {
         // A. Recommendations (Vibes) with shared notes calculation
         const mainNotesLower = mainPerfume.perfume_notes?.map((n: any) => n.note?.name?.toLowerCase()) || [];
         const recs = allPerfumes
@@ -297,31 +285,17 @@ export default function PerfumeDetail() {
               mainNotesLower.some(mainNote => mainNote === n)
             ).slice(0, 3);
             
-            // DEBUG: Log shared notes calculation
-            console.log(`Shared notes for ${p.name}:`, {
-              mainNotes: mainNotesLower,
-              candidateNotes,
-              sharedNotes
-            });
             return {
               ...p,
               sharedNotes
             };
           })
           .sort((a: any, b: any) => getMatchDetails(mainPerfume, b).score - getMatchDetails(mainPerfume, a).score)
-          .slice(0, 9);  // Changed to 9 perfumes for 3 lines of 3
+          .slice(0, 9);
         setRelatedPerfumes(recs);
 
         // B. Dupes (DNA - The Strict Function)
         const smartDupes = findClientSideDupes(mainPerfume, allPerfumes);
-        
-        // DEBUG: Log the matching process
-        console.log('Main perfume notes:', mainPerfume.perfume_notes?.map((n: any) => n.note?.name));
-        console.log('Found dupes:', smartDupes);
-        smartDupes.forEach((dupe: any) => {
-          console.log(`Dupe: ${dupe.dupe_name}, Shared notes:`, dupe.shared_notes);
-        });
-        
         setDupes(smartDupes);
       }
 
@@ -329,7 +303,7 @@ export default function PerfumeDetail() {
     };
 
     fetchData();
-  }, [params?.id]);
+  }, [params?.id, supabase]);
 
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#FDFBF7] text-gray-500">Loading essence...</div>;
   if (!perfume) return <div className="min-h-screen flex items-center justify-center bg-[#FDFBF7]">Perfume not found.</div>;

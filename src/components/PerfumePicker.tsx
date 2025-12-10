@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { createClient } from '@/lib/supabase';
 
 interface PerfumePickerProps {
@@ -21,6 +21,9 @@ export default function PerfumePicker({ label, onSelect, selected, placeholder, 
   const pickerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Memoize the client
+  const supabase = useMemo(() => createClient(), []);
+
   // Close dropdown if clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -35,6 +38,8 @@ export default function PerfumePicker({ label, onSelect, selected, placeholder, 
 
   // Search Logic
   useEffect(() => {
+    const controller = new AbortController();
+
     if (filterOptions && filterOptions.length > 0) {
       // Use filtered options if provided
       let filtered = filterOptions;
@@ -62,27 +67,38 @@ export default function PerfumePicker({ label, onSelect, selected, placeholder, 
     } else {
       // Fetch from database with filters
       const fetchResults = async () => {
-        const supabase = createClient();
-        let queryBuilder = supabase.from('perfumes').select('*');
-        
-        if (query.length >= 2) {
-          queryBuilder = queryBuilder.ilike('name', `%${query}%`);
+        try {
+          let queryBuilder = supabase.from('perfumes').select('*');
+          
+          if (query.length >= 2) {
+            queryBuilder = queryBuilder.ilike('name', `%${query}%`);
+          }
+          
+          if (selectedFilter !== 'all') {
+            queryBuilder = queryBuilder.contains('vibe_tags', [selectedFilter]);
+          }
+          
+          const { data, error } = await queryBuilder.limit(5).abortSignal(controller.signal);
+          
+          if (!error && data) {
+             setResults(data);
+             setIsOpen(true);
+             setSelectedIndex(-1);
+          }
+        } catch (error: any) {
+           if (error.name !== 'AbortError') {
+             console.error("Search error:", error);
+           }
         }
-        
-        if (selectedFilter !== 'all') {
-          queryBuilder = queryBuilder.contains('vibe_tags', [selectedFilter]);
-        }
-        
-        const { data } = await queryBuilder.limit(5);
-        setResults(data || []);
-        setIsOpen(true);
-        setSelectedIndex(-1);
       };
       
       const timer = setTimeout(fetchResults, 200); // Reduced debounce time
-      return () => clearTimeout(timer);
+      return () => {
+        clearTimeout(timer);
+        controller.abort();
+      };
     }
-  }, [query, filterOptions, selectedFilter]);
+  }, [query, filterOptions, selectedFilter, supabase]);
 
   // Keyboard navigation
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -193,11 +209,13 @@ export default function PerfumePicker({ label, onSelect, selected, placeholder, 
       )}
       
       <input
+        ref={inputRef}
         type="text"
         placeholder={placeholder || "Search perfume..."}
         className="w-full bg-transparent border-0 border-b border-stone-300 px-4 py-3 outline-none focus:border-stone-800 transition placeholder:text-stone-400"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
+        onKeyDown={handleKeyDown}
         onFocus={() => setIsOpen(true)}
         onBlur={() => setTimeout(() => setIsOpen(false), 200)}
       />
@@ -205,9 +223,9 @@ export default function PerfumePicker({ label, onSelect, selected, placeholder, 
       {/* Dropdown Results */}
       {isOpen && results.length > 0 && (
         <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-2xl shadow-xl z-50 overflow-hidden border border-stone-100">
-          {results.map((p) => (
+          {results.map((p, index) => (
             <div key={p.id}
-              className="flex items-center gap-3 p-3 hover:bg-stone-50 cursor-pointer border-b border-stone-50 last:border-0 transition"
+              className={`flex items-center gap-3 p-3 hover:bg-stone-50 cursor-pointer border-b border-stone-50 last:border-0 transition ${index === selectedIndex ? 'bg-stone-50' : ''}`}
               onClick={() => {
                 onSelect(p); // Pass the full perfume object back
                 setQuery('');
@@ -218,7 +236,7 @@ export default function PerfumePicker({ label, onSelect, selected, placeholder, 
                  {p.image_url && <img src={p.image_url} className="h-full object-contain mix-blend-multiply" />}
                </div>
                <div>
-                 <div className="text-xs font-bold text-stone-900">{p.name}</div>
+                 <div className="text-xs font-bold text-stone-900">{highlightMatch(p.name, query)}</div>
                  <div className="text-[9px] uppercase text-stone-400">{p.brand_name}</div>
                </div>
             </div>

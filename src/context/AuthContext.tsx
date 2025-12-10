@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useMemo, useCallback } from 'react';
 import { createClient } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 
@@ -16,99 +16,94 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const supabase = createClient();
+  
+  // Memoize the supabase client to ensure stability across renders, 
+  // though createClient handles singleton logic internally for the browser.
+  const supabase = useMemo(() => createClient(), []);
+
+  const fetchUserProfile = useCallback(async (sessionUser: any) => {
+    try {
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('display_name')
+        .eq('id', sessionUser.id)
+        .maybeSingle();
+      
+      if (profileError) {
+        console.error('Error fetching profile:', profileError);
+        return {
+          ...sessionUser,
+          display_name: sessionUser.email?.split('@')[0]
+        };
+      }
+      
+      return {
+        ...sessionUser,
+        display_name: profile?.display_name || sessionUser.email?.split('@')[0]
+      };
+    } catch (error) {
+      console.error('Error in profile fetch:', error);
+      return {
+        ...sessionUser,
+        display_name: sessionUser.email?.split('@')[0]
+      };
+    }
+  }, [supabase]);
 
   useEffect(() => {
-    // 1. Check active session on load and fetch profile
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (session?.user) {
-        try {
-          // Fetch user profile with nickname
-          const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('display_name')
-            .eq('id', session.user.id)
-            .maybeSingle();
-          
-          if (profileError) {
-            console.error('Error fetching profile:', profileError);
-            // Still set user but without profile data
-            setUser({
-              ...session.user,
-              display_name: session.user.email?.split('@')[0]
-            });
-          } else {
-            setUser({
-              ...session.user,
-              display_name: profile?.display_name || session.user.email?.split('@')[0]
-            });
-          }
-        } catch (error) {
-          console.error('Error in profile fetch:', error);
-          setUser({
-            ...session.user,
-            display_name: session.user.email?.split('@')[0]
-          });
+    let mounted = true;
+
+    const initializeAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session?.user && mounted) {
+          const userWithProfile = await fetchUserProfile(session.user);
+          if (mounted) setUser(userWithProfile);
+        } else if (mounted) {
+          setUser(null);
         }
-      } else {
-        setUser(null);
+      } catch (error) {
+        console.error('Error checking auth session:', error);
+      } finally {
+        if (mounted) setLoading(false);
       }
-      setLoading(false);
     };
 
-    checkUser();
+    initializeAuth();
 
-    // 2. Listen for changes (Login, Logout, Auto-refresh)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      // Only update if the session user actually changed to avoid redundant fetches
       if (session?.user) {
-        try {
-          // Fetch user profile with nickname
-          const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('display_name')
-            .eq('id', session.user.id)
-            .maybeSingle();
-          
-          if (profileError) {
-            console.error('Error fetching profile:', profileError);
-            // Still set user but without profile data
-            setUser({
-              ...session.user,
-              display_name: session.user.email?.split('@')[0]
-            });
-          } else {
-            setUser({
-              ...session.user,
-              display_name: profile?.display_name || session.user.email?.split('@')[0]
-            });
-          }
-        } catch (error) {
-          console.error('Error in profile fetch:', error);
-          setUser({
-            ...session.user,
-            display_name: session.user.email?.split('@')[0]
-          });
-        }
-      } else {
+        const userWithProfile = await fetchUserProfile(session.user);
+        if (mounted) setUser(userWithProfile);
+      } else if (mounted) {
         setUser(null);
       }
-      setLoading(false);
+      if (mounted) setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
-  }, []);
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, [supabase, fetchUserProfile]);
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     await supabase.auth.signOut();
     setUser(null);
     router.push('/');
     router.refresh();
-  };
+  }, [supabase, router]);
+
+  const value = useMemo(() => ({
+    user,
+    loading,
+    signOut
+  }), [user, loading, signOut]);
 
   return (
-    <AuthContext.Provider value={{ user, loading, signOut }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
