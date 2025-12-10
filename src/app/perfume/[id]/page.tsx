@@ -233,7 +233,7 @@ export default function PerfumeDetail() {
     }
 
     const fetchData = async () => {
-      const supabase = createClient(); // <--- ADD THIS LINE
+      const supabase = createClient();
       // 1. Fetch Main Perfume
       console.log('Fetching perfume with ID:', id);
       const { data: mainPerfume, error } = await supabase

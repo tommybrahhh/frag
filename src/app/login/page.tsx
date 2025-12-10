@@ -35,6 +35,9 @@ export default function LoginPage() {
         });
         if (error) throw error;
         setMessage('Account created! Check your email to confirm.');
+        // Clear form after successful signup
+        setIdentifier('');
+        setPassword('');
         
       } else {
         // --- LOGIN FLOW (Email OR Username) ---
@@ -53,15 +56,19 @@ export default function LoginPage() {
         }
 
         // 2. Perform actual Login
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data: authData, error } = await supabase.auth.signInWithPassword({
           email: emailToUse,
           password,
         });
         
         if (error) throw error;
         
-        // Force a hard reload to ensure all states update
-        window.location.href = '/';
+        // Add a small delay to ensure the session is properly established
+        // before redirecting with a hard reload
+        setTimeout(() => {
+          // Force a hard reload to ensure all states update
+          window.location.href = '/';
+        }, 100);
       }
     } catch (err: any) {
       setError(err.message);
