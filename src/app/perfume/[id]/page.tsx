@@ -249,8 +249,7 @@ export default function PerfumeDetail() {
       }
 
       // 2. Fetch CANDIDATE Perfumes for Comparison (Optimized)
-      // Only fetch perfumes that share at least one vibe tag.
-      // This drastically reduces the payload compared to fetching the entire DB.
+      // fetching a limited set to prevent performance issues
       let query = supabase
         .from('perfumes')
         .select(`
@@ -262,12 +261,10 @@ export default function PerfumeDetail() {
         `)
         .neq('id', id);
 
-      if (mainPerfume.vibe_tags && mainPerfume.vibe_tags.length > 0) {
-        // Use 'overlaps' to find perfumes that share tags
-        query = query.overlaps('vibe_tags', mainPerfume.vibe_tags);
-      }
+      // Removed overlaps filter to prevent potential database errors or timeouts
+      // We will fetch a batch and filter client-side for best matches
         
-      const { data: allPerfumes, error: allPerfumesError } = await query.limit(200); // Limit to top 200 candidates
+      const { data: allPerfumes, error: allPerfumesError } = await query.limit(200);
 
       if (allPerfumesError) {
         console.error('Error fetching candidate perfumes:', allPerfumesError);
