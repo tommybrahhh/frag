@@ -74,10 +74,11 @@ export default function LoginPage() {
         
         if (error) throw error;
         
-        // Use client-side navigation and force data refresh
-        router.replace('/');
-        await new Promise(resolve => setTimeout(resolve, 500)); // Allow more time for state to settle
-        router.refresh(); // Ensure auth state is up-to-date
+        setMessage('Login successful! Redirecting...');
+        
+        // Force a full page reload to ensure all states (AuthContext, Server Components) are perfectly synced.
+        // This resolves issues where client-side navigation leaves the UI in a stale "logged out" state.
+        window.location.href = '/';
       }
     } catch (err: any) {
       setError(err.message);

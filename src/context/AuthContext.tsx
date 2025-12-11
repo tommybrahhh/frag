@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, useMemo, useCallback } from 'react';
-import { createClient } from '@/lib/supabase';
+import { createClient, isSupabaseConfigured } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 
 interface AuthContextType {
@@ -30,7 +30,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const fetchUserProfile = useCallback(async (sessionUser: any) => {
-    if (!supabase) {
+    if (!supabase || !isSupabaseConfigured()) {
       // If supabase is not available, return user without profile
       return {
         ...sessionUser,
@@ -66,6 +66,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [supabase]);
 
   useEffect(() => {
+    // IMMEDIATE CHECK: If Supabase is not configured, skip everything
+    if (!isSupabaseConfigured()) {
+      console.warn('Supabase is not configured. Authentication is disabled.');
+      setLoading(false);
+      return;
+    }
+
     if (!supabase) {
       // If supabase is not available, skip authentication and set loading to false
       setLoading(false);
@@ -76,7 +83,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const initializeAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        // Safety timeout: If Supabase takes too long (e.g., network hang), stop loading
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Auth timeout')), 3000)
+        );
+
+        const sessionPromise = supabase.auth.getSession();
+        
+        // Race the session fetch against the timeout
+        const { data } = await Promise.race([sessionPromise, timeoutPromise]) as any;
+        const session = data?.session;
         
         if (session?.user && mounted) {
           const userWithProfile = await fetchUserProfile(session.user);
@@ -86,6 +102,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       } catch (error) {
         console.error('Error checking auth session:', error);
+        // On timeout or error, ensure we don't leave the user stuck
+        if (mounted) setUser(null); 
       } finally {
         if (mounted) setLoading(false);
       }

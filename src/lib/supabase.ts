@@ -25,3 +25,7 @@ export const createClient = () => {
   // 4. SERVER INSTANCE
   return createSupabaseClient(supabaseUrl, supabaseKey);
 };
+
+export const isSupabaseConfigured = () => {
+  return supabaseUrl !== 'https://placeholder.supabase.co' && supabaseKey !== 'placeholder-key';
+};

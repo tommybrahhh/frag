@@ -5,7 +5,7 @@ import Link from 'next/link';
 import SearchBar from './SearchBar';
 
 export default function GlobalHeader() {
-  const { user, signOut } = useAuth();
+  const { user, signOut, loading } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-stone-200 bg-white/90 backdrop-blur-md">
@@ -24,7 +24,9 @@ export default function GlobalHeader() {
 
         {/* Right: Auth Links */}
         <div className="flex-shrink-0">
-          {user ? (
+          {loading ? (
+             <div className="w-24 h-9 bg-stone-200 animate-pulse rounded-full" />
+          ) : user ? (
             <div className="flex items-center gap-4">
               <Link
                 href="/profile"

@@ -462,3 +462,81 @@
 2025-12-11 11:01:54,384 - ERROR - Attempt 2 failed: Sorry "safari" browser is not valid, valid browsers are [chrome, firefox].
 2025-12-11 11:02:51,252 - ERROR - Failed to bypass Cloudflare after multiple attempts
 2025-12-11 11:02:51,258 - INFO - Processing complete. Data saved to output_perfumes_v2.csv
+2025-12-11 19:03:10,715 - INFO - Processing 25 perfumes with enhanced anti-detection...
+2025-12-11 19:03:10,716 - INFO - 
+--- Processing 1/25: l-interdit-eau-de-parfum ---
+2025-12-11 19:03:10,716 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/givenchy/l-interdit-eau-de-parfum-51488.html
+2025-12-11 19:03:10,733 - ERROR - Attempt 1 failed: Sorry the platform "macos" is not valid, valid platforms are [linux, windows, darwin, android, ios]
+2025-12-11 19:03:48,372 - INFO - Attempt 2: Making request to https://www.fragrantica.com/perfume/givenchy/l-interdit-eau-de-parfum-51488.html
+2025-12-11 19:03:49,287 - INFO - Status Code: 200
+2025-12-11 19:03:49,287 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-11 19:03:49,572 - INFO - Perfume Name: L'Interdit Eau de Parfum Givenchy
+2025-12-11 19:03:49,573 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.51488.jpg
+2025-12-11 19:03:49,711 - INFO - 
+--- Processing 2/25: organza ---
+2025-12-11 19:03:49,711 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/givenchy/organza-4.html
+2025-12-11 19:03:49,711 - INFO - Throttling: Sleeping for 19.82 seconds
+2025-12-11 19:04:09,573 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/givenchy/organza-4.html
+2025-12-11 19:04:10,465 - INFO - Status Code: 200
+2025-12-11 19:04:10,466 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-11 19:04:10,792 - INFO - Perfume Name: Organza Givenchy
+2025-12-11 19:04:10,792 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.4.jpg
+2025-12-11 19:04:10,946 - INFO - 
+--- Processing 3/25: coco-noir ---
+2025-12-11 19:04:10,946 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/chanel/coco-noir-15963.html
+2025-12-11 19:04:10,947 - INFO - Throttling: Sleeping for 30.16 seconds
+2025-12-11 19:04:41,153 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/chanel/coco-noir-15963.html
+2025-12-11 19:04:42,130 - INFO - Status Code: 200
+2025-12-11 19:04:42,135 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-11 19:04:42,498 - INFO - Perfume Name: Coco Noir Chanel
+2025-12-11 19:04:42,498 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.15963.jpg
+2025-12-11 19:04:42,650 - INFO - Saved progress after 3 rows
+2025-12-11 19:04:42,650 - INFO - 
+--- Processing 4/25: boss-bottled ---
+2025-12-11 19:04:42,650 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/hugo-boss/boss-bottled-383.html
+2025-12-11 19:04:42,650 - INFO - Throttling: Sleeping for 12.30 seconds
+2025-12-11 19:04:54,981 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/hugo-boss/boss-bottled-383.html
+2025-12-11 19:04:55,869 - INFO - Status Code: 200
+2025-12-11 19:04:55,870 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-11 19:04:56,171 - INFO - Perfume Name: Boss Bottled Hugo Boss
+2025-12-11 19:04:56,171 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.383.jpg
+2025-12-11 19:04:56,317 - INFO - 
+--- Processing 5/25: invictus ---
+2025-12-11 19:04:56,317 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/paco-rabanne/invictus-18471.html
+2025-12-11 19:04:56,317 - INFO - Throttling: Sleeping for 41.83 seconds
+2025-12-11 19:05:38,178 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/paco-rabanne/invictus-18471.html
+2025-12-11 19:05:39,253 - INFO - Status Code: 200
+2025-12-11 19:05:39,254 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-11 19:05:39,534 - INFO - Perfume Name: Invictus Rabanne
+2025-12-11 19:05:39,534 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.18471.jpg
+2025-12-11 19:05:39,652 - INFO - 
+--- Processing 6/25: la-petite-robe-noire ---
+2025-12-11 19:05:39,652 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/guerlain/la-petite-robe-noire-14681.html
+2025-12-11 19:05:39,652 - INFO - Throttling: Sleeping for 28.38 seconds
+2025-12-11 19:06:08,066 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/guerlain/la-petite-robe-noire-14681.html
+2025-12-11 19:06:09,166 - INFO - Status Code: 200
+2025-12-11 19:06:09,166 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-11 19:06:09,448 - INFO - Perfume Name: La Petite Robe Noire Guerlain
+2025-12-11 19:06:09,449 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.14681.jpg
+2025-12-11 19:06:09,582 - INFO - Saved progress after 6 rows
+2025-12-11 19:06:09,582 - INFO - 
+--- Processing 7/25: midnight-fantasy ---
+2025-12-11 19:06:09,582 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/britney-spears/midnight-fantasy-802.html
+2025-12-11 19:06:09,582 - INFO - Throttling: Sleeping for 35.94 seconds
+2025-12-11 19:06:45,529 - ERROR - Attempt 1 failed: Sorry the platform "macos" is not valid, valid platforms are [linux, windows, darwin, android, ios]
+2025-12-11 19:07:39,360 - INFO - Attempt 2: Making request to https://www.fragrantica.com/perfume/britney-spears/midnight-fantasy-802.html
+2025-12-11 19:07:40,219 - INFO - Status Code: 200
+2025-12-11 19:07:40,219 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-11 19:07:40,531 - INFO - Perfume Name: Midnight Fantasy Britney Spears
+2025-12-11 19:07:40,531 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.802.jpg
+2025-12-11 19:07:40,660 - INFO - 
+--- Processing 8/25: london-for-men ---
+2025-12-11 19:07:40,660 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/burberry/london-for-men-804.html
+2025-12-11 19:07:40,660 - INFO - Throttling: Sleeping for 32.85 seconds
+2025-12-11 19:08:13,526 - ERROR - Attempt 1 failed: Sorry "safari" browser is not valid, valid browsers are [chrome, firefox].
+2025-12-11 19:09:02,714 - ERROR - Attempt 2 failed: Sorry "safari" browser is not valid, valid browsers are [chrome, firefox].
+2025-12-11 19:09:48,420 - ERROR - Failed to bypass Cloudflare after multiple attempts
+2025-12-11 19:09:48,421 - INFO - 
+--- Processing 9/25: le-male-elixir ---
+2025-12-11 19:09:48,421 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/jean-paul-gaultier/le-male-elixir-81642.html
+2025-12-11 19:09:48,435 - ERROR - Attempt 1 failed: Sorry the platform "macos" is not valid, valid platforms are [linux, windows, darwin, android, ios]
