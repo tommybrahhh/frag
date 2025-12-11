@@ -540,3 +540,23 @@
 --- Processing 9/25: le-male-elixir ---
 2025-12-11 19:09:48,421 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/jean-paul-gaultier/le-male-elixir-81642.html
 2025-12-11 19:09:48,435 - ERROR - Attempt 1 failed: Sorry the platform "macos" is not valid, valid platforms are [linux, windows, darwin, android, ios]
+2025-12-11 19:10:33,483 - INFO - Attempt 2: Making request to https://www.fragrantica.com/perfume/jean-paul-gaultier/le-male-elixir-81642.html
+2025-12-11 19:10:34,189 - INFO - Status Code: 200
+2025-12-11 19:10:34,189 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-11 19:10:34,407 - INFO - Perfume Name: Le Male Elixir Jean Paul Gaultier
+2025-12-11 19:10:34,408 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.81642.jpg
+2025-12-11 19:10:34,519 - INFO - Saved progress after 9 rows
+2025-12-11 19:10:34,519 - INFO - 
+--- Processing 10/25: armani-code ---
+2025-12-11 19:10:34,519 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/giorgio-armani/armani-code-412.html
+2025-12-11 19:10:34,519 - INFO - Throttling: Sleeping for 17.52 seconds
+2025-12-11 19:10:52,048 - ERROR - Attempt 1 failed: Sorry the platform "macos" is not valid, valid platforms are [linux, windows, darwin, android, ios]
+2025-12-11 19:11:27,613 - INFO - Attempt 2: Making request to https://www.fragrantica.com/perfume/giorgio-armani/armani-code-412.html
+2025-12-11 19:11:28,363 - INFO - Status Code: 200
+2025-12-11 19:11:28,364 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-11 19:11:28,635 - INFO - Perfume Name: Armani Code Giorgio Armani
+2025-12-11 19:11:28,635 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.412.jpg
+2025-12-11 19:11:28,771 - INFO - 
+--- Processing 11/25: cinema ---
+2025-12-11 19:11:28,771 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/yves-saint-laurent/cinema-92.html
+2025-12-11 19:11:28,772 - INFO - Throttling: Sleeping for 43.55 seconds
