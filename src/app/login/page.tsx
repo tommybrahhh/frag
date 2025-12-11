@@ -76,6 +76,7 @@ export default function LoginPage() {
         
         // Use client-side navigation and force data refresh
         router.replace('/');
+        await new Promise(resolve => setTimeout(resolve, 500)); // Allow more time for state to settle
         router.refresh(); // Ensure auth state is up-to-date
       }
     } catch (err: any) {
