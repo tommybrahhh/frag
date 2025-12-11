@@ -30,7 +30,7 @@ export default function ScentRadar({ profile }: ScentRadarProps) {
 
   return (
     <div className="w-full h-[250px] flex items-center justify-center">
-      <ResponsiveContainer width="100%" height="100%">
+      <ResponsiveContainer width="100%" height="100%" minHeight={250}>
         <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data}>
           {/* Grid lines */}
           <PolarGrid stroke="#e5e7eb" />

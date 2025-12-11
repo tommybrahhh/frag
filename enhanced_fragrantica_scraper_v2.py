@@ -131,8 +131,8 @@ class EnhancedFragranticaScraperV2:
                 browser_profiles = [
                     {'browser': 'chrome', 'platform': 'windows', 'mobile': False},
                     {'browser': 'firefox', 'platform': 'windows', 'mobile': False},
-                    {'browser': 'chrome', 'platform': 'macos', 'mobile': False},
-                    {'browser': 'safari', 'platform': 'macos', 'mobile': False}
+                    {'browser': 'chrome', 'platform': 'darwin', 'mobile': False},
+                    {'browser': 'firefox', 'platform': 'darwin', 'mobile': False}
                 ]
                 
                 scraper = cloudscraper.create_scraper(

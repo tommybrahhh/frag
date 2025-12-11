@@ -560,3 +560,151 @@
 --- Processing 11/25: cinema ---
 2025-12-11 19:11:28,771 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/yves-saint-laurent/cinema-92.html
 2025-12-11 19:11:28,772 - INFO - Throttling: Sleeping for 43.55 seconds
+2025-12-11 19:12:12,335 - ERROR - Attempt 1 failed: Sorry "safari" browser is not valid, valid browsers are [chrome, firefox].
+2025-12-11 19:12:49,599 - INFO - Throttling: Sleeping for 8.63 seconds
+2025-12-11 19:12:58,269 - INFO - Attempt 2: Making request to https://www.fragrantica.com/perfume/yves-saint-laurent/cinema-92.html
+2025-12-11 19:13:00,111 - INFO - Status Code: 200
+2025-12-11 19:13:00,111 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-11 19:13:00,434 - INFO - Perfume Name: Cinéma Yves Saint Laurent
+2025-12-11 19:13:00,434 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.92.jpg
+2025-12-11 19:13:00,544 - INFO - 
+--- Processing 12/25: versense ---
+2025-12-11 19:13:00,544 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/versace/versense-5752.html
+2025-12-11 19:13:00,544 - INFO - Throttling: Sleeping for 18.90 seconds
+2025-12-11 19:13:19,455 - ERROR - Attempt 1 failed: Sorry "safari" browser is not valid, valid browsers are [chrome, firefox].
+2025-12-11 19:13:51,498 - INFO - Throttling: Sleeping for 19.42 seconds
+2025-12-11 19:14:10,926 - ERROR - Attempt 2 failed: Sorry the platform "macos" is not valid, valid platforms are [linux, windows, darwin, android, ios]
+2025-12-11 19:15:01,516 - ERROR - Failed to bypass Cloudflare after multiple attempts
+2025-12-11 19:15:01,517 - INFO - Saved progress after 12 rows
+2025-12-11 19:15:01,518 - INFO - 
+--- Processing 13/25: burberry-her ---
+2025-12-11 19:15:01,518 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/burberry/burberry-her-51694.html
+2025-12-11 19:15:01,544 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/burberry/burberry-her-51694.html
+2025-12-11 19:15:02,328 - INFO - Status Code: 200
+2025-12-11 19:15:02,328 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-11 19:15:02,554 - INFO - Perfume Name: Burberry Her Burberry
+2025-12-11 19:15:02,555 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.51694.jpg
+2025-12-11 19:15:02,673 - INFO - 
+--- Processing 14/25: dolce-vita ---
+2025-12-11 19:15:02,673 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/dior/dolce-vita-222.html
+2025-12-11 19:15:02,673 - INFO - Throttling: Sleeping for 34.23 seconds
+2025-12-11 19:15:36,909 - ERROR - Attempt 1 failed: Sorry the platform "macos" is not valid, valid platforms are [linux, windows, darwin, android, ios]
+2025-12-11 19:16:22,766 - INFO - Throttling: Sleeping for 21.58 seconds
+2025-12-11 19:16:44,375 - INFO - Attempt 2: Making request to https://www.fragrantica.com/perfume/dior/dolce-vita-222.html
+2025-12-11 19:16:45,142 - INFO - Status Code: 200
+2025-12-11 19:16:45,143 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-11 19:16:45,359 - INFO - Perfume Name: Dolce Vita Dior
+2025-12-11 19:16:45,359 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.222.jpg
+2025-12-11 19:16:45,470 - INFO - 
+--- Processing 15/25: infusion-d-iris ---
+2025-12-11 19:16:45,470 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/prada/infusion-d-iris-1795.html
+2025-12-11 19:16:45,471 - INFO - Throttling: Sleeping for 31.20 seconds
+2025-12-11 19:17:16,679 - ERROR - Attempt 1 failed: Sorry the platform "macos" is not valid, valid platforms are [linux, windows, darwin, android, ios]
+2025-12-11 19:18:13,362 - INFO - Attempt 2: Making request to https://www.fragrantica.com/perfume/prada/infusion-d-iris-1795.html
+2025-12-11 19:18:14,411 - INFO - Status Code: 200
+2025-12-11 19:18:14,411 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-11 19:18:14,831 - INFO - Perfume Name: Infusion d'Iris Prada
+2025-12-11 19:18:14,832 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.1795.jpg
+2025-12-11 19:18:15,001 - INFO - Saved progress after 15 rows
+2025-12-11 19:18:15,001 - INFO - 
+--- Processing 16/25: egoiste-platinum ---
+2025-12-11 19:18:15,001 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/chanel/egoiste-platinum-614.html
+2025-12-11 19:18:15,002 - INFO - Throttling: Sleeping for 37.29 seconds
+2025-12-11 19:18:52,303 - ERROR - Attempt 1 failed: Sorry "safari" browser is not valid, valid browsers are [chrome, firefox].
+2025-12-11 19:19:29,693 - ERROR - Attempt 2 failed: Sorry "safari" browser is not valid, valid browsers are [chrome, firefox].
+2025-12-11 19:20:01,379 - ERROR - Failed to bypass Cloudflare after multiple attempts
+2025-12-11 19:20:01,380 - INFO - 
+--- Processing 17/25: joop-homme ---
+2025-12-11 19:20:01,380 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/joop/joop-homme-1251.html
+2025-12-11 19:20:01,381 - INFO - Throttling: Sleeping for 1.33 seconds
+2025-12-11 19:20:02,737 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/joop/joop-homme-1251.html
+2025-12-11 19:20:03,482 - INFO - Status Code: 200
+2025-12-11 19:20:03,482 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-11 19:20:03,706 - INFO - Perfume Name: Joop! Homme Joop!
+2025-12-11 19:20:03,707 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.1251.jpg
+2025-12-11 19:20:03,822 - INFO - 
+--- Processing 18/25: tresor-midnight-rose ---
+2025-12-11 19:20:03,822 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/lancome/tresor-midnight-rose-11721.html
+2025-12-11 19:20:03,823 - INFO - Throttling: Sleeping for 44.25 seconds
+2025-12-11 19:20:48,077 - ERROR - Attempt 1 failed: Sorry "safari" browser is not valid, valid browsers are [chrome, firefox].
+2025-12-11 19:21:33,186 - ERROR - Attempt 2 failed: Sorry "safari" browser is not valid, valid browsers are [chrome, firefox].
+2025-12-11 19:22:07,990 - ERROR - Failed to bypass Cloudflare after multiple attempts
+2025-12-11 19:22:07,992 - INFO - Saved progress after 18 rows
+2025-12-11 19:22:07,992 - INFO - 
+--- Processing 19/25: kenzo-amour ---
+2025-12-11 19:22:07,993 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/kenzo/kenzo-amour-664.html
+2025-12-11 19:22:07,993 - INFO - Throttling: Sleeping for 2.23 seconds
+2025-12-11 19:22:10,255 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/kenzo/kenzo-amour-664.html
+2025-12-11 19:22:11,120 - INFO - Status Code: 200
+2025-12-11 19:22:11,120 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-11 19:22:11,339 - INFO - Perfume Name: Kenzo Amour Kenzo
+2025-12-11 19:22:11,340 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.664.jpg
+2025-12-11 19:22:11,455 - INFO - 
+--- Processing 20/25: a-men ---
+2025-12-11 19:22:11,456 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/mugler/a-men-705.html
+2025-12-11 19:22:11,456 - INFO - Throttling: Sleeping for 33.03 seconds
+2025-12-11 19:22:44,518 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/mugler/a-men-705.html
+2025-12-11 19:22:45,450 - INFO - Status Code: 200
+2025-12-11 19:22:45,450 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-11 19:22:46,023 - INFO - Perfume Name: A*Men Mugler
+2025-12-11 19:22:46,023 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.705.jpg
+2025-12-11 19:22:46,185 - INFO - 
+--- Processing 21/25: l-homme ---
+2025-12-11 19:22:46,185 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/yves-saint-laurent/l-homme-734.html
+2025-12-11 19:22:46,185 - INFO - Throttling: Sleeping for 53.65 seconds
+2025-12-11 19:23:39,846 - ERROR - Attempt 1 failed: Sorry "safari" browser is not valid, valid browsers are [chrome, firefox].
+2025-12-11 19:24:15,604 - INFO - Throttling: Sleeping for 44.71 seconds
+2025-12-11 19:25:00,321 - ERROR - Attempt 2 failed: Sorry "safari" browser is not valid, valid browsers are [chrome, firefox].
+2025-12-11 19:25:34,192 - ERROR - Failed to bypass Cloudflare after multiple attempts
+2025-12-11 19:25:34,195 - INFO - Saved progress after 21 rows
+2025-12-11 19:25:34,195 - INFO - 
+--- Processing 22/25: xj-1861-naxos ---
+2025-12-11 19:25:34,196 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/xerjoff/xj-1861-naxos-30529.html
+2025-12-11 19:25:34,196 - INFO - Throttling: Sleeping for 71.61 seconds
+2025-12-11 19:26:45,824 - ERROR - Attempt 1 failed: Sorry the platform "macos" is not valid, valid platforms are [linux, windows, darwin, android, ios]
+2025-12-11 19:27:35,574 - INFO - Throttling: Sleeping for 20.11 seconds
+2025-12-11 19:27:55,710 - INFO - Attempt 2: Making request to https://www.fragrantica.com/perfume/xerjoff/xj-1861-naxos-30529.html
+2025-12-11 19:27:56,867 - INFO - Status Code: 200
+2025-12-11 19:27:56,867 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-11 19:27:57,116 - INFO - Perfume Name: XJ 1861 Naxos Xerjoff
+2025-12-11 19:27:57,116 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.30529.jpg
+2025-12-11 19:27:57,228 - INFO - 
+--- Processing 23/25: cedrat-boise ---
+2025-12-11 19:27:57,229 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/mancera/cedrat-boise-15211.html
+2025-12-11 19:27:57,229 - INFO - Throttling: Sleeping for 35.60 seconds
+2025-12-11 19:28:32,837 - ERROR - Attempt 1 failed: Sorry the platform "macos" is not valid, valid platforms are [linux, windows, darwin, android, ios]
+2025-12-11 19:29:14,698 - INFO - Throttling: Sleeping for 2.70 seconds
+2025-12-11 19:29:17,408 - ERROR - Attempt 2 failed: Sorry the platform "macos" is not valid, valid platforms are [linux, windows, darwin, android, ios]
+2025-12-11 19:29:47,961 - ERROR - Failed to bypass Cloudflare after multiple attempts
+2025-12-11 19:29:47,962 - INFO - 
+--- Processing 24/25: allure-homme-sport-eau-extreme ---
+2025-12-11 19:29:47,963 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/chanel/allure-homme-sport-eau-extreme-14669.html
+2025-12-11 19:29:47,963 - INFO - Throttling: Sleeping for 18.60 seconds
+2025-12-11 19:30:06,567 - ERROR - Attempt 1 failed: Sorry the platform "macos" is not valid, valid platforms are [linux, windows, darwin, android, ios]
+2025-12-11 19:30:49,925 - INFO - Throttling: Sleeping for 2.63 seconds
+2025-12-11 19:30:52,567 - ERROR - Attempt 2 failed: Sorry the platform "macos" is not valid, valid platforms are [linux, windows, darwin, android, ios]
+2025-12-11 19:31:44,758 - ERROR - Failed to bypass Cloudflare after multiple attempts
+2025-12-11 19:31:44,761 - INFO - Saved progress after 24 rows
+2025-12-11 19:31:44,762 - INFO - 
+--- Processing 25/25: loulou ---
+2025-12-11 19:31:44,763 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/cacharel/loulou-1276.html
+2025-12-11 19:31:44,791 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/cacharel/loulou-1276.html
+2025-12-11 19:31:45,600 - INFO - Status Code: 200
+2025-12-11 19:31:45,601 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-11 19:31:45,815 - INFO - Perfume Name: LouLou Cacharel
+2025-12-11 19:31:45,815 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.1276.jpg
+2025-12-11 19:31:45,930 - INFO - Processing complete. Data saved to output_perfumes_v2.csv
+2025-12-11 19:37:42,476 - INFO - Processing 25 perfumes with enhanced anti-detection...
+2025-12-11 19:37:42,476 - INFO - 
+--- Processing 1/25: l-interdit-eau-de-parfum ---
+2025-12-11 19:37:42,476 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/givenchy/l-interdit-eau-de-parfum-51488.html
+2025-12-11 19:37:42,519 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/givenchy/l-interdit-eau-de-parfum-51488.html
+2025-12-11 19:37:43,518 - INFO - Status Code: 200
+2025-12-11 19:37:43,519 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-11 19:37:43,858 - INFO - Perfume Name: L'Interdit Eau de Parfum Givenchy
+2025-12-11 19:37:43,859 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.51488.jpg
+2025-12-11 19:37:44,005 - INFO - 
+--- Processing 2/25: organza ---
+2025-12-11 19:37:44,005 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/givenchy/organza-4.html
+2025-12-11 19:37:44,006 - INFO - Throttling: Sleeping for 38.93 seconds
+2025-12-11 19:38:22,966 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/givenchy/organza-4.html

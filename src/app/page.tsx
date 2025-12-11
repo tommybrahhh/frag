@@ -1,398 +1,252 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import VibeSelector from '@/components/VibeSelector';
 import SearchBar from '@/components/SearchBar';
-import { getAllHourRanges } from '@/lib/longevity-utils';
-import { useAuth } from '@/context/AuthContext';
+import FilterBar from '@/components/FilterBar';
 
-// Helper for horizontal rows
-const PerfumeRow = ({ title, items, router }: { title: string, items: any[], router: any }) => (
-  <div className="mb-16">
-    <div className="flex justify-between items-end mb-6 px-6">
-      <h3 className="font-serif text-2xl text-stone-900">{title}</h3>
-      <span className="text-[10px] font-bold tracking-widest text-stone-400 uppercase cursor-pointer hover:text-stone-900">View All</span>
-    </div>
+// --- Components ---
+
+const HeroSection = () => (
+  <section className="relative w-full h-[60vh] min-h-[500px] flex items-center justify-center bg-[#FDFBF7] overflow-hidden mb-16">
+    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-orange-50/50 via-transparent to-transparent opacity-60" />
     
-    <div className="flex gap-6 overflow-x-auto pb-8 px-6 scrollbar-hide">
+    <div className="relative z-10 text-center max-w-4xl px-6">
+      <span className="inline-block mb-4 text-[10px] font-bold tracking-[0.2em] text-stone-400 uppercase">
+        Discover Your Signature
+      </span>
+      <h1 className="text-5xl md:text-7xl font-serif font-medium text-stone-900 mb-8 leading-[1.1]">
+        Perfume Intuition
+      </h1>
+      <p className="text-stone-600 max-w-lg mx-auto mb-10 text-lg font-light leading-relaxed">
+        Explore a curated universe of fragrances. From niche masterpieces to timeless classics, find the scent that speaks to your soul.
+      </p>
+      
+      <div className="max-w-md mx-auto">
+        <SearchBar />
+      </div>
+    </div>
+  </section>
+);
+
+const SectionHeader = ({ title, linkText = "View All", linkHref = "#" }: { title: string, linkText?: string, linkHref?: string }) => (
+  <div className="flex justify-between items-end mb-8 px-6 max-w-[1400px] mx-auto w-full">
+    <h3 className="font-serif text-3xl text-stone-900">{title}</h3>
+    <Link href={linkHref} className="text-[10px] font-bold tracking-widest text-stone-400 uppercase hover:text-stone-900 transition-colors">
+      {linkText}
+    </Link>
+  </div>
+);
+
+const HorizontalScrollRow = ({ items }: { items: any[] }) => (
+  <div className="w-full overflow-x-auto pb-12 mb-16 scrollbar-hide">
+    <div className="flex gap-6 px-6 max-w-[1400px] mx-auto">
       {items.map((p) => (
         <Link
           key={p.id}
           href={`/perfume/${p.id}`}
-          className="min-w-[200px] w-[200px] group flex-shrink-0"
+          className="min-w-[220px] w-[220px] group flex-shrink-0"
         >
-          <div className="bg-white rounded-xl h-64 flex items-center justify-center p-6 border border-transparent group-hover:border-stone-200 transition-all duration-500 relative mb-4">
+          <div className="bg-white rounded-2xl h-72 flex items-center justify-center p-6 border border-transparent shadow-sm group-hover:shadow-md transition-all duration-500 relative mb-4">
              {p.image_url ? (
                <img
                  src={p.image_url}
                  alt={p.name}
-                 className="h-full w-full object-contain mix-blend-multiply group-hover:scale-110 transition duration-700"
+                 className="h-full w-full object-contain mix-blend-multiply group-hover:scale-105 transition duration-700"
                />
              ) : (
                <span className="text-xs text-stone-300">No Image</span>
              )}
+             <div className="absolute top-4 left-4">
+                <span className="px-2 py-1 bg-stone-900 text-white text-[9px] font-bold uppercase tracking-widest rounded-full">New</span>
+             </div>
           </div>
-          <div className="text-center px-2">
-             {/* Clickable Brand Name */}
-             <button
-               onClick={(e) => {
-                 e.preventDefault();
-                 e.stopPropagation();
-                 router.push(`/brands/${encodeURIComponent(p.brand?.name || '')}`);
-               }}
-               className="text-[9px] font-bold tracking-widest text-stone-400 uppercase truncate mb-1 hover:text-stone-900 hover:underline relative z-10"
-             >
+          <div className="px-2">
+             <div className="text-[10px] font-bold tracking-widest text-stone-400 uppercase truncate mb-1">
                {p.brand?.name}
-             </button>
-             <div className="font-serif text-md text-stone-900 leading-tight group-hover:text-stone-600 transition truncate">
+             </div>
+             <div className="font-serif text-lg text-stone-900 leading-tight group-hover:text-stone-600 transition truncate">
                {p.name}
              </div>
           </div>
         </Link>
       ))}
+      
+      {/* "See More" Card */}
+      <div className="min-w-[150px] flex items-center justify-center">
+         <Link href="/search/advanced" className="w-16 h-16 rounded-full border border-stone-200 flex items-center justify-center text-stone-400 hover:border-stone-900 hover:text-stone-900 transition">
+           →
+         </Link>
+      </div>
     </div>
   </div>
 );
 
-// Filter Panel Component
-const FilterPanel = ({ onFilterChange }: { onFilterChange: (filters: any) => void }) => {
-  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-  const [selectedFilters, setSelectedFilters] = useState<{
-    price: string[];
-    gender: string[];
-    longevity: string[];
-    season: string[];
-    concentration: string[];
-    tier: string[];
-    moment: string[];
-    occasion: string[];
-  }>({
-    price: [],
-    gender: [],
-    longevity: [],
-    season: [],
-    concentration: [],
-    tier: [],
-    moment: [],
-    occasion: []
-  });
-
-  const filterOptions = {
-    price: ['$', '$$', '$$$', '$$$$'],
-    gender: ['Male', 'Female', 'Unisex'],
-    longevity: getAllHourRanges(),
-    season: ['Spring', 'Summer', 'Fall', 'Winter'],
-    concentration: ['EDT', 'EDP', 'Parfum', 'Extrait'],
-    tier: ['Designer', 'Niche'],
-    moment: ['Day', 'Night'],
-    occasion: ['Date', 'Office', 'Party', 'Daily']
-  };
-
-  const toggleFilter = (category: keyof typeof selectedFilters, value: string) => {
-    const newFilters = { ...selectedFilters };
-    
-    if (newFilters[category].includes(value)) {
-      newFilters[category] = newFilters[category].filter(v => v !== value);
-    } else {
-      newFilters[category] = [...newFilters[category], value];
-    }
-
-    setSelectedFilters(newFilters);
-    onFilterChange(newFilters);
-  };
-
-  const clearFilters = () => {
-    const emptyFilters = {
-      price: [],
-      gender: [],
-      longevity: [],
-      season: [],
-      concentration: [],
-      tier: [],
-      moment: [],
-      occasion: []
-    };
-    setSelectedFilters(emptyFilters);
-    onFilterChange(emptyFilters);
-  };
-
-  return (
-    <>
-      {/* FILTER TOGGLE */}
-      <div className="flex justify-end mb-4 max-w-[1400px] mx-auto px-6">
-        <button
-          onClick={() => setIsFiltersOpen(!isFiltersOpen)}
-          className="text-xs font-bold uppercase tracking-widest text-stone-500 hover:text-stone-900 transition flex items-center gap-2"
-        >
-          <span>Refine Collection</span>
-          <span>{isFiltersOpen ? '−' : '+'}</span>
-        </button>
-      </div>
-
-      {/* COLLAPSIBLE FILTER PANEL */}
-      <div className={`overflow-hidden transition-all duration-500 ease-in-out ${isFiltersOpen ? 'max-h-[500px] opacity-100 mb-12' : 'max-h-0 opacity-0'}`}>
-        <div className="bg-stone-50 rounded-2xl p-8 max-w-[1400px] mx-auto mx-6 border border-stone-100">
-          {/* The 2x4 Grid Matrix */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-12">
-            
-            {/* --- ROW 1: IDENTITY --- */}
-            
-            {/* 1. Price */}
-            <div>
-              <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-3">Price Point</h4>
-              <div className="flex flex-col gap-2">
-                {['$', '$$', '$$$', '$$$$'].map((p) => (
-                  <button key={p} onClick={() => toggleFilter('price', p)} className={`text-left text-sm transition-colors ${selectedFilters.price.includes(p) ? 'font-bold text-stone-900' : 'text-stone-500 hover:text-stone-800'}`}>
-                    {p}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* 2. Gender */}
-            <div>
-              <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-3">Gender</h4>
-              <div className="flex flex-col gap-2">
-                {['Male', 'Female', 'Unisex'].map((g) => (
-                  <button key={g} onClick={() => toggleFilter('gender', g)} className={`text-left text-sm transition-colors ${selectedFilters.gender.includes(g) ? 'font-bold text-stone-900' : 'text-stone-500 hover:text-stone-800'}`}>
-                    {g}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* 3. Concentration (New) */}
-            <div>
-              <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-3">Intensity</h4>
-              <div className="flex flex-col gap-2">
-                {['EDT', 'EDP', 'Parfum', 'Extrait'].map((c) => (
-                  <button key={c} onClick={() => toggleFilter('concentration', c)} className={`text-left text-sm transition-colors ${selectedFilters.concentration.includes(c) ? 'font-bold text-stone-900' : 'text-stone-500 hover:text-stone-800'}`}>
-                    {c}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* 4. Market Tier (New) */}
-            <div>
-              <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-3">Market</h4>
-              <div className="flex flex-col gap-2">
-                {['Designer', 'Niche', 'Indie'].map((t) => (
-                  <button key={t} onClick={() => toggleFilter('tier', t)} className={`text-left text-sm transition-colors ${selectedFilters.tier.includes(t) ? 'font-bold text-stone-900' : 'text-stone-500 hover:text-stone-800'}`}>
-                    {t}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* --- ROW 2: CONTEXT --- */}
-            
-            {/* 5. Longevity */}
-            <div>
-              <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-3">Longevity</h4>
-              <div className="flex flex-col gap-2">
-                {['1-2 hours', '3-4 hours', '5-6 hours', '7-8 hours', '8+ hours'].map((l) => (
-                  <button key={l} onClick={() => toggleFilter('longevity', l)} className={`text-left text-sm transition-colors ${selectedFilters.longevity.includes(l) ? 'font-bold text-stone-900' : 'text-stone-500 hover:text-stone-800'}`}>
-                    {l}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* 6. Season */}
-            <div>
-              <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-3">Season</h4>
-              <div className="flex flex-col gap-2">
-                {['Spring', 'Summer', 'Fall', 'Winter'].map((s) => (
-                  <button key={s} onClick={() => toggleFilter('season', s)} className={`text-left text-sm transition-colors ${selectedFilters.season.includes(s) ? 'font-bold text-stone-900' : 'text-stone-500 hover:text-stone-800'}`}>
-                    {s}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* 7. Moment (New) */}
-            <div>
-              <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-3">Time of Day</h4>
-              <div className="flex flex-col gap-2">
-                {['Day', 'Night', 'All Day'].map((m) => (
-                  <button key={m} onClick={() => toggleFilter('moment', m)} className={`text-left text-sm transition-colors ${selectedFilters.moment.includes(m) ? 'font-bold text-stone-900' : 'text-stone-500 hover:text-stone-800'}`}>
-                    {m}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* 8. Occasion (New) */}
-            <div>
-              <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-3">Occasion</h4>
-              <div className="flex flex-col gap-2">
-                {['Office', 'Date', 'Party', 'Daily'].map((o) => (
-                  <button key={o} onClick={() => toggleFilter('occasion', o)} className={`text-left text-sm transition-colors ${selectedFilters.occasion.includes(o) ? 'font-bold text-stone-900' : 'text-stone-500 hover:text-stone-800'}`}>
-                    {o}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-          </div>
-          
-          {/* CLEAR FILTERS BUTTON */}
-          <div className="flex justify-end mt-8 pt-4 border-t border-stone-100">
-            <button
-              onClick={clearFilters}
-              className="text-xs font-bold tracking-widest text-stone-400 uppercase hover:text-stone-900 transition-colors"
-            >
-              Clear All
-            </button>
-          </div>
-        </div>
-      </div>
-    </>
-  );
-};
-
+// --- Main Page Component ---
 
 export default function Home() {
   const [perfumes, setPerfumes] = useState<any[]>([]);
-  const [filteredPerfumes, setFilteredPerfumes] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedVibe, setSelectedVibe] = useState('All');
-  const [filters, setFilters] = useState<{
-    price: string[];
-    gender: string[];
-    longevity: string[];
-    season: string[];
-    concentration: string[];
-    tier: string[];
-    moment: string[];
-    occasion: string[];
-  }>({
-    price: [],
-    gender: [],
-    longevity: [],
-    season: [],
-    concentration: [],
-    tier: [],
-    moment: [],
-    occasion: []
+  const [newArrivals, setNewArrivals] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  
+  // Filters State
+  const [filters, setFilters] = useState<any>({
+    price: [], gender: [], longevity: [], season: [], concentration: [], tier: [], moment: [], occasion: []
   });
 
-  // Memoize the filter parameters to prevent useEffect dependency issues
-  const filterParams = useMemo(() => {
-    return {
-      price: filters.price.join(','),
-      gender: filters.gender.join(','),
-      longevity: filters.longevity.join(','),
-      season: filters.season.join(','),
-      concentration: filters.concentration.join(','),
-      tier: filters.tier.join(','),
-      moment: filters.moment.join(','),
-      occasion: filters.occasion.join(',')
-    };
-  }, [filters]);
-  const router = useRouter();
-  const { user, signOut } = useAuth();
+  // Intersection Observer for Infinite Scroll
+  const observer = useRef<IntersectionObserver | null>(null);
+  const lastPerfumeElementRef = useCallback((node: HTMLDivElement) => {
+    if (loading) return;
+    if (observer.current) observer.current.disconnect();
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && hasMore) {
+        setPage(prevPage => prevPage + 1);
+      }
+    });
+    if (node) observer.current.observe(node);
+  }, [loading, hasMore]);
 
+  // Fetch New Arrivals (Once on Mount)
+  useEffect(() => {
+    const fetchNewArrivals = async () => {
+      try {
+        const res = await fetch('/api/perfumes?limit=10&page=1');
+        const data = await res.json();
+        setNewArrivals(data.perfumes || []);
+      } catch (err) {
+        console.error('Failed to fetch new arrivals', err);
+      }
+    };
+    fetchNewArrivals();
+  }, []);
+
+  // Fetch Main Collection (Dependent on Page & Filters)
   useEffect(() => {
     const fetchPerfumes = async () => {
+      setLoading(true);
       try {
         const params = new URLSearchParams();
-        
-        if (filterParams.price) params.append('price', filterParams.price);
-        if (filterParams.gender) params.append('gender', filterParams.gender);
-        if (filterParams.longevity) params.append('longevity', filterParams.longevity);
-        if (filterParams.season) params.append('season', filterParams.season);
-        if (filterParams.concentration) params.append('concentration', filterParams.concentration);
-        if (filterParams.tier) params.append('tier', filterParams.tier);
-        if (filterParams.moment) params.append('moment', filterParams.moment);
-        if (filterParams.occasion) params.append('occasion', filterParams.occasion);
+        params.append('page', page.toString());
+        params.append('limit', '24'); // Fetch 24 items per page
 
-        const url = params.toString() ? `/api/perfumes?${params}` : '/api/perfumes';
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        // Append active filters
+        Object.keys(filters).forEach(key => {
+          if (filters[key].length > 0) {
+            params.append(key, filters[key].join(','));
+          }
+        });
+
+        const res = await fetch(`/api/perfumes?${params.toString()}`);
         const data = await res.json();
-        setPerfumes(data);
+        
+        if (data.perfumes) {
+          setPerfumes(prev => page === 1 ? data.perfumes : [...prev, ...data.perfumes]);
+          setHasMore(data.hasMore);
+        }
       } catch (err) {
-        console.error('Failed to fetch perfumes:', err);
-        // Set empty array instead of leaving it undefined
-        setPerfumes([]);
+        console.error('Failed to fetch collection', err);
       } finally {
         setLoading(false);
       }
     };
+
     fetchPerfumes();
-  }, [filterParams]);
+  }, [page, filters]);
 
-  // Filter Logic (now handled by API, but we still need client-side filtering for vibe and special collections)
-  const winterPerfumes = perfumes.filter(p => p.best_season?.includes('Winter'));
-  const datePerfumes = perfumes.filter(p => p.occasions?.includes('Date') || p.occasions?.includes('Date Night'));
-  const filteredGrid = selectedVibe === 'All'
-    ? perfumes
-    : perfumes.filter(p => p.vibe_tags?.includes(selectedVibe));
+  // Reset pagination when filters change
+  const handleFilterChange = (newFilters: any) => {
+    setFilters(newFilters);
+    setPage(1);
+    setPerfumes([]); // Clear current list to avoid weird jumps
+    setHasMore(true);
+  };
 
-  if (loading) return <div className="min-h-screen bg-white flex items-center justify-center text-stone-400 uppercase tracking-widest">Loading Collection...</div>;
+  const router = useRouter();
 
   return (
-    <main className="min-h-screen bg-white text-stone-800 font-sans selection:bg-stone-900 selection:text-white pb-24">
-      {/* 1. CENTERED HEADER SECTION */}
-      <div className="max-w-4xl mx-auto px-6 py-12 text-center">
-        {/* Title */}
-        <h1 className="text-5xl md:text-6xl font-serif font-medium text-stone-900 mb-8 leading-tight">
-          Perfume Intuition
-        </h1>
-        
-        {/* Search Bar */}
-        <div className="max-w-md mx-auto mb-12">
-          <SearchBar />
-        </div>
+    <main className="min-h-screen bg-white text-stone-800 pb-24">
+      
+      {/* 1. Hero Section */}
+      <HeroSection />
 
-        {/* New Premium Filter Panel */}
-        <FilterPanel onFilterChange={(filters) => setFilters(filters)} />
-        
+      {/* 2. New Arrivals (Horizontal Scroll) */}
+      <SectionHeader title="Just Arrived" linkText="View All" linkHref="/search/advanced?sort=newest" />
+      <HorizontalScrollRow items={newArrivals} />
+
+      {/* 3. Filter Bar */}
+      <div className="sticky top-16 z-40 bg-white/95 backdrop-blur-sm border-b border-stone-100 py-4 mb-12">
+         <FilterBar onFilterChange={handleFilterChange} />
       </div>
 
+      {/* 4. Main Infinite Grid */}
+      <div className="max-w-[1400px] mx-auto px-6">
+        <h3 className="font-serif text-3xl text-stone-900 mb-8 text-center md:text-left">The Collection</h3>
+        
+        {perfumes.length === 0 && !loading && (
+          <div className="text-center py-24 text-stone-400">
+            <p>No perfumes found matching your criteria.</p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="mt-4 text-stone-900 underline underline-offset-4"
+            >
+              Clear all filters
+            </button>
+          </div>
+        )}
 
-      {/* 5. MAIN COLLECTION */}
-      <div id="collection" className="max-w-[1400px] mx-auto px-6 mt-20">
-        <div className="text-center mb-10">
-           <h3 className="font-serif text-3xl mb-6">The Collection</h3>
-           <div className="flex justify-center">
-             <VibeSelector selectedVibe={selectedVibe} onSelectVibe={setSelectedVibe} />
-           </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-6 gap-y-12">
+          {perfumes.map((p, index) => {
+            const isLast = index === perfumes.length - 1;
+            return (
+              <div key={`${p.id}-${index}`} ref={isLast ? lastPerfumeElementRef : null}>
+                <Link href={`/perfume/${p.id}`} className="group block h-full">
+                  <div className="bg-stone-50 rounded-xl h-64 flex items-center justify-center p-6 relative overflow-hidden mb-4 group-hover:bg-stone-100 transition-colors duration-500">
+                    {p.image_url ? (
+                      <img 
+                        src={p.image_url} 
+                        alt={p.name} 
+                        className="h-full w-full object-contain mix-blend-multiply group-hover:scale-110 transition duration-700 ease-in-out" 
+                      />
+                    ) : (
+                      <div className="text-stone-300 text-xs font-bold uppercase tracking-widest">No Image</div>
+                    )}
+                    
+                    {/* Rating Badge */}
+                    {p.rating && (
+                      <div className="absolute top-3 right-3 bg-white/80 backdrop-blur px-2 py-1 rounded-full text-[10px] font-bold text-stone-900 shadow-sm">
+                        ★ {p.rating.toFixed(1)}
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="text-center md:text-left">
+                    <div className="text-[9px] font-bold tracking-[0.2em] text-stone-400 uppercase mb-2 truncate">
+                      {p.brand?.name || 'Unknown Brand'}
+                    </div>
+                    <h4 className="font-serif text-lg text-stone-900 leading-tight group-hover:text-stone-600 transition-colors line-clamp-2 min-h-[1.25em]">
+                      {p.name}
+                    </h4>
+                  </div>
+                </Link>
+              </div>
+            );
+          })}
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-x-6 gap-y-12">
-          {filteredGrid.map((p) => (
-            <Link key={p.id} href={`/perfume/${p.id}`} className="group block">
-               <div className="bg-white rounded-xl h-56 flex items-center justify-center p-4 border border-transparent group-hover:border-stone-200 transition-all duration-500 relative mb-4">
-                 {p.image_url ? (
-                   <img src={p.image_url} alt={p.name} className="h-full w-full object-contain mix-blend-multiply group-hover:scale-110 transition duration-700" />
-                 ) : (
-                   <div className="text-stone-300 text-xs">No Image</div>
-                 )}
-               </div>
-               <div className="text-center px-1">
-                 {/* Clickable Brand Name */}
-                 <button
-                   onClick={(e) => {
-                     e.preventDefault();
-                     e.stopPropagation();
-                     router.push(`/brands/${encodeURIComponent(p.brand?.name || '')}`);
-                   }}
-                   className="text-[9px] font-bold tracking-widest text-stone-400 uppercase truncate mb-1 hover:text-stone-900 hover:underline relative z-10"
-                 >
-                   {p.brand?.name}
-                 </button>
-                 <div className="font-serif text-sm text-stone-900 leading-tight group-hover:text-stone-600 transition truncate">
-                   {p.name}
-                 </div>
-               </div>
-            </Link>
-          ))}
-        </div>
+        {/* Loading Indicator */}
+        {loading && (
+          <div className="py-12 flex justify-center">
+            <div className="flex gap-2">
+              <div className="w-2 h-2 bg-stone-300 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+              <div className="w-2 h-2 bg-stone-300 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+              <div className="w-2 h-2 bg-stone-300 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+            </div>
+          </div>
+        )}
       </div>
 
     </main>

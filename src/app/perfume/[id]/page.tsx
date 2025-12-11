@@ -241,66 +241,70 @@ export default function PerfumeDetail() {
         mainPerfume.scent_profile = generateProfileFromVibes(mainPerfume.vibe_tags || []);
       }
       
+      // IMMEDIATE UI UPDATE: Show the perfume page NOW
       setPerfume(mainPerfume);
-
-      if (!mainPerfume) {
-        setLoading(false);
-        return;
-      }
-
-      // 2. Fetch CANDIDATE Perfumes for Comparison (Optimized)
-      // fetching a limited set to prevent performance issues
-      let query = supabase
-        .from('perfumes')
-        .select(`
-          id, name, image_url, price_tier, best_season, vibe_tags, gender,
-          brand:brands!perfumes_brand_id_fkey(name),
-          perfume_notes(
-            note:notes(name)
-          )
-        `)
-        .neq('id', id);
-
-      // Removed overlaps filter to prevent potential database errors or timeouts
-      // We will fetch a batch and filter client-side for best matches
-        
-      const { data: allPerfumes, error: allPerfumesError } = await query.limit(200);
-
-      if (allPerfumesError) {
-        console.error('Error fetching candidate perfumes:', allPerfumesError);
-      }
-
-      // 3. Run Logic (on filtered set)
-      if (allPerfumes) {
-        // A. Recommendations (Vibes) with shared notes calculation
-        const mainNotesLower = mainPerfume.perfume_notes?.map((n: any) => n.note?.name?.toLowerCase()) || [];
-        const recs = allPerfumes
-          .filter((p: any) => p.vibe_tags?.some((t: string) => mainPerfume.vibe_tags.includes(t)))
-          .map((p: any) => {
-            const candidateNotes = p.perfume_notes?.map((n: any) => n.note?.name?.toLowerCase()) || [];
-            const sharedNotes = candidateNotes.filter((n: string) =>
-              mainNotesLower.some(mainNote => mainNote === n)
-            ).slice(0, 3);
-            
-            return {
-              ...p,
-              sharedNotes
-            };
-          })
-          .sort((a: any, b: any) => getMatchDetails(mainPerfume, b).score - getMatchDetails(mainPerfume, a).score)
-          .slice(0, 9);
-        setRelatedPerfumes(recs);
-
-        // B. Dupes (DNA - The Strict Function)
-        const smartDupes = findClientSideDupes(mainPerfume, allPerfumes);
-        setDupes(smartDupes);
-      }
-
       setLoading(false);
+
+      if (!mainPerfume) return;
+
+      // ---------------------------------------------------------
+      // 2. BACKGROUND: Fetch CANDIDATES for "You Might Also Like"
+      // ---------------------------------------------------------
+      try {
+        let query = supabase
+          .from('perfumes')
+          .select(`
+            id, name, image_url, price_tier, best_season, vibe_tags, gender,
+            brand:brands!perfumes_brand_id_fkey(name),
+            perfume_notes(
+              note:notes(name)
+            )
+          `)
+          .neq('id', id);
+
+        // Fetch batch
+        const { data: allPerfumes, error: allPerfumesError } = await query.limit(200);
+
+        if (allPerfumesError) {
+          console.error('Error fetching candidate perfumes:', allPerfumesError);
+          return;
+        }
+
+        // 3. Run Matching Logic (Heavy Calculation)
+        if (allPerfumes) {
+          // A. Recommendations (Vibes)
+          const mainNotesLower = mainPerfume.perfume_notes?.map((n: any) => n.note?.name?.toLowerCase()) || [];
+          const recs = allPerfumes
+            .filter((p: any) => p.vibe_tags?.some((t: string) => mainPerfume.vibe_tags.includes(t)))
+            .map((p: any) => {
+              const candidateNotes = p.perfume_notes?.map((n: any) => n.note?.name?.toLowerCase()) || [];
+              const sharedNotes = candidateNotes.filter((n: string) =>
+                mainNotesLower.some(mainNote => mainNote === n)
+              ).slice(0, 3);
+              
+              return { ...p, sharedNotes };
+            })
+            .sort((a: any, b: any) => getMatchDetails(mainPerfume, b).score - getMatchDetails(mainPerfume, a).score)
+            .slice(0, 9);
+          
+          setRelatedPerfumes(recs);
+
+          // B. Dupes (DNA)
+          const smartDupes = findClientSideDupes(mainPerfume, allPerfumes);
+          setDupes(smartDupes);
+        }
+      } catch (err) {
+        console.error("Background fetch error:", err);
+      }
     };
 
     fetchData();
   }, [params?.id, supabase]);
+
+  // Force scroll to top when entering a new perfume page
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [params?.id]);
 
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#FDFBF7] text-gray-500">Loading essence...</div>;
   if (!perfume) return <div className="min-h-screen flex items-center justify-center bg-[#FDFBF7]">Perfume not found.</div>;

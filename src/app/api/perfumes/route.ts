@@ -8,6 +8,10 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     
     // 1. Get ALL filters
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '20');
+    const offset = (page - 1) * limit;
+
     const price = searchParams.get('price');
     const gender = searchParams.get('gender');
     const longevity = searchParams.get('longevity');
@@ -40,7 +44,7 @@ export async function GET(request: Request) {
         occasions,      
         brand_id,
         brand:brands!perfumes_brand_id_fkey(name, tier) 
-      `);
+      `, { count: 'exact' });
 
     // 3. Apply Filters
 
@@ -98,16 +102,24 @@ export async function GET(request: Request) {
     }
 
     // 4. Sort and Execute
-    query = query.order('created_at', { ascending: false });
+    query = query
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
 
-    const { data, error } = await query;
+    const { data, error, count } = await query;
 
     if (error) {
       console.error('Query Error:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json(data);
+    return NextResponse.json({ 
+      perfumes: data, 
+      total: count,
+      page,
+      limit,
+      hasMore: count ? (offset + limit < count) : false
+    });
 
   } catch (err) {
     console.error('Server Error:', err);
