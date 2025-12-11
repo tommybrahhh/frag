@@ -74,8 +74,9 @@ export default function LoginPage() {
         
         if (error) throw error;
         
-        // FORCE HARD RELOAD to ensure the session is active
-        window.location.href = '/';
+        // Use client-side navigation and force data refresh
+        router.replace('/');
+        router.refresh(); // Ensure auth state is up-to-date
       }
     } catch (err: any) {
       setError(err.message);

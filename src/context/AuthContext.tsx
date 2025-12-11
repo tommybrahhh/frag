@@ -97,7 +97,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Only update if the session user actually changed to avoid redundant fetches
       if (session?.user) {
         const userWithProfile = await fetchUserProfile(session.user);
-        if (mounted) setUser(userWithProfile);
+        if (mounted) {
+          setUser(userWithProfile);
+          // Ensure the state is updated before resolving
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
       } else if (mounted) {
         setUser(null);
       }
