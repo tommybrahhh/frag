@@ -1,12 +1,23 @@
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 // Variable to hold the single client instance in the browser
 let clientInstance: ReturnType<typeof createSupabaseClient> | undefined;
 
 export const createClient = () => {
+  // Validate environment variables
+  if (!supabaseUrl || !supabaseKey) {
+    const missing = [];
+    if (!supabaseUrl) missing.push('NEXT_PUBLIC_SUPABASE_URL');
+    if (!supabaseKey) missing.push('NEXT_PUBLIC_SUPABASE_ANON_KEY');
+    throw new Error(
+      `Supabase environment variables are missing: ${missing.join(', ')}. ` +
+      'Please ensure they are set in your environment.'
+    );
+  }
+
   // 1. If running in the Browser, reuse the existing connection (Singleton)
   if (typeof window !== 'undefined') {
     if (!clientInstance) {

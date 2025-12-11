@@ -17,11 +17,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   
-  // Memoize the supabase client to ensure stability across renders, 
+  // Memoize the supabase client to ensure stability across renders,
   // though createClient handles singleton logic internally for the browser.
-  const supabase = useMemo(() => createClient(), []);
+  // If environment variables are missing, supabase will be null.
+  const supabase = useMemo(() => {
+    try {
+      return createClient();
+    } catch (error) {
+      console.warn('Supabase client initialization failed:', error);
+      return null;
+    }
+  }, []);
 
   const fetchUserProfile = useCallback(async (sessionUser: any) => {
+    if (!supabase) {
+      // If supabase is not available, return user without profile
+      return {
+        ...sessionUser,
+        display_name: sessionUser.email?.split('@')[0]
+      };
+    }
     try {
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
@@ -51,6 +66,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [supabase]);
 
   useEffect(() => {
+    if (!supabase) {
+      // If supabase is not available, skip authentication and set loading to false
+      setLoading(false);
+      return;
+    }
+
     let mounted = true;
 
     const initializeAuth = async () => {
@@ -85,12 +106,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     return () => {
       mounted = false;
-      subscription.unsubscribe();
+      subscription?.unsubscribe();
     };
   }, [supabase, fetchUserProfile]);
 
   const signOut = useCallback(async () => {
-    await supabase.auth.signOut();
+    if (supabase) {
+      await supabase.auth.signOut();
+    }
     setUser(null);
     router.push('/');
     router.refresh();
