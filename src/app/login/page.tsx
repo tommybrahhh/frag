@@ -107,23 +107,23 @@ export default function LoginPage() {
               {isSignUp ? 'Email Address' : 'Email or Username'}
             </label>
             <input
-              type="text" // Changed from 'email' to 'text' to allow usernames
-              value={identifier}
-              onChange={(e) => setIdentifier(e.target.value)}
-              required
-              className="w-full p-3 bg-stone-50 border border-stone-200 rounded-xl focus:border-stone-800 outline-none transition"
-              placeholder={isSignUp ? "you@example.com" : "Email or Display Name"}
+            type="text" // Changed from 'email' to 'text' to allow usernames
+            value={identifier}
+            onChange={(e) => setIdentifier(e.target.value)}
+            required
+            className="w-full p-3 bg-stone-50 border border-stone-200 rounded-xl focus:border-stone-800 outline-none transition text-black"
+            placeholder={isSignUp ? "you@example.com" : "Email or Display Name"}
             />
           </div>
 
           <div>
             <label className="text-[10px] font-bold uppercase tracking-widest text-stone-800 block mb-2">Password</label>
             <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full p-3 bg-stone-50 border border-stone-200 rounded-xl focus:border-stone-800 outline-none transition"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            className="w-full p-3 bg-stone-50 border border-stone-200 rounded-xl focus:border-stone-800 outline-none transition text-black"
               placeholder="••••••••"
             />
           </div>
