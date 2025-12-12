@@ -1499,3 +1499,63 @@
 2025-12-12 13:13:07,190 - INFO - Perfume Name: Musc Ravageur Frederic Malle
 2025-12-12 13:13:07,191 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.1801.jpg
 2025-12-12 13:13:07,672 - INFO - Processing complete. Data saved to output_perfumes_v2.csv
+2025-12-12 13:21:13,487 - INFO - Processing 25 perfumes with enhanced anti-detection...
+2025-12-12 13:21:13,488 - INFO - 
+--- Processing 1/25: aqva-pour-homme ---
+2025-12-12 13:21:13,488 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/bvlgari/aqva-pour-homme-153.html
+2025-12-12 13:21:13,525 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/bvlgari/aqva-pour-homme-153.html
+2025-12-12 13:21:14,456 - INFO - Status Code: 200
+2025-12-12 13:21:14,457 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-12 13:21:14,758 - INFO - Perfume Name: Aqva Pour Homme Bvlgari
+2025-12-12 13:21:14,759 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.153.jpg
+2025-12-12 13:21:14,890 - INFO - 
+--- Processing 2/25: manifesto ---
+2025-12-12 13:21:14,890 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/yves-saint-laurent/manifesto-15540.html
+2025-12-12 13:21:14,891 - INFO - Throttling: Sleeping for 26.26 seconds
+2025-12-12 13:21:41,262 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/yves-saint-laurent/manifesto-15540.html
+2025-12-12 13:21:42,549 - INFO - Status Code: 200
+2025-12-12 13:21:42,549 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-12 13:21:42,844 - INFO - Perfume Name: Manifesto Yves Saint Laurent
+2025-12-12 13:21:42,844 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.15540.jpg
+2025-12-12 13:21:42,978 - INFO - 
+--- Processing 3/25: gypsy-water ---
+2025-12-12 13:21:42,978 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/byredo/gypsy-water-3575.html
+2025-12-12 13:21:42,979 - INFO - Throttling: Sleeping for 23.00 seconds
+2025-12-12 13:22:06,070 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/byredo/gypsy-water-3575.html
+2025-12-12 13:22:07,819 - INFO - Status Code: 200
+2025-12-12 13:22:07,820 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-12 13:22:08,774 - INFO - Perfume Name: Gypsy Water Byredo
+2025-12-12 13:22:08,775 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.3575.jpg
+2025-12-12 13:22:09,229 - INFO - Saved progress after 3 rows
+2025-12-12 13:22:09,229 - INFO - 
+--- Processing 4/25: scandal ---
+2025-12-12 13:22:09,230 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/jean-paul-gaultier/scandal-45651.html
+2025-12-12 13:22:09,231 - INFO - Throttling: Sleeping for 35.70 seconds
+2025-12-12 13:22:45,015 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/jean-paul-gaultier/scandal-45651.html
+2025-12-12 13:22:46,524 - INFO - Status Code: 200
+2025-12-12 13:22:46,525 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-12 13:22:47,484 - INFO - Perfume Name: Scandal Jean Paul Gaultier
+2025-12-12 13:22:47,485 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.45651.jpg
+2025-12-12 13:22:47,980 - INFO - 
+--- Processing 5/25: l-de-lolita-lempicka ---
+2025-12-12 13:22:47,981 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/lolita-lempicka/l-de-lolita-lempicka-455.html
+2025-12-12 13:22:47,981 - INFO - Throttling: Sleeping for 47.20 seconds
+2025-12-12 13:23:35,275 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/lolita-lempicka/l-de-lolita-lempicka-455.html
+2025-12-12 13:23:37,305 - INFO - Status Code: 200
+2025-12-12 13:23:37,305 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-12 13:23:38,384 - INFO - Perfume Name: L de Lolita Lempicka Lolita Lempicka
+2025-12-12 13:23:38,385 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.455.jpg
+2025-12-12 13:23:38,881 - INFO - 
+--- Processing 6/25: 212-men ---
+2025-12-12 13:23:38,881 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/carolina-herrera/212-men-297.html
+2025-12-12 13:23:38,881 - INFO - Throttling: Sleeping for 19.15 seconds
+2025-12-12 13:23:58,124 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/carolina-herrera/212-men-297.html
+2025-12-12 13:24:00,094 - INFO - Status Code: 200
+2025-12-12 13:24:00,095 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-12 13:24:01,106 - INFO - Perfume Name: 212 Men Carolina Herrera
+2025-12-12 13:24:01,107 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.297.jpg
+2025-12-12 13:24:01,577 - INFO - Saved progress after 6 rows
+2025-12-12 13:24:01,578 - INFO - 
+--- Processing 7/25: clinique-happy ---
+2025-12-12 13:24:01,579 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/clinique/clinique-happy-372.html
+2025-12-12 13:24:01,580 - INFO - Throttling: Sleeping for 18.13 seconds
