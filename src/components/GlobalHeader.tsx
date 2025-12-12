@@ -23,31 +23,57 @@ export default function GlobalHeader() {
         </div>
 
         {/* Right: Auth Links */}
-        <div className="flex-shrink-0">
-          {loading ? (
-             <div className="w-24 h-9 bg-stone-200 animate-pulse rounded-full" />
-          ) : user ? (
-            <div className="flex items-center gap-4">
-              <Link
-                href="/profile"
-                className="text-xs font-bold uppercase tracking-widest text-stone-600 hover:text-stone-900 transition-colors"
-              >
-                My Shelf
-              </Link>
-              <button
-                onClick={signOut}
-                className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-red-500 transition-colors"
-              >
-                Sign Out
-              </button>
-            </div>
-          ) : (
-            <Link
-              href="/login"
-              className="bg-stone-900 text-white px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-stone-800 transition shadow-lg"
-            >
-              Sign In
-            </Link>
+       <div className="flex-shrink-0">
+         {loading ? (
+            <div className="w-24 h-9 bg-stone-200 animate-pulse rounded-full" />
+         ) : user ? (
+           <div className="flex items-center gap-6">
+             <Link
+               href="/layering"
+               className="text-xs font-bold uppercase tracking-widest text-stone-600 hover:text-stone-900 transition-colors"
+             >
+               Layering
+             </Link>
+             <Link
+               href="/quiz"
+               className="text-xs font-bold uppercase tracking-widest text-stone-600 hover:text-stone-900 transition-colors"
+             >
+               Quiz
+             </Link>
+             <Link
+               href="/profile"
+               className="text-xs font-bold uppercase tracking-widest text-stone-600 hover:text-stone-900 transition-colors"
+             >
+               My Shelf
+             </Link>
+             <button
+               onClick={signOut}
+               className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-red-500 transition-colors"
+             >
+               Sign Out
+             </button>
+           </div>
+         ) : (
+           <div className="flex items-center gap-6">
+             <Link
+               href="/layering"
+               className="text-xs font-bold uppercase tracking-widest text-stone-600 hover:text-stone-900 transition-colors"
+             >
+               Layering
+             </Link>
+             <Link
+               href="/quiz"
+               className="text-xs font-bold uppercase tracking-widest text-stone-600 hover:text-stone-900 transition-colors"
+             >
+               Quiz
+             </Link>
+             <Link
+               href="/login"
+               className="bg-stone-900 text-white px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-stone-800 transition shadow-lg"
+             >
+               Sign In
+             </Link>
+           </div>
           )}
         </div>
       </div>
