@@ -1,4 +1,4 @@
-import { createClient as createSupabaseClient } from '@supabase/supabase-js';
+import { createClient as createSupabaseClient, Session } from '@supabase/supabase-js';
 
 // 1. USE FALLBACKS (Don't crash if keys are missing during build)
 // If the env var is missing, we use a string. This satisfies the build process.
@@ -39,17 +39,24 @@ export const createClient = () => {
 // requests more time to complete, which is crucial for cold starts.
 // =================================================================
 const customFetch: typeof fetch = (url: RequestInfo | URL, options?: RequestInit) => {
+  // Get timeout from environment variable or use default (15s)
+  // This timeout applies to all network requests made by Supabase,
+  // ensuring requests don't hang indefinitely
+  const timeout = process.env.NEXT_PUBLIC_AUTH_TIMEOUT
+    ? parseInt(process.env.NEXT_PUBLIC_AUTH_TIMEOUT, 10)
+    : 15000;
+
   console.log('🌐 Fetch request initiated:', {
     url: url.toString().slice(0, 50),
-    method: options?.method || 'GET', // Safe access with optional chaining
-    timeout: 10000
+    method: options?.method || 'GET',
+    timeout
   });
-  
-  const timeout = 10000;
   const controller = new AbortController();
+  // Set up timeout controller that will abort the request if it takes too long
+  // This prevents network requests from hanging indefinitely
   const id = setTimeout(() => {
     console.warn('⏰ Fetch timeout triggered (10s) for URL:', {
-      url: typeof url === 'string' ? url : url.href,
+      url: typeof url === 'string' ? url : (url as URL).href,
       supabaseInitTime: performance.now() - window.supabaseInitStart
     });
     controller.abort();

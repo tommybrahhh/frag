@@ -38,6 +38,26 @@ The results will be saved to `fragrantica_results.csv` with:
 - Column A: Perfume Name
 - Column B: Fragrantica URL
 
+## Authentication Timeout Configuration
+
+The authentication system now includes configurable timeout settings to improve reliability:
+
+- **Environment Variable**: `NEXT_PUBLIC_AUTH_TIMEOUT`
+- **Default Value**: 15000 (15 seconds)
+- **Recommended Settings**:
+  - Local Development: 15000 (15 seconds)
+  - Production: 10000 (10 seconds)
+  
+The timeout setting controls:
+1. Maximum wait time for authentication requests
+2. Network request timeout duration
+3. Retry mechanism with exponential backoff
+
+Error handling improvements include:
+- Clear timeout error messages
+- Automatic retries for failed requests
+- Graceful fallback when network issues occur
+
 ## Script Files
 
 - [`bulk_fragrantica_search.py`](bulk_fragrantica_search.py) - Main bulk processing script

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase';
+import { Session } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -23,7 +24,7 @@ export default function LoginPage() {
       console.log('🛠️ Checking session in login page...', {
         supabaseReady: !!supabase?.auth?.getSession
       });
-      const { data: { session }, error } = await supabase.auth.getSession();
+      const { data: { session }, error } = await supabase.auth.getSession() as { data: { session: Session | null }, error: Error | null };
       console.log('📋 Login page session check result:', {
         hasSession: !!session,
         error: error?.message,
@@ -31,7 +32,7 @@ export default function LoginPage() {
       });
       if (session) {
         console.log('⏩ Redirecting from login page due to existing session', {
-          sessionAge: Date.now() - new Date(session.created_at).getTime(),
+          sessionAge: session ? Date.now() - new Date((session.expires_at || Date.now() / 1000) * 1000).getTime() : 0,
           user: session.user?.id,
           expiresAt: session.expires_at
         });
@@ -41,13 +42,31 @@ export default function LoginPage() {
     checkSession();
   }, [router, supabase]);
 
-  const handleAuth = async (e: React.FormEvent) => {
+  const handleAuth = async (e: React.FormEvent, attempt = 1) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
     setMessage(null);
 
     try {
+      // Calculate retry delay with exponential backoff (1s, 2s, 4s, etc.)
+      // This helps handle temporary network issues by spacing out retries
+      const retryDelay = Math.min(1000 * Math.pow(2, attempt - 1), 8000);
+
+      // Set timeout from environment variable or use default (15s)
+      // The timeout controls how long we wait for the auth operation to complete
+      const timeoutDuration = process.env.NEXT_PUBLIC_AUTH_TIMEOUT
+        ? parseInt(process.env.NEXT_PUBLIC_AUTH_TIMEOUT, 10)
+        : 15000;
+
+      // Create a timeout promise for the auth operation
+      // This ensures we don't wait indefinitely if the auth server is unresponsive
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() =>
+          reject(new Error(`Authentication timed out after ${timeoutDuration}ms`)),
+          timeoutDuration
+        )
+      );
       if (isSignUp) {
         // --- SIGN UP FLOW (Strictly Email) ---
         if (!identifier.includes('@')) {
@@ -92,15 +111,27 @@ export default function LoginPage() {
         
         console.log('🔀 Successful login - Initiating redirect', {
           authDataUser: authData.user?.id,
-          session: authData.session?.expires_at,
-          routerState: router.state
+          session: authData.session?.expires_at
         });
         // Force a full page reload to ensure all states (AuthContext, Server Components) are perfectly synced.
         // This resolves issues where client-side navigation leaves the UI in a stale "logged out" state.
         window.location.href = '/';
       }
     } catch (err: any) {
-      setError(err.message);
+      // Handle timeout errors with automatic retry
+      // We retry up to 3 times with exponential backoff
+      const retryDelay = Math.min(1000 * Math.pow(2, attempt - 1), 8000);
+      if (err.message.includes('timed out') && attempt < 3) {
+        console.warn(`Authentication timeout - Retrying in ${retryDelay}ms (attempt ${attempt})`);
+        await new Promise(resolve => setTimeout(resolve, retryDelay));
+        return handleAuth(e, attempt + 1);
+      }
+      
+      setError(
+        err.message.includes('timed out')
+          ? 'Connection timed out. Please check your network and try again.'
+          : err.message
+      );
     } finally {
       setLoading(false);
     }
