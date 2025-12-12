@@ -25,14 +25,10 @@ export default function LoginPage() {
         supabaseReady: !!supabase?.auth?.getSession
       });
       const { data: { session }, error } = await supabase.auth.getSession() as { data: { session: Session | null }, error: Error | null };
-      console.log('📋 Login page session check result:', {
-        hasSession: !!session,
-        error: error?.message,
-        user: session?.user?.id
-      });
       if (session) {
+        // Removed the sessionAge log, as 'created_at' is no longer a valid property on the Session object,
+        // which caused the TypeScript compilation error.
         console.log('⏩ Redirecting from login page due to existing session', {
-          sessionAge: session ? Date.now() - new Date((session.expires_at || Date.now() / 1000) * 1000).getTime() : 0,
           user: session.user?.id,
           expiresAt: session.expires_at
         });
