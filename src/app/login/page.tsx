@@ -45,11 +45,11 @@ export default function LoginPage() {
       // This helps handle temporary network issues by spacing out retries
       const retryDelay = Math.min(1000 * Math.pow(2, attempt - 1), 8000);
 
-      // Set timeout from environment variable or use default (15s)
+      // Set timeout from environment variable or use default (30s)
       // The timeout controls how long we wait for the auth operation to complete
       const timeoutDuration = process.env.NEXT_PUBLIC_AUTH_TIMEOUT
         ? parseInt(process.env.NEXT_PUBLIC_AUTH_TIMEOUT, 10)
-        : 15000;
+        : 30000;
 
       // Create a timeout promise for the auth operation
       // This ensures we don't wait indefinitely if the auth server is unresponsive

@@ -93,10 +93,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const initializeAuth = async () => {
       try {
-        // Get timeout from environment variable or use default (15s)
+        // Get timeout from environment variable or use default (30s)
         const timeoutDuration = process.env.NEXT_PUBLIC_AUTH_TIMEOUT
           ? parseInt(process.env.NEXT_PUBLIC_AUTH_TIMEOUT, 10)
-          : 15000;
+          : 30000;
 
         // 1. Create a promise that rejects after a timeout
         const timeoutPromise = new Promise((_, reject) => {
@@ -121,8 +121,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(null);
         }
 
-      } catch (error) {
-        console.error("Auth initialization error:", error);
+      } catch (error: any) {
+        if (error.message && error.message.includes('timed out')) {
+          console.warn("Auth initialization:", error.message);
+        } else {
+          console.error("Auth initialization error:", error);
+        }
         
         // IMPORTANT: On error, assume logged out so the UI appears
         setUser(null);
