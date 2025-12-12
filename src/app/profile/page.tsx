@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
+import RecommendationsList from '@/components/RecommendationsList';
 import Link from 'next/link';
 import WardrobeAnalytics from '@/components/WardrobeAnalytics';
 
@@ -172,6 +173,23 @@ export default function ProfilePage() {
         {collection.length > 0 && (
           <WardrobeAnalytics collection={collection} />
         )}
+
+        {/* Recommendations Section */}
+        <div className="mb-12">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-serif">Personalized Recommendations</h2>
+            <Link
+              href="/recommendations/all"
+              className="text-xs font-bold uppercase tracking-widest text-stone-900 hover:text-stone-600 transition-colors"
+            >
+              See All →
+            </Link>
+          </div>
+          <RecommendationsList
+            vibeTags={profile?.vibe_tags || []}
+            bestSeason={profile?.best_season || 'all'}
+          />
+        </div>
 
         {/* TABS */}
         <div className="flex gap-8 border-b border-stone-200 mb-8">

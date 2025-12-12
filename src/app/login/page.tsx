@@ -18,9 +18,23 @@ export default function LoginPage() {
 
   // NEW: Auto-redirect if already logged in
   useEffect(() => {
+    console.log('🔍 Login page session check initiated');
     const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      console.log('🛠️ Checking session in login page...', {
+        supabaseReady: !!supabase?.auth?.getSession
+      });
+      const { data: { session }, error } = await supabase.auth.getSession();
+      console.log('📋 Login page session check result:', {
+        hasSession: !!session,
+        error: error?.message,
+        user: session?.user?.id
+      });
       if (session) {
+        console.log('⏩ Redirecting from login page due to existing session', {
+          sessionAge: Date.now() - new Date(session.created_at).getTime(),
+          user: session.user?.id,
+          expiresAt: session.expires_at
+        });
         router.replace('/');
       }
     };
@@ -76,6 +90,11 @@ export default function LoginPage() {
         
         setMessage('Login successful! Redirecting...');
         
+        console.log('🔀 Successful login - Initiating redirect', {
+          authDataUser: authData.user?.id,
+          session: authData.session?.expires_at,
+          routerState: router.state
+        });
         // Force a full page reload to ensure all states (AuthContext, Server Components) are perfectly synced.
         // This resolves issues where client-side navigation leaves the UI in a stale "logged out" state.
         window.location.href = '/';

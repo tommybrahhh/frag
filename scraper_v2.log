@@ -1181,3 +1181,59 @@
 2025-12-11 20:23:44,807 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.36416.jpg
 2025-12-11 20:23:44,956 - WARNING - Multiple blocks detected. Taking long break of 769.42 seconds
 2025-12-11 20:36:34,378 - INFO - Processing complete. Data saved to output_perfumes_v2.csv
+2025-12-12 09:45:40,125 - INFO - Processing 25 perfumes with enhanced anti-detection...
+2025-12-12 09:45:40,126 - INFO - 
+--- Processing 1/25: lovely ---
+2025-12-12 09:45:40,126 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/sarah-jessica-parker/lovely-993.html
+2025-12-12 09:45:40,186 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/sarah-jessica-parker/lovely-993.html
+2025-12-12 09:45:41,226 - INFO - Status Code: 200
+2025-12-12 09:45:41,227 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-12 09:45:41,510 - INFO - Perfume Name: Lovely Sarah Jessica Parker
+2025-12-12 09:45:41,510 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.993.jpg
+2025-12-12 09:45:41,658 - INFO - 
+--- Processing 2/25: gucci-bloom ---
+2025-12-12 09:45:41,659 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/gucci/gucci-bloom-44894.html
+2025-12-12 09:45:41,659 - INFO - Throttling: Sleeping for 15.03 seconds
+2025-12-12 09:45:56,726 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/gucci/gucci-bloom-44894.html
+2025-12-12 09:45:57,715 - INFO - Status Code: 200
+2025-12-12 09:45:57,716 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-12 09:45:57,988 - INFO - Perfume Name: Gucci Bloom Gucci
+2025-12-12 09:45:57,988 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.44894.jpg
+2025-12-12 09:45:58,119 - INFO - 
+--- Processing 3/25: light-blue-eau-intense-pour-homme ---
+2025-12-12 09:45:58,120 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/dolce-gabbana/light-blue-eau-intense-pour-homme-44035.html
+2025-12-12 09:45:58,120 - INFO - Throttling: Sleeping for 31.31 seconds
+2025-12-12 09:46:29,514 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/dolce-gabbana/light-blue-eau-intense-pour-homme-44035.html
+2025-12-12 09:46:31,854 - INFO - Status Code: 200
+2025-12-12 09:46:31,855 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-12 09:46:32,763 - INFO - Perfume Name: Light Blue Eau Intense Pour Homme Dolce&Gabbana
+2025-12-12 09:46:32,764 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.44035.jpg
+2025-12-12 09:46:33,215 - ERROR - An error occurred: [Errno 13] Permission denied: 'output_perfumes_v2.csv'
+2025-12-12 10:23:21,876 - INFO - Processing 25 perfumes with enhanced anti-detection...
+2025-12-12 10:23:21,877 - INFO - 
+--- Processing 1/25: lovely ---
+2025-12-12 10:23:21,877 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/sarah-jessica-parker/lovely-993.html
+2025-12-12 10:23:21,941 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/sarah-jessica-parker/lovely-993.html
+2025-12-12 10:23:22,903 - INFO - Status Code: 200
+2025-12-12 10:23:22,904 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-12 10:23:23,198 - INFO - Perfume Name: Lovely Sarah Jessica Parker
+2025-12-12 10:23:23,198 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.993.jpg
+2025-12-12 10:23:23,348 - INFO - 
+--- Processing 2/25: gucci-bloom ---
+2025-12-12 10:23:23,348 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/gucci/gucci-bloom-44894.html
+2025-12-12 10:23:23,348 - INFO - Throttling: Sleeping for 23.86 seconds
+2025-12-12 10:23:47,249 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/gucci/gucci-bloom-44894.html
+2025-12-12 10:23:48,080 - INFO - Status Code: 200
+2025-12-12 10:23:48,081 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-12 10:23:48,379 - INFO - Perfume Name: Gucci Bloom Gucci
+2025-12-12 10:23:48,379 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.44894.jpg
+2025-12-12 10:23:48,512 - INFO - 
+--- Processing 3/25: light-blue-eau-intense-pour-homme ---
+2025-12-12 10:23:48,512 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/dolce-gabbana/light-blue-eau-intense-pour-homme-44035.html
+2025-12-12 10:23:48,512 - INFO - Throttling: Sleeping for 17.69 seconds
+2025-12-12 10:24:06,241 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/dolce-gabbana/light-blue-eau-intense-pour-homme-44035.html
+2025-12-12 10:24:07,174 - INFO - Status Code: 200
+2025-12-12 10:24:07,175 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-12 10:24:07,580 - INFO - Perfume Name: Light Blue Eau Intense Pour Homme Dolce&Gabbana
+2025-12-12 10:24:07,580 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.44035.jpg
+2025-12-12 10:24:07,723 - ERROR - An error occurred: [Errno 13] Permission denied: 'output_perfumes_v2.csv'

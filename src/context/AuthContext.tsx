@@ -22,7 +22,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // If environment variables are missing, supabase will be null.
   const supabase = useMemo(() => {
     try {
-      return createClient();
+      const client = createClient();
+      console.log('Supabase client initialized:', {
+        configured: isSupabaseConfigured,
+        hasSessionMethod: typeof client?.auth?.getSession === 'function'
+      });
+      return client;
     } catch (error) {
       console.warn('Supabase client initialization failed:', error);
       return null;
@@ -30,7 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const fetchUserProfile = useCallback(async (sessionUser: any) => {
-    if (!supabase || !isSupabaseConfigured()) {
+    if (!supabase || !isSupabaseConfigured) {
       // If supabase is not available, return user without profile
       return {
         ...sessionUser,
@@ -66,15 +71,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [supabase]);
 
   useEffect(() => {
-    // IMMEDIATE CHECK: If Supabase is not configured, skip everything
-    if (!isSupabaseConfigured()) {
+    console.log('🔄 AuthContext useEffect triggered', {
+      isSupabaseConfigured,
+      supabaseClientExists: !!supabase,
+      hasAuthMethods: supabase?.auth ? true : false
+    });
+    
+    if (!isSupabaseConfigured) {
       console.warn('Supabase is not configured. Authentication is disabled.');
       setLoading(false);
       return;
     }
 
     if (!supabase) {
-      // If supabase is not available, skip authentication and set loading to false
+      console.warn('Supabase client not available in AuthContext');
       setLoading(false);
       return;
     }
@@ -82,16 +92,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     let mounted = true;
 
     const initializeAuth = async () => {
+      console.log('🔐 Initializing auth...');
       try {
         // Safety timeout: If Supabase takes too long (e.g., network hang), stop loading
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Auth timeout')), 3000)
-        );
+        const timeoutPromise = new Promise((_, reject) => {
+          const timeoutId = setTimeout(() => {
+            console.log('🕒 Auth timeout triggered (10s) - Client status:', {
+              configValid: isSupabaseConfigured,
+              hasAuthMethods: !!supabase?.auth,
+              supabaseReady: !!supabase?.auth?.getSession,
+              timeSinceMount: Date.now() - window.performance.timeOrigin
+            });
+            reject(new Error('Auth timeout after 10 seconds'));
+          }, 10000);
 
+          console.log('⏳ Auth timeout timer started (10s)');
+          return () => {
+            clearTimeout(timeoutId);
+            console.log('🧹 Cleared auth timeout timer');
+          };
+        });
+
+        console.log('🔍 Starting auth session check...', {
+          supabaseReady: !!supabase?.auth?.getSession
+        });
         const sessionPromise = supabase.auth.getSession();
         
         // Race the session fetch against the timeout
         const { data } = await Promise.race([sessionPromise, timeoutPromise]) as any;
+        console.log('✅ Auth session check completed', {
+          sessionExists: !!data?.session,
+          userExists: !!data?.session?.user,
+          authMethod: data?.session?.user?.app_metadata?.provider,
+          mountedState: mounted
+        });
         const session = data?.session;
         
         if (session?.user && mounted) {
