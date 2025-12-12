@@ -212,6 +212,8 @@ export default function PerfumeDetail() {
       return;
     }
 
+    console.log('Fetching perfume details and recommendations', { id, user });
+    
     const fetchData = async () => {
       // 1. Fetch Main Perfume
       const { data: mainPerfume, error } = await supabase
@@ -287,10 +289,12 @@ export default function PerfumeDetail() {
             .sort((a: any, b: any) => getMatchDetails(mainPerfume, b).score - getMatchDetails(mainPerfume, a).score)
             .slice(0, 9);
           
+          console.log('Generated recommendations:', { count: recs.length, first: recs[0] });
           setRelatedPerfumes(recs);
 
           // B. Dupes (DNA)
           const smartDupes = findClientSideDupes(mainPerfume, allPerfumes);
+          console.log('Generated dupes:', { count: smartDupes.length, first: smartDupes[0] });
           setDupes(smartDupes);
         }
       } catch (err) {
@@ -542,6 +546,7 @@ export default function PerfumeDetail() {
       )}
 
       {/* YOU MIGHT ALSO LIKE (Vibes) */}
+      {console.log('Rendering recommendations section', { component: 'RecommendationsList', count: relatedPerfumes.length })}
       {relatedPerfumes.length > 0 && (
         <div className="max-w-6xl mx-auto px-6 mt-24">
           <h3 className="font-serif text-2xl text-stone-900 mb-8 border-b border-stone-200 pb-4">You Might Also Like</h3>

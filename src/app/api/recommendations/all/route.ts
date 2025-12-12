@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
@@ -6,8 +6,8 @@ export const dynamic = 'force-dynamic';
 export async function GET(request: Request) {
   try {
     console.log('Starting recommendations API call');
-    const supabase = createClient();
-    const { data: { session }, error: authError } = await createClient().auth.getSession();
+    const supabase = await createClient();
+    const { data: { session }, error: authError } = await supabase.auth.getSession();
     console.log('Session data:', session?.user?.id);
     if (!session?.user?.id) {
       return NextResponse.json(

@@ -1,13 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createClient } from '@/lib/supabase';
-import { Session } from '@supabase/supabase-js';
+import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function LoginPage() {
-  // Renamed 'email' to 'identifier' to reflect it can be either
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
@@ -15,50 +13,27 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const router = useRouter();
+  
+  // Create the browser client
   const supabase = createClient();
 
-  // NEW: Auto-redirect if already logged in
   useEffect(() => {
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        // Removed the sessionAge log, as 'created_at' is no longer directly on the Session object,
-        // which caused the TypeScript compilation error.
-        console.log('⏩ Redirecting from login page due to existing session', {
-          user: session.user?.id,
-          expiresAt: session.expires_at
-        });
         router.replace('/');
       }
     };
     checkSession();
   }, [router, supabase]);
 
-  const handleAuth = async (e: React.FormEvent, attempt = 1) => {
+  const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
     setMessage(null);
 
     try {
-      // Calculate retry delay with exponential backoff (1s, 2s, 4s, etc.)
-      // This helps handle temporary network issues by spacing out retries
-      const retryDelay = Math.min(1000 * Math.pow(2, attempt - 1), 8000);
-
-      // Set timeout from environment variable or use default (30s)
-      // The timeout controls how long we wait for the auth operation to complete
-      const timeoutDuration = process.env.NEXT_PUBLIC_AUTH_TIMEOUT
-        ? parseInt(process.env.NEXT_PUBLIC_AUTH_TIMEOUT, 10)
-        : 30000;
-
-      // Create a timeout promise for the auth operation
-      // This ensures we don't wait indefinitely if the auth server is unresponsive
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() =>
-          reject(new Error(`Authentication timed out after ${timeoutDuration}ms`)),
-          timeoutDuration
-        )
-      );
       if (isSignUp) {
         // --- SIGN UP FLOW (Strictly Email) ---
         if (!identifier.includes('@')) {
@@ -71,7 +46,6 @@ export default function LoginPage() {
         });
         if (error) throw error;
         setMessage('Account created! Check your email to confirm.');
-        // Clear form after successful signup
         setIdentifier('');
         setPassword('');
         
@@ -84,7 +58,10 @@ export default function LoginPage() {
           const { data: lookedUpEmail, error: lookupError } = await supabase
             .rpc('get_email_by_username', { username_input: identifier });
 
-          if (lookupError) throw lookupError;
+          if (lookupError) {
+             console.error("Username lookup failed:", lookupError);
+             throw new Error('Unable to sign in with username. Please use your email address.');
+          }
           if (!lookedUpEmail) {
             throw new Error('Username not found.');
           }
@@ -92,7 +69,7 @@ export default function LoginPage() {
         }
 
         // 2. Perform actual Login
-        const { data: authData, error } = await supabase.auth.signInWithPassword({
+        const { error } = await supabase.auth.signInWithPassword({
           email: emailToUse,
           password,
         });
@@ -101,29 +78,12 @@ export default function LoginPage() {
         
         setMessage('Login successful! Redirecting...');
         
-        console.log('🔀 Successful login - Initiating redirect', {
-          authDataUser: authData.user?.id,
-          session: authData.session?.expires_at
-        });
-        // Force a full page reload to ensure all states (AuthContext, Server Components) are perfectly synced.
-        // This resolves issues where client-side navigation leaves the UI in a stale "logged out" state.
-        window.location.href = '/';
+        // Refresh the router to update Server Components (crucial for Auth)
+        router.refresh();
+        router.replace('/');
       }
     } catch (err: any) {
-      // Handle timeout errors with automatic retry
-      // We retry up to 3 times with exponential backoff
-      const retryDelay = Math.min(1000 * Math.pow(2, attempt - 1), 8000);
-      if (err.message.includes('timed out') && attempt < 3) {
-        console.warn(`Authentication timeout - Retrying in ${retryDelay}ms (attempt ${attempt})`);
-        await new Promise(resolve => setTimeout(resolve, retryDelay));
-        return handleAuth(e, attempt + 1);
-      }
-      
-      setError(
-        err.message.includes('timed out')
-          ? 'Connection timed out. Please check your network and try again.'
-          : err.message
-      );
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -152,7 +112,7 @@ export default function LoginPage() {
               {isSignUp ? 'Email Address' : 'Email or Username'}
             </label>
             <input
-            type="text" // Changed from 'email' to 'text' to allow usernames
+            type="text" 
             value={identifier}
             onChange={(e) => setIdentifier(e.target.value)}
             required

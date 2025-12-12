@@ -12,13 +12,18 @@ interface RecommendationsListProps {
 }
 
 export default function RecommendationsList({ vibeTags, bestSeason }: RecommendationsListProps) {
+  console.log('RecommendationsList mounted', { vibeTags, bestSeason });
   const { user } = useAuth();
   const [recommendations, setRecommendations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log('Fetching recommendations', { user, vibeTags, bestSeason });
     const fetchRecommendations = async () => {
-      if (!user) return;
+      if (!user) {
+        console.log('No user found - skipping recommendations');
+        return;
+      }
       
       const supabase = createClient();
       let query = supabase
@@ -41,7 +46,10 @@ export default function RecommendationsList({ vibeTags, bestSeason }: Recommenda
       const { data, error } = await query.limit(8);
 
       if (!error && data) {
+        console.log('Received recommendations:', { count: data.length, first: data[0] });
         setRecommendations(data);
+      } else if (error) {
+        console.error('Error fetching recommendations:', error);
       }
       setLoading(false);
     };

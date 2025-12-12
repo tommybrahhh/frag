@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
@@ -11,7 +11,7 @@ export async function GET(request: Request) {
     return NextResponse.json([]);
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // Call the custom SQL function we just created
   const { data, error } = await supabase

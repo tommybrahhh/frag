@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { createClient } from '@/lib/supabase';
 import Link from 'next/link';
@@ -12,6 +12,18 @@ export default function WardrobeAnalytics({ collection }: { collection: any[] })
   const [secondaryRecommendations, setSecondaryRecommendations] = useState<any[]>([]);
   const [secondaryTitle, setSecondaryTitle] = useState('');
   const [secondaryReason, setSecondaryReason] = useState('');
+
+  const chartContainerRef = useRef<HTMLDivElement>(null);
+  const [chartDimensions, setChartDimensions] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    if (chartContainerRef.current) {
+      setChartDimensions({
+        width: chartContainerRef.current.offsetWidth,
+        height: chartContainerRef.current.offsetHeight,
+      });
+    }
+  }, []);
 
   // COLORS
   const COLORS = ['#1c1917', '#57534e', '#a8a29e', '#d6d3d1', '#e7e5e4'];
@@ -114,15 +126,17 @@ export default function WardrobeAnalytics({ collection }: { collection: any[] })
       <div className="bg-white rounded-3xl p-8 border border-stone-100 shadow-sm">
         <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-6">Collection DNA</h4>
         <div className="flex items-center gap-8">
-          <div className="w-32 h-32 relative">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie data={chartData} innerRadius={40} outerRadius={60} paddingAngle={5} dataKey="value" stroke="none">
-                  {chartData.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
+          <div ref={chartContainerRef} className="w-32 h-32 relative">
+            {chartDimensions.width > 0 && chartDimensions.height > 0 && (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={chartData} innerRadius={40} outerRadius={60} paddingAngle={5} dataKey="value" stroke="none">
+                    {chartData.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <span className="text-2xl font-serif text-stone-300">{collection.length}</span>
             </div>

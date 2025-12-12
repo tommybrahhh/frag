@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
@@ -23,7 +23,7 @@ export async function GET(request: Request) {
     const moment = searchParams.get('moment');   // Maps to 'best_time'
     const occasion = searchParams.get('occasion');
 
-    const supabase = createClient();
+    const supabase = await createClient();
 
     // 2. Base Query - Added new columns to SELECT
     // IMPORTANT: We join 'brands' and filter by its 'tier' column

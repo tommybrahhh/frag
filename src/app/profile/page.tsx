@@ -104,15 +104,15 @@ export default function ProfilePage() {
   if (loading || !user) return null;
 
   return (
-    <div className="min-h-screen bg-[#FAFAF9] text-stone-900 pb-24 font-sans">
+    <div className="min-h-screen bg-background text-primary pb-24 font-sans">
       
       {/* HEADER */}
-      <div className="bg-white border-b border-stone-200 pt-32 pb-12 px-6">
+      <div className="bg-surface border-b border-border pt-32 pb-12 px-6">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-end gap-8">
           
           {/* Avatar / Signature Scent */}
           <div className="relative group">
-            <div className="w-32 h-32 rounded-full bg-stone-100 border-4 border-white shadow-xl flex items-center justify-center overflow-hidden">
+            <div className="w-32 h-32 rounded-full bg-hover border-4 border-surface shadow-xl flex items-center justify-center overflow-hidden">
               {profile?.signature_scent ? (
                 <img src={profile.signature_scent.image_url} className="w-full h-full object-cover mix-blend-multiply opacity-80" />
               ) : (
@@ -120,7 +120,7 @@ export default function ProfilePage() {
               )}
             </div>
             {/* Edit Trigger */}
-            <button onClick={() => setIsEditing(!isEditing)} className="absolute bottom-0 right-0 bg-stone-900 text-white p-2 rounded-full hover:scale-110 transition shadow-md">
+            <button onClick={() => setIsEditing(!isEditing)} className="absolute bottom-0 right-0 bg-primary text-surface p-2 rounded-full hover:scale-110 transition shadow-md">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
             </button>
           </div>
@@ -129,35 +129,35 @@ export default function ProfilePage() {
           <div className="flex-1 w-full">
             {isEditing ? (
               <div className="space-y-4 max-w-md animate-in fade-in slide-in-from-bottom-2">
-                <input 
-                  value={displayName} 
-                  onChange={(e) => setDisplayName(e.target.value)} 
-                  className="text-3xl font-serif w-full border-b border-stone-300 focus:border-stone-900 outline-none bg-transparent"
+                <input
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  className="text-3xl font-serif w-full border-b border-border focus:border-primary outline-none bg-transparent"
                   placeholder="Your Name"
                 />
-                <textarea 
-                  value={bio} 
-                  onChange={(e) => setBio(e.target.value)} 
-                  className="w-full p-3 text-sm bg-stone-50 border border-stone-200 rounded-xl outline-none focus:border-stone-900 resize-none h-24"
+                <textarea
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  className="w-full p-3 text-sm bg-hover border border-border rounded-xl outline-none focus:border-primary resize-none h-24"
                   placeholder="Your olfactory signature..."
                 />
                 <div className="flex gap-2">
-                  <button onClick={handleSave} disabled={saving} className="bg-stone-900 text-white px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest">
+                  <button onClick={handleSave} disabled={saving} className="bg-primary text-surface px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest">
                     {saving ? 'Saving...' : 'Save Profile'}
                   </button>
-                  <button onClick={() => setIsEditing(false)} className="text-xs text-stone-500 px-4 py-2 hover:text-stone-900">Cancel</button>
+                  <button onClick={() => setIsEditing(false)} className="text-xs text-secondary px-4 py-2 hover:text-primary">Cancel</button>
                 </div>
               </div>
             ) : (
               <div>
-                <h1 className="text-4xl font-serif text-stone-900 mb-2">
+                <h1 className="text-4xl font-serif text-primary mb-2">
                   {profile?.display_name || user.email?.split('@')[0]}
                 </h1>
-                <p className="text-stone-500 max-w-lg leading-relaxed">{profile?.bio || "No olfactory bio yet."}</p>
+                <p className="text-secondary max-w-lg leading-relaxed">{profile?.bio || "No olfactory bio yet."}</p>
                 {profile?.signature_scent && (
-                  <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 bg-stone-50 border border-stone-200 rounded-full">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-stone-400">Signature:</span>
-                    <span className="text-xs font-medium text-stone-900">{profile.signature_scent.name}</span>
+                  <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 bg-hover border border-border rounded-full">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-secondary">Signature:</span>
+                    <span className="text-xs font-medium text-primary">{profile.signature_scent.name}</span>
                   </div>
                 )}
               </div>
@@ -180,7 +180,7 @@ export default function ProfilePage() {
             <h2 className="text-xl font-serif">Personalized Recommendations</h2>
             <Link
               href="/recommendations/all"
-              className="text-xs font-bold uppercase tracking-widest text-stone-900 hover:text-stone-600 transition-colors"
+              className="text-xs font-bold uppercase tracking-widest text-primary hover:text-secondary transition-colors"
             >
               See All →
             </Link>
@@ -198,9 +198,9 @@ export default function ProfilePage() {
               key={tab}
               onClick={() => setActiveTab(tab as any)}
               className={`pb-4 text-xs font-bold uppercase tracking-widest transition-all ${
-                activeTab === tab 
-                  ? 'text-stone-900 border-b-2 border-stone-900' 
-                  : 'text-stone-400 hover:text-stone-600'
+                activeTab === tab
+                  ? 'text-primary border-b-2 border-primary'
+                  : 'text-secondary hover:text-primary'
               }`}
             >
               {tab === 'collection' ? `Wardrobe (${collection.length})` : `Lab Creations (${savedMixes.length})`}
@@ -213,19 +213,19 @@ export default function ProfilePage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {collection.map((item) => (
               <Link key={item.id} href={`/perfume/${item.perfume.id}`} className="group bg-white rounded-xl border border-stone-100 p-4 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                <div className="h-40 flex items-center justify-center p-2 mb-4 bg-stone-50 rounded-lg group-hover:bg-white transition-colors">
+                <div className="h-40 flex items-center justify-center p-2 mb-4 bg-hover rounded-lg group-hover:bg-surface transition-colors">
                   <img src={item.perfume.image_url} className="h-full object-contain mix-blend-multiply" />
                 </div>
                 <div className="text-center">
-                  <div className="text-[9px] font-bold uppercase tracking-widest text-stone-400 truncate">{item.perfume.brand?.name}</div>
-                  <div className="font-serif text-sm text-stone-900 truncate">{item.perfume.name}</div>
+                  <div className="text-[9px] font-bold uppercase tracking-widest text-secondary truncate">{item.perfume.brand?.name}</div>
+                  <div className="font-serif text-sm text-primary truncate">{item.perfume.name}</div>
                 </div>
               </Link>
             ))}
             {collection.length === 0 && (
-              <div className="col-span-full py-20 text-center border-2 border-dashed border-stone-200 rounded-2xl">
-                <p className="text-stone-400 mb-4">Your shelf is empty.</p>
-                <Link href="/" className="bg-stone-900 text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-stone-800">Browse Perfumes</Link>
+              <div className="col-span-full py-20 text-center border-2 border-dashed border-border rounded-2xl">
+                <p className="text-secondary mb-4">Your shelf is empty.</p>
+                <Link href="/" className="bg-primary text-surface px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-secondary">Browse Perfumes</Link>
               </div>
             )}
           </div>
@@ -235,10 +235,10 @@ export default function ProfilePage() {
         {activeTab === 'mixes' && (
           <div className="grid md:grid-cols-2 gap-6">
             {savedMixes.map((mix) => (
-              <div key={mix.id} className="bg-white border border-stone-200 p-6 rounded-2xl flex items-center gap-6">
+              <div key={mix.id} className="bg-surface border border-border p-6 rounded-2xl flex items-center gap-6">
                 <div className="flex -space-x-4">
-                  <img src={mix.base?.image_url} className="w-16 h-16 rounded-full border-4 border-white bg-stone-100 object-cover" />
-                  <img src={mix.top?.image_url} className="w-16 h-16 rounded-full border-4 border-white bg-stone-100 object-cover" />
+                  <img src={mix.base?.image_url} className="w-16 h-16 rounded-full border-4 border-surface bg-hover object-cover" />
+                  <img src={mix.top?.image_url} className="w-16 h-16 rounded-full border-4 border-surface bg-hover object-cover" />
                 </div>
                 <div>
                   <h4 className="font-serif text-lg">{mix.mix_name}</h4>

@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
@@ -9,7 +9,7 @@ export async function GET(
 ) {
   const params = await props.params;
   const brandName = decodeURIComponent(params.brand);
-  const supabase = createClient();
+  const supabase = await createClient();
 
   try {
     // 1. Find the Brand ID first (Exact or Case-insensitive match)
