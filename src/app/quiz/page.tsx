@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { questions, QuizAnswers, QuizOption } from '@/lib/quiz-data';
 import { getRecommendations, getPreferenceSummary, Recommendation } from '@/lib/quiz-engine';
@@ -90,6 +90,9 @@ function PerfumeCard({ recommendation, category }: { recommendation: any; catego
 
 export default function QuizPage() {
   const router = useRouter();
+  const [showConfetti, setShowConfetti] = useState(false);
+
+
   const [quizState, setQuizState] = useState<QuizState>({
     currentStep: 0,
     answers: {},
@@ -112,9 +115,22 @@ export default function QuizPage() {
   };
 
   const handleNext = () => {
+    console.log('Next button clicked', {
+      currentStep: quizState.currentStep,
+      isLastQuestion: isLastQuestion,
+      hasAnswer: !!quizState.answers[currentQuestion.id]
+    });
+    
     if (isLastQuestion) {
+      console.log('Last question - submitting quiz', {
+        answers: quizState.answers
+      });
       submitQuiz();
     } else {
+      console.log('Moving to next question', {
+        currentStep: quizState.currentStep,
+        nextStep: quizState.currentStep + 1
+      });
       setQuizState(prev => ({
         ...prev,
         currentStep: prev.currentStep + 1
@@ -132,11 +148,14 @@ export default function QuizPage() {
   };
 
   const submitQuiz = async () => {
+    console.log('Starting quiz submission');
     setQuizState(prev => ({ ...prev, isSubmitting: true }));
     
     try {
-      // Fetch all perfumes from the database with correct join syntax
+      console.log('Creating Supabase client');
       const supabase = createClient();
+      
+      console.log('Fetching perfumes from database');
       const { data, error } = await supabase
         .from('perfumes')
         .select(`
@@ -147,18 +166,30 @@ export default function QuizPage() {
         `);
       
       if (error) {
-        console.error('Error fetching perfumes:', error);
+        console.error('Error fetching perfumes:', {
+          message: error.message,
+          code: error.code,
+          details: error.details
+        });
         return;
       }
       
-      // Flatten the data structure for the recommendation engine
+      console.log('Successfully fetched perfumes:', data?.length);
+      
+      console.log('Flattening perfume data');
       const flatData = data?.map((p: any) => ({
         ...p,
         brand_name: p.brand?.name // Flatten it so the engine can use it easily
       })) || [];
       
-      // Get recommendations
+      console.log('Generating recommendations');
       const { topMatches, possibleSwitches, newDiscoveries } = getRecommendations(quizState.answers, flatData);
+      
+      console.log('Recommendations generated:', {
+        topMatches: topMatches.length,
+        possibleSwitches: possibleSwitches.length,
+        newDiscoveries: newDiscoveries.length
+      });
       
       setQuizState(prev => ({
         ...prev,
@@ -168,7 +199,10 @@ export default function QuizPage() {
       }));
       
     } catch (error) {
-      console.error('Error submitting quiz:', error);
+      console.error('Error submitting quiz:', {
+        error: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined
+      });
       setQuizState(prev => ({ ...prev, isSubmitting: false }));
     }
   };
@@ -277,7 +311,7 @@ export default function QuizPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center px-6 py-12">
+    <div className="min-h-screen bg-white flex items-center justify-center px-6 py-12 relative">
       <div className="max-w-2xl w-full">
         {/* Progress Bar */}
         <div className="mb-8">

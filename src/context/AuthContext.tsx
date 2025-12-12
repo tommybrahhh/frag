@@ -92,71 +92,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     let mounted = true;
 
     const initializeAuth = async () => {
-      console.log('🔐 Initializing auth...');
       try {
         // Get timeout from environment variable or use default (15s)
-        // The timeout controls how long we wait for authentication to complete
-        // before showing an error. This prevents the UI from hanging indefinitely
-        // during network issues or server unavailability.
         const timeoutDuration = process.env.NEXT_PUBLIC_AUTH_TIMEOUT
           ? parseInt(process.env.NEXT_PUBLIC_AUTH_TIMEOUT, 10)
           : 15000;
 
-        // Safety timeout: If Supabase takes too long (e.g., network hang), stop loading
-        // This creates a promise that will reject after the timeout duration,
-        // which we race against the actual auth request. The timeout ensures
-        // we don't leave users waiting indefinitely if the auth server is unresponsive.
+        // 1. Create a promise that rejects after a timeout
         const timeoutPromise = new Promise((_, reject) => {
-          const timeoutId = setTimeout(() => {
-            console.error('🕒 Auth timeout triggered after ${timeoutDuration}ms - Client status:', {
-              configValid: isSupabaseConfigured,
-              hasAuthMethods: !!supabase?.auth,
-              supabaseReady: !!supabase?.auth?.getSession,
-              timeSinceMount: Date.now() - window.performance.timeOrigin,
-              timeoutDuration,
-              environment: process.env.NODE_ENV
-            });
-            reject(new Error(`Authentication timed out after ${timeoutDuration}ms. Please check your network connection and try again.`));
+          const id = setTimeout(() => {
+            reject(new Error(`Authentication timed out after ${timeoutDuration}ms`));
           }, timeoutDuration);
-
-          console.log(`⏳ Auth timeout timer started (${timeoutDuration}ms)`);
-          return () => {
-            clearTimeout(timeoutId);
-            console.log('🧹 Cleared auth timeout timer');
-          };
         });
 
-        console.log('🔍 Starting auth session check...', {
-          supabaseReady: !!supabase?.auth?.getSession
-        });
-        const sessionPromise = supabase.auth.getSession();
-         
-        // Race the session fetch against the timeout
-        // This ensures we either get the session data or timeout with an error
-        // after the configured duration, preventing indefinite waits
-        const { data } = await Promise.race([sessionPromise, timeoutPromise]) as any;
-        console.log('✅ Auth session check completed', {
-          sessionExists: !!data?.session,
-          userExists: !!data?.session?.user,
-          authMethod: data?.session?.user?.app_metadata?.provider,
-          mountedState: mounted
-        });
-        const session = data?.session;
-        
-        if (session?.user && mounted) {
-          const userWithProfile = await fetchUserProfile(session.user);
-          if (mounted) setUser(userWithProfile);
-        } else if (mounted) {
+        // 2. Race Supabase against the timeout
+        const { data, error } = await Promise.race([
+          supabase.auth.getSession(),
+          timeoutPromise
+        ]) as any; // Type casting for the race result
+
+        if (error) throw error;
+
+        // 3. Handle success
+        if (data?.session) {
+          setUser(data.session.user);
+          // Optional: fetch user profile here if needed
+        } else {
           setUser(null);
         }
+
       } catch (error) {
-        console.error('Error checking auth session:', error);
-        // On timeout or error, ensure we don't leave the user stuck
-        if (mounted) setUser(null);
+        console.error("Auth initialization error:", error);
+        
+        // IMPORTANT: On error, assume logged out so the UI appears
+        setUser(null);
+        
       } finally {
-        // Ensure loading state is always cleared, even if an error occurs
-        // This prevents the UI from being stuck in a loading state
-        if (mounted) setLoading(false);
+        // CRITICAL: This must run to remove the blank screen/loading spinner
+        setLoading(false);
       }
     };
 

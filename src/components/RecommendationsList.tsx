@@ -21,17 +21,24 @@ export default function RecommendationsList({ vibeTags, bestSeason }: Recommenda
       if (!user) return;
       
       const supabase = createClient();
-      const { data, error } = await supabase
+      let query = supabase
         .from('perfumes')
         .select(`
           id,
           name,
           image_url,
           brand:brands(name)
-        `)
-        .contains('vibe_tags', vibeTags)
-        .eq('best_season', bestSeason)
-        .limit(8);
+        `);
+
+      if (vibeTags && vibeTags.length > 0) {
+        query = query.contains('vibe_tags', vibeTags);
+      }
+
+      if (bestSeason && bestSeason !== 'all') {
+        query = query.eq('best_season', bestSeason);
+      }
+
+      const { data, error } = await query.limit(8);
 
       if (!error && data) {
         setRecommendations(data);

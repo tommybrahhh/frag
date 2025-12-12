@@ -1,90 +1,68 @@
-import { createClient as createSupabaseClient, Session } from '@supabase/supabase-js';
+// src/lib/supabase.ts
+
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 
 // 1. USE FALLBACKS (Don't crash if keys are missing during build)
-// If the env var is missing, we use a string. This satisfies the build process.
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key';
 
 // Variable to hold the single client instance in the browser
 let clientInstance: ReturnType<typeof createSupabaseClient> | undefined;
 
-export const createClient = () => {
-  // 2. RUNTIME CHECK (Optional: Warn only in browser console, don't crash build)
-  if (typeof window !== 'undefined' && !isSupabaseConfigured) {
-    console.warn('⚠️ Supabase URL is missing! Check your Vercel Environment Variables.');
-  }
-
-  // 3. SINGLETON PATTERN (Browser)
-  if (typeof window !== 'undefined') {
-    if (!clientInstance) {
-      console.log('🆕 Creating new Supabase client instance', {
-        url: supabaseUrl?.slice(0, 20) + '...',
-        key: supabaseKey?.slice(0, 6) + '...',
-        isConfigured: isSupabaseConfigured,
-        envVarsPresent: !!process.env.NEXT_PUBLIC_SUPABASE_URL && !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-        windowDefined: typeof window !== 'undefined'
-      });
-      clientInstance = createSupabaseClient(supabaseUrl, supabaseKey, clientOptions);
-    }
-    return clientInstance;
-  }
-
-  // 4. SERVER INSTANCE
-  return createSupabaseClient(supabaseUrl, supabaseKey, clientOptions);
-};
-
 // =================================================================
-// FIX: Custom fetch with increased timeout (10 seconds)
+// FIX: Custom fetch with increased timeout (20 seconds)
 // This directly addresses the "Auth timeout" error by giving network
 // requests more time to complete, which is crucial for cold starts.
 // =================================================================
-const customFetch: typeof fetch = (url: RequestInfo | URL, options?: RequestInit) => {
-  // Get timeout from environment variable or use default (15s)
-  // This timeout applies to all network requests made by Supabase,
-  // ensuring requests don't hang indefinitely
-  const timeout = process.env.NEXT_PUBLIC_AUTH_TIMEOUT
-    ? parseInt(process.env.NEXT_PUBLIC_AUTH_TIMEOUT, 10)
-    : 15000;
-
-  console.log('🌐 Fetch request initiated:', {
-    url: url.toString().slice(0, 50),
-    method: options?.method || 'GET',
-    timeout
-  });
+const customFetch: typeof fetch = (input: RequestInfo | URL, init?: RequestInit) => {
+  // Set a 20 second timeout (20000 milliseconds)
+  const timeout = 20000; 
   const controller = new AbortController();
-  // Set up timeout controller that will abort the request if it takes too long
-  // This prevents network requests from hanging indefinitely
-  const id = setTimeout(() => {
-    console.warn('⏰ Fetch timeout triggered (10s) for URL:', {
-      url: typeof url === 'string' ? url : (url as URL).href,
-      supabaseInitTime: performance.now() - window.supabaseInitStart
-    });
-    controller.abort();
-  }, timeout);
+  const id = setTimeout(() => controller.abort(), timeout);
   
-  // Use the controller for the request and pass it the original signal
+  // Use the controller for the request and pass it the original signal if it exists
   const fetchOptions = {
-    ...options,
-    signal: options?.signal || controller.signal, // Safe access with optional chaining
+    ...init,
+    signal: init?.signal || controller.signal,
   };
 
-  return fetch(url, fetchOptions).finally(() => {
+  return fetch(input, fetchOptions).finally(() => {
     clearTimeout(id);
   });
 };
 
-// Configuration options to pass to createSupabaseClient
+// Configuration options to pass to createSupabaseClient, including the custom fetch
 const clientOptions = {
   global: {
     fetch: customFetch,
   },
 };
 
-// Add type declaration for window property
-declare global {
-  interface Window {
-    supabaseInitStart: number;
-  }
-}
-
+// EXPORT ADDED: Checks if the environment variables have been set.
 export const isSupabaseConfigured = supabaseUrl !== 'https://placeholder.supabase.co';
+
+
+export const createClient = () => {
+  // 2. RUNTIME CHECK (Optional: Warn only in browser console, don't crash build)
+  if (typeof window !== 'undefined' && !isSupabaseConfigured) {
+    console.warn('⚠️ Supabase URL is missing! Check your Vercel Environment Variables.');
+    console.debug('Current Supabase configuration:', {
+      url: supabaseUrl,
+      key: supabaseKey ? '***' : 'missing',
+      isConfigured: isSupabaseConfigured
+    });
+  }
+
+  // 3. SINGLETON PATTERN (Browser)
+  if (typeof window !== 'undefined') {
+    if (!clientInstance) {
+      // Pass the client options including the custom fetch
+      clientInstance = createSupabaseClient(supabaseUrl, supabaseKey, clientOptions);
+    }
+    return clientInstance;
+  }
+
+  // 4. SERVER INSTANCE
+  // Pass the client options including the custom fetch
+  return createSupabaseClient(supabaseUrl, supabaseKey, clientOptions);
+};

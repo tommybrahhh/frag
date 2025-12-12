@@ -19,14 +19,10 @@ export default function LoginPage() {
 
   // NEW: Auto-redirect if already logged in
   useEffect(() => {
-    console.log('🔍 Login page session check initiated');
     const checkSession = async () => {
-      console.log('🛠️ Checking session in login page...', {
-        supabaseReady: !!supabase?.auth?.getSession
-      });
-      const { data: { session }, error } = await supabase.auth.getSession() as { data: { session: Session | null }, error: Error | null };
+      const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        // Removed the sessionAge log, as 'created_at' is no longer a valid property on the Session object,
+        // Removed the sessionAge log, as 'created_at' is no longer directly on the Session object,
         // which caused the TypeScript compilation error.
         console.log('⏩ Redirecting from login page due to existing session', {
           user: session.user?.id,
