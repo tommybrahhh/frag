@@ -22,13 +22,12 @@ export default function RecommendationsList({ vibeTags, bestSeason }: Recommenda
       
       const supabase = createClient();
       const { data, error } = await supabase
-        .from('recommendations')
+        .from('perfumes')
         .select(`
           id,
           name,
           image_url,
-          brand:brands(name),
-          reason
+          brand:brands(name)
         `)
         .contains('vibe_tags', vibeTags)
         .eq('best_season', bestSeason)
@@ -69,7 +68,7 @@ export default function RecommendationsList({ vibeTags, bestSeason }: Recommenda
               {rec.brand?.name}
             </div>
             <div className="font-serif text-sm text-stone-900 truncate">{rec.name}</div>
-            <div className="text-xs text-stone-500 mt-1 line-clamp-2">{rec.reason}</div>
+            <div className="text-xs text-stone-500 mt-1 line-clamp-2">Personalized recommendation based on your preferences</div>
           </div>
         </Link>
       ))}
