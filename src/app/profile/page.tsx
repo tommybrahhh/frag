@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/client';
 import RecommendationsList from '@/components/RecommendationsList';
 import Link from 'next/link';
 import WardrobeAnalytics from '@/components/WardrobeAnalytics';
