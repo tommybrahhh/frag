@@ -51,7 +51,10 @@ export default function AdvancedSearch() {
         name,
         image_url,
         brand:brands!perfumes_brand_id_fkey(name),
-        perfume_notes(note:notes(name))
+        perfume_notes(
+          type,
+          note:notes(name)
+        )
       `);
 
     if (error) {
@@ -150,7 +153,19 @@ export default function AdvancedSearch() {
                 </div>
                 <div className="text-center">
                   <div className="text-[9px] font-bold tracking-widest text-stone-400 uppercase mb-1">{p.brand_name}</div>
-                  <div className="font-serif text-lg text-stone-900">{p.name}</div>
+                  <div className="font-serif text-lg text-stone-900 mb-2 leading-tight">{p.name}</div>
+                  
+                  {/* Show Matched Notes & Positions */}
+                  {p.matched_notes && Object.keys(p.matched_notes).length > 0 && (
+                    <div className="flex flex-wrap gap-1 justify-center mt-3">
+                      {Object.entries(p.matched_notes).map(([note, pos]) => (
+                        <span key={note} className="text-[10px] bg-stone-50 border border-stone-100 px-2 py-1 rounded-md text-stone-500">
+                          <span className="font-bold text-stone-700">{note}</span>
+                          <span className="text-stone-400 ml-1">({pos})</span>
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </Link>
             ))}
