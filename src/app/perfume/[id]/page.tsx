@@ -40,6 +40,28 @@ export default function PerfumeDetail() {
     return lower;
   };
 
+  // Advanced Scent Families
+  const SCENT_FAMILIES: Record<string, string[]> = {
+    citrus: ['lemon', 'bergamot', 'orange', 'grapefruit', 'mandarin', 'lime', 'yuzu'],
+    floral: ['rose', 'jasmine', 'lily', 'orchid', 'peony', 'lavender', 'tuberose'],
+    woody: ['sandalwood', 'cedar', 'oak', 'patchouli', 'vetiver', 'oud', 'guaiac', 'pine'],
+    spicy: ['pepper', 'cinnamon', 'clove', 'nutmeg', 'cardamom', 'ginger', 'saffron'],
+    gourmand: ['vanilla', 'chocolate', 'caramel', 'coffee', 'honey', 'tonka', 'praline'],
+    fresh: ['mint', 'green', 'aquatic', 'ozonic', 'marine', 'herbal', 'tea', 'sage'],
+    oriental: ['amber', 'resin', 'incense', 'myrrh', 'labdanum', 'benzoin'],
+    leather: ['leather', 'suede', 'tobacco', 'smoke', 'birch']
+  };
+
+  const getDominantFamily = (notes: string[]) => {
+    const scores: Record<string, number> = {};
+    notes.forEach(note => {
+      for (const [family, keywords] of Object.entries(SCENT_FAMILIES)) {
+        if (keywords.some(k => note.includes(k))) scores[family] = (scores[family] || 0) + 1;
+      }
+    });
+    return Object.entries(scores).sort(([,a], [,b]) => b - a)[0]?.[0] || null;
+  };
+
   // Simple scent family categorization
   const categorizeScentFamily = (notes: string[], vibes: string[]): string | null => {
     // Simple implementation - can be expanded later
@@ -73,26 +95,79 @@ export default function PerfumeDetail() {
     return profile;
   };
 
-  // --- 2. SMART MATCHING LOGIC (For "You Might Also Like") ---
+  // --- 2. SMART MATCHING LOGIC (Weighted by Volatility) ---
   const getMatchDetails = (current: any, candidate: any) => {
     let score = 10;
-    const sharedTags: string[] = [];
+    const reasons: string[] = [];
 
+    // 1. VIBE MATCHING (+20 per tag)
     if (current.vibe_tags && candidate.vibe_tags) {
-      current.vibe_tags.forEach((tag: string) => {
-        if (candidate.vibe_tags.includes(tag)) {
-          score += 20;
-          sharedTags.push(tag);
+      const sharedVibes = current.vibe_tags.filter((t: string) => candidate.vibe_tags.includes(t));
+      score += (sharedVibes.length * 20);
+      if (sharedVibes.length > 0) reasons.push("Vibe");
+    }
+
+    // 2. NOTE MATCHING (Weighted by Volatility)
+    // Map current notes for O(1) lookup: { 'bergamot': 'Top', 'oud': 'Base' }
+    const currentNoteMap = new Map();
+    current.perfume_notes?.forEach((pn: any) => {
+      if (pn.note?.name) currentNoteMap.set(pn.note.name.toLowerCase(), pn.type);
+    });
+
+    let sharedBaseNotes = 0;
+    let sharedHeartNotes = 0;
+
+    if (candidate.perfume_notes) {
+      candidate.perfume_notes.forEach((pn: any) => {
+        const name = pn.note?.name?.toLowerCase();
+        const type = pn.type; // Candidate's note position
+        
+        if (currentNoteMap.has(name)) {
+          const originalType = currentNoteMap.get(name);
+          
+          // SCORING:
+          // Base Notes (The Soul): +25 points
+          // Heart Notes (The Character): +15 points
+          // Top Notes (The Opening): +5 points
+          
+          // We prioritize matching Base notes because they last the longest
+          if (type === 'Base' || originalType === 'Base') {
+            score += 25;
+            sharedBaseNotes++;
+          } else if (type === 'Heart' || originalType === 'Heart') {
+            score += 15;
+            sharedHeartNotes++;
+          } else {
+            score += 5;
+          }
         }
       });
     }
-    if (current.best_season?.some((s: string) => candidate.best_season?.includes(s))) score += 10;
-    if (current.price_tier === candidate.price_tier) score += 5;
-    if (current.brand?.name === candidate.brand?.name) score += 10;
+
+    // 3. FAMILY SYNERGY (+15)
+    // Check if they share the same dominant family (e.g. both are primarily Woody)
+    const currentNotesList = current.perfume_notes?.map((n:any) => n.note?.name?.toLowerCase()) || [];
+    const candidateNotesList = candidate.perfume_notes?.map((n:any) => n.note?.name?.toLowerCase()) || [];
+    const currentFam = getDominantFamily(currentNotesList);
+    const candidateFam = getDominantFamily(candidateNotesList);
+    
+    if (currentFam && candidateFam && currentFam === candidateFam) {
+      score += 15;
+    }
+
+    // 4. BOOSTERS
+    if (current.best_season?.some((s: string) => candidate.best_season?.includes(s))) score += 5;
+    if (current.brand?.name === candidate.brand?.name) score += 5;
+
+    // Reason Generation
+    let reasonText = 'Similar vibe';
+    if (sharedBaseNotes >= 2) reasonText = 'Similar dry-down DNA';
+    else if (sharedHeartNotes >= 2) reasonText = 'Similar heart profile';
+    else if (currentFam && currentFam === candidateFam) reasonText = `Matches ${currentFam} style`;
 
     return {
-      score: Math.min(score, 98),
-      reason: sharedTags.length > 0 ? `Shares ${sharedTags.slice(0, 2).join(' & ')}` : 'Similar Vibe Profile'
+      score: Math.min(score, 99),
+      reason: reasonText
     };
   };
 
