@@ -5,10 +5,18 @@ import { createClient } from '@/lib/supabase';
 import NotePicker from '@/components/NotePicker';
 import Link from 'next/link';
 
+interface SearchResult {
+  id: string;
+  name: string;
+  image_url: string;
+  brand_name: string;
+  matched_notes: Record<string, string>;
+}
+
 export default function AdvancedSearch() {
   const [included, setIncluded] = useState<string[]>([]);
   const [excluded, setExcluded] = useState<string[]>([]);
-  const [results, setResults] = useState<any[]>([]);
+  const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
 
@@ -43,18 +51,12 @@ export default function AdvancedSearch() {
   const handleClientSideSearch = async () => {
     const supabase = createClient();
     
-    // Fetch all perfumes with their notes for client-side filtering
     const { data: perfumes, error } = await supabase
       .from('perfumes')
       .select(`
-        id,
-        name,
-        image_url,
+        id, name, image_url,
         brand:brands!perfumes_brand_id_fkey(name),
-        perfume_notes(
-          type,
-          note:notes(name)
-        )
+        perfume_notes(type, note:notes(name))
       `);
 
     if (error) {
@@ -63,41 +65,57 @@ export default function AdvancedSearch() {
       return;
     }
 
-    // Client-side filtering logic
-    const filteredPerfumes = perfumes.filter(perfume => {
-      const perfumeNoteNames = perfume.perfume_notes?.map((pn: any) => pn.note?.name?.toLowerCase()) || [];
-      
-      // Check if all included notes are present
-      const hasAllIncluded = included.length === 0 || included.every(note =>
-        perfumeNoteNames.includes(note.toLowerCase())
-      );
-      
-      // Check if no excluded notes are present
-      const hasNoExcluded = excluded.length === 0 || excluded.every(note =>
-        !perfumeNoteNames.includes(note.toLowerCase())
-      );
+    const processedResults = perfumes
+      .map((perfume: any) => {
+        // Flatten notes for easier checking
+        const notesList = perfume.perfume_notes?.map((pn: any) => ({
+          name: pn.note?.name?.toLowerCase(),
+          originalName: pn.note?.name,
+          type: pn.type || 'Note'
+        })) || [];
 
-      return hasAllIncluded && hasNoExcluded;
-    });
+        const noteNames = notesList.map((n: any) => n.name);
 
-    setResults(filteredPerfumes.map(p => {
-      // Handle different brand data structures
-      let brandName = 'Unknown Brand';
-      if (Array.isArray(p.brand) && p.brand.length > 0) {
-        const firstBrand = p.brand[0] as any;
-        brandName = firstBrand?.name || 'Unknown Brand';
-      } else if (p.brand && typeof p.brand === 'object') {
-        const brandObj = p.brand as any;
-        brandName = brandObj?.name || 'Unknown Brand';
-      }
-      
-      return {
-        id: p.id,
-        name: p.name,
-        image_url: p.image_url,
-        brand_name: brandName
-      };
-    }));
+        // 1. Check Included
+        const hasAllIncluded = included.length === 0 || included.every(req =>
+          noteNames.includes(req.toLowerCase())
+        );
+
+        // 2. Check Excluded
+        const hasNoExcluded = excluded.length === 0 || excluded.every(req =>
+          !noteNames.includes(req.toLowerCase())
+        );
+
+        if (!hasAllIncluded || !hasNoExcluded) return null;
+
+        // 3. Find positions of matched ingredients
+        const matchedPositions: Record<string, string> = {};
+        if (included.length > 0) {
+           notesList.forEach((n: any) => {
+             if (included.some(inc => inc.toLowerCase() === n.name)) {
+               matchedPositions[n.originalName] = n.type;
+             }
+           });
+        }
+
+        let brandName = 'Unknown Brand';
+        if (Array.isArray(perfume.brand) && perfume.brand.length > 0) {
+          brandName = perfume.brand[0].name;
+        } else if (perfume.brand && typeof perfume.brand === 'object') {
+          brandName = perfume.brand.name;
+        }
+
+        return {
+          id: perfume.id,
+          name: perfume.name,
+          image_url: perfume.image_url,
+          brand_name: brandName,
+          matched_notes: matchedPositions
+        };
+      })
+      .filter((item) => item !== null) as SearchResult[];
+
+    setResults(processedResults);
   };
 
   return (
@@ -158,10 +176,10 @@ export default function AdvancedSearch() {
                   {/* Show Matched Notes & Positions */}
                   {p.matched_notes && Object.keys(p.matched_notes).length > 0 && (
                     <div className="flex flex-wrap gap-1 justify-center mt-3">
-                      {Object.entries(p.matched_notes).map(([note, pos]) => (
+                      {Object.entries(p.matched_notes || {}).map(([note, pos]) => (
                         <span key={note} className="text-[10px] bg-stone-50 border border-stone-100 px-2 py-1 rounded-md text-stone-500">
                           <span className="font-bold text-stone-700">{note}</span>
-                          <span className="text-stone-400 ml-1">({pos})</span>
+                          <span className="text-stone-400 ml-1">({String(pos)})</span>
                         </span>
                       ))}
                     </div>

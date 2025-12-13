@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createClient } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/client';
 import PerfumePicker from '@/components/PerfumePicker';
 import MixPyramid from '@/components/MixPyramid';
 import ScentRadar from '@/components/ScentRadar';

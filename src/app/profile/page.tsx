@@ -101,7 +101,15 @@ export default function ProfilePage() {
     setSaving(false);
   };
 
-  if (loading || !user) return null;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#FDFBF7]">
+        <div className="text-stone-400 text-xs font-bold uppercase tracking-widest animate-pulse">Loading Profile...</div>
+      </div>
+    );
+  }
+
+  if (!user) return null; // Will redirect via useEffect
 
   return (
     <div className="min-h-screen bg-background text-primary pb-24 font-sans">
