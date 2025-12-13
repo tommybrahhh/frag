@@ -3,7 +3,7 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/client';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import CommentsSection from '@/components/CommentsSection';
@@ -264,8 +264,14 @@ export default function PerfumeDetail() {
           `)
           .neq('id', id);
 
-        // Fetch batch
-        const { data: allPerfumes, error: allPerfumesError } = await query.limit(200);
+        // OPTIMIZATION: Filter by shared vibes directly in DB to get RELEVANT candidates
+        // This ensures the 100 limit contains actually useful items
+        if (mainPerfume.vibe_tags && mainPerfume.vibe_tags.length > 0) {
+           query = query.overlaps('vibe_tags', mainPerfume.vibe_tags);
+        }
+
+        // Fetch batch (increased limit slightly for better variety after filter)
+        const { data: allPerfumes, error: allPerfumesError } = await query.limit(100);
 
         if (allPerfumesError) {
           console.error('Error fetching candidate perfumes:', allPerfumesError);
