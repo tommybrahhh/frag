@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useEffect, useState, useMemo } from 'react';
@@ -8,6 +7,63 @@ import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import CommentsSection from '@/components/CommentsSection';
 import ScentRadar from '@/components/ScentRadar';
+
+// --- GLOBAL CONSTANTS & HELPERS (Defined outside component) ---
+
+// Advanced Scent Families
+const SCENT_FAMILIES: Record<string, string[]> = {
+  citrus: ['lemon', 'bergamot', 'orange', 'grapefruit', 'mandarin', 'lime', 'yuzu'],
+  floral: ['rose', 'jasmine', 'lily', 'orchid', 'peony', 'lavender', 'tuberose'],
+  woody: ['sandalwood', 'cedar', 'oak', 'patchouli', 'vetiver', 'oud', 'guaiac', 'pine'],
+  spicy: ['pepper', 'cinnamon', 'clove', 'nutmeg', 'cardamom', 'ginger', 'saffron'],
+  gourmand: ['vanilla', 'chocolate', 'caramel', 'coffee', 'honey', 'tonka', 'praline'],
+  fresh: ['mint', 'green', 'aquatic', 'ozonic', 'marine', 'herbal', 'tea', 'sage'],
+  oriental: ['amber', 'resin', 'incense', 'myrrh', 'labdanum', 'benzoin'],
+  leather: ['leather', 'suede', 'tobacco', 'smoke', 'birch']
+};
+
+// Helper: Get dominant family from a list of notes
+const getDominantFamily = (notes: string[]) => {
+  const scores: Record<string, number> = {};
+  notes.forEach(note => {
+    for (const [family, keywords] of Object.entries(SCENT_FAMILIES)) {
+      if (keywords.some(k => note.includes(k))) scores[family] = (scores[family] || 0) + 1;
+    }
+  });
+  return Object.entries(scores).sort(([,a], [,b]) => b - a)[0]?.[0] || null;
+};
+
+// Helper: Categorize single scent family
+const categorizeScentFamily = (notes: string[], vibes: string[]): string | null => {
+  if (notes.includes('oud') || vibes.includes('oriental')) return 'oriental';
+  if (notes.includes('rose') || notes.includes('jasmine') || vibes.includes('floral')) return 'floral';
+  if (notes.some(n => ['citrus', 'bergamot', 'lemon'].includes(n)) || vibes.includes('fresh')) return 'fresh';
+  if (notes.some(n => ['vanilla', 'amber'].includes(n)) || vibes.includes('gourmand')) return 'gourmand';
+  if (notes.some(n => ['cedar', 'sandalwood', 'oakmoss'].includes(n)) || vibes.includes('woody')) return 'woody';
+  return null;
+};
+
+// Helper: Generate Profile if Missing
+const generateProfileFromVibes = (vibes: string[]) => {
+  const profile = { fresh: 3, sweet: 3, spicy: 3, woody: 3, floral: 3 };
+  if (!vibes || vibes.length === 0) return profile;
+
+  const lowerVibes = vibes.map(v => v.toLowerCase());
+
+  if (lowerVibes.some(v => v.includes('citrus') || v.includes('fresh') || v.includes('aquatic') || v.includes('blue'))) profile.fresh += 6;
+  if (lowerVibes.some(v => v.includes('gourmand') || v.includes('vanilla') || v.includes('sweet') || v.includes('fruity'))) profile.sweet += 6;
+  if (lowerVibes.some(v => v.includes('spicy') || v.includes('warm') || v.includes('oriental') || v.includes('amber'))) profile.spicy += 6;
+  if (lowerVibes.some(v => v.includes('woody') || v.includes('earthy') || v.includes('mossy') || v.includes('leather'))) profile.woody += 6;
+  if (lowerVibes.some(v => v.includes('floral') || v.includes('rose') || v.includes('white flower'))) profile.floral += 6;
+
+  // Cap at 10
+  Object.keys(profile).forEach(k => {
+    // @ts-ignore
+    if (profile[k] > 10) profile[k] = 10;
+  });
+
+  return profile;
+};
 
 export default function PerfumeDetail() {
   const params = useParams();
@@ -19,83 +75,9 @@ export default function PerfumeDetail() {
   const [inCollection, setInCollection] = useState(false);
   const { user } = useAuth();
   
-  // Memoize Supabase client
   const supabase = useMemo(() => createClient(), []);
 
-  // --- 1. HELPER: Normalize Note Names (Fuzzy Matcher) ---
-  // Turns "Calabrian Bergamot" -> "bergamot"
-  const normalizeNote = (name: string) => {
-    const lower = name.toLowerCase().trim();
-    if (lower.includes('bergamot')) return 'bergamot';
-    if (lower.includes('vanilla')) return 'vanilla';
-    if (lower.includes('oud') || lower.includes('agarwood')) return 'oud';
-    if (lower.includes('rose')) return 'rose';
-    if (lower.includes('lemon')) return 'lemon';
-    if (lower.includes('mandarin')) return 'mandarin';
-    if (lower.includes('cedar')) return 'cedar';
-    if (lower.includes('sandalwood')) return 'sandalwood';
-    if (lower.includes('musk')) return 'musk';
-    if (lower.includes('pepper')) return 'pepper';
-    if (lower.includes('lavender')) return 'lavender';
-    return lower;
-  };
-
-  // Advanced Scent Families
-  const SCENT_FAMILIES: Record<string, string[]> = {
-    citrus: ['lemon', 'bergamot', 'orange', 'grapefruit', 'mandarin', 'lime', 'yuzu'],
-    floral: ['rose', 'jasmine', 'lily', 'orchid', 'peony', 'lavender', 'tuberose'],
-    woody: ['sandalwood', 'cedar', 'oak', 'patchouli', 'vetiver', 'oud', 'guaiac', 'pine'],
-    spicy: ['pepper', 'cinnamon', 'clove', 'nutmeg', 'cardamom', 'ginger', 'saffron'],
-    gourmand: ['vanilla', 'chocolate', 'caramel', 'coffee', 'honey', 'tonka', 'praline'],
-    fresh: ['mint', 'green', 'aquatic', 'ozonic', 'marine', 'herbal', 'tea', 'sage'],
-    oriental: ['amber', 'resin', 'incense', 'myrrh', 'labdanum', 'benzoin'],
-    leather: ['leather', 'suede', 'tobacco', 'smoke', 'birch']
-  };
-
-  const getDominantFamily = (notes: string[]) => {
-    const scores: Record<string, number> = {};
-    notes.forEach(note => {
-      for (const [family, keywords] of Object.entries(SCENT_FAMILIES)) {
-        if (keywords.some(k => note.includes(k))) scores[family] = (scores[family] || 0) + 1;
-      }
-    });
-    return Object.entries(scores).sort(([,a], [,b]) => b - a)[0]?.[0] || null;
-  };
-
-  // Simple scent family categorization
-  const categorizeScentFamily = (notes: string[], vibes: string[]): string | null => {
-    // Simple implementation - can be expanded later
-    if (notes.includes('oud') || vibes.includes('oriental')) return 'oriental';
-    if (notes.includes('rose') || notes.includes('jasmine') || vibes.includes('floral')) return 'floral';
-    if (notes.includes('citrus') || notes.includes('bergamot') || notes.includes('lemon') || vibes.includes('fresh')) return 'fresh';
-    if (notes.includes('vanilla') || notes.includes('amber') || vibes.includes('gourmand')) return 'gourmand';
-    if (notes.includes('cedar') || notes.includes('sandalwood') || notes.includes('oakmoss') || vibes.includes('woody')) return 'woody';
-    return null;
-  };
-
-  // --- HELPER: Generate Profile if Missing ---
-  const generateProfileFromVibes = (vibes: string[]) => {
-    const profile = { fresh: 3, sweet: 3, spicy: 3, woody: 3, floral: 3 };
-    if (!vibes || vibes.length === 0) return profile; // Return default balanced
-
-    const lowerVibes = vibes.map(v => v.toLowerCase());
-
-    if (lowerVibes.some(v => v.includes('citrus') || v.includes('fresh') || v.includes('aquatic') || v.includes('blue'))) profile.fresh += 6;
-    if (lowerVibes.some(v => v.includes('gourmand') || v.includes('vanilla') || v.includes('sweet') || v.includes('fruity'))) profile.sweet += 6;
-    if (lowerVibes.some(v => v.includes('spicy') || v.includes('warm') || v.includes('oriental') || v.includes('amber'))) profile.spicy += 6;
-    if (lowerVibes.some(v => v.includes('woody') || v.includes('earthy') || v.includes('mossy') || v.includes('leather'))) profile.woody += 6;
-    if (lowerVibes.some(v => v.includes('floral') || v.includes('rose') || v.includes('white flower'))) profile.floral += 6;
-
-    // Cap at 10
-    Object.keys(profile).forEach(k => {
-      // @ts-ignore
-      if (profile[k] > 10) profile[k] = 10;
-    });
-
-    return profile;
-  };
-
-  // --- 2. SMART MATCHING LOGIC (Weighted by Volatility) ---
+  // --- SMART MATCHING LOGIC (Weighted by Volatility) ---
   const getMatchDetails = (current: any, candidate: any) => {
     let score = 10;
     const reasons: string[] = [];
@@ -108,7 +90,6 @@ export default function PerfumeDetail() {
     }
 
     // 2. NOTE MATCHING (Weighted by Volatility)
-    // Map current notes for O(1) lookup: { 'bergamot': 'Top', 'oud': 'Base' }
     const currentNoteMap = new Map();
     current.perfume_notes?.forEach((pn: any) => {
       if (pn.note?.name) currentNoteMap.set(pn.note.name.toLowerCase(), pn.type);
@@ -120,17 +101,11 @@ export default function PerfumeDetail() {
     if (candidate.perfume_notes) {
       candidate.perfume_notes.forEach((pn: any) => {
         const name = pn.note?.name?.toLowerCase();
-        const type = pn.type; // Candidate's note position
+        const type = pn.type; // This now works because we fetch 'type'
         
         if (currentNoteMap.has(name)) {
           const originalType = currentNoteMap.get(name);
           
-          // SCORING:
-          // Base Notes (The Soul): +25 points
-          // Heart Notes (The Character): +15 points
-          // Top Notes (The Opening): +5 points
-          
-          // We prioritize matching Base notes because they last the longest
           if (type === 'Base' || originalType === 'Base') {
             score += 25;
             sharedBaseNotes++;
@@ -145,7 +120,6 @@ export default function PerfumeDetail() {
     }
 
     // 3. FAMILY SYNERGY (+15)
-    // Check if they share the same dominant family (e.g. both are primarily Woody)
     const currentNotesList = current.perfume_notes?.map((n:any) => n.note?.name?.toLowerCase()) || [];
     const candidateNotesList = candidate.perfume_notes?.map((n:any) => n.note?.name?.toLowerCase()) || [];
     const currentFam = getDominantFamily(currentNotesList);
@@ -171,11 +145,10 @@ export default function PerfumeDetail() {
     };
   };
 
-  // CLIENT-SIDE DUPE DETECTION (Prioritize Scent Family + 70% Olfactory Match)
+  // CLIENT-SIDE DUPE DETECTION
   const findClientSideDupes = (mainPerfume: any, allPerfumes: any[]) => {
     if (!mainPerfume || !allPerfumes) return [];
 
-    // Normalize main notes for comparison
     const mainNotesRaw = mainPerfume.perfume_notes?.map((n: any) => n.note?.name) || [];
     const mainNotesLower = mainNotesRaw
       .filter((n: string) => n != null && n.trim() !== '')
@@ -194,18 +167,15 @@ export default function PerfumeDetail() {
         const candidateVibes = perfume.vibe_tags || [];
         const candidateFamily = categorizeScentFamily(candidateNotesLower, candidateVibes);
 
-        // 1. PRIORITIZE SCENT FAMILY: Must share the same scent family
         if (!mainFamily || !candidateFamily || mainFamily !== candidateFamily) return false;
 
-        // 2. 70% OLFACTORY COMPOSITION MATCH: Calculate percentage match
         const totalMainNotes = mainNotesLower.length;
         if (totalMainNotes === 0) return false;
         
         const sharedCount = candidateNotesLower.filter((n: string) => mainNotesLower.includes(n)).length;
         const matchPercentage = (sharedCount / totalMainNotes) * 100;
         
-        if (matchPercentage < 70) return false; // Strict 70% minimum
-
+        if (matchPercentage < 70) return false;
         return true;
       })
       .map((perfume: any) => {
@@ -214,12 +184,10 @@ export default function PerfumeDetail() {
            .filter((n: string) => n != null && n.trim() !== '')
            .map((n: string) => n.toLowerCase());
          
-         // Calculate match percentage for scoring
          const totalMainNotes = mainNotesLower.length;
          const sharedCount = candidateNotesLower.filter((n: string) => mainNotesLower.includes(n)).length;
          const matchPercentage = (sharedCount / totalMainNotes) * 100;
          
-         // FIX: Use Set to remove duplicates (e.g. Patchouli appearing twice)
          const actualSharedNotes = Array.from(new Set(
            candidateNotesRaw
              .filter((n: string) => n != null && n.trim() !== '')
@@ -227,10 +195,7 @@ export default function PerfumeDetail() {
          ));
          
          const sharedVibesCount = perfume.vibe_tags?.filter((t:string) => mainVibes.includes(t)).length || 0;
-         
-         // NEW SCORING: Prioritize higher percentage matches
          const score = Math.min(98, Math.round(matchPercentage * 0.8) + (sharedVibesCount * 5));
-
          const isCheaper = perfume.price_tier && mainPerfume.price_tier &&
                            perfume.price_tier.length < mainPerfume.price_tier.length;
 
@@ -250,27 +215,22 @@ export default function PerfumeDetail() {
       .slice(0, 3);
   };
 
-  // Check if already in collection
   useEffect(() => {
     const checkCollection = async () => {
       if (!user || !perfume) return;
-      
       const { data } = await supabase
         .from('user_collections')
         .select('id')
         .eq('user_id', user.id)
         .eq('perfume_id', perfume.id)
         .maybeSingle();
-      
       if (data) setInCollection(true);
     };
     checkCollection();
   }, [user, perfume, supabase]);
 
-  // Toggle Function
   const toggleCollection = async () => {
     if (!user) return router.push('/login');
-    
     if (inCollection) {
       await supabase.from('user_collections').delete().eq('user_id', user.id).eq('perfume_id', perfume.id);
       setInCollection(false);
@@ -287,8 +247,6 @@ export default function PerfumeDetail() {
       return;
     }
 
-    console.log('Fetching perfume details and recommendations', { id, user });
-    
     const fetchData = async () => {
       // 1. Fetch Main Perfume
       const { data: mainPerfume, error } = await supabase
@@ -313,20 +271,16 @@ export default function PerfumeDetail() {
         return;
       }
       
-      // If scent_profile is missing, calculate it on the fly
       if (mainPerfume && !mainPerfume.scent_profile) {
         mainPerfume.scent_profile = generateProfileFromVibes(mainPerfume.vibe_tags || []);
       }
       
-      // IMMEDIATE UI UPDATE: Show the perfume page NOW
       setPerfume(mainPerfume);
       setLoading(false);
 
       if (!mainPerfume) return;
 
-      // ---------------------------------------------------------
-      // 2. BACKGROUND: Fetch CANDIDATES for "You Might Also Like"
-      // ---------------------------------------------------------
+      // 2. Fetch Candidates
       try {
         let query = supabase
           .from('perfumes')
@@ -334,18 +288,16 @@ export default function PerfumeDetail() {
             id, name, image_url, price_tier, best_season, vibe_tags, gender,
             brand:brands!perfumes_brand_id_fkey(name),
             perfume_notes(
+              type,
               note:notes(name)
             )
-          `)
+          `) // ^^^ WE ADDED 'type' HERE
           .neq('id', id);
 
-        // OPTIMIZATION: Filter by shared vibes directly in DB to get RELEVANT candidates
-        // This ensures the 100 limit contains actually useful items
         if (mainPerfume.vibe_tags && mainPerfume.vibe_tags.length > 0) {
            query = query.overlaps('vibe_tags', mainPerfume.vibe_tags);
         }
 
-        // Fetch batch (increased limit slightly for better variety after filter)
         const { data: allPerfumes, error: allPerfumesError } = await query.limit(100);
 
         if (allPerfumesError) {
@@ -353,10 +305,10 @@ export default function PerfumeDetail() {
           return;
         }
 
-        // 3. Run Matching Logic (Heavy Calculation)
+        // 3. Run Matching Logic
         if (allPerfumes) {
-          // A. Recommendations (Vibes)
           const mainNotesLower = mainPerfume.perfume_notes?.map((n: any) => n.note?.name?.toLowerCase()) || [];
+          
           const recs = allPerfumes
             .filter((p: any) => p.vibe_tags?.some((t: string) => mainPerfume.vibe_tags.includes(t)))
             .map((p: any) => {
@@ -367,15 +319,17 @@ export default function PerfumeDetail() {
               
               return { ...p, sharedNotes };
             })
+            // Updated Sorting with Weighting and Diversity Cap
             .sort((a: any, b: any) => getMatchDetails(mainPerfume, b).score - getMatchDetails(mainPerfume, a).score)
+            .filter((p: any, index: number, self: any[]) => {
+               const brandCount = self.slice(0, index).filter(prev => prev.brand?.name === p.brand?.name).length;
+               return brandCount < 2; // Max 2 per brand
+            })
             .slice(0, 9);
           
-          console.log('Generated recommendations:', { count: recs.length, first: recs[0] });
           setRelatedPerfumes(recs);
-
-          // B. Dupes (DNA)
+          
           const smartDupes = findClientSideDupes(mainPerfume, allPerfumes);
-          console.log('Generated dupes:', { count: smartDupes.length, first: smartDupes[0] });
           setDupes(smartDupes);
         }
       } catch (err) {
@@ -386,7 +340,6 @@ export default function PerfumeDetail() {
     fetchData();
   }, [params?.id, supabase]);
 
-  // Force scroll to top when entering a new perfume page
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [params?.id]);
@@ -405,7 +358,6 @@ export default function PerfumeDetail() {
 
       {/* HERO SECTION */}
       <div className="max-w-6xl mx-auto px-6 grid lg:grid-cols-2 gap-16 mt-10 mb-16">
-        {/* Image */}
         <div className="h-[500px] flex items-center justify-center relative p-0">
           {perfume.image_url ? (
             <img src={perfume.image_url} alt={perfume.name} className="h-full w-full object-contain mix-blend-multiply drop-shadow-xl" />
@@ -417,7 +369,6 @@ export default function PerfumeDetail() {
           </div>
         </div>
 
-        {/* Info */}
         <div className="flex flex-col justify-center">
           <div className="mb-6">
             <div className="flex items-center gap-3 mb-3 justify-between">
@@ -429,7 +380,6 @@ export default function PerfumeDetail() {
               </Link>
               
               <div className="flex gap-2">
-                {/* NEW: Add to Shelf Button */}
                 <button
                   onClick={toggleCollection}
                   className={`text-[10px] uppercase px-4 py-2 rounded-full transition border ${
@@ -470,7 +420,6 @@ export default function PerfumeDetail() {
             </div>
           )}
 
-          {/* Vibe Tags */}
           <div className="flex flex-wrap gap-2 mt-4">
             {Array.isArray(perfume.vibe_tags) && perfume.vibe_tags.map((tag: string) => (
               <span key={tag} className="px-3 py-1 border border-stone-200 text-[10px] uppercase tracking-wide rounded-full text-stone-600">
@@ -479,7 +428,6 @@ export default function PerfumeDetail() {
             ))}
           </div>
 
-          {/* Gender */}
           {perfume.gender && (
             <div className="mt-6">
               <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-2">Gender</h4>
@@ -492,12 +440,9 @@ export default function PerfumeDetail() {
       </div>
 
       {/* TECH DECK (Season, Stats, Notes) */}
-      <React.Fragment>
-      <React.Fragment>
       <div className="max-w-6xl mx-auto px-6 mb-20">
         <div className="bg-stone-50 rounded-3xl p-10 grid lg:grid-cols-12 gap-12 border border-stone-100">
           
-          {/* Left: Stats */}
           <div className="lg:col-span-4 space-y-10 border-b lg:border-b-0 lg:border-r border-stone-200 pb-10 lg:pb-0 lg:pr-10">
             <div>
               <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-4">Best Season</h4>
@@ -529,11 +474,9 @@ export default function PerfumeDetail() {
               <p className="text-[10px] text-right text-stone-500 mt-1">{perfume.sillage_rating}/5</p>
             </div>
 
-            {/* NEW: Olfactory DNA Radar */}
             <div className="pt-8 border-t border-stone-200 mt-8">
               <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-4">Olfactory Profile</h4>
               <div className="bg-white rounded-2xl border border-stone-200 p-2 shadow-sm">
-                {/* Fallback to default if profile is missing to prevent crash */}
                 <ScentRadar
                   profile={
                     (perfume.scent_profile && Object.keys(perfume.scent_profile).length > 0)
@@ -545,7 +488,6 @@ export default function PerfumeDetail() {
             </div>
           </div>
 
-          {/* Right: Notes */}
           <div className="lg:col-span-8 pl-2">
             <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-6">Olfactory Composition</h4>
             <div className="space-y-8">
@@ -571,10 +513,8 @@ export default function PerfumeDetail() {
 
         </div>
       </div>
-     </React.Fragment>
-     </React.Fragment>
 
-      {/* SMART ALTERNATIVES (Strict DNA Match) */}
+      {/* SMART ALTERNATIVES */}
       {dupes.length > 0 && (
         <div className="max-w-6xl mx-auto px-6 mt-20 mb-20">
           <div className="flex items-baseline justify-between mb-8 border-b border-stone-200 pb-4">
@@ -630,7 +570,7 @@ export default function PerfumeDetail() {
         </div>
       )}
 
-      {/* YOU MIGHT ALSO LIKE (Vibes) */}
+      {/* YOU MIGHT ALSO LIKE */}
       {relatedPerfumes.length > 0 && (
         <div className="max-w-6xl mx-auto px-6 mt-24">
           <h3 className="font-serif text-2xl text-stone-900 mb-8 border-b border-stone-200 pb-4">You Might Also Like</h3>
@@ -669,9 +609,7 @@ export default function PerfumeDetail() {
         </div>
       )}
 
-      {/* COMMENTS SECTION */}
       <CommentsSection perfumeId={perfume.id} />
     </div>
   );
 }
-           
