@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import Link from 'next/link';
@@ -417,6 +417,8 @@ export default function PerfumeDetail() {
       </div>
 
       {/* TECH DECK (Season, Stats, Notes) */}
+      <React.Fragment>
+      <React.Fragment>
       <div className="max-w-6xl mx-auto px-6 mb-20">
         <div className="bg-stone-50 rounded-3xl p-10 grid lg:grid-cols-12 gap-12 border border-stone-100">
           
@@ -494,6 +496,8 @@ export default function PerfumeDetail() {
 
         </div>
       </div>
+     </React.Fragment>
+     </React.Fragment>
 
       {/* SMART ALTERNATIVES (Strict DNA Match) */}
       {dupes.length > 0 && (
@@ -552,7 +556,6 @@ export default function PerfumeDetail() {
       )}
 
       {/* YOU MIGHT ALSO LIKE (Vibes) */}
-      {console.log('Rendering recommendations section', { component: 'RecommendationsList', count: relatedPerfumes.length })}
       {relatedPerfumes.length > 0 && (
         <div className="max-w-6xl mx-auto px-6 mt-24">
           <h3 className="font-serif text-2xl text-stone-900 mb-8 border-b border-stone-200 pb-4">You Might Also Like</h3>
