@@ -9,21 +9,23 @@ export default function GlobalHeader() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-stone-200 bg-white/90 backdrop-blur-md">
-      <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between gap-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-4 sm:gap-6">
         {/* Left: Logo */}
         <Link href="/" className="flex-shrink-0">
-          <span className="font-serif text-xl text-stone-900 tracking-tight">
-            Perfume Intuition
-          </span>
+          <img
+            src="/window.svg"
+            alt="Home"
+            className="h-8 w-8"
+          />
         </Link>
 
         {/* Center: Search Bar */}
-        <div className="flex-1 max-w-2xl">
+        <div className="flex-1 max-w-2xl mx-2">
           <SearchBar />
         </div>
 
         {/* Right: Auth Links */}
-       <div className="flex-shrink-0 flex items-center gap-6">
+       <div className="flex-shrink-0 flex items-center gap-3 sm:gap-6 overflow-visible">
          {/* Common Links - Always Visible */}
          <Link
            href="/layering"
@@ -51,7 +53,7 @@ export default function GlobalHeader() {
              </Link>
              <button
                onClick={signOut}
-               className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-red-500 transition-colors"
+               className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-red-500 transition-colors px-3 py-1.5 rounded-lg bg-stone-50 hover:bg-stone-100"
              >
                Sign Out
              </button>

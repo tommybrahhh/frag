@@ -96,7 +96,7 @@ export default function LoginPage() {
         ← Return Home
       </Link>
 
-      <div className="w-full max-w-md bg-white p-8 rounded-3xl border border-stone-200 shadow-xl">
+      <div className="w-full max-w-md bg-white p-4 sm:p-8 rounded-3xl border border-stone-200 shadow-xl mx-4 sm:mx-0 overflow-x-hidden">
         <div className="text-center mb-8">
           <h1 className="font-serif text-3xl text-stone-900 mb-2">
             {isSignUp ? 'Join the Club' : 'Welcome Back'}
