@@ -2,10 +2,11 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
-import { createClient } from '@/lib/supabase';
+import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
 
 export default function WardrobeAnalytics({ collection }: { collection: any[] }) {
+  const { supabase } = useAuth();
   const [recommendations, setRecommendations] = useState<any[]>([]);
   const [recTitle, setRecTitle] = useState('');
   const [recReason, setRecReason] = useState('');
@@ -47,7 +48,7 @@ export default function WardrobeAnalytics({ collection }: { collection: any[] })
     if (collection.length < 1) return;
 
     const runAnalysis = async () => {
-      const supabase = createClient();
+      if (!supabase) return;
       const ownedIds = collection.map(c => c.perfume.id);
       
       // STRATEGY 1: Brand Loyalty (If own 3+ from one house)
