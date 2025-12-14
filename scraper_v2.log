@@ -3756,3 +3756,18 @@
 --- Processing 29/30: zino-davidoff ---
 2025-12-14 17:46:49,547 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/davidoff/zino-davidoff-590.html
 2025-12-14 17:46:49,547 - INFO - Throttling: Sleeping for 94.91 seconds
+2025-12-14 17:48:24,503 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/davidoff/zino-davidoff-590.html
+2025-12-14 17:48:25,439 - INFO - Status Code: 200
+2025-12-14 17:48:25,439 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-14 17:48:25,736 - INFO - Perfume Name: Zino Davidoff Davidoff
+2025-12-14 17:48:25,737 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.590.jpg
+2025-12-14 17:48:25,879 - INFO - 
+--- Processing 30/30: light-blue-eau-intense ---
+2025-12-14 17:48:25,880 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/dolce-gabbana/light-blue-eau-intense-44034.html
+2025-12-14 17:48:25,880 - INFO - Throttling: Sleeping for 37.82 seconds
+2025-12-14 17:49:03,723 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/dolce-gabbana/light-blue-eau-intense-44034.html
+2025-12-14 17:49:04,483 - INFO - Status Code: 200
+2025-12-14 17:49:04,484 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-14 17:49:04,744 - INFO - Perfume Name: Light Blue Eau Intense Dolce&Gabbana
+2025-12-14 17:49:04,744 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.44034.jpg
+2025-12-14 17:49:04,870 - ERROR - An error occurred: [Errno 13] Permission denied: 'output_perfumes_v2.csv'

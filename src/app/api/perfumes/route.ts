@@ -41,7 +41,8 @@ export async function GET(request: Request) {
         gender,
         concentration,  
         best_time,      
-        occasions,      
+        occasions,
+        olfactory_family,
         brand_id,
         brand:brands!perfumes_brand_id_fkey(name, tier) 
       `, { count: 'exact' });

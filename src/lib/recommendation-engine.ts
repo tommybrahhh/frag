@@ -170,13 +170,14 @@ export class RecommendationEngine {
       baseNoteComplementarity
     );
   }
+
   private static async getAllPerfumes() {
     const supabase = createClient();
     const { data: perfumes } = await supabase
       .from('perfumes')
       .select(`
         id, name, image_url, rating, vibe_tags, price_tier, best_season,
-        longevity_rating, sillage_rating, molecular_structure,
+        longevity_rating, sillage_rating, molecular_structure, olfactory_family,
         brand:brands!perfumes_brand_id_fkey(name),
         perfume_notes(type, note:notes(name, color_hex))
       `);
@@ -216,12 +217,18 @@ export class RecommendationEngine {
       }
     });
 
-    // Get dominant families with weighted scores
-    const dominantFamilies = Object.entries(familyScores)
-      .filter(([_, score]) => score >= 2)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 3)
-      .map(([family]) => family);
+    // Get dominant families: Prioritize explicit DB column, fallback to calculated scores
+    let dominantFamilies: string[] = [];
+    
+    if (perfume.olfactory_family && Array.isArray(perfume.olfactory_family) && perfume.olfactory_family.length > 0) {
+      dominantFamilies = perfume.olfactory_family;
+    } else {
+      dominantFamilies = Object.entries(familyScores)
+        .filter(([_, score]) => score >= 2)
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 3)
+        .map(([family]) => family);
+    }
 
     // Analyze olfactory composition
     const composition = {
@@ -291,11 +298,10 @@ export class RecommendationEngine {
         rawScore += sharedSeasons.length * 8;
 
         // Add molecular similarity score if structures are available
-        const molecularScore = mainPerfume.molecular_structure && candidate.molecular_structure ?
-          this.calculateMolecularSimilarity(mainPerfume.molecular_structure, candidate.molecular_structure) * 0.3 : 0;
+        const molecularScore = 0;
 
         // Composition similarity scoring
-        const compositionScore = this.calculateCompositionSimilarity(mainProfile.composition, candidateProfile.composition);
+        const compositionScore = 0;
         
         // Normalize score to 0-100 scale
         const normalizedScore = Math.min(100, Math.round(
@@ -369,10 +375,7 @@ export class RecommendationEngine {
         ];
         
         // Composition complementarity scoring
-        const compositionScore = this.calculateCompositionComplementarity(
-          mainProfile.composition,
-          candidateProfile.composition
-        );
+        const compositionScore = 0;
         
         let familyScore = 0;
         let combinationKey = '';
@@ -476,6 +479,7 @@ export class RecommendationEngine {
       .slice(0, count);
   }
 
+  // Price tier alternatives with scent similarity matching
   private static getPriceAlternatives(mainPerfume: any, allPerfumes: any[], count: number = 6): Recommendation[] {
     const mainProfile = this.analyzeScentProfile(mainPerfume);
     const mainPriceValue = mainPerfume.price_tier || 3; // Default to mid-range if not specified
@@ -558,6 +562,7 @@ export class RecommendationEngine {
 
 
 
+  // Same brand alternatives
   // Same brand alternatives
   private static getSameBrandRecommendations(mainPerfume: any, allPerfumes: any[], count: number = 4): Recommendation[] {
     const mainBrand = mainPerfume.brand?.name;

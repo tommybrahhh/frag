@@ -255,6 +255,7 @@ export default function PerfumeDetail() {
           perfumer, price_tier, best_season, gender,
           longevity_rating, sillage_rating,
           scenario, scent_profile,
+          olfactory_family,
           brand:brands!perfumes_brand_id_fkey(name),
           perfume_notes(
             type::text,
@@ -445,6 +446,19 @@ export default function PerfumeDetail() {
               </span>
             ))}
           </div>
+
+          {perfume.olfactory_family && perfume.olfactory_family.length > 0 && (
+            <div className="mt-6">
+              <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-2">Olfactory Family</h4>
+              <div className="flex flex-wrap gap-2">
+                {perfume.olfactory_family.map((fam: string) => (
+                  <span key={fam} className="px-3 py-1 bg-stone-800 text-white text-[10px] uppercase tracking-wide rounded-full border border-stone-800">
+                    {fam}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
 
           {perfume.gender && (
             <div className="mt-6">
