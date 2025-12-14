@@ -5,14 +5,13 @@ export async function middleware(request: NextRequest) {
   const response = await updateSession(request)
 
   // Add Content Security Policy headers
-  const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
   const csp = [
     "default-src 'self'",
-    `script-src 'self' 'unsafe-eval' 'nonce-${nonce}'`,
+    "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://vercel.live",
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: https://fimgs.net https://upload.wikimedia.org https://images.sephora.com",
+    "img-src 'self' data: https://fimgs.net https://upload.wikimedia.org https://images.sephora.com https://vercel.live",
     "font-src 'self'",
-    "connect-src 'self' https://fmtqqpnhnexwmgpeaidb.supabase.co",
+    "connect-src 'self' https://fmtqqpnhnexwmgpeaidb.supabase.co https://vercel.live",
     "frame-src 'none'",
     "object-src 'none'"
   ].join('; ')
