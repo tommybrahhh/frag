@@ -4073,3 +4073,28 @@
 --- Processing 33/35: fracas ---
 2025-12-14 18:37:17,054 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/robert-piguet/fracas-2299.html
 2025-12-14 18:37:17,055 - INFO - Throttling: Sleeping for 74.02 seconds
+2025-12-14 18:38:31,106 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/robert-piguet/fracas-2299.html
+2025-12-14 18:38:31,902 - INFO - Status Code: 200
+2025-12-14 18:38:31,903 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-14 18:38:32,325 - INFO - Perfume Name: Fracas Robert Piguet
+2025-12-14 18:38:32,326 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.2299.jpg
+2025-12-14 18:38:32,477 - INFO - Saved progress after 33 rows
+2025-12-14 18:38:32,477 - INFO - 
+--- Processing 34/35: gucci-by-gucci-eau-de-parfum ---
+2025-12-14 18:38:32,477 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/gucci/gucci-by-gucci-eau-de-parfum-1150.html
+2025-12-14 18:38:32,478 - INFO - Throttling: Sleeping for 97.12 seconds
+2025-12-14 18:40:09,630 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/gucci/gucci-by-gucci-eau-de-parfum-1150.html
+2025-12-14 18:40:10,450 - INFO - Status Code: 200
+2025-12-14 18:40:10,450 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-14 18:40:10,729 - INFO - Perfume Name: Gucci by Gucci Eau de Parfum Gucci
+2025-12-14 18:40:10,729 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.1150.jpg
+2025-12-14 18:40:10,915 - INFO - 
+--- Processing 35/35: megamare ---
+2025-12-14 18:40:10,916 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/orto-parisi/megamare-53471.html
+2025-12-14 18:40:10,916 - INFO - Throttling: Sleeping for 74.58 seconds
+2025-12-14 18:41:25,569 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/orto-parisi/megamare-53471.html
+2025-12-14 18:41:27,150 - INFO - Status Code: 200
+2025-12-14 18:41:27,151 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-14 18:41:28,031 - INFO - Perfume Name: Megamare Orto Parisi
+2025-12-14 18:41:28,032 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.53471.jpg
+2025-12-14 18:41:28,530 - INFO - Processing complete. Data saved to output_perfumes_v2.csv
