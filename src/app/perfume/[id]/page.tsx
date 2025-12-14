@@ -311,7 +311,7 @@ export default function PerfumeDetail() {
             .map((p: any) => {
               const candidateNotes = p.perfume_notes?.map((n: any) => n.note?.name?.toLowerCase()) || [];
               const sharedNotes = candidateNotes.filter((n: string) =>
-                mainNotesLower.some(mainNote => mainNote === n)
+                mainNotesLower.some((mainNote: string) => mainNote === n)
               ).slice(0, 3);
               
               return { ...p, sharedNotes };
