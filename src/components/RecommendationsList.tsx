@@ -32,11 +32,7 @@ export default function RecommendationsList({ vibeTags, bestSeason }: Recommenda
           id,
           name,
           image_url,
-          brand:brands(name),
-          reason,
-          shared_notes,
-          shared_vibes,
-          shared_families
+          brand:brands(name)
         `);
 
       if (vibeTags && vibeTags.length > 0) {
@@ -86,19 +82,8 @@ export default function RecommendationsList({ vibeTags, bestSeason }: Recommenda
               <div className="font-serif text-sm text-stone-900 truncate">{rec.name}</div>
             </div>
           </Link>
-          <div className="mt-2 text-xs text-stone-500">
-            <div className="font-medium mb-1">Why recommended:</div>
-            {rec.reason ? (
-              <div className="text-stone-600 leading-tight">{rec.reason}</div>
-            ) : (
-              <div className="text-stone-400 italic">Personalized match based on your preferences</div>
-            )}
-            {rec.sharedNotes && rec.sharedNotes.length > 0 && (
-              <div className="mt-1">
-                <span className="font-medium">Shared notes:</span>{' '}
-                {rec.sharedNotes.slice(0, 3).join(', ')}
-              </div>
-            )}
+          <div className="mt-2 text-xs text-stone-400 italic">
+            Personalized match based on your preferences
           </div>
         </div>
       ))}
