@@ -3663,3 +3663,96 @@
 --- Processing 19/30: valentino-uomo-intense ---
 2025-12-14 17:38:39,606 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/valentino/valentino-uomo-intense-38254.html
 2025-12-14 17:38:39,607 - INFO - Throttling: Sleeping for 33.34 seconds
+2025-12-14 17:39:12,990 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/valentino/valentino-uomo-intense-38254.html
+2025-12-14 17:39:13,732 - INFO - Status Code: 200
+2025-12-14 17:39:13,733 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-14 17:39:13,938 - INFO - Perfume Name: Valentino Uomo Intense  Valentino
+2025-12-14 17:39:13,938 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.38254.jpg
+2025-12-14 17:39:14,054 - INFO - 
+--- Processing 20/30: vanilla-vibes ---
+2025-12-14 17:39:14,055 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/juliette-has-a-gun/vanilla-vibes-54878.html
+2025-12-14 17:39:14,055 - INFO - Throttling: Sleeping for 40.88 seconds
+2025-12-14 17:39:54,961 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/juliette-has-a-gun/vanilla-vibes-54878.html
+2025-12-14 17:39:55,744 - INFO - Status Code: 200
+2025-12-14 17:39:55,744 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-14 17:39:56,252 - INFO - Perfume Name: Vanilla Vibes Juliette Has A Gun
+2025-12-14 17:39:56,252 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.54878.jpg
+2025-12-14 17:39:56,443 - INFO - 
+--- Processing 21/30: rochas-man ---
+2025-12-14 17:39:56,443 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/rochas/rochas-man-1426.html
+2025-12-14 17:39:56,443 - INFO - Throttling: Sleeping for 39.18 seconds
+2025-12-14 17:40:35,663 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/rochas/rochas-man-1426.html
+2025-12-14 17:40:36,537 - INFO - Status Code: 200
+2025-12-14 17:40:36,538 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-14 17:40:36,805 - INFO - Perfume Name: Rochas Man Rochas
+2025-12-14 17:40:36,806 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.1426.jpg
+2025-12-14 17:40:36,943 - INFO - Saved progress after 21 rows
+2025-12-14 17:40:36,943 - INFO - 
+--- Processing 22/30: another-13 ---
+2025-12-14 17:40:36,943 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/le-labo/another-13-10131.html
+2025-12-14 17:40:36,943 - INFO - Throttling: Sleeping for 40.76 seconds
+2025-12-14 17:41:17,734 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/le-labo/another-13-10131.html
+2025-12-14 17:41:18,542 - INFO - Status Code: 200
+2025-12-14 17:41:18,543 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-14 17:41:19,252 - INFO - Perfume Name: Another 13 Le Labo
+2025-12-14 17:41:19,252 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.10131.jpg
+2025-12-14 17:41:19,468 - INFO - 
+--- Processing 23/30: goddess ---
+2025-12-14 17:41:19,469 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/burberry/goddess-83483.html
+2025-12-14 17:41:19,469 - INFO - Throttling: Sleeping for 25.60 seconds
+2025-12-14 17:41:45,094 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/burberry/goddess-83483.html
+2025-12-14 17:41:45,896 - INFO - Status Code: 200
+2025-12-14 17:41:45,896 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-14 17:41:46,114 - INFO - Perfume Name: Goddess Burberry
+2025-12-14 17:41:46,114 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.83483.jpg
+2025-12-14 17:41:46,236 - INFO - 
+--- Processing 24/30: les-exclusifs-de-chanel-coromandel ---
+2025-12-14 17:41:46,237 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/chanel/les-exclusifs-de-chanel-coromandel-7145.html
+2025-12-14 17:41:46,237 - INFO - Throttling: Sleeping for 20.38 seconds
+2025-12-14 17:42:06,642 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/chanel/les-exclusifs-de-chanel-coromandel-7145.html
+2025-12-14 17:42:07,545 - INFO - Status Code: 200
+2025-12-14 17:42:07,545 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-14 17:42:07,788 - INFO - Perfume Name: Les Exclusifs de Chanel Coromandel Chanel
+2025-12-14 17:42:07,788 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.7145.jpg
+2025-12-14 17:42:07,915 - INFO - Saved progress after 24 rows
+2025-12-14 17:42:07,916 - INFO - 
+--- Processing 25/30: royal-oud ---
+2025-12-14 17:42:07,916 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/creed/royal-oud-12317.html
+2025-12-14 17:42:07,916 - INFO - Throttling: Sleeping for 34.34 seconds
+2025-12-14 17:42:42,289 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/creed/royal-oud-12317.html
+2025-12-14 17:42:43,120 - INFO - Status Code: 200
+2025-12-14 17:42:43,121 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-14 17:42:43,350 - INFO - Perfume Name: Royal Oud Creed
+2025-12-14 17:42:43,351 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.12317.jpg
+2025-12-14 17:42:43,466 - INFO - 
+--- Processing 26/30: marry-me ---
+2025-12-14 17:42:43,467 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/lanvin/marry-me-9405.html
+2025-12-14 17:42:43,467 - INFO - Throttling: Sleeping for 20.63 seconds
+2025-12-14 17:43:04,122 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/lanvin/marry-me-9405.html
+2025-12-14 17:43:04,626 - INFO - Status Code: 429
+2025-12-14 17:43:04,627 - WARNING - Blocked with status 429. Block count: 1
+2025-12-14 17:43:04,627 - WARNING - Waiting 153.92 seconds before retry...
+2025-12-14 17:45:39,410 - INFO - Perfume Name: Marry Me Lanvin
+2025-12-14 17:45:39,410 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.9405.jpg
+2025-12-14 17:45:39,548 - INFO - 
+--- Processing 27/30: fleur-musc-for-her ---
+2025-12-14 17:45:39,549 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/narciso-rodriguez/fleur-musc-for-her-42580.html
+2025-12-14 17:45:39,583 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/narciso-rodriguez/fleur-musc-for-her-42580.html
+2025-12-14 17:45:40,444 - INFO - Status Code: 200
+2025-12-14 17:45:40,444 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-14 17:45:40,880 - INFO - Perfume Name: Narciso Rodriguez Fleur Musc for Her Narciso Rodriguez
+2025-12-14 17:45:40,880 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.42580.jpg
+2025-12-14 17:45:41,017 - INFO - Saved progress after 27 rows
+2025-12-14 17:45:41,018 - INFO - 
+--- Processing 28/30: insolence-eau-de-parfum ---
+2025-12-14 17:45:41,018 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/guerlain/insolence-eau-de-parfum-4566.html
+2025-12-14 17:45:41,018 - INFO - Throttling: Sleeping for 67.22 seconds
+2025-12-14 17:46:48,266 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/guerlain/insolence-eau-de-parfum-4566.html
+2025-12-14 17:46:49,150 - INFO - Status Code: 200
+2025-12-14 17:46:49,151 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-14 17:46:49,417 - INFO - Perfume Name: Insolence Eau de Parfum Guerlain
+2025-12-14 17:46:49,417 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.4566.jpg
+2025-12-14 17:46:49,547 - INFO - 
+--- Processing 29/30: zino-davidoff ---
+2025-12-14 17:46:49,547 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/davidoff/zino-davidoff-590.html
+2025-12-14 17:46:49,547 - INFO - Throttling: Sleeping for 94.91 seconds
