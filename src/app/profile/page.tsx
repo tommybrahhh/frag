@@ -3,13 +3,12 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/utils/supabase/client';
 import RecommendationsList from '@/components/RecommendationsList';
 import Link from 'next/link';
 import WardrobeAnalytics from '@/components/WardrobeAnalytics';
 
 export default function ProfilePage() {
-  const { user, loading } = useAuth();
+  const { user, loading, supabase } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'collection' | 'mixes'>('collection'); // Default to collection
   const [savedMixes, setSavedMixes] = useState<any[]>([]);
@@ -80,11 +79,11 @@ export default function ProfilePage() {
     };
 
     fetchData();
-  }, [user]);
+  }, [user, supabase]);
 
   // 3. Save Profile
   const handleSave = async () => {
-    if (!user) return;
+    if (!user || !supabase) return;
     setSaving(true);
     const { error } = await supabase.from('profiles').upsert({
       id: user.id,
