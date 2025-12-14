@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { createClient } from '@/utils/supabase/client';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import CommentsSection from '@/components/CommentsSection';
@@ -73,9 +72,7 @@ export default function PerfumeDetail() {
   const [dupes, setDupes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [inCollection, setInCollection] = useState(false);
-  const { user } = useAuth();
-  
-  const supabase = useMemo(() => createClient(), []);
+  const { user, supabase } = useAuth();
 
   // --- SMART MATCHING LOGIC (Weighted by Volatility) ---
   const getMatchDetails = (current: any, candidate: any) => {

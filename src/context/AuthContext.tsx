@@ -8,9 +8,15 @@ interface AuthContextType {
   user: any | null;
   loading: boolean;
   signOut: () => Promise<void>;
+  supabase: ReturnType<typeof createClient>;
 }
 
-const AuthContext = createContext<AuthContextType>({ user: null, loading: true, signOut: async () => {} });
+const AuthContext = createContext<AuthContextType>({
+  user: null,
+  loading: true,
+  signOut: async () => {},
+  supabase: null as unknown as ReturnType<typeof createClient>
+});
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<any | null>(null);
@@ -109,8 +115,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo(() => ({
     user,
     loading,
-    signOut
-  }), [user, loading, signOut]);
+    signOut,
+    supabase
+  }), [user, loading, signOut, supabase]);
 
   return (
     <AuthContext.Provider value={value}>

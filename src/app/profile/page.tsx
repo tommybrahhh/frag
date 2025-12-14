@@ -31,7 +31,6 @@ export default function ProfilePage() {
   useEffect(() => {
     const fetchData = async () => {
       if (!user) return;
-      const supabase = createClient();
       
       try {
         // A. Fetch Profile
@@ -87,7 +86,6 @@ export default function ProfilePage() {
   const handleSave = async () => {
     if (!user) return;
     setSaving(true);
-    const supabase = createClient();
     const { error } = await supabase.from('profiles').upsert({
       id: user.id,
       display_name: displayName,
