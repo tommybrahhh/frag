@@ -8,7 +8,7 @@ interface AuthContextType {
   user: any | null;
   loading: boolean;
   signOut: () => Promise<void>;
-  supabase: ReturnType<typeof createClient>;
+  supabase: any;
 }
 
 const AuthContext = createContext<AuthContextType>({
