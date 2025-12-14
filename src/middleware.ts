@@ -12,7 +12,7 @@ export async function middleware(request: NextRequest) {
     "img-src 'self' data: https://fimgs.net https://upload.wikimedia.org https://images.sephora.com https://vercel.live",
     "font-src 'self'",
     "connect-src 'self' https://fmtqqpnhnexwmgpeaidb.supabase.co https://vercel.live",
-    "frame-src 'none'",
+    "frame-src 'self' https://vercel.live",
     "object-src 'none'"
   ].join('; ')
 
