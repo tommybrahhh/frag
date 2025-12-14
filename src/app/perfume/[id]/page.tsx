@@ -245,6 +245,8 @@ export default function PerfumeDetail() {
     }
 
     const fetchData = async () => {
+      console.log('Fetching perfume data for ID:', id);
+      
       // 1. Fetch Main Perfume
       const { data: mainPerfume, error } = await supabase
         .from('perfumes')
@@ -255,7 +257,7 @@ export default function PerfumeDetail() {
           scenario, scent_profile,
           brand:brands!perfumes_brand_id_fkey(name),
           perfume_notes(
-            type,
+            type::text,
             note:notes(name, color_hex)
           )
         `)
@@ -263,9 +265,28 @@ export default function PerfumeDetail() {
         .maybeSingle();
 
       if (error) {
-        console.error('Error fetching perfume:', error);
+        console.error('Error fetching perfume:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
         setLoading(false);
         return;
+      }
+      
+      console.log('Fetched perfume data:', JSON.stringify({
+        id: mainPerfume?.id,
+        name: mainPerfume?.name,
+        notes: mainPerfume?.perfume_notes,
+        brand: mainPerfume?.brand,
+        scent_profile: mainPerfume?.scent_profile
+      }, null, 2));
+      
+      if (mainPerfume?.perfume_notes) {
+        console.log('Perfume notes details:', JSON.stringify(mainPerfume.perfume_notes, null, 2));
+      } else {
+        console.log('No perfume notes found for this perfume');
       }
       
       if (mainPerfume && !mainPerfume.scent_profile) {
