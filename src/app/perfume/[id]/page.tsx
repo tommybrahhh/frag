@@ -275,16 +275,16 @@ export default function PerfumeDetail() {
         return;
       }
       
-      console.log('Fetched perfume data:', JSON.stringify({
+      console.log('Fetched perfume data:', {
         id: mainPerfume?.id,
         name: mainPerfume?.name,
         notes: mainPerfume?.perfume_notes,
         brand: mainPerfume?.brand,
         scent_profile: mainPerfume?.scent_profile
-      }, null, 2));
+      });
       
       if (mainPerfume?.perfume_notes) {
-        console.log('Perfume notes details:', JSON.stringify(mainPerfume.perfume_notes, null, 2));
+        console.log('Perfume notes details:', mainPerfume.perfume_notes);
       } else {
         console.log('No perfume notes found for this perfume');
       }

@@ -106,6 +106,70 @@ const SCENT_FAMILIES = {
 };
 
 export class RecommendationEngine {
+  // Molecular structure similarity scoring
+  private static calculateMolecularSimilarity(mainStructure: string, candidateStructure: string): number {
+    if (!mainStructure || !candidateStructure) return 0;
+    
+    // Basic similarity scoring based on molecular fingerprints
+    const mainFingerprint = this.getMolecularFingerprint(mainStructure);
+    const candidateFingerprint = this.getMolecularFingerprint(candidateStructure);
+    
+    const intersection = mainFingerprint.filter((value: string) => candidateFingerprint.includes(value)).length;
+    const union = new Set([...mainFingerprint, ...candidateFingerprint]).size;
+    
+    return union > 0 ? Math.round((intersection / union) * 100) : 0;
+  }
+
+  // Helper method to generate molecular fingerprints
+  private static getMolecularFingerprint(structure: string): string[] {
+    // Basic implementation - should be enhanced with actual molecular analysis
+    return structure.split('-').filter(part => part.length > 0);
+  }
+
+  // Calculate composition similarity based on top/heart/base notes
+  private static calculateCompositionSimilarity(
+    main: { topNotes: string[], heartNotes: string[], baseNotes: string[] },
+    candidate: { topNotes: string[], heartNotes: string[], baseNotes: string[] }
+  ): number {
+    const topNoteSimilarity = main.topNotes.filter((n: string) => candidate.topNotes.includes(n)).length / Math.max(1, main.topNotes.length);
+    const heartNoteSimilarity = main.heartNotes.filter((n: string) => candidate.heartNotes.includes(n)).length / Math.max(1, main.heartNotes.length);
+    const baseNoteSimilarity = main.baseNotes.filter((n: string) => candidate.baseNotes.includes(n)).length / Math.max(1, main.baseNotes.length);
+    
+    // Weighted average favoring heart and base notes
+    return Math.round((
+      (topNoteSimilarity * 0.3) +
+      (heartNoteSimilarity * 0.4) +
+      (baseNoteSimilarity * 0.3)
+    ) * 100);
+  }
+
+  // Calculate composition complementarity based on note volatility
+  private static calculateCompositionComplementarity(
+    main: { topNotes: string[], heartNotes: string[], baseNotes: string[] },
+    candidate: { topNotes: string[], heartNotes: string[], baseNotes: string[] }
+  ): number {
+    // Score based on complementary note volatility
+    const topNoteComplementarity = main.topNotes.filter((n: string) =>
+      !candidate.topNotes.includes(n) &&
+      NOTE_VOLATILITY[n] >= 2.5
+    ).length * 3;
+    
+    const heartNoteComplementarity = main.heartNotes.filter((n: string) =>
+      !candidate.heartNotes.includes(n) &&
+      NOTE_VOLATILITY[n] >= 1.5 && NOTE_VOLATILITY[n] < 2.5
+    ).length * 5;
+    
+    const baseNoteComplementarity = main.baseNotes.filter((n: string) =>
+      !candidate.baseNotes.includes(n) &&
+      NOTE_VOLATILITY[n] < 1.5
+    ).length * 7;
+    
+    return Math.min(100,
+      topNoteComplementarity +
+      heartNoteComplementarity +
+      baseNoteComplementarity
+    );
+  }
   private static async getAllPerfumes() {
     const supabase = createClient();
     const { data: perfumes } = await supabase
@@ -161,9 +225,9 @@ export class RecommendationEngine {
 
     // Analyze olfactory composition
     const composition = {
-      topNotes: notes.filter(n => NOTE_VOLATILITY[n] >= 2.5),
-      heartNotes: notes.filter(n => NOTE_VOLATILITY[n] >= 1.5 && NOTE_VOLATILITY[n] < 2.5),
-      baseNotes: notes.filter(n => NOTE_VOLATILITY[n] < 1.5),
+      topNotes: notes.filter((n: string) => NOTE_VOLATILITY[n] >= 2.5),
+      heartNotes: notes.filter((n: string) => NOTE_VOLATILITY[n] >= 1.5 && NOTE_VOLATILITY[n] < 2.5),
+      baseNotes: notes.filter((n: string) => NOTE_VOLATILITY[n] < 1.5),
       intensity: Math.round(Object.values(noteVolatility).reduce((a, b) => a + b, 0) / notes.length * 10) / 10 || 1,
       longevity: Math.round((1 - (Object.values(noteVolatility).reduce((a, b) => a + b, 0) / notes.length / 3)) * 10) / 10 || 1
     };
@@ -412,8 +476,16 @@ export class RecommendationEngine {
       .slice(0, count);
   }
 
-  // Enhanced Price alternatives with scent and volatility scoring
-        
+  private static getPriceAlternatives(mainPerfume: any, allPerfumes: any[], count: number = 6): Recommendation[] {
+    const mainProfile = this.analyzeScentProfile(mainPerfume);
+    const mainPriceValue = mainPerfume.price_tier || 3; // Default to mid-range if not specified
+    
+    return allPerfumes
+      .filter(p => p.id !== mainPerfume.id)
+      .map(candidate => {
+        const candidateProfile = this.analyzeScentProfile(candidate);
+        const candidatePriceValue = candidate.price_tier || 3;
+
         // Calculate scent similarity score (0-100)
         const sharedNotes = mainProfile.notes.filter((note: string) =>
           candidateProfile.notes.includes(note)
@@ -424,6 +496,180 @@ export class RecommendationEngine {
         const sharedFamilies = mainProfile.dominantFamilies.filter(family =>
           candidateProfile.dominantFamilies.includes(family)
         );
+
+        // Base similarity score (0-100)
+        let similarityScore = 0;
+        similarityScore += sharedNotes.length * 10; // Up to 50 points for notes
+        similarityScore += sharedVibes.length * 15; // Up to 45 points for vibes
+        similarityScore += sharedFamilies.length * 25; // Up to 75 points for families
+        similarityScore = Math.min(100, similarityScore);
+
+        // Determine price comparison
+        let priceComparison: 'cheaper' | 'similar' | 'premium' = 'similar';
+        if (candidatePriceValue < mainPriceValue - 1) priceComparison = 'cheaper';
+        else if (candidatePriceValue > mainPriceValue + 1) priceComparison = 'premium';
+
+        // Enhanced scoring: combine price advantage with scent similarity
+        let finalScore = 0;
+        let reason = '';
+
+        if (priceComparison === 'cheaper') {
+          // For cheaper alternatives: prioritize good scent matches (min 30% similarity)
+          if (similarityScore >= 30) {
+            finalScore = Math.min(95, 70 + Math.round(similarityScore * 0.5));
+            reason = `Excellent affordable alternative (${finalScore}% match)`;
+          } else {
+            // Skip perfumes with very low similarity
+            return null;
+          }
+        } else if (priceComparison === 'premium') {
+          // For premium alternatives: require higher scent similarity (min 40%)
+          if (similarityScore >= 40) {
+            finalScore = Math.min(90, 60 + Math.round(similarityScore * 0.6));
+            reason = `Premium upgrade (${finalScore}% match)`;
+          } else {
+            return null;
+          }
+        } else {
+          // Similar price: require good scent similarity (min 35%)
+          if (similarityScore >= 35) {
+            finalScore = Math.min(85, 50 + Math.round(similarityScore * 0.7));
+            reason = `Similar price (${finalScore}% match)`;
+          } else {
+            return null;
+          }
+        }
+
+        return {
+          perfume: candidate,
+          type: 'price-alternative' as const,
+          score: finalScore,
+          reason,
+          priceComparison,
+          sharedNotes: sharedNotes.slice(0, 3),
+          sharedVibes: sharedVibes.slice(0, 2)
+        };
+      })
+      .filter(rec => rec !== null)
+      .sort((a, b) => b!.score - a!.score)
+      .slice(0, count) as Recommendation[];
+  }
+
+        // Base similarity score (0-100)
+        let similarityScore = 0;
+        similarityScore += sharedNotes.length * 10; // Up to 50 points for notes
+        similarityScore += sharedVibes.length * 15; // Up to 45 points for vibes
+        similarityScore += sharedFamilies.length * 25; // Up to 75 points for families
+        similarityScore = Math.min(100, similarityScore);
+
+        // Determine price comparison
+        let priceComparison: 'cheaper' | 'similar' | 'premium' = 'similar';
+        if (candidatePriceValue < mainPriceValue - 1) priceComparison = 'cheaper';
+        else if (candidatePriceValue > mainPriceValue + 1) priceComparison = 'premium';
+
+        // Enhanced scoring: combine price advantage with scent similarity
+        let finalScore = 0;
+        let reason = '';
+
+        if (priceComparison === 'cheaper') {
+          // For cheaper alternatives: prioritize good scent matches (min 30% similarity)
+          if (similarityScore >= 30) {
+            finalScore = Math.min(95, 70 + Math.round(similarityScore * 0.5));
+            reason = `Excellent affordable alternative (${finalScore}% match)`;
+          } else {
+            // Skip perfumes with very low similarity
+            return null;
+          }
+        } else if (priceComparison === 'premium') {
+          // For premium alternatives: require higher scent similarity (min 40%)
+          if (similarityScore >= 40) {
+            finalScore = Math.min(90, 60 + Math.round(similarityScore * 0.6));
+            reason = `Premium upgrade (${finalScore}% match)`;
+          } else {
+            return null;
+          }
+        } else {
+          // Similar price: require good scent similarity (min 35%)
+          if (similarityScore >= 35) {
+            finalScore = Math.min(85, 50 + Math.round(similarityScore * 0.7));
+            reason = `Similar price (${finalScore}% match)`;
+          } else {
+            return null;
+          }
+        }
+
+        return {
+          perfume: candidate,
+          type: 'price-alternative' as const,
+          score: finalScore,
+          reason,
+          priceComparison,
+          sharedNotes: sharedNotes.slice(0, 3),
+          sharedVibes: sharedVibes.slice(0, 2)
+        };
+      })
+      .filter(rec => rec !== null)
+      .sort((a, b) => b!.score - a!.score)
+      .slice(0, count) as Recommendation[];
+  }
+
+        // Base similarity score (0-100)
+        let similarityScore = 0;
+        similarityScore += sharedNotes.length * 10; // Up to 50 points for notes
+        similarityScore += sharedVibes.length * 15; // Up to 45 points for vibes
+        similarityScore += sharedFamilies.length * 25; // Up to 75 points for families
+        similarityScore = Math.min(100, similarityScore);
+
+        // Determine price comparison
+        let priceComparison: 'cheaper' | 'similar' | 'premium' = 'similar';
+        if (candidatePriceValue < mainPriceValue - 1) priceComparison = 'cheaper';
+        else if (candidatePriceValue > mainPriceValue + 1) priceComparison = 'premium';
+
+        // Enhanced scoring: combine price advantage with scent similarity
+        let finalScore = 0;
+        let reason = '';
+
+        if (priceComparison === 'cheaper') {
+          // For cheaper alternatives: prioritize good scent matches (min 30% similarity)
+          if (similarityScore >= 30) {
+            finalScore = Math.min(95, 70 + Math.round(similarityScore * 0.5));
+            reason = `Excellent affordable alternative (${finalScore}% match)`;
+          } else {
+            // Skip perfumes with very low similarity
+            return null;
+          }
+        } else if (priceComparison === 'premium') {
+          // For premium alternatives: require higher scent similarity (min 40%)
+          if (similarityScore >= 40) {
+            finalScore = Math.min(90, 60 + Math.round(similarityScore * 0.6));
+            reason = `Premium upgrade (${finalScore}% match)`;
+          } else {
+            return null;
+          }
+        } else {
+          // Similar price: require good scent similarity (min 35%)
+          if (similarityScore >= 35) {
+            finalScore = Math.min(85, 50 + Math.round(similarityScore * 0.7));
+            reason = `Similar price (${finalScore}% match)`;
+          } else {
+            return null;
+          }
+        }
+
+        return {
+          perfume: candidate,
+          type: 'price-alternative' as const,
+          score: finalScore,
+          reason,
+          priceComparison,
+          sharedNotes: sharedNotes.slice(0, 3),
+          sharedVibes: sharedVibes.slice(0, 2)
+        };
+      })
+      .filter(rec => rec !== null)
+      .sort((a, b) => b!.score - a!.score)
+      .slice(0, count) as Recommendation[];
+  }
 
         // Base similarity score (0-100)
         let similarityScore = 0;
@@ -612,7 +858,6 @@ export class RecommendationEngine {
       .slice(0, count);
   }
 
-  // Molecular structure similarity scoring
   private static calculateMolecularSimilarity(mainStructure: string, candidateStructure: string): number {
     if (!mainStructure || !candidateStructure) return 0;
     
@@ -632,7 +877,6 @@ export class RecommendationEngine {
     return structure.split('-').filter(part => part.length > 0);
   }
 
-  // Calculate composition similarity based on top/heart/base notes
   private static calculateCompositionSimilarity(
     main: { topNotes: string[], heartNotes: string[], baseNotes: string[] },
     candidate: { topNotes: string[], heartNotes: string[], baseNotes: string[] }
