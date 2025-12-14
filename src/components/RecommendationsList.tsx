@@ -32,7 +32,11 @@ export default function RecommendationsList({ vibeTags, bestSeason }: Recommenda
           id,
           name,
           image_url,
-          brand:brands(name)
+          brand:brands(name),
+          reason,
+          shared_notes,
+          shared_vibes,
+          shared_families
         `);
 
       if (vibeTags && vibeTags.length > 0) {
@@ -70,22 +74,33 @@ export default function RecommendationsList({ vibeTags, bestSeason }: Recommenda
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
       {recommendations.map((rec) => (
-        <Link
-          key={rec.id}
-          href={`/perfume/${rec.id}`}
-          className="group bg-white rounded-xl border border-stone-100 p-4 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
-        >
-          <div className="h-40 flex items-center justify-center p-2 mb-4 bg-stone-50 rounded-lg group-hover:bg-white transition-colors">
-            <img src={rec.image_url} className="h-full object-contain mix-blend-multiply" />
-          </div>
-          <div className="text-center">
-            <div className="text-[9px] font-bold uppercase tracking-widest text-stone-400 truncate">
-              {rec.brand?.name}
+        <div key={rec.id} className="group bg-white rounded-xl border border-stone-100 p-4 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+          <Link href={`/perfume/${rec.id}`}>
+            <div className="h-40 flex items-center justify-center p-2 mb-4 bg-stone-50 rounded-lg group-hover:bg-white transition-colors">
+              <img src={rec.image_url} className="h-full object-contain mix-blend-multiply" />
             </div>
-            <div className="font-serif text-sm text-stone-900 truncate">{rec.name}</div>
-            <div className="text-xs text-stone-500 mt-1 line-clamp-2">Personalized recommendation based on your preferences</div>
+            <div className="text-center">
+              <div className="text-[9px] font-bold uppercase tracking-widest text-stone-400 truncate">
+                {rec.brand?.name}
+              </div>
+              <div className="font-serif text-sm text-stone-900 truncate">{rec.name}</div>
+            </div>
+          </Link>
+          <div className="mt-2 text-xs text-stone-500">
+            <div className="font-medium mb-1">Why recommended:</div>
+            {rec.reason ? (
+              <div className="text-stone-600 leading-tight">{rec.reason}</div>
+            ) : (
+              <div className="text-stone-400 italic">Personalized match based on your preferences</div>
+            )}
+            {rec.sharedNotes && rec.sharedNotes.length > 0 && (
+              <div className="mt-1">
+                <span className="font-medium">Shared notes:</span>{' '}
+                {rec.sharedNotes.slice(0, 3).join(', ')}
+              </div>
+            )}
           </div>
-        </Link>
+        </div>
       ))}
     </div>
   );
