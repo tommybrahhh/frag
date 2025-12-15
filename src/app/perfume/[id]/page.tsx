@@ -197,6 +197,13 @@ export default function PerfumeDetail() {
 
   useEffect(() => {
     const id = params?.id;
+    
+    // 1. Reset state immediately on navigation (Fixes "stops loading" issue)
+    setLoading(true);
+    setPerfume(null);
+    setRelatedPerfumes([]);
+    setDupes([]);
+
     if (!id || id === 'undefined') {
       setLoading(false);
       return;
@@ -220,11 +227,12 @@ export default function PerfumeDetail() {
 
         if (error) throw error;
       
-        if (mainPerfume && !mainPerfume.scent_profile) {
-          mainPerfume.scent_profile = generateProfileFromVibes(mainPerfume.vibe_tags || []);
+        if (mainPerfume) {
+          if (!mainPerfume.scent_profile) {
+            mainPerfume.scent_profile = generateProfileFromVibes(mainPerfume.vibe_tags || []);
+          }
+          setPerfume(mainPerfume);
         }
-        
-        setPerfume(mainPerfume);
 
         if (!mainPerfume) {
           setLoading(false);
