@@ -5583,3 +5583,11 @@
 2025-12-15 11:45:32,966 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/guerlain/angelique-noire-1021.html
 2025-12-15 11:45:32,967 - INFO - Throttling: Sleeping for 28.06 seconds
 2025-12-15 11:46:01,061 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/guerlain/angelique-noire-1021.html
+2025-12-15 11:46:02,022 - INFO - Status Code: 200
+2025-12-15 11:46:02,023 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-15 11:46:02,328 - INFO - Perfume Name: Angélique Noire Guerlain
+2025-12-15 11:46:02,328 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.1021.jpg
+2025-12-15 11:46:02,468 - INFO - 
+--- Processing 15/40: ysatis ---
+2025-12-15 11:46:02,469 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/givenchy/ysatis-36.html
+2025-12-15 11:46:02,470 - INFO - Throttling: Sleeping for 22.06 seconds
