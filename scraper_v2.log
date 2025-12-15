@@ -5171,3 +5171,12 @@
 --- Processing 10/40: dama-bianca ---
 2025-12-15 10:11:21,793 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/xerjoff/dama-bianca-15555.html
 2025-12-15 10:11:21,794 - INFO - Throttling: Sleeping for 31.34 seconds
+2025-12-15 10:11:53,201 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/xerjoff/dama-bianca-15555.html
+2025-12-15 10:11:54,246 - INFO - Status Code: 200
+2025-12-15 10:11:54,246 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-15 10:11:54,672 - INFO - Perfume Name: Dama Bianca Xerjoff
+2025-12-15 10:11:54,672 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.15555.jpg
+2025-12-15 10:11:54,834 - INFO - 
+--- Processing 11/40: white-musk ---
+2025-12-15 10:11:54,834 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/the-body-shop/white-musk-2432.html
+2025-12-15 10:11:54,834 - INFO - Throttling: Sleeping for 38.32 seconds
