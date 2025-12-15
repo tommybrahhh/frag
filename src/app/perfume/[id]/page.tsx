@@ -292,7 +292,7 @@ export default function PerfumeDetail() {
     <div className="min-h-screen bg-white text-gray-800 pb-20 font-sans selection:bg-stone-900 selection:text-white">
       <div className="px-6 py-4 sticky top-16 bg-white/90 backdrop-blur-md z-20 flex justify-between items-center border-b border-stone-200">
         <Link href="/" className="text-xs font-semibold uppercase tracking-widest hover:opacity-60 transition">← Collection</Link>
-        <span className="text-[10px] font-mono uppercase tracking-widest text-stone-400">Perfume Intuition</span>
+        <span className="text-[10px] font-mono uppercase tracking-widest text-stone-400">Scentia</span>
       </div>
 
       <div className="max-w-6xl mx-auto px-6 grid lg:grid-cols-2 gap-16 mt-10 mb-16">

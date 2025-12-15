@@ -17,7 +17,7 @@ const HeroSection = () => (
         Discover Your Signature
       </span>
       <h1 className="text-5xl md:text-7xl font-serif font-medium text-stone-900 mb-8 leading-[1.1]">
-        Perfume Intuition
+        Scentia
       </h1>
       <p className="text-stone-600 max-w-lg mx-auto mb-10 text-lg font-light leading-relaxed">
         Explore a curated universe of fragrances. From niche masterpieces to timeless classics, find the scent that speaks to your soul.

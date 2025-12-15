@@ -320,7 +320,7 @@ export default function ComparePage() {
     <div className="min-h-screen bg-stone-50 text-gray-800 font-sans">
       <div className="px-6 py-4 border-b border-stone-200 flex justify-between items-center bg-white/90 backdrop-blur-md sticky top-16 z-10">
         <Link href="/" className="text-xs font-semibold uppercase tracking-widest hover:opacity-60 transition">← Collection</Link>
-        <span className="text-[10px] font-mono uppercase tracking-widest text-stone-400">Perfume Intuition</span>
+        <span className="text-[10px] font-mono uppercase tracking-widest text-stone-400">Scentia</span>
       </div>
       <Suspense fallback={<div className="pt-40 text-center text-stone-400">Loading...</div>}>
         <CompareContent />
