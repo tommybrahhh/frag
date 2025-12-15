@@ -5,12 +5,9 @@ export function createClient() {
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
-    console.error("Supabase Environment Variables are missing!");
-    // Return a dummy client or null to prevent immediate crash during hydration
-    // Note: Auth and Data fetching will still fail, but the UI will render.
-    return createBrowserClient(
-      'https://placeholder.supabase.co',
-      'placeholder-key'
+    throw new Error(
+      "Supabase environment variables (NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY) are not set. " +
+      "Please add them to your .env.local file."
     );
   }
 

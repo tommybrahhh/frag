@@ -8,14 +8,14 @@ interface AuthContextType {
   user: any | null;
   loading: boolean;
   signOut: () => Promise<void>;
-  supabase: ReturnType<typeof createClient> | null;
+  supabase: ReturnType<typeof createClient>;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
   signOut: async () => {},
-  supabase: null as unknown as ReturnType<typeof createClient>
+  supabase: createClient()
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -24,14 +24,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   
   // Initialize the browser client once with error handling
-  const supabase = useMemo(() => {
-    try {
-      return createClient();
-    } catch (e) {
-      console.error("Failed to create Supabase client:", e);
-      return null;
-    }
-  }, []);
+  const supabase = useMemo(() => createClient(), []);
 
   // Fetch user profile logic (separated for clarity)
   const fetchUserProfile = useCallback(async (sessionUser: any) => {
