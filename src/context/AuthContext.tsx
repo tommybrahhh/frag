@@ -23,8 +23,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   
-  // Initialize the browser client once
-  const supabase = useMemo(() => createClient(), []);
+  // Initialize the browser client once with error handling
+  const supabase = useMemo(() => {
+    try {
+      return createClient();
+    } catch (e) {
+      console.error("Failed to create Supabase client:", e);
+      return null;
+    }
+  }, []);
 
   // Fetch user profile logic (separated for clarity)
   const fetchUserProfile = useCallback(async (sessionUser: any) => {
@@ -61,6 +68,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // 1. Check active session on mount
     const checkUser = async () => {
+      // Add safety check for missing client
+      if (!supabase) {
+        setLoading(false);
+        return;
+      }
+      
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         if (error) throw error;
