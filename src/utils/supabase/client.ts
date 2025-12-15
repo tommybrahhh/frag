@@ -6,8 +6,8 @@ export function createClient() {
 
   if (!supabaseUrl || !supabaseKey) {
     throw new Error(
-      "Supabase environment variables (NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY) are not set. " +
-      "Please add them to your .env.local file."
+      "Missing Supabase environment variables. " +
+      "Ensure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are set in your environment."
     );
   }
 

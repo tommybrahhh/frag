@@ -15,7 +15,7 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
   signOut: async () => {},
-  supabase: createClient()
+  supabase: null as any // Type assertion - will throw if creation fails
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -23,19 +23,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   
-  // Initialize the browser client once with error handling
+  // Initialize the browser client once - will throw if env vars missing
   const supabase = useMemo(() => createClient(), []);
 
   // Fetch user profile logic (separated for clarity)
   const fetchUserProfile = useCallback(async (sessionUser: any) => {
     // Safety check: if supabase failed to load, just return the basic user
-    if (!supabase) {
-      return {
-        ...sessionUser,
-        display_name: sessionUser.email?.split('@')[0]
-      };
-    }
-
     try {
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
@@ -70,11 +63,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // 1. Check active session on mount
     const checkUser = async () => {
       // Add safety check for missing client
-      if (!supabase) {
-        setLoading(false);
-        return;
-      }
-      
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         if (error) throw error;
@@ -98,7 +86,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     checkUser();
 
     // 2. Listen for auth changes (login, logout, token refresh)
-    if (!supabase) return;
+
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (mounted) {
@@ -122,7 +110,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [supabase, router, fetchUserProfile]);
 
   const signOut = useCallback(async () => {
-    if (!supabase) return;
     await supabase.auth.signOut();
     setUser(null);
     router.push('/');

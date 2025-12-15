@@ -177,7 +177,7 @@ export default function PerfumeDetail() {
 
   useEffect(() => {
     const checkCollection = async () => {
-      if (!user || !perfume) return;
+      if (!user || !perfume || !supabase) return;
       const { data } = await supabase.from('user_collections').select('id').eq('user_id', user.id).eq('perfume_id', perfume.id).maybeSingle();
       if (data) setInCollection(true);
     };
