@@ -8404,3 +8404,10 @@
 2025-12-16 19:00:48,896 - INFO - Status Code: 429
 2025-12-16 19:00:48,896 - WARNING - Blocked with status 429. Block count: 3
 2025-12-16 19:00:48,896 - WARNING - Waiting 570.82 seconds before retry...
+2025-12-16 19:10:48,336 - INFO - Attempt 2: Making request to https://www.fragrantica.com/perfume/christina-aguilera/christina-aguilera-by-night-6714.html
+2025-12-16 19:10:48,821 - INFO - Status Code: 429
+2025-12-16 19:10:48,822 - WARNING - Blocked with status 429. Block count: 4
+2025-12-16 19:10:48,822 - WARNING - Waiting 473.85 seconds before retry...
+2025-12-16 19:19:04,288 - ERROR - Failed to bypass Cloudflare after multiple attempts
+2025-12-16 19:19:04,291 - INFO - Saved progress after 24 rows
+2025-12-16 19:19:04,292 - WARNING - Multiple blocks detected. Taking long break of 1068.06 seconds
