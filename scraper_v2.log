@@ -5831,3 +5831,1877 @@
 2025-12-15 12:04:14,087 - INFO - Perfume Name: Jeux de Peau Serge Lutens
 2025-12-15 12:04:14,088 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.11350.jpg
 2025-12-15 12:04:14,266 - INFO - Processing complete. Data saved to output_perfumes_v2.csv
+2025-12-16 10:14:47,782 - INFO - Processing 40 perfumes with enhanced anti-detection...
+2025-12-16 10:14:47,783 - INFO - 
+--- Processing 1/40: eaudemoiselle-de-givenchy ---
+2025-12-16 10:14:47,783 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/givenchy/eaudemoiselle-de-givenchy-7806.html
+2025-12-16 10:14:47,824 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/givenchy/eaudemoiselle-de-givenchy-7806.html
+2025-12-16 10:14:48,645 - INFO - Status Code: 200
+2025-12-16 10:14:48,646 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 10:14:48,856 - INFO - Perfume Name: Eaudemoiselle de Givenchy Givenchy
+2025-12-16 10:14:48,856 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.7806.jpg
+2025-12-16 10:14:48,958 - INFO - 
+--- Processing 2/40: gucci-premiere ---
+2025-12-16 10:14:48,958 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/gucci/gucci-premiere-15449.html
+2025-12-16 10:14:48,959 - INFO - Throttling: Sleeping for 14.76 seconds
+2025-12-16 10:15:03,746 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/gucci/gucci-premiere-15449.html
+2025-12-16 10:15:04,937 - INFO - Status Code: 200
+2025-12-16 10:15:04,938 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 10:15:05,149 - INFO - Perfume Name: Gucci Premiere Gucci
+2025-12-16 10:15:05,149 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.15449.jpg
+2025-12-16 10:15:05,257 - INFO - 
+--- Processing 3/40: good-girl-legere ---
+2025-12-16 10:15:05,258 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/carolina-herrera/good-girl-legere-48103.html
+2025-12-16 10:15:05,258 - INFO - Throttling: Sleeping for 32.89 seconds
+2025-12-16 10:15:38,179 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/carolina-herrera/good-girl-legere-48103.html
+2025-12-16 10:15:39,300 - INFO - Status Code: 200
+2025-12-16 10:15:39,300 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 10:15:39,513 - INFO - Perfume Name: Good Girl Légère Carolina Herrera
+2025-12-16 10:15:39,514 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.48103.jpg
+2025-12-16 10:15:39,618 - INFO - Saved progress after 3 rows
+2025-12-16 10:15:39,618 - INFO - 
+--- Processing 4/40: epic-man ---
+2025-12-16 10:15:39,618 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/amouage/epic-man-6537.html
+2025-12-16 10:15:39,619 - INFO - Throttling: Sleeping for 21.31 seconds
+2025-12-16 10:16:00,950 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/amouage/epic-man-6537.html
+2025-12-16 10:16:01,667 - INFO - Status Code: 200
+2025-12-16 10:16:01,668 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 10:16:01,879 - INFO - Perfume Name: Epic Man Amouage
+2025-12-16 10:16:01,879 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.6537.jpg
+2025-12-16 10:16:01,982 - INFO - 
+--- Processing 5/40: wulong-cha ---
+2025-12-16 10:16:01,982 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/nishane/wulong-cha-30567.html
+2025-12-16 10:16:01,982 - INFO - Throttling: Sleeping for 44.73 seconds
+2025-12-16 10:16:46,738 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/nishane/wulong-cha-30567.html
+2025-12-16 10:16:47,739 - INFO - Status Code: 200
+2025-12-16 10:16:47,739 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 10:16:48,001 - INFO - Perfume Name: Wulóng Chá Nishane
+2025-12-16 10:16:48,001 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.30567.jpg
+2025-12-16 10:16:48,100 - INFO - 
+--- Processing 6/40: sensuous-nude ---
+2025-12-16 10:16:48,101 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/estee-lauder/sensuous-nude-12219.html
+2025-12-16 10:16:48,101 - INFO - Throttling: Sleeping for 14.77 seconds
+2025-12-16 10:17:02,893 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/estee-lauder/sensuous-nude-12219.html
+2025-12-16 10:17:03,661 - INFO - Status Code: 200
+2025-12-16 10:17:03,661 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 10:17:03,866 - INFO - Perfume Name: Sensuous Nude Estée Lauder
+2025-12-16 10:17:03,867 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.12219.jpg
+2025-12-16 10:17:03,968 - INFO - Saved progress after 6 rows
+2025-12-16 10:17:03,968 - INFO - 
+--- Processing 7/40: dior-homme-sport ---
+2025-12-16 10:17:03,968 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/dior/dior-homme-sport-4033.html
+2025-12-16 10:17:03,968 - INFO - Throttling: Sleeping for 28.91 seconds
+2025-12-16 10:17:32,905 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/dior/dior-homme-sport-4033.html
+2025-12-16 10:17:33,611 - INFO - Status Code: 200
+2025-12-16 10:17:33,611 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 10:17:33,817 - INFO - Perfume Name: Dior Homme Sport Dior
+2025-12-16 10:17:33,818 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.4033.jpg
+2025-12-16 10:17:33,921 - INFO - 
+--- Processing 8/40: viking ---
+2025-12-16 10:17:33,921 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/creed/viking-41698.html
+2025-12-16 10:17:33,921 - INFO - Throttling: Sleeping for 22.77 seconds
+2025-12-16 10:17:56,717 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/creed/viking-41698.html
+2025-12-16 10:17:57,484 - INFO - Status Code: 200
+2025-12-16 10:17:57,485 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 10:17:57,693 - INFO - Perfume Name: Viking Creed
+2025-12-16 10:17:57,693 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.41698.jpg
+2025-12-16 10:17:57,800 - INFO - 
+--- Processing 9/40: dahlia-divin ---
+2025-12-16 10:17:57,801 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/givenchy/dahlia-divin-25972.html
+2025-12-16 10:17:57,801 - INFO - Throttling: Sleeping for 28.50 seconds
+2025-12-16 10:18:26,325 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/givenchy/dahlia-divin-25972.html
+2025-12-16 10:18:27,089 - INFO - Status Code: 200
+2025-12-16 10:18:27,090 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 10:18:27,287 - INFO - Perfume Name: Dahlia Divin  Givenchy
+2025-12-16 10:18:27,287 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.25972.jpg
+2025-12-16 10:18:27,390 - INFO - Saved progress after 9 rows
+2025-12-16 10:18:27,391 - INFO - 
+--- Processing 10/40: vanille-insensee ---
+2025-12-16 10:18:27,391 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/atelier-cologne/vanille-insensee-11456.html
+2025-12-16 10:18:27,391 - INFO - Throttling: Sleeping for 19.74 seconds
+2025-12-16 10:18:47,163 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/atelier-cologne/vanille-insensee-11456.html
+2025-12-16 10:18:47,901 - INFO - Status Code: 200
+2025-12-16 10:18:47,901 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 10:18:48,210 - INFO - Perfume Name: Vanille Insensée Atelier Cologne
+2025-12-16 10:18:48,211 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.11456.jpg
+2025-12-16 10:18:48,317 - INFO - 
+--- Processing 11/40: black-saffron ---
+2025-12-16 10:18:48,317 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/byredo/black-saffron-16220.html
+2025-12-16 10:18:48,317 - INFO - Throttling: Sleeping for 41.63 seconds
+2025-12-16 10:19:30,002 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/byredo/black-saffron-16220.html
+2025-12-16 10:19:30,853 - INFO - Status Code: 200
+2025-12-16 10:19:30,853 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 10:19:31,286 - INFO - Perfume Name: Black Saffron Byredo
+2025-12-16 10:19:31,286 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.16220.jpg
+2025-12-16 10:19:31,435 - INFO - 
+--- Processing 12/40: metallique ---
+2025-12-16 10:19:31,435 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/tom-ford/metallique-55766.html
+2025-12-16 10:19:31,435 - INFO - Throttling: Sleeping for 26.37 seconds
+2025-12-16 10:19:57,834 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/tom-ford/metallique-55766.html
+2025-12-16 10:19:58,696 - INFO - Status Code: 200
+2025-12-16 10:19:58,696 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 10:19:59,127 - INFO - Perfume Name: Metallique Tom Ford
+2025-12-16 10:19:59,128 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.55766.jpg
+2025-12-16 10:19:59,364 - INFO - Saved progress after 12 rows
+2025-12-16 10:19:59,364 - INFO - 
+--- Processing 13/40: lilac-love ---
+2025-12-16 10:19:59,364 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/amouage/lilac-love-35624.html
+2025-12-16 10:19:59,365 - INFO - Throttling: Sleeping for 14.56 seconds
+2025-12-16 10:20:13,975 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/amouage/lilac-love-35624.html
+2025-12-16 10:20:15,068 - INFO - Status Code: 200
+2025-12-16 10:20:15,068 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 10:20:15,439 - INFO - Perfume Name: Lilac Love Amouage
+2025-12-16 10:20:15,439 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.35624.jpg
+2025-12-16 10:20:15,593 - INFO - 
+--- Processing 14/40: safari ---
+2025-12-16 10:20:15,593 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/ralph-lauren/safari-897.html
+2025-12-16 10:20:15,594 - INFO - Throttling: Sleeping for 14.26 seconds
+2025-12-16 10:20:29,913 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/ralph-lauren/safari-897.html
+2025-12-16 10:20:30,781 - INFO - Status Code: 200
+2025-12-16 10:20:30,781 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 10:20:31,380 - INFO - Perfume Name: Safari Ralph Lauren
+2025-12-16 10:20:31,380 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.897.jpg
+2025-12-16 10:20:31,582 - INFO - 
+--- Processing 15/40: emporio-armani-because-it-s-you ---
+2025-12-16 10:20:31,583 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/giorgio-armani/emporio-armani-because-it-s-you-45257.html
+2025-12-16 10:20:31,583 - INFO - Throttling: Sleeping for 31.65 seconds
+2025-12-16 10:21:03,307 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/giorgio-armani/emporio-armani-because-it-s-you-45257.html
+2025-12-16 10:21:04,333 - INFO - Status Code: 200
+2025-12-16 10:21:04,333 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 10:21:04,732 - INFO - Perfume Name: Emporio Armani Because It’s You Giorgio Armani
+2025-12-16 10:21:04,732 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.45257.jpg
+2025-12-16 10:21:04,919 - INFO - Saved progress after 15 rows
+2025-12-16 10:21:04,919 - INFO - 
+--- Processing 16/40: coach-for-men ---
+2025-12-16 10:21:04,920 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/coach/coach-for-men-45343.html
+2025-12-16 10:21:04,920 - INFO - Throttling: Sleeping for 12.46 seconds
+2025-12-16 10:21:17,399 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/coach/coach-for-men-45343.html
+2025-12-16 10:21:18,132 - INFO - Status Code: 200
+2025-12-16 10:21:18,133 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 10:21:18,436 - INFO - Perfume Name: Coach for Men Coach
+2025-12-16 10:21:18,436 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.45343.jpg
+2025-12-16 10:21:18,536 - INFO - 
+--- Processing 17/40: pardon ---
+2025-12-16 10:21:18,536 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/nasomatto/pardon-12130.html
+2025-12-16 10:21:18,536 - INFO - Throttling: Sleeping for 24.12 seconds
+2025-12-16 10:21:42,681 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/nasomatto/pardon-12130.html
+2025-12-16 10:21:43,127 - INFO - Status Code: 429
+2025-12-16 10:21:43,128 - WARNING - Blocked with status 429. Block count: 1
+2025-12-16 10:21:43,128 - WARNING - Waiting 198.90 seconds before retry...
+2025-12-16 10:25:38,763 - INFO - Attempt 2: Making request to https://www.fragrantica.com/perfume/nasomatto/pardon-12130.html
+2025-12-16 10:25:39,726 - INFO - Status Code: 200
+2025-12-16 10:25:39,727 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 10:25:40,149 - INFO - Perfume Name: Pardon Nasomatto
+2025-12-16 10:25:40,150 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.12130.jpg
+2025-12-16 10:25:40,406 - INFO - 
+--- Processing 18/40: omnia ---
+2025-12-16 10:25:40,407 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/bvlgari/omnia-151.html
+2025-12-16 10:25:40,407 - INFO - Throttling: Sleeping for 85.77 seconds
+2025-12-16 10:27:06,210 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/bvlgari/omnia-151.html
+2025-12-16 10:27:07,567 - INFO - Status Code: 200
+2025-12-16 10:27:07,568 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 10:27:07,968 - INFO - Perfume Name: Omnia Bvlgari
+2025-12-16 10:27:07,968 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.151.jpg
+2025-12-16 10:27:08,152 - INFO - Saved progress after 18 rows
+2025-12-16 10:27:08,153 - INFO - 
+--- Processing 19/40: bianco-latte ---
+2025-12-16 10:27:08,153 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/giardini-di-toscana/bianco-latte-64757.html
+2025-12-16 10:27:08,153 - INFO - Throttling: Sleeping for 30.56 seconds
+2025-12-16 10:27:38,757 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/giardini-di-toscana/bianco-latte-64757.html
+2025-12-16 10:27:39,868 - INFO - Status Code: 200
+2025-12-16 10:27:39,869 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 10:27:40,269 - INFO - Perfume Name: Bianco Latte Giardini Di Toscana
+2025-12-16 10:27:40,269 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.64757.jpg
+2025-12-16 10:27:40,456 - INFO - 
+--- Processing 20/40: tendre-poison ---
+2025-12-16 10:27:40,456 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/dior/tendre-poison-220.html
+2025-12-16 10:27:40,456 - INFO - Throttling: Sleeping for 41.94 seconds
+2025-12-16 10:28:22,451 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/dior/tendre-poison-220.html
+2025-12-16 10:28:23,314 - INFO - Status Code: 200
+2025-12-16 10:28:23,315 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 10:28:23,738 - INFO - Perfume Name: Tendre Poison Dior
+2025-12-16 10:28:23,738 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.220.jpg
+2025-12-16 10:28:23,964 - INFO - 
+--- Processing 21/40: l-eau-par-kenzo-pour-homme ---
+2025-12-16 10:28:23,964 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/kenzo/l-eau-par-kenzo-pour-homme-79.html
+2025-12-16 10:28:23,965 - INFO - Throttling: Sleeping for 35.92 seconds
+2025-12-16 10:28:59,932 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/kenzo/l-eau-par-kenzo-pour-homme-79.html
+2025-12-16 10:29:00,918 - INFO - Status Code: 200
+2025-12-16 10:29:00,919 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 10:29:01,283 - INFO - Perfume Name: L'Eau par Kenzo pour Homme Kenzo
+2025-12-16 10:29:01,284 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.79.jpg
+2025-12-16 10:29:01,471 - INFO - Saved progress after 21 rows
+2025-12-16 10:29:01,472 - INFO - 
+--- Processing 22/40: les-absolus-d-orient-santal-royal ---
+2025-12-16 10:29:01,472 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/guerlain/les-absolus-d-orient-santal-royal-28246.html
+2025-12-16 10:29:01,472 - INFO - Throttling: Sleeping for 23.28 seconds
+2025-12-16 10:29:24,796 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/guerlain/les-absolus-d-orient-santal-royal-28246.html
+2025-12-16 10:29:25,695 - INFO - Status Code: 200
+2025-12-16 10:29:25,696 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 10:29:26,164 - INFO - Perfume Name: Les Absolus d'Orient Santal Royal Guerlain
+2025-12-16 10:29:26,164 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.28246.jpg
+2025-12-16 10:29:26,361 - INFO - 
+--- Processing 23/40: gabrielle-essence ---
+2025-12-16 10:29:26,361 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/chanel/gabrielle-essence-56076.html
+2025-12-16 10:29:26,362 - INFO - Throttling: Sleeping for 24.14 seconds
+2025-12-16 10:29:50,563 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/chanel/gabrielle-essence-56076.html
+2025-12-16 10:29:51,773 - INFO - Status Code: 200
+2025-12-16 10:29:51,774 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 10:29:52,159 - INFO - Perfume Name: Gabrielle Essence Chanel
+2025-12-16 10:29:52,160 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.56076.jpg
+2025-12-16 10:29:52,402 - INFO - 
+--- Processing 24/40: red-jeans ---
+2025-12-16 10:29:52,402 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/versace/red-jeans-638.html
+2025-12-16 10:29:52,403 - INFO - Throttling: Sleeping for 39.75 seconds
+2025-12-16 10:30:32,201 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/versace/red-jeans-638.html
+2025-12-16 10:30:33,538 - INFO - Status Code: 200
+2025-12-16 10:30:33,538 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 10:30:33,921 - INFO - Perfume Name: Red Jeans Versace
+2025-12-16 10:30:33,921 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.638.jpg
+2025-12-16 10:30:34,128 - INFO - Saved progress after 24 rows
+2025-12-16 10:30:34,129 - INFO - 
+--- Processing 25/40: classique-eau-de-parfum ---
+2025-12-16 10:30:34,129 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/jean-paul-gaultier/classique-eau-de-parfum-8304.html
+2025-12-16 10:30:34,129 - INFO - Throttling: Sleeping for 39.65 seconds
+2025-12-16 10:31:13,817 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/jean-paul-gaultier/classique-eau-de-parfum-8304.html
+2025-12-16 10:31:14,661 - INFO - Status Code: 200
+2025-12-16 10:31:14,662 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 10:31:15,013 - INFO - Perfume Name: Classique Eau de Parfum Jean Paul Gaultier
+2025-12-16 10:31:15,013 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.8304.jpg
+2025-12-16 10:31:15,188 - INFO - 
+--- Processing 26/40: marfa ---
+2025-12-16 10:31:15,188 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/memo-paris/marfa-37185.html
+2025-12-16 10:31:15,189 - INFO - Throttling: Sleeping for 15.32 seconds
+2025-12-16 10:31:30,546 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/memo-paris/marfa-37185.html
+2025-12-16 10:31:31,868 - INFO - Status Code: 200
+2025-12-16 10:31:31,868 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 10:31:32,250 - INFO - Perfume Name: Marfa Memo Paris
+2025-12-16 10:31:32,250 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.37185.jpg
+2025-12-16 10:31:32,480 - INFO - 
+--- Processing 27/40: boss-the-scent ---
+2025-12-16 10:31:32,481 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/hugo-boss/boss-the-scent-31445.html
+2025-12-16 10:31:32,481 - INFO - Throttling: Sleeping for 46.95 seconds
+2025-12-16 10:32:19,482 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/hugo-boss/boss-the-scent-31445.html
+2025-12-16 10:32:20,402 - INFO - Status Code: 200
+2025-12-16 10:32:20,403 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 10:32:20,830 - INFO - Perfume Name: Boss The Scent Hugo Boss
+2025-12-16 10:32:20,831 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.31445.jpg
+2025-12-16 10:32:21,003 - INFO - Saved progress after 27 rows
+2025-12-16 10:32:21,004 - INFO - 
+--- Processing 28/40: alien-eau-de-toilette ---
+2025-12-16 10:32:21,004 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/mugler/alien-eau-de-toilette-6616.html
+2025-12-16 10:32:21,005 - INFO - Throttling: Sleeping for 42.53 seconds
+2025-12-16 10:33:03,613 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/mugler/alien-eau-de-toilette-6616.html
+2025-12-16 10:33:04,485 - INFO - Status Code: 200
+2025-12-16 10:33:04,486 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 10:33:04,796 - INFO - Perfume Name: Alien Eau de Toilette Mugler
+2025-12-16 10:33:04,797 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.6616.jpg
+2025-12-16 10:33:05,008 - INFO - 
+--- Processing 29/40: althair ---
+2025-12-16 10:33:05,008 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/parfums-de-marly/althair-84109.html
+2025-12-16 10:33:05,009 - INFO - Throttling: Sleeping for 47.29 seconds
+2025-12-16 10:33:52,349 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/parfums-de-marly/althair-84109.html
+2025-12-16 10:33:53,214 - INFO - Status Code: 200
+2025-12-16 10:33:53,214 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 10:33:53,562 - INFO - Perfume Name: Althaïr Parfums de Marly
+2025-12-16 10:33:53,563 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.84109.jpg
+2025-12-16 10:33:53,718 - INFO - 
+--- Processing 30/40: eau-de-rhubarbe-ecarlate ---
+2025-12-16 10:33:53,719 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/hermes/eau-de-rhubarbe-ecarlate-35375.html
+2025-12-16 10:33:53,719 - INFO - Throttling: Sleeping for 33.08 seconds
+2025-12-16 10:34:26,849 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/hermes/eau-de-rhubarbe-ecarlate-35375.html
+2025-12-16 10:34:27,696 - INFO - Status Code: 200
+2025-12-16 10:34:27,697 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 10:34:28,052 - INFO - Perfume Name: Eau de Rhubarbe Ecarlate Hermès
+2025-12-16 10:34:28,052 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.35375.jpg
+2025-12-16 10:34:28,229 - INFO - Saved progress after 30 rows
+2025-12-16 10:34:28,229 - INFO - 
+--- Processing 31/40: l-interdit-eau-de-parfum-intense ---
+2025-12-16 10:34:28,230 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/givenchy/l-interdit-eau-de-parfum-intense-62491.html
+2025-12-16 10:34:28,230 - INFO - Throttling: Sleeping for 95.35 seconds
+2025-12-16 10:36:03,615 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/givenchy/l-interdit-eau-de-parfum-intense-62491.html
+2025-12-16 10:36:04,823 - INFO - Status Code: 200
+2025-12-16 10:36:04,824 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 10:36:05,200 - INFO - Perfume Name: L'Interdit Eau de Parfum Intense Givenchy
+2025-12-16 10:36:05,201 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.62491.jpg
+2025-12-16 10:36:05,363 - INFO - 
+--- Processing 32/40: l-eau-bleue-d-issey-pour-homme ---
+2025-12-16 10:36:05,363 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/issey-miyake/l-eau-bleue-d-issey-pour-homme-724.html
+2025-12-16 10:36:05,364 - INFO - Throttling: Sleeping for 27.13 seconds
+2025-12-16 10:36:32,519 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/issey-miyake/l-eau-bleue-d-issey-pour-homme-724.html
+2025-12-16 10:36:33,452 - INFO - Status Code: 200
+2025-12-16 10:36:33,452 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 10:36:33,858 - INFO - Perfume Name: L'Eau Bleue d'Issey Pour Homme Issey Miyake
+2025-12-16 10:36:33,859 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.724.jpg
+2025-12-16 10:36:34,053 - INFO - 
+--- Processing 33/40: fuel-for-life-homme ---
+2025-12-16 10:36:34,053 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/diesel/fuel-for-life-homme-1605.html
+2025-12-16 10:36:34,054 - INFO - Throttling: Sleeping for 60.55 seconds
+2025-12-16 10:37:34,669 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/diesel/fuel-for-life-homme-1605.html
+2025-12-16 10:37:35,620 - INFO - Status Code: 200
+2025-12-16 10:37:35,621 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 10:37:36,180 - INFO - Perfume Name: Fuel for Life Homme Diesel
+2025-12-16 10:37:36,181 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.1605.jpg
+2025-12-16 10:37:36,369 - INFO - Saved progress after 33 rows
+2025-12-16 10:37:36,369 - INFO - 
+--- Processing 34/40: secret-obsession ---
+2025-12-16 10:37:36,370 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/calvin-klein/secret-obsession-3592.html
+2025-12-16 10:37:36,370 - INFO - Throttling: Sleeping for 48.57 seconds
+2025-12-16 10:38:24,998 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/calvin-klein/secret-obsession-3592.html
+2025-12-16 10:38:25,898 - INFO - Status Code: 200
+2025-12-16 10:38:25,898 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 10:38:26,307 - INFO - Perfume Name: Secret Obsession Calvin Klein
+2025-12-16 10:38:26,308 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.3592.jpg
+2025-12-16 10:38:26,463 - INFO - 
+--- Processing 35/40: versace-woman ---
+2025-12-16 10:38:26,463 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/versace/versace-woman-645.html
+2025-12-16 10:38:26,463 - INFO - Throttling: Sleeping for 35.96 seconds
+2025-12-16 10:39:02,455 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/versace/versace-woman-645.html
+2025-12-16 10:39:03,314 - INFO - Status Code: 200
+2025-12-16 10:39:03,314 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 10:39:03,653 - INFO - Perfume Name: Versace Woman Versace
+2025-12-16 10:39:03,653 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.645.jpg
+2025-12-16 10:39:03,839 - INFO - 
+--- Processing 36/40: mon-guerlain-eau-de-parfum-intense ---
+2025-12-16 10:39:03,839 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/guerlain/mon-guerlain-eau-de-parfum-intense-55997.html
+2025-12-16 10:39:03,839 - INFO - Throttling: Sleeping for 26.72 seconds
+2025-12-16 10:39:30,619 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/guerlain/mon-guerlain-eau-de-parfum-intense-55997.html
+2025-12-16 10:39:31,513 - INFO - Status Code: 200
+2025-12-16 10:39:31,514 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 10:39:31,895 - INFO - Perfume Name: Mon Guerlain Eau de Parfum Intense Guerlain
+2025-12-16 10:39:31,895 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.55997.jpg
+2025-12-16 10:39:32,106 - INFO - Saved progress after 36 rows
+2025-12-16 10:39:32,106 - INFO - 
+--- Processing 37/40: escape ---
+2025-12-16 10:39:32,107 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/calvin-klein/escape-271.html
+2025-12-16 10:39:32,107 - INFO - Throttling: Sleeping for 39.42 seconds
+2025-12-16 10:40:11,578 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/calvin-klein/escape-271.html
+2025-12-16 10:40:12,846 - INFO - Status Code: 200
+2025-12-16 10:40:12,847 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 10:40:13,230 - INFO - Perfume Name: Escape Calvin Klein
+2025-12-16 10:40:13,230 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.271.jpg
+2025-12-16 10:40:13,385 - INFO - 
+--- Processing 38/40: circus-fantasy ---
+2025-12-16 10:40:13,385 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/britney-spears/circus-fantasy-6733.html
+2025-12-16 10:40:13,385 - INFO - Throttling: Sleeping for 66.71 seconds
+2025-12-16 10:41:20,147 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/britney-spears/circus-fantasy-6733.html
+2025-12-16 10:41:20,985 - INFO - Status Code: 200
+2025-12-16 10:41:20,986 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 10:41:21,402 - INFO - Perfume Name: Circus Fantasy Britney Spears
+2025-12-16 10:41:21,403 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.6733.jpg
+2025-12-16 10:41:21,581 - INFO - 
+--- Processing 39/40: chic-for-men ---
+2025-12-16 10:41:21,582 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/carolina-herrera/chic-for-men-293.html
+2025-12-16 10:41:21,582 - INFO - Throttling: Sleeping for 42.49 seconds
+2025-12-16 10:42:04,111 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/carolina-herrera/chic-for-men-293.html
+2025-12-16 10:42:05,359 - INFO - Status Code: 200
+2025-12-16 10:42:05,360 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 10:42:05,691 - INFO - Perfume Name: Chic For Men Carolina Herrera
+2025-12-16 10:42:05,691 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.293.jpg
+2025-12-16 10:42:05,903 - INFO - Saved progress after 39 rows
+2025-12-16 10:42:05,904 - INFO - 
+--- Processing 40/40: l-eau-d-issey-pour-homme-intense ---
+2025-12-16 10:42:05,904 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/issey-miyake/l-eau-d-issey-pour-homme-intense-1998.html
+2025-12-16 10:42:05,904 - INFO - Throttling: Sleeping for 52.05 seconds
+2025-12-16 10:42:58,008 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/issey-miyake/l-eau-d-issey-pour-homme-intense-1998.html
+2025-12-16 10:42:58,883 - INFO - Status Code: 200
+2025-12-16 10:42:58,883 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 10:42:59,296 - INFO - Perfume Name: L'Eau d'Issey Pour Homme Intense Issey Miyake
+2025-12-16 10:42:59,296 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.1998.jpg
+2025-12-16 10:42:59,467 - INFO - Processing complete. Data saved to output_perfumes_v2.csv
+2025-12-16 11:39:00,408 - INFO - Processing 40 perfumes with enhanced anti-detection...
+2025-12-16 11:39:00,408 - INFO - 
+--- Processing 1/40: body-kouros ---
+2025-12-16 11:39:00,408 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/yves-saint-laurent/body-kouros-736.html
+2025-12-16 11:39:00,435 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/yves-saint-laurent/body-kouros-736.html
+2025-12-16 11:39:01,173 - INFO - Status Code: 200
+2025-12-16 11:39:01,174 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 11:39:01,456 - INFO - Perfume Name: Body Kouros Yves Saint Laurent
+2025-12-16 11:39:01,457 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.736.jpg
+2025-12-16 11:39:01,559 - INFO - 
+--- Processing 2/40: polo-red ---
+2025-12-16 11:39:01,559 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/ralph-lauren/polo-red-18598.html
+2025-12-16 11:39:01,560 - INFO - Throttling: Sleeping for 23.19 seconds
+2025-12-16 11:39:24,778 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/ralph-lauren/polo-red-18598.html
+2025-12-16 11:39:25,532 - INFO - Status Code: 200
+2025-12-16 11:39:25,533 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 11:39:25,737 - INFO - Perfume Name: Polo Red Ralph Lauren
+2025-12-16 11:39:25,738 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.18598.jpg
+2025-12-16 11:39:25,847 - INFO - 
+--- Processing 3/40: taj-sunset ---
+2025-12-16 11:39:25,847 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/escada/taj-sunset-10611.html
+2025-12-16 11:39:25,847 - INFO - Throttling: Sleeping for 20.56 seconds
+2025-12-16 11:39:46,434 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/escada/taj-sunset-10611.html
+2025-12-16 11:39:47,159 - INFO - Status Code: 200
+2025-12-16 11:39:47,159 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 11:39:47,364 - INFO - Perfume Name: Taj Sunset Escada
+2025-12-16 11:39:47,364 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.10611.jpg
+2025-12-16 11:39:47,476 - INFO - Saved progress after 3 rows
+2025-12-16 11:39:47,477 - INFO - 
+--- Processing 4/40: my-insolence ---
+2025-12-16 11:39:47,477 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/guerlain/my-insolence-1657.html
+2025-12-16 11:39:47,477 - INFO - Throttling: Sleeping for 22.85 seconds
+2025-12-16 11:40:10,357 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/guerlain/my-insolence-1657.html
+2025-12-16 11:40:11,098 - INFO - Status Code: 200
+2025-12-16 11:40:11,098 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 11:40:11,305 - INFO - Perfume Name: My Insolence Guerlain
+2025-12-16 11:40:11,305 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.1657.jpg
+2025-12-16 11:40:11,419 - INFO - 
+--- Processing 5/40: rolling-in-love ---
+2025-12-16 11:40:11,419 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/by-kilian/rolling-in-love-56402.html
+2025-12-16 11:40:11,420 - INFO - Throttling: Sleeping for 18.58 seconds
+2025-12-16 11:40:30,025 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/by-kilian/rolling-in-love-56402.html
+2025-12-16 11:40:30,722 - INFO - Status Code: 200
+2025-12-16 11:40:30,723 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 11:40:30,981 - INFO - Perfume Name: Rolling in Love By Kilian
+2025-12-16 11:40:30,981 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.56402.jpg
+2025-12-16 11:40:31,089 - INFO - 
+--- Processing 6/40: rehab ---
+2025-12-16 11:40:31,089 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/initio-parfums-prives/rehab-50351.html
+2025-12-16 11:40:31,089 - INFO - Throttling: Sleeping for 20.44 seconds
+2025-12-16 11:40:51,552 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/initio-parfums-prives/rehab-50351.html
+2025-12-16 11:40:52,325 - INFO - Status Code: 200
+2025-12-16 11:40:52,326 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 11:40:52,529 - INFO - Perfume Name: Rehab Initio Parfums Prives
+2025-12-16 11:40:52,529 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.50351.jpg
+2025-12-16 11:40:52,643 - INFO - Saved progress after 6 rows
+2025-12-16 11:40:52,643 - INFO - 
+--- Processing 7/40: dior-addict-eau-de-parfum ---
+2025-12-16 11:40:52,643 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/dior/dior-addict-eau-de-parfum-15270.html
+2025-12-16 11:40:52,644 - INFO - Throttling: Sleeping for 17.31 seconds
+2025-12-16 11:41:09,982 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/dior/dior-addict-eau-de-parfum-15270.html
+2025-12-16 11:41:10,743 - INFO - Status Code: 200
+2025-12-16 11:41:10,744 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 11:41:10,950 - INFO - Perfume Name: Dior Addict Eau de Parfum Dior
+2025-12-16 11:41:10,950 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.15270.jpg
+2025-12-16 11:41:11,053 - INFO - 
+--- Processing 8/40: bibliotheque ---
+2025-12-16 11:41:11,053 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/byredo/bibliotheque-43324.html
+2025-12-16 11:41:11,053 - INFO - Throttling: Sleeping for 28.04 seconds
+2025-12-16 11:41:39,124 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/byredo/bibliotheque-43324.html
+2025-12-16 11:41:39,885 - INFO - Status Code: 200
+2025-12-16 11:41:39,885 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 11:41:40,086 - INFO - Perfume Name: Bibliothèque Byredo
+2025-12-16 11:41:40,086 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.43324.jpg
+2025-12-16 11:41:40,188 - INFO - 
+--- Processing 9/40: 1740-marquis-de-sade ---
+2025-12-16 11:41:40,189 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/histoires-de-parfums/1740-marquis-de-sade-8590.html
+2025-12-16 11:41:40,189 - INFO - Throttling: Sleeping for 26.11 seconds
+2025-12-16 11:42:06,326 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/histoires-de-parfums/1740-marquis-de-sade-8590.html
+2025-12-16 11:42:07,707 - INFO - Status Code: 200
+2025-12-16 11:42:07,708 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 11:42:07,923 - INFO - Perfume Name: 1740 Marquis de Sade Histoires de Parfums
+2025-12-16 11:42:07,923 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.8590.jpg
+2025-12-16 11:42:08,031 - INFO - Saved progress after 9 rows
+2025-12-16 11:42:08,031 - INFO - 
+--- Processing 10/40: hundred-silent-ways ---
+2025-12-16 11:42:08,031 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/nishane/hundred-silent-ways-37602.html
+2025-12-16 11:42:08,031 - INFO - Throttling: Sleeping for 30.79 seconds
+2025-12-16 11:42:38,851 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/nishane/hundred-silent-ways-37602.html
+2025-12-16 11:42:39,799 - INFO - Status Code: 200
+2025-12-16 11:42:39,800 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 11:42:40,355 - INFO - Perfume Name: Hundred Silent Ways Nishane
+2025-12-16 11:42:40,356 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.37602.jpg
+2025-12-16 11:42:40,623 - INFO - 
+--- Processing 11/40: white-tea ---
+2025-12-16 11:42:40,623 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/elizabeth-arden/white-tea-42439.html
+2025-12-16 11:42:40,623 - INFO - Throttling: Sleeping for 24.02 seconds
+2025-12-16 11:43:04,676 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/elizabeth-arden/white-tea-42439.html
+2025-12-16 11:43:05,710 - INFO - Status Code: 200
+2025-12-16 11:43:05,710 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 11:43:06,025 - INFO - Perfume Name: White Tea Elizabeth Arden
+2025-12-16 11:43:06,026 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.42439.jpg
+2025-12-16 11:43:06,181 - INFO - 
+--- Processing 12/40: libre-le-parfum ---
+2025-12-16 11:43:06,181 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/yves-saint-laurent/libre-le-parfum-75676.html
+2025-12-16 11:43:06,182 - INFO - Throttling: Sleeping for 17.69 seconds
+2025-12-16 11:43:23,937 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/yves-saint-laurent/libre-le-parfum-75676.html
+2025-12-16 11:43:24,857 - INFO - Status Code: 200
+2025-12-16 11:43:24,858 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 11:43:25,303 - INFO - Perfume Name: Libre Le Parfum Yves Saint Laurent
+2025-12-16 11:43:25,304 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.75676.jpg
+2025-12-16 11:43:25,564 - INFO - Saved progress after 12 rows
+2025-12-16 11:43:25,565 - INFO - 
+--- Processing 13/40: sedley ---
+2025-12-16 11:43:25,565 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/parfums-de-marly/sedley-56273.html
+2025-12-16 11:43:25,565 - INFO - Throttling: Sleeping for 15.49 seconds
+2025-12-16 11:43:41,109 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/parfums-de-marly/sedley-56273.html
+2025-12-16 11:43:42,253 - INFO - Status Code: 200
+2025-12-16 11:43:42,254 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 11:43:42,593 - INFO - Perfume Name: Sedley Parfums de Marly
+2025-12-16 11:43:42,593 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.56273.jpg
+2025-12-16 11:43:42,797 - INFO - 
+--- Processing 14/40: rose-31 ---
+2025-12-16 11:43:42,798 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/le-labo/rose-31-3678.html
+2025-12-16 11:43:42,798 - INFO - Throttling: Sleeping for 32.75 seconds
+2025-12-16 11:44:15,610 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/le-labo/rose-31-3678.html
+2025-12-16 11:44:16,553 - INFO - Status Code: 200
+2025-12-16 11:44:16,554 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 11:44:16,869 - INFO - Perfume Name: Rose 31 Le Labo
+2025-12-16 11:44:16,870 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.3678.jpg
+2025-12-16 11:44:17,049 - INFO - 
+--- Processing 15/40: la-yuqawam-homme ---
+2025-12-16 11:44:17,049 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/rasasi/la-yuqawam-homme-19668.html
+2025-12-16 11:44:17,050 - INFO - Throttling: Sleeping for 14.90 seconds
+2025-12-16 11:44:31,999 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/rasasi/la-yuqawam-homme-19668.html
+2025-12-16 11:44:32,925 - INFO - Status Code: 200
+2025-12-16 11:44:32,925 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 11:44:33,323 - INFO - Perfume Name: La Yuqawam Homme Rasasi
+2025-12-16 11:44:33,324 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.19668.jpg
+2025-12-16 11:44:33,495 - INFO - Saved progress after 15 rows
+2025-12-16 11:44:33,496 - INFO - 
+--- Processing 16/40: femme-rochas ---
+2025-12-16 11:44:33,496 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/rochas/femme-rochas-28.html
+2025-12-16 11:44:33,497 - INFO - Throttling: Sleeping for 26.28 seconds
+2025-12-16 11:44:59,804 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/rochas/femme-rochas-28.html
+2025-12-16 11:45:00,727 - INFO - Status Code: 200
+2025-12-16 11:45:00,728 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 11:45:01,366 - INFO - Perfume Name: Femme Rochas Rochas
+2025-12-16 11:45:01,367 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.28.jpg
+2025-12-16 11:45:01,621 - INFO - 
+--- Processing 17/40: white-diamonds ---
+2025-12-16 11:45:01,622 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/elizabeth-taylor/white-diamonds-887.html
+2025-12-16 11:45:01,623 - INFO - Throttling: Sleeping for 37.00 seconds
+2025-12-16 11:45:38,679 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/elizabeth-taylor/white-diamonds-887.html
+2025-12-16 11:45:39,606 - INFO - Status Code: 200
+2025-12-16 11:45:39,607 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 11:45:39,985 - INFO - Perfume Name: White Diamonds Elizabeth Taylor
+2025-12-16 11:45:39,985 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.887.jpg
+2025-12-16 11:45:40,236 - INFO - 
+--- Processing 18/40: beau-de-jour-eau-de-parfum ---
+2025-12-16 11:45:40,237 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/tom-ford/beau-de-jour-eau-de-parfum-59064.html
+2025-12-16 11:45:40,237 - INFO - Throttling: Sleeping for 52.42 seconds
+2025-12-16 11:46:32,697 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/tom-ford/beau-de-jour-eau-de-parfum-59064.html
+2025-12-16 11:46:33,707 - INFO - Status Code: 200
+2025-12-16 11:46:33,707 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 11:46:34,088 - INFO - Perfume Name: Beau De Jour Eau de Parfum Tom Ford
+2025-12-16 11:46:34,089 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.59064.jpg
+2025-12-16 11:46:34,279 - INFO - Saved progress after 18 rows
+2025-12-16 11:46:34,280 - INFO - 
+--- Processing 19/40: oriana ---
+2025-12-16 11:46:34,280 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/parfums-de-marly/oriana-69117.html
+2025-12-16 11:46:34,280 - INFO - Throttling: Sleeping for 14.99 seconds
+2025-12-16 11:46:49,334 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/parfums-de-marly/oriana-69117.html
+2025-12-16 11:46:50,256 - INFO - Status Code: 200
+2025-12-16 11:46:50,257 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 11:46:50,674 - INFO - Perfume Name: Oriana Parfums de Marly
+2025-12-16 11:46:50,674 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.69117.jpg
+2025-12-16 11:46:50,897 - INFO - 
+--- Processing 20/40: versace-pour-homme-oud-noir ---
+2025-12-16 11:46:50,898 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/versace/versace-pour-homme-oud-noir-17338.html
+2025-12-16 11:46:50,899 - INFO - Throttling: Sleeping for 17.79 seconds
+2025-12-16 11:47:08,750 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/versace/versace-pour-homme-oud-noir-17338.html
+2025-12-16 11:47:09,586 - INFO - Status Code: 200
+2025-12-16 11:47:09,587 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 11:47:10,022 - INFO - Perfume Name: Versace Pour Homme Oud Noir Versace
+2025-12-16 11:47:10,023 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.17338.jpg
+2025-12-16 11:47:10,238 - INFO - 
+--- Processing 21/40: tendre-jasmin ---
+2025-12-16 11:47:10,238 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/yves-rocher/tendre-jasmin-3790.html
+2025-12-16 11:47:10,238 - INFO - Throttling: Sleeping for 21.62 seconds
+2025-12-16 11:47:31,907 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/yves-rocher/tendre-jasmin-3790.html
+2025-12-16 11:47:32,885 - INFO - Status Code: 200
+2025-12-16 11:47:32,885 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 11:47:33,198 - INFO - Perfume Name: Tendre Jasmin Yves Rocher
+2025-12-16 11:47:33,199 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.3790.jpg
+2025-12-16 11:47:33,347 - INFO - Saved progress after 21 rows
+2025-12-16 11:47:33,348 - INFO - 
+--- Processing 22/40: club-de-nuit-milestone ---
+2025-12-16 11:47:33,348 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/armaf/club-de-nuit-milestone-64104.html
+2025-12-16 11:47:33,349 - INFO - Throttling: Sleeping for 26.26 seconds
+2025-12-16 11:47:59,667 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/armaf/club-de-nuit-milestone-64104.html
+2025-12-16 11:48:01,668 - INFO - Status Code: 200
+2025-12-16 11:48:01,668 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 11:48:02,224 - INFO - Perfume Name: Club de Nuit Milestone Armaf
+2025-12-16 11:48:02,224 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.64104.jpg
+2025-12-16 11:48:02,443 - INFO - 
+--- Processing 23/40: declaration-d-un-soir ---
+2025-12-16 11:48:02,444 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/cartier/declaration-d-un-soir-15462.html
+2025-12-16 11:48:02,444 - INFO - Throttling: Sleeping for 13.98 seconds
+2025-12-16 11:48:16,489 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/cartier/declaration-d-un-soir-15462.html
+2025-12-16 11:48:17,434 - INFO - Status Code: 200
+2025-12-16 11:48:17,435 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 11:48:17,863 - INFO - Perfume Name: Declaration d'Un Soir Cartier
+2025-12-16 11:48:17,864 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.15462.jpg
+2025-12-16 11:48:18,111 - INFO - 
+--- Processing 24/40: so-elixir-purple-eau-de-parfum ---
+2025-12-16 11:48:18,111 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/yves-rocher/so-elixir-purple-eau-de-parfum-16069.html
+2025-12-16 11:48:18,111 - INFO - Throttling: Sleeping for 52.90 seconds
+2025-12-16 11:49:11,044 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/yves-rocher/so-elixir-purple-eau-de-parfum-16069.html
+2025-12-16 11:49:12,466 - INFO - Status Code: 200
+2025-12-16 11:49:12,466 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 11:49:12,824 - INFO - Perfume Name: So Elixir Purple Eau de Parfum Yves Rocher
+2025-12-16 11:49:12,825 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.16069.jpg
+2025-12-16 11:49:13,042 - INFO - Saved progress after 24 rows
+2025-12-16 11:49:13,043 - INFO - 
+--- Processing 25/40: terre-d-hermes-eau-tres-fraiche ---
+2025-12-16 11:49:13,043 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/hermes/terre-d-hermes-eau-tres-fraiche-24060.html
+2025-12-16 11:49:13,043 - INFO - Throttling: Sleeping for 37.33 seconds
+2025-12-16 11:49:50,409 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/hermes/terre-d-hermes-eau-tres-fraiche-24060.html
+2025-12-16 11:49:51,327 - INFO - Status Code: 200
+2025-12-16 11:49:51,328 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 11:49:51,765 - INFO - Perfume Name: Terre d'Hermes Eau Tres Fraiche Hermès
+2025-12-16 11:49:51,765 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.24060.jpg
+2025-12-16 11:49:51,975 - INFO - 
+--- Processing 26/40: dolce-gabbana-pour-homme-intenso ---
+2025-12-16 11:49:51,976 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/dolce-gabbana/dolce-gabbana-pour-homme-intenso-28935.html
+2025-12-16 11:49:51,976 - INFO - Throttling: Sleeping for 55.68 seconds
+2025-12-16 11:50:47,717 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/dolce-gabbana/dolce-gabbana-pour-homme-intenso-28935.html
+2025-12-16 11:50:48,406 - INFO - Status Code: 429
+2025-12-16 11:50:48,407 - WARNING - Blocked with status 429. Block count: 1
+2025-12-16 11:50:48,408 - WARNING - Waiting 159.49 seconds before retry...
+2025-12-16 11:53:29,142 - INFO - Perfume Name: Dolce&Gabbana Pour Homme Intenso  Dolce&Gabbana
+2025-12-16 11:53:29,142 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.28935.jpg
+2025-12-16 11:53:29,326 - INFO - 
+--- Processing 27/40: lalique-white ---
+2025-12-16 11:53:29,326 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/lalique/lalique-white-3785.html
+2025-12-16 11:53:29,403 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/lalique/lalique-white-3785.html
+2025-12-16 11:53:30,378 - INFO - Status Code: 200
+2025-12-16 11:53:30,379 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 11:53:30,728 - INFO - Perfume Name: Lalique White Lalique
+2025-12-16 11:53:30,728 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.3785.jpg
+2025-12-16 11:53:30,972 - INFO - Saved progress after 27 rows
+2025-12-16 11:53:30,972 - INFO - 
+--- Processing 28/40: ck-one-shock-for-her ---
+2025-12-16 11:53:30,972 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/calvin-klein/ck-one-shock-for-her-12519.html
+2025-12-16 11:53:30,973 - INFO - Throttling: Sleeping for 95.70 seconds
+2025-12-16 11:55:06,733 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/calvin-klein/ck-one-shock-for-her-12519.html
+2025-12-16 11:55:07,703 - INFO - Status Code: 200
+2025-12-16 11:55:07,703 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 11:55:08,331 - INFO - Perfume Name: CK One Shock For Her Calvin Klein
+2025-12-16 11:55:08,331 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.12519.jpg
+2025-12-16 11:55:08,533 - INFO - 
+--- Processing 29/40: fame ---
+2025-12-16 11:55:08,534 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/paco-rabanne/fame-74962.html
+2025-12-16 11:55:08,534 - INFO - Throttling: Sleeping for 53.31 seconds
+2025-12-16 11:56:01,895 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/paco-rabanne/fame-74962.html
+2025-12-16 11:56:02,822 - INFO - Status Code: 200
+2025-12-16 11:56:02,823 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 11:56:03,226 - INFO - Perfume Name: Fame Rabanne
+2025-12-16 11:56:03,227 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.74962.jpg
+2025-12-16 11:56:03,421 - INFO - 
+--- Processing 30/40: light-blue-forever-pour-homme ---
+2025-12-16 11:56:03,422 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/dolce-gabbana/light-blue-forever-pour-homme-66556.html
+2025-12-16 11:56:03,422 - INFO - Throttling: Sleeping for 40.85 seconds
+2025-12-16 11:56:44,324 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/dolce-gabbana/light-blue-forever-pour-homme-66556.html
+2025-12-16 11:56:45,210 - INFO - Status Code: 200
+2025-12-16 11:56:45,210 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 11:56:45,704 - INFO - Perfume Name: Light Blue Forever pour Homme Dolce&Gabbana
+2025-12-16 11:56:45,704 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.66556.jpg
+2025-12-16 11:56:45,917 - INFO - Saved progress after 30 rows
+2025-12-16 11:56:45,917 - INFO - 
+--- Processing 31/40: coromandel-eau-de-parfum ---
+2025-12-16 11:56:45,917 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/chanel/coromandel-eau-de-parfum-41783.html
+2025-12-16 11:56:45,918 - INFO - Throttling: Sleeping for 33.44 seconds
+2025-12-16 11:57:19,409 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/chanel/coromandel-eau-de-parfum-41783.html
+2025-12-16 11:57:20,371 - INFO - Status Code: 200
+2025-12-16 11:57:20,371 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 11:57:20,702 - INFO - Perfume Name: Coromandel Eau de Parfum Chanel
+2025-12-16 11:57:20,702 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.41783.jpg
+2025-12-16 11:57:20,934 - INFO - 
+--- Processing 32/40: l-agent ---
+2025-12-16 11:57:20,934 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/agent-provocateur/l-agent-11214.html
+2025-12-16 11:57:20,935 - INFO - Throttling: Sleeping for 61.06 seconds
+2025-12-16 11:58:22,044 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/agent-provocateur/l-agent-11214.html
+2025-12-16 11:58:22,934 - INFO - Status Code: 200
+2025-12-16 11:58:22,934 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 11:58:23,362 - INFO - Perfume Name: L'Agent Agent Provocateur
+2025-12-16 11:58:23,362 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.11214.jpg
+2025-12-16 11:58:23,596 - INFO - 
+--- Processing 33/40: karma ---
+2025-12-16 11:58:23,596 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/lush/karma-4367.html
+2025-12-16 11:58:23,597 - INFO - Throttling: Sleeping for 67.83 seconds
+2025-12-16 11:59:31,456 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/lush/karma-4367.html
+2025-12-16 11:59:32,217 - INFO - Status Code: 200
+2025-12-16 11:59:32,217 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 11:59:32,568 - INFO - Perfume Name: Karma Lush
+2025-12-16 11:59:32,568 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.4367.jpg
+2025-12-16 11:59:32,697 - INFO - Saved progress after 33 rows
+2025-12-16 11:59:32,697 - INFO - 
+--- Processing 34/40: k-by-dolce-gabbana ---
+2025-12-16 11:59:32,698 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/dolce-gabbana/k-by-dolce-gabbana-56358.html
+2025-12-16 11:59:32,698 - INFO - Throttling: Sleeping for 61.45 seconds
+2025-12-16 12:00:34,194 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/dolce-gabbana/k-by-dolce-gabbana-56358.html
+2025-12-16 12:00:35,260 - INFO - Status Code: 200
+2025-12-16 12:00:35,260 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:00:35,627 - INFO - Perfume Name: K by Dolce & Gabbana Dolce&Gabbana
+2025-12-16 12:00:35,627 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.56358.jpg
+2025-12-16 12:00:35,869 - INFO - 
+--- Processing 35/40: kenzo-world ---
+2025-12-16 12:00:35,869 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/kenzo/kenzo-world-40278.html
+2025-12-16 12:00:35,870 - INFO - Throttling: Sleeping for 36.40 seconds
+2025-12-16 12:01:12,295 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/kenzo/kenzo-world-40278.html
+2025-12-16 12:01:13,086 - INFO - Status Code: 200
+2025-12-16 12:01:13,087 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:01:13,336 - INFO - Perfume Name: Kenzo World Kenzo
+2025-12-16 12:01:13,336 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.40278.jpg
+2025-12-16 12:01:13,461 - INFO - 
+--- Processing 36/40: acqua-di-parma-blu-mediterraneo-arancia-di-capri ---
+2025-12-16 12:01:13,461 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/acqua-di-parma/acqua-di-parma-blu-mediterraneo-arancia-di-capri-1685.html
+2025-12-16 12:01:13,461 - INFO - Throttling: Sleeping for 40.87 seconds
+2025-12-16 12:01:54,355 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/acqua-di-parma/acqua-di-parma-blu-mediterraneo-arancia-di-capri-1685.html
+2025-12-16 12:01:55,153 - INFO - Status Code: 200
+2025-12-16 12:01:55,154 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:01:55,431 - INFO - Perfume Name: Acqua di Parma Blu Mediterraneo Arancia di Capri Acqua di Parma
+2025-12-16 12:01:55,431 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.1685.jpg
+2025-12-16 12:01:55,569 - INFO - Saved progress after 36 rows
+2025-12-16 12:01:55,569 - INFO - 
+--- Processing 37/40: gucci-guilty-absolute-pour-femme ---
+2025-12-16 12:01:55,569 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/gucci/gucci-guilty-absolute-pour-femme-48090.html
+2025-12-16 12:01:55,570 - INFO - Throttling: Sleeping for 50.34 seconds
+2025-12-16 12:02:45,974 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/gucci/gucci-guilty-absolute-pour-femme-48090.html
+2025-12-16 12:02:47,712 - INFO - Status Code: 200
+2025-12-16 12:02:47,713 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:02:48,428 - INFO - Perfume Name: Gucci Guilty Absolute Pour Femme Gucci
+2025-12-16 12:02:48,428 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.48090.jpg
+2025-12-16 12:02:48,729 - INFO - 
+--- Processing 38/40: hidden-fantasy ---
+2025-12-16 12:02:48,730 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/britney-spears/hidden-fantasy-4760.html
+2025-12-16 12:02:48,730 - INFO - Throttling: Sleeping for 42.00 seconds
+2025-12-16 12:03:30,768 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/britney-spears/hidden-fantasy-4760.html
+2025-12-16 12:03:31,734 - INFO - Status Code: 200
+2025-12-16 12:03:31,734 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:03:32,019 - INFO - Perfume Name: Hidden Fantasy Britney Spears
+2025-12-16 12:03:32,020 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.4760.jpg
+2025-12-16 12:03:32,158 - INFO - 
+--- Processing 39/40: terre-d-hermes-eau-givree ---
+2025-12-16 12:03:32,158 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/hermes/terre-d-hermes-eau-givree-72439.html
+2025-12-16 12:03:32,158 - INFO - Throttling: Sleeping for 49.25 seconds
+2025-12-16 12:04:21,466 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/hermes/terre-d-hermes-eau-givree-72439.html
+2025-12-16 12:04:22,740 - INFO - Status Code: 200
+2025-12-16 12:04:22,740 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:04:23,223 - INFO - Perfume Name: Terre d'Hermès Eau Givree Hermès
+2025-12-16 12:04:23,223 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.72439.jpg
+2025-12-16 12:04:23,346 - INFO - Saved progress after 39 rows
+2025-12-16 12:04:23,347 - INFO - 
+--- Processing 40/40: xj-1861-renaissance ---
+2025-12-16 12:04:23,347 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/xerjoff/xj-1861-renaissance-12126.html
+2025-12-16 12:04:23,347 - INFO - Throttling: Sleeping for 69.06 seconds
+2025-12-16 12:05:32,438 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/xerjoff/xj-1861-renaissance-12126.html
+2025-12-16 12:05:33,131 - INFO - Status Code: 200
+2025-12-16 12:05:33,131 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:05:33,333 - INFO - Perfume Name: XJ 1861 Renaissance Xerjoff
+2025-12-16 12:05:33,333 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.12126.jpg
+2025-12-16 12:05:33,438 - INFO - Processing complete. Data saved to output_perfumes_v2.csv
+2025-12-16 12:12:12,642 - INFO - Processing 40 perfumes with enhanced anti-detection...
+2025-12-16 12:12:12,642 - INFO - 
+--- Processing 1/40: 1270 ---
+2025-12-16 12:12:12,643 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/frapin/1270-5325.html
+2025-12-16 12:12:12,673 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/frapin/1270-5325.html
+2025-12-16 12:12:13,599 - INFO - Status Code: 200
+2025-12-16 12:12:13,600 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:12:13,816 - INFO - Perfume Name: 1270 Frapin
+2025-12-16 12:12:13,816 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.5325.jpg
+2025-12-16 12:12:13,934 - INFO - 
+--- Processing 2/40: rouge-smoking ---
+2025-12-16 12:12:13,934 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/bdk-parfums/rouge-smoking-51468.html
+2025-12-16 12:12:13,935 - INFO - Throttling: Sleeping for 24.57 seconds
+2025-12-16 12:12:38,538 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/bdk-parfums/rouge-smoking-51468.html
+2025-12-16 12:12:39,265 - INFO - Status Code: 200
+2025-12-16 12:12:39,265 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:12:39,495 - INFO - Perfume Name: Rouge Smoking BDK Parfums
+2025-12-16 12:12:39,495 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.51468.jpg
+2025-12-16 12:12:39,619 - INFO - 
+--- Processing 3/40: sensuous-noir ---
+2025-12-16 12:12:39,619 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/estee-lauder/sensuous-noir-9895.html
+2025-12-16 12:12:39,619 - INFO - Throttling: Sleeping for 33.13 seconds
+2025-12-16 12:13:12,812 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/estee-lauder/sensuous-noir-9895.html
+2025-12-16 12:13:13,741 - INFO - Status Code: 200
+2025-12-16 12:13:13,742 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:13:14,023 - INFO - Perfume Name: Sensuous Noir Estée Lauder
+2025-12-16 12:13:14,024 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.9895.jpg
+2025-12-16 12:13:14,179 - INFO - Saved progress after 3 rows
+2025-12-16 12:13:14,179 - INFO - 
+--- Processing 4/40: aoud-lemon-mint ---
+2025-12-16 12:13:14,179 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/mancera/aoud-lemon-mint-39181.html
+2025-12-16 12:13:14,180 - INFO - Throttling: Sleeping for 14.49 seconds
+2025-12-16 12:13:28,703 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/mancera/aoud-lemon-mint-39181.html
+2025-12-16 12:13:30,229 - INFO - Status Code: 200
+2025-12-16 12:13:30,229 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:13:30,473 - INFO - Perfume Name: Aoud Lemon Mint Mancera
+2025-12-16 12:13:30,474 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.39181.jpg
+2025-12-16 12:13:30,607 - INFO - 
+--- Processing 5/40: valentino-uomo-born-in-roma-coral-fantasy ---
+2025-12-16 12:13:30,607 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/valentino/valentino-uomo-born-in-roma-coral-fantasy-71761.html
+2025-12-16 12:13:30,607 - INFO - Throttling: Sleeping for 26.99 seconds
+2025-12-16 12:13:57,624 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/valentino/valentino-uomo-born-in-roma-coral-fantasy-71761.html
+2025-12-16 12:13:58,335 - INFO - Status Code: 200
+2025-12-16 12:13:58,335 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:13:58,621 - INFO - Perfume Name: Valentino Uomo Born In Roma Coral Fantasy Valentino
+2025-12-16 12:13:58,621 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.71761.jpg
+2025-12-16 12:13:58,736 - INFO - 
+--- Processing 6/40: pomegranate-noir ---
+2025-12-16 12:13:58,736 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/jo-malone-london/pomegranate-noir-5581.html
+2025-12-16 12:13:58,737 - INFO - Throttling: Sleeping for 20.31 seconds
+2025-12-16 12:14:19,089 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/jo-malone-london/pomegranate-noir-5581.html
+2025-12-16 12:14:19,936 - INFO - Status Code: 200
+2025-12-16 12:14:19,936 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:14:20,201 - INFO - Perfume Name: Pomegranate Noir Jo Malone London
+2025-12-16 12:14:20,201 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.5581.jpg
+2025-12-16 12:14:20,345 - INFO - Saved progress after 6 rows
+2025-12-16 12:14:20,346 - INFO - 
+--- Processing 7/40: shaghaf-oud ---
+2025-12-16 12:14:20,346 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/swiss-arabian/shaghaf-oud-50582.html
+2025-12-16 12:14:20,346 - INFO - Throttling: Sleeping for 11.09 seconds
+2025-12-16 12:14:31,463 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/swiss-arabian/shaghaf-oud-50582.html
+2025-12-16 12:14:32,189 - INFO - Status Code: 200
+2025-12-16 12:14:32,190 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:14:32,435 - INFO - Perfume Name: Shaghaf Oud Swiss Arabian
+2025-12-16 12:14:32,436 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.50582.jpg
+2025-12-16 12:14:32,579 - INFO - 
+--- Processing 8/40: sculpture-homme ---
+2025-12-16 12:14:32,580 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/nikos/sculpture-homme-925.html
+2025-12-16 12:14:32,580 - INFO - Throttling: Sleeping for 22.68 seconds
+2025-12-16 12:14:55,312 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/nikos/sculpture-homme-925.html
+2025-12-16 12:14:56,261 - INFO - Status Code: 200
+2025-12-16 12:14:56,261 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:14:56,642 - INFO - Perfume Name: Sculpture Homme Nikos
+2025-12-16 12:14:56,643 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.925.jpg
+2025-12-16 12:14:56,874 - INFO - 
+--- Processing 9/40: cabochard ---
+2025-12-16 12:14:56,875 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/gres/cabochard-1060.html
+2025-12-16 12:14:56,875 - INFO - Throttling: Sleeping for 29.30 seconds
+2025-12-16 12:15:26,200 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/gres/cabochard-1060.html
+2025-12-16 12:15:26,952 - INFO - Status Code: 200
+2025-12-16 12:15:26,952 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:15:27,177 - INFO - Perfume Name: Cabochard Grès
+2025-12-16 12:15:27,177 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.1060.jpg
+2025-12-16 12:15:27,292 - INFO - Saved progress after 9 rows
+2025-12-16 12:15:27,292 - INFO - 
+--- Processing 10/40: bouquet-ideale ---
+2025-12-16 12:15:27,292 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/xerjoff/bouquet-ideale-11800.html
+2025-12-16 12:15:27,293 - INFO - Throttling: Sleeping for 42.26 seconds
+2025-12-16 12:16:09,574 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/xerjoff/bouquet-ideale-11800.html
+2025-12-16 12:16:10,318 - INFO - Status Code: 200
+2025-12-16 12:16:10,318 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:16:10,639 - INFO - Perfume Name: Bouquet Ideale Xerjoff
+2025-12-16 12:16:10,639 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.11800.jpg
+2025-12-16 12:16:10,752 - INFO - 
+--- Processing 11/40: imagination ---
+2025-12-16 12:16:10,753 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/louis-vuitton/imagination-67370.html
+2025-12-16 12:16:10,754 - INFO - Throttling: Sleeping for 34.25 seconds
+2025-12-16 12:16:45,083 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/louis-vuitton/imagination-67370.html
+2025-12-16 12:16:45,996 - INFO - Status Code: 200
+2025-12-16 12:16:45,996 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:16:46,466 - INFO - Perfume Name: Imagination Louis Vuitton
+2025-12-16 12:16:46,466 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.67370.jpg
+2025-12-16 12:16:46,656 - INFO - 
+--- Processing 12/40: only-the-brave ---
+2025-12-16 12:16:46,656 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/diesel/only-the-brave-5532.html
+2025-12-16 12:16:46,656 - INFO - Throttling: Sleeping for 25.20 seconds
+2025-12-16 12:17:11,933 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/diesel/only-the-brave-5532.html
+2025-12-16 12:17:12,869 - INFO - Status Code: 200
+2025-12-16 12:17:12,870 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:17:13,289 - INFO - Perfume Name: Only The Brave Diesel
+2025-12-16 12:17:13,289 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.5532.jpg
+2025-12-16 12:17:13,525 - INFO - Saved progress after 12 rows
+2025-12-16 12:17:13,526 - INFO - 
+--- Processing 13/40: dkny-women ---
+2025-12-16 12:17:13,526 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/donna-karan/dkny-women-504.html
+2025-12-16 12:17:13,526 - INFO - Throttling: Sleeping for 25.41 seconds
+2025-12-16 12:17:39,000 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/donna-karan/dkny-women-504.html
+2025-12-16 12:17:40,070 - INFO - Status Code: 200
+2025-12-16 12:17:40,070 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:17:40,514 - INFO - Perfume Name: DKNY Women Donna Karan
+2025-12-16 12:17:40,515 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.504.jpg
+2025-12-16 12:17:40,741 - INFO - 
+--- Processing 14/40: touch-of-pink ---
+2025-12-16 12:17:40,741 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/lacoste-fragrances/touch-of-pink-673.html
+2025-12-16 12:17:40,742 - INFO - Throttling: Sleeping for 37.92 seconds
+2025-12-16 12:18:18,723 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/lacoste-fragrances/touch-of-pink-673.html
+2025-12-16 12:18:19,805 - INFO - Status Code: 200
+2025-12-16 12:18:19,805 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:18:20,251 - INFO - Perfume Name: Touch of Pink Lacoste Fragrances
+2025-12-16 12:18:20,251 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.673.jpg
+2025-12-16 12:18:20,426 - INFO - 
+--- Processing 15/40: burberry-her-elixir-de-parfum ---
+2025-12-16 12:18:20,426 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/burberry/burberry-her-elixir-de-parfum-75968.html
+2025-12-16 12:18:20,426 - INFO - Throttling: Sleeping for 27.77 seconds
+2025-12-16 12:18:48,222 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/burberry/burberry-her-elixir-de-parfum-75968.html
+2025-12-16 12:18:49,000 - INFO - Status Code: 200
+2025-12-16 12:18:49,000 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:18:49,205 - INFO - Perfume Name: Burberry Her Elixir de Parfum Burberry
+2025-12-16 12:18:49,205 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.75968.jpg
+2025-12-16 12:18:49,314 - INFO - Saved progress after 15 rows
+2025-12-16 12:18:49,314 - INFO - 
+--- Processing 16/40: maroussia ---
+2025-12-16 12:18:49,314 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/slava-zaitsev/maroussia-1196.html
+2025-12-16 12:18:49,314 - INFO - Throttling: Sleeping for 18.35 seconds
+2025-12-16 12:19:07,689 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/slava-zaitsev/maroussia-1196.html
+2025-12-16 12:19:08,454 - INFO - Status Code: 200
+2025-12-16 12:19:08,454 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:19:08,822 - INFO - Perfume Name: Maroussia Slava Zaitsev
+2025-12-16 12:19:08,823 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.1196.jpg
+2025-12-16 12:19:08,953 - INFO - 
+--- Processing 17/40: plum-japonais ---
+2025-12-16 12:19:08,953 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/tom-ford/plum-japonais-18490.html
+2025-12-16 12:19:08,953 - INFO - Throttling: Sleeping for 38.88 seconds
+2025-12-16 12:19:47,867 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/tom-ford/plum-japonais-18490.html
+2025-12-16 12:19:48,609 - INFO - Status Code: 200
+2025-12-16 12:19:48,610 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:19:48,820 - INFO - Perfume Name: Plum Japonais Tom Ford
+2025-12-16 12:19:48,820 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.18490.jpg
+2025-12-16 12:19:48,925 - INFO - 
+--- Processing 18/40: miss-dior-rose-n-roses ---
+2025-12-16 12:19:48,925 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/dior/miss-dior-rose-n-roses-58562.html
+2025-12-16 12:19:48,926 - INFO - Throttling: Sleeping for 18.32 seconds
+2025-12-16 12:20:07,307 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/dior/miss-dior-rose-n-roses-58562.html
+2025-12-16 12:20:08,342 - INFO - Status Code: 200
+2025-12-16 12:20:08,342 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:20:08,663 - INFO - Perfume Name: Miss Dior Rose N'Roses Dior
+2025-12-16 12:20:08,663 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.58562.jpg
+2025-12-16 12:20:08,815 - INFO - Saved progress after 18 rows
+2025-12-16 12:20:08,816 - INFO - 
+--- Processing 19/40: versace-pour-femme ---
+2025-12-16 12:20:08,816 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/versace/versace-pour-femme-1336.html
+2025-12-16 12:20:08,817 - INFO - Throttling: Sleeping for 40.89 seconds
+2025-12-16 12:20:49,772 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/versace/versace-pour-femme-1336.html
+2025-12-16 12:20:50,758 - INFO - Status Code: 200
+2025-12-16 12:20:50,759 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:20:51,266 - INFO - Perfume Name: Versace Pour Femme Versace
+2025-12-16 12:20:51,266 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.1336.jpg
+2025-12-16 12:20:51,486 - INFO - 
+--- Processing 20/40: fleur-de-peau-eau-de-parfum ---
+2025-12-16 12:20:51,487 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/diptyque/fleur-de-peau-eau-de-parfum-48681.html
+2025-12-16 12:20:51,487 - INFO - Throttling: Sleeping for 33.34 seconds
+2025-12-16 12:21:24,862 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/diptyque/fleur-de-peau-eau-de-parfum-48681.html
+2025-12-16 12:21:25,941 - INFO - Status Code: 200
+2025-12-16 12:21:25,942 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:21:26,492 - INFO - Perfume Name: Fleur de Peau Eau de Parfum Diptyque
+2025-12-16 12:21:26,493 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.48681.jpg
+2025-12-16 12:21:26,717 - INFO - 
+--- Processing 21/40: vibrant-leather-eau-de-parfum ---
+2025-12-16 12:21:26,717 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/zara/vibrant-leather-eau-de-parfum-50122.html
+2025-12-16 12:21:26,717 - INFO - Throttling: Sleeping for 48.46 seconds
+2025-12-16 12:22:15,205 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/zara/vibrant-leather-eau-de-parfum-50122.html
+2025-12-16 12:22:16,085 - INFO - Status Code: 200
+2025-12-16 12:22:16,085 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:22:16,311 - INFO - Perfume Name: Vibrant Leather Eau de Parfum Zara
+2025-12-16 12:22:16,311 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.50122.jpg
+2025-12-16 12:22:16,427 - INFO - Saved progress after 21 rows
+2025-12-16 12:22:16,427 - INFO - 
+--- Processing 22/40: pear-inc ---
+2025-12-16 12:22:16,427 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/juliette-has-a-gun/pear-inc-66120.html
+2025-12-16 12:22:16,428 - INFO - Throttling: Sleeping for 23.95 seconds
+2025-12-16 12:22:40,448 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/juliette-has-a-gun/pear-inc-66120.html
+2025-12-16 12:22:41,699 - INFO - Status Code: 200
+2025-12-16 12:22:41,704 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:22:42,381 - INFO - Perfume Name: Pear Inc Juliette Has A Gun
+2025-12-16 12:22:42,381 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.66120.jpg
+2025-12-16 12:22:42,626 - INFO - 
+--- Processing 23/40: prada-la-femme ---
+2025-12-16 12:22:42,626 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/prada/prada-la-femme-39030.html
+2025-12-16 12:22:42,626 - INFO - Throttling: Sleeping for 42.24 seconds
+2025-12-16 12:23:24,934 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/prada/prada-la-femme-39030.html
+2025-12-16 12:23:25,898 - INFO - Status Code: 200
+2025-12-16 12:23:25,898 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:23:26,122 - INFO - Perfume Name: Prada La Femme Prada
+2025-12-16 12:23:26,123 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.39030.jpg
+2025-12-16 12:23:26,237 - INFO - 
+--- Processing 24/40: scarlett ---
+2025-12-16 12:23:26,238 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/cacharel/scarlett-6263.html
+2025-12-16 12:23:26,238 - INFO - Throttling: Sleeping for 32.46 seconds
+2025-12-16 12:23:58,721 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/cacharel/scarlett-6263.html
+2025-12-16 12:23:59,510 - INFO - Status Code: 200
+2025-12-16 12:23:59,511 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:23:59,731 - INFO - Perfume Name: Scarlett Cacharel
+2025-12-16 12:23:59,731 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.6263.jpg
+2025-12-16 12:23:59,847 - INFO - Saved progress after 24 rows
+2025-12-16 12:23:59,847 - INFO - 
+--- Processing 25/40: guidance ---
+2025-12-16 12:23:59,848 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/amouage/guidance-78656.html
+2025-12-16 12:23:59,848 - INFO - Throttling: Sleeping for 60.38 seconds
+2025-12-16 12:25:00,295 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/amouage/guidance-78656.html
+2025-12-16 12:25:01,529 - INFO - Status Code: 200
+2025-12-16 12:25:01,530 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:25:01,973 - INFO - Perfume Name: Guidance Amouage
+2025-12-16 12:25:01,973 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.78656.jpg
+2025-12-16 12:25:02,293 - INFO - 
+--- Processing 26/40: ameer-al-oudh-intense-oud ---
+2025-12-16 12:25:02,294 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/lattafa-perfumes/ameer-al-oudh-intense-oud-64947.html
+2025-12-16 12:25:02,294 - INFO - Throttling: Sleeping for 17.60 seconds
+2025-12-16 12:25:19,966 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/lattafa-perfumes/ameer-al-oudh-intense-oud-64947.html
+2025-12-16 12:25:21,008 - INFO - Status Code: 200
+2025-12-16 12:25:21,009 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:25:21,475 - INFO - Perfume Name: Ameer Al Oudh Intense Oud Lattafa Perfumes
+2025-12-16 12:25:21,475 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.64947.jpg
+2025-12-16 12:25:21,663 - INFO - 
+--- Processing 27/40: secret-d-essences-neroli ---
+2025-12-16 12:25:21,663 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/yves-rocher/secret-d-essences-neroli-17552.html
+2025-12-16 12:25:21,664 - INFO - Throttling: Sleeping for 64.94 seconds
+2025-12-16 12:26:26,675 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/yves-rocher/secret-d-essences-neroli-17552.html
+2025-12-16 12:26:27,577 - INFO - Status Code: 200
+2025-12-16 12:26:27,577 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:26:27,907 - INFO - Perfume Name: Secret d'Essences Neroli Yves Rocher
+2025-12-16 12:26:27,908 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.17552.jpg
+2025-12-16 12:26:28,094 - INFO - Saved progress after 27 rows
+2025-12-16 12:26:28,095 - INFO - 
+--- Processing 28/40: cuir-beluga ---
+2025-12-16 12:26:28,095 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/guerlain/cuir-beluga-1019.html
+2025-12-16 12:26:28,095 - INFO - Throttling: Sleeping for 20.81 seconds
+2025-12-16 12:26:48,969 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/guerlain/cuir-beluga-1019.html
+2025-12-16 12:26:49,877 - INFO - Status Code: 200
+2025-12-16 12:26:49,878 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:26:50,449 - INFO - Perfume Name: Cuir Béluga Guerlain
+2025-12-16 12:26:50,450 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.1019.jpg
+2025-12-16 12:26:50,689 - INFO - 
+--- Processing 29/40: good-girl-blush ---
+2025-12-16 12:26:50,689 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/carolina-herrera/good-girl-blush-78576.html
+2025-12-16 12:26:50,690 - INFO - Throttling: Sleeping for 25.99 seconds
+2025-12-16 12:27:16,701 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/carolina-herrera/good-girl-blush-78576.html
+2025-12-16 12:27:17,469 - INFO - Status Code: 200
+2025-12-16 12:27:17,470 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:27:17,676 - INFO - Perfume Name: Good Girl Blush Carolina Herrera
+2025-12-16 12:27:17,677 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.78576.jpg
+2025-12-16 12:27:17,786 - INFO - 
+--- Processing 30/40: hugo-woman ---
+2025-12-16 12:27:17,786 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/hugo-boss/hugo-woman-380.html
+2025-12-16 12:27:17,786 - INFO - Throttling: Sleeping for 53.69 seconds
+2025-12-16 12:28:11,498 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/hugo-boss/hugo-woman-380.html
+2025-12-16 12:28:12,666 - INFO - Status Code: 200
+2025-12-16 12:28:12,667 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:28:12,807 - INFO - Perfume Name: Hugo Woman Hugo Boss
+2025-12-16 12:28:12,807 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.380.jpg
+2025-12-16 12:28:12,887 - INFO - Saved progress after 30 rows
+2025-12-16 12:28:12,887 - INFO - 
+--- Processing 31/40: 3600-red-for-men ---
+2025-12-16 12:28:12,887 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/perry-ellis/3600-red-for-men-1906.html
+2025-12-16 12:28:12,887 - INFO - Throttling: Sleeping for 32.98 seconds
+2025-12-16 12:28:45,889 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/perry-ellis/3600-red-for-men-1906.html
+2025-12-16 12:28:46,579 - INFO - Status Code: 200
+2025-12-16 12:28:46,580 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:28:46,782 - INFO - Perfume Name: 360° Red for Men Perry Ellis
+2025-12-16 12:28:46,782 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.1906.jpg
+2025-12-16 12:28:46,878 - INFO - 
+--- Processing 32/40: rose-essentielle ---
+2025-12-16 12:28:46,879 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/bvlgari/rose-essentielle-665.html
+2025-12-16 12:28:46,879 - INFO - Throttling: Sleeping for 81.68 seconds
+2025-12-16 12:30:08,587 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/bvlgari/rose-essentielle-665.html
+2025-12-16 12:30:09,749 - INFO - Status Code: 200
+2025-12-16 12:30:09,749 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:30:09,953 - INFO - Perfume Name: Rose Essentielle Bvlgari
+2025-12-16 12:30:09,954 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.665.jpg
+2025-12-16 12:30:10,066 - INFO - 
+--- Processing 33/40: dolce-amalfi ---
+2025-12-16 12:30:10,067 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/xerjoff/dolce-amalfi-42988.html
+2025-12-16 12:30:10,067 - INFO - Throttling: Sleeping for 28.94 seconds
+2025-12-16 12:30:39,035 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/xerjoff/dolce-amalfi-42988.html
+2025-12-16 12:30:39,768 - INFO - Status Code: 200
+2025-12-16 12:30:39,768 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:30:40,070 - INFO - Perfume Name: Dolce Amalfi Xerjoff
+2025-12-16 12:30:40,070 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.42988.jpg
+2025-12-16 12:30:40,170 - INFO - Saved progress after 33 rows
+2025-12-16 12:30:40,171 - INFO - 
+--- Processing 34/40: giorgio ---
+2025-12-16 12:30:40,171 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/giorgio-beverly-hills/giorgio-1889.html
+2025-12-16 12:30:40,171 - INFO - Throttling: Sleeping for 24.84 seconds
+2025-12-16 12:31:05,036 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/giorgio-beverly-hills/giorgio-1889.html
+2025-12-16 12:31:05,780 - INFO - Status Code: 200
+2025-12-16 12:31:05,780 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:31:05,998 - INFO - Perfume Name: Giorgio Giorgio Beverly Hills
+2025-12-16 12:31:05,998 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.1889.jpg
+2025-12-16 12:31:06,103 - INFO - 
+--- Processing 35/40: pure-xs ---
+2025-12-16 12:31:06,103 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/paco-rabanne/pure-xs-46038.html
+2025-12-16 12:31:06,103 - INFO - Throttling: Sleeping for 70.36 seconds
+2025-12-16 12:32:16,487 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/paco-rabanne/pure-xs-46038.html
+2025-12-16 12:32:17,210 - INFO - Status Code: 200
+2025-12-16 12:32:17,210 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:32:17,431 - INFO - Perfume Name: Pure XS Rabanne
+2025-12-16 12:32:17,431 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.46038.jpg
+2025-12-16 12:32:17,532 - INFO - 
+--- Processing 36/40: christina-aguilera ---
+2025-12-16 12:32:17,533 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/christina-aguilera/christina-aguilera-1494.html
+2025-12-16 12:32:17,533 - INFO - Throttling: Sleeping for 61.00 seconds
+2025-12-16 12:33:18,565 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/christina-aguilera/christina-aguilera-1494.html
+2025-12-16 12:33:19,394 - INFO - Status Code: 200
+2025-12-16 12:33:19,395 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:33:19,776 - INFO - Perfume Name: Christina Aguilera Christina Aguilera
+2025-12-16 12:33:19,776 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.1494.jpg
+2025-12-16 12:33:19,973 - INFO - Saved progress after 36 rows
+2025-12-16 12:33:19,974 - INFO - 
+--- Processing 37/40: j-ose ---
+2025-12-16 12:33:19,974 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/eisenberg/j-ose-9167.html
+2025-12-16 12:33:19,975 - INFO - Throttling: Sleeping for 46.30 seconds
+2025-12-16 12:34:06,321 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/eisenberg/j-ose-9167.html
+2025-12-16 12:34:07,206 - INFO - Status Code: 200
+2025-12-16 12:34:07,207 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:34:07,434 - INFO - Perfume Name: J'ose Eisenberg
+2025-12-16 12:34:07,435 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.9167.jpg
+2025-12-16 12:34:07,558 - INFO - 
+--- Processing 38/40: santal-blush ---
+2025-12-16 12:34:07,559 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/tom-ford/santal-blush-12766.html
+2025-12-16 12:34:07,559 - INFO - Throttling: Sleeping for 32.61 seconds
+2025-12-16 12:34:40,206 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/tom-ford/santal-blush-12766.html
+2025-12-16 12:34:40,957 - INFO - Status Code: 200
+2025-12-16 12:34:40,958 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:34:41,180 - INFO - Perfume Name: Santal Blush Tom Ford
+2025-12-16 12:34:41,180 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.12766.jpg
+2025-12-16 12:34:41,289 - INFO - 
+--- Processing 39/40: feve-delicieuse ---
+2025-12-16 12:34:41,289 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/dior/feve-delicieuse-30164.html
+2025-12-16 12:34:41,289 - INFO - Throttling: Sleeping for 64.16 seconds
+2025-12-16 12:35:45,501 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/dior/feve-delicieuse-30164.html
+2025-12-16 12:35:46,482 - INFO - Status Code: 200
+2025-12-16 12:35:46,483 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:35:46,876 - INFO - Perfume Name: Fève Délicieuse Dior
+2025-12-16 12:35:46,876 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.30164.jpg
+2025-12-16 12:35:47,117 - INFO - Saved progress after 39 rows
+2025-12-16 12:35:47,118 - INFO - 
+--- Processing 40/40: cashmere-mist-eau-de-toilette ---
+2025-12-16 12:35:47,118 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/donna-karan/cashmere-mist-eau-de-toilette-496.html
+2025-12-16 12:35:47,118 - INFO - Throttling: Sleeping for 49.05 seconds
+2025-12-16 12:36:36,203 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/donna-karan/cashmere-mist-eau-de-toilette-496.html
+2025-12-16 12:36:37,052 - INFO - Status Code: 200
+2025-12-16 12:36:37,053 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 12:36:37,605 - INFO - Perfume Name: Cashmere Mist Eau de Toilette Donna Karan
+2025-12-16 12:36:37,606 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.496.jpg
+2025-12-16 12:36:37,770 - INFO - Processing complete. Data saved to output_perfumes_v2.csv
+2025-12-16 15:45:03,238 - INFO - Processing 40 perfumes with enhanced anti-detection...
+2025-12-16 15:45:03,241 - INFO - 
+--- Processing 1/40: jaipur-homme ---
+2025-12-16 15:45:03,241 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/boucheron/jaipur-homme-137.html
+2025-12-16 15:45:03,268 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/boucheron/jaipur-homme-137.html
+2025-12-16 15:45:04,005 - INFO - Status Code: 200
+2025-12-16 15:45:04,006 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 15:45:04,240 - INFO - Perfume Name: Jaipur Homme Boucheron
+2025-12-16 15:45:04,240 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.137.jpg
+2025-12-16 15:45:04,356 - INFO - 
+--- Processing 2/40: this-is-him ---
+2025-12-16 15:45:04,356 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/zadig-voltaire/this-is-him-39359.html
+2025-12-16 15:45:04,356 - INFO - Throttling: Sleeping for 14.72 seconds
+2025-12-16 15:45:19,103 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/zadig-voltaire/this-is-him-39359.html
+2025-12-16 15:45:20,877 - INFO - Status Code: 200
+2025-12-16 15:45:20,877 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 15:45:21,090 - INFO - Perfume Name: This is Him Zadig & Voltaire
+2025-12-16 15:45:21,091 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.39359.jpg
+2025-12-16 15:45:21,195 - INFO - 
+--- Processing 3/40: signorina-misteriosa ---
+2025-12-16 15:45:21,195 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/salvatore-ferragamo/signorina-misteriosa-32646.html
+2025-12-16 15:45:21,195 - INFO - Throttling: Sleeping for 25.67 seconds
+2025-12-16 15:45:46,887 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/salvatore-ferragamo/signorina-misteriosa-32646.html
+2025-12-16 15:45:47,770 - INFO - Status Code: 200
+2025-12-16 15:45:47,771 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 15:45:47,985 - INFO - Perfume Name: Signorina Misteriosa Salvatore Ferragamo
+2025-12-16 15:45:47,986 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.32646.jpg
+2025-12-16 15:45:48,141 - INFO - Saved progress after 3 rows
+2025-12-16 15:45:48,141 - INFO - 
+--- Processing 4/40: italica-2021 ---
+2025-12-16 15:45:48,141 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/xerjoff/italica-2021-65383.html
+2025-12-16 15:45:48,142 - INFO - Throttling: Sleeping for 20.17 seconds
+2025-12-16 15:46:08,336 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/xerjoff/italica-2021-65383.html
+2025-12-16 15:46:09,192 - INFO - Status Code: 200
+2025-12-16 15:46:09,192 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 15:46:09,414 - INFO - Perfume Name: Italica (2021) Xerjoff
+2025-12-16 15:46:09,414 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.65383.jpg
+2025-12-16 15:46:09,519 - INFO - 
+--- Processing 5/40: paris-hilton ---
+2025-12-16 15:46:09,520 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/paris-hilton/paris-hilton-1434.html
+2025-12-16 15:46:09,520 - INFO - Throttling: Sleeping for 27.34 seconds
+2025-12-16 15:46:36,888 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/paris-hilton/paris-hilton-1434.html
+2025-12-16 15:46:38,340 - INFO - Status Code: 200
+2025-12-16 15:46:38,341 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 15:46:38,596 - INFO - Perfume Name: Paris Hilton Paris Hilton
+2025-12-16 15:46:38,596 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.1434.jpg
+2025-12-16 15:46:38,696 - INFO - 
+--- Processing 6/40: narciso-eau-de-parfum-ambree ---
+2025-12-16 15:46:38,696 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/narciso-rodriguez/narciso-eau-de-parfum-ambree-60867.html
+2025-12-16 15:46:38,696 - INFO - Throttling: Sleeping for 32.83 seconds
+2025-12-16 15:47:11,555 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/narciso-rodriguez/narciso-eau-de-parfum-ambree-60867.html
+2025-12-16 15:47:12,375 - INFO - Status Code: 200
+2025-12-16 15:47:12,376 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 15:47:12,585 - INFO - Perfume Name: Narciso Eau de Parfum Ambrée Narciso Rodriguez
+2025-12-16 15:47:12,585 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.60867.jpg?t=1764095594
+2025-12-16 15:47:12,695 - INFO - Saved progress after 6 rows
+2025-12-16 15:47:12,695 - INFO - 
+--- Processing 7/40: la-nuit-de-l-homme-le-parfum ---
+2025-12-16 15:47:12,695 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/yves-saint-laurent/la-nuit-de-l-homme-le-parfum-10206.html
+2025-12-16 15:47:12,696 - INFO - Throttling: Sleeping for 19.64 seconds
+2025-12-16 15:47:32,364 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/yves-saint-laurent/la-nuit-de-l-homme-le-parfum-10206.html
+2025-12-16 15:47:33,266 - INFO - Status Code: 200
+2025-12-16 15:47:33,267 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 15:47:33,484 - INFO - Perfume Name: La Nuit de L'Homme Le Parfum Yves Saint Laurent
+2025-12-16 15:47:33,484 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.10206.jpg
+2025-12-16 15:47:33,587 - INFO - 
+--- Processing 8/40: satine ---
+2025-12-16 15:47:33,587 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/lalique/satine-17840.html
+2025-12-16 15:47:33,588 - INFO - Throttling: Sleeping for 42.81 seconds
+2025-12-16 15:48:16,456 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/lalique/satine-17840.html
+2025-12-16 15:48:17,501 - INFO - Status Code: 200
+2025-12-16 15:48:17,501 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 15:48:17,852 - INFO - Perfume Name: Satine Lalique
+2025-12-16 15:48:17,852 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.17840.jpg
+2025-12-16 15:48:18,097 - INFO - 
+--- Processing 9/40: heat-rush ---
+2025-12-16 15:48:18,097 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/beyonce/heat-rush-10546.html
+2025-12-16 15:48:18,098 - INFO - Throttling: Sleeping for 34.04 seconds
+2025-12-16 15:48:52,202 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/beyonce/heat-rush-10546.html
+2025-12-16 15:48:53,656 - INFO - Status Code: 200
+2025-12-16 15:48:53,656 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 15:48:54,155 - INFO - Perfume Name: Heat Rush Beyoncé
+2025-12-16 15:48:54,155 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.10546.jpg
+2025-12-16 15:48:54,353 - INFO - Saved progress after 9 rows
+2025-12-16 15:48:54,354 - INFO - 
+--- Processing 10/40: just-cavalli ---
+2025-12-16 15:48:54,354 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/roberto-cavalli/just-cavalli-16760.html
+2025-12-16 15:48:54,354 - INFO - Throttling: Sleeping for 24.74 seconds
+2025-12-16 15:49:19,151 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/roberto-cavalli/just-cavalli-16760.html
+2025-12-16 15:49:19,972 - INFO - Status Code: 200
+2025-12-16 15:49:19,973 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 15:49:20,587 - INFO - Perfume Name: Just Cavalli Roberto Cavalli
+2025-12-16 15:49:20,587 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.16760.jpg
+2025-12-16 15:49:20,824 - INFO - 
+--- Processing 11/40: cherry-in-the-air ---
+2025-12-16 15:49:20,824 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/escada/cherry-in-the-air-17129.html
+2025-12-16 15:49:20,824 - INFO - Throttling: Sleeping for 36.64 seconds
+2025-12-16 15:49:57,522 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/escada/cherry-in-the-air-17129.html
+2025-12-16 15:49:58,550 - INFO - Status Code: 200
+2025-12-16 15:49:58,551 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 15:49:59,019 - INFO - Perfume Name: Cherry in the Air Escada
+2025-12-16 15:49:59,020 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.17129.jpg
+2025-12-16 15:49:59,213 - INFO - 
+--- Processing 12/40: essential ---
+2025-12-16 15:49:59,213 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/lacoste-fragrances/essential-787.html
+2025-12-16 15:49:59,214 - INFO - Throttling: Sleeping for 11.66 seconds
+2025-12-16 15:50:10,932 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/lacoste-fragrances/essential-787.html
+2025-12-16 15:50:11,916 - INFO - Status Code: 200
+2025-12-16 15:50:11,916 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 15:50:12,285 - INFO - Perfume Name: Essential Lacoste Fragrances
+2025-12-16 15:50:12,285 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.787.jpg
+2025-12-16 15:50:12,477 - INFO - Saved progress after 12 rows
+2025-12-16 15:50:12,478 - INFO - 
+--- Processing 13/40: cocaine ---
+2025-12-16 15:50:12,478 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/franck-boclet/cocaine-44128.html
+2025-12-16 15:50:12,478 - INFO - Throttling: Sleeping for 22.70 seconds
+2025-12-16 15:50:35,234 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/franck-boclet/cocaine-44128.html
+2025-12-16 15:50:36,207 - INFO - Status Code: 200
+2025-12-16 15:50:36,208 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 15:50:36,600 - INFO - Perfume Name: Cocaïne Franck Boclet
+2025-12-16 15:50:36,601 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.44128.jpg
+2025-12-16 15:50:36,793 - INFO - 
+--- Processing 14/40: gucci-by-gucci-pour-homme ---
+2025-12-16 15:50:36,794 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/gucci/gucci-by-gucci-pour-homme-3792.html
+2025-12-16 15:50:36,794 - INFO - Throttling: Sleeping for 32.03 seconds
+2025-12-16 15:51:08,888 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/gucci/gucci-by-gucci-pour-homme-3792.html
+2025-12-16 15:51:09,853 - INFO - Status Code: 200
+2025-12-16 15:51:09,853 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 15:51:10,185 - INFO - Perfume Name: Gucci by Gucci Pour Homme Gucci
+2025-12-16 15:51:10,185 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.3792.jpg
+2025-12-16 15:51:10,407 - INFO - 
+--- Processing 15/40: halfeti ---
+2025-12-16 15:51:10,407 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/penhaligon-s/halfeti-31396.html
+2025-12-16 15:51:10,408 - INFO - Throttling: Sleeping for 13.81 seconds
+2025-12-16 15:51:24,288 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/penhaligon-s/halfeti-31396.html
+2025-12-16 15:51:25,079 - INFO - Status Code: 200
+2025-12-16 15:51:25,080 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 15:51:25,403 - INFO - Perfume Name: Halfeti Penhaligon's
+2025-12-16 15:51:25,403 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.31396.jpg
+2025-12-16 15:51:25,568 - INFO - Saved progress after 15 rows
+2025-12-16 15:51:25,569 - INFO - 
+--- Processing 16/40: miss-dior-cherie-l-eau ---
+2025-12-16 15:51:25,569 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/dior/miss-dior-cherie-l-eau-5722.html
+2025-12-16 15:51:25,570 - INFO - Throttling: Sleeping for 24.38 seconds
+2025-12-16 15:51:50,012 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/dior/miss-dior-cherie-l-eau-5722.html
+2025-12-16 15:51:51,113 - INFO - Status Code: 200
+2025-12-16 15:51:51,114 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 15:51:51,618 - INFO - Perfume Name: Miss Dior Cherie L'Eau Dior
+2025-12-16 15:51:51,618 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.5722.jpg
+2025-12-16 15:51:51,753 - INFO - 
+--- Processing 17/40: invictus-victory ---
+2025-12-16 15:51:51,754 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/paco-rabanne/invictus-victory-65177.html
+2025-12-16 15:51:51,754 - INFO - Throttling: Sleeping for 37.78 seconds
+2025-12-16 15:52:29,588 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/paco-rabanne/invictus-victory-65177.html
+2025-12-16 15:52:30,639 - INFO - Status Code: 200
+2025-12-16 15:52:30,640 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 15:52:30,973 - INFO - Perfume Name: Invictus Victory Rabanne
+2025-12-16 15:52:30,974 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.65177.jpg
+2025-12-16 15:52:31,191 - INFO - 
+--- Processing 18/40: amber-oud-gold-edition ---
+2025-12-16 15:52:31,192 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/al-haramain-perfumes/amber-oud-gold-edition-51816.html
+2025-12-16 15:52:31,192 - INFO - Throttling: Sleeping for 38.01 seconds
+2025-12-16 15:53:09,228 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/al-haramain-perfumes/amber-oud-gold-edition-51816.html
+2025-12-16 15:53:10,167 - INFO - Status Code: 200
+2025-12-16 15:53:10,168 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 15:53:10,533 - INFO - Perfume Name: Amber Oud Gold Edition Al Haramain Perfumes
+2025-12-16 15:53:10,533 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.51816.jpg
+2025-12-16 15:53:10,710 - INFO - Saved progress after 18 rows
+2025-12-16 15:53:10,710 - INFO - 
+--- Processing 19/40: original-vetiver ---
+2025-12-16 15:53:10,711 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/creed/original-vetiver-468.html
+2025-12-16 15:53:10,711 - INFO - Throttling: Sleeping for 37.69 seconds
+2025-12-16 15:53:48,451 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/creed/original-vetiver-468.html
+2025-12-16 15:53:49,486 - INFO - Status Code: 200
+2025-12-16 15:53:49,487 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 15:53:49,870 - INFO - Perfume Name: Original Vetiver Creed
+2025-12-16 15:53:49,870 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.468.jpg
+2025-12-16 15:53:50,100 - INFO - 
+--- Processing 20/40: toy-2-bubble-gum ---
+2025-12-16 15:53:50,100 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/moschino/toy-2-bubble-gum-66098.html
+2025-12-16 15:53:50,100 - INFO - Throttling: Sleeping for 42.66 seconds
+2025-12-16 15:54:32,822 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/moschino/toy-2-bubble-gum-66098.html
+2025-12-16 15:54:33,839 - INFO - Status Code: 200
+2025-12-16 15:54:33,839 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 15:54:34,157 - INFO - Perfume Name: Toy 2 Bubble Gum Moschino
+2025-12-16 15:54:34,157 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.66098.jpg
+2025-12-16 15:54:34,285 - INFO - 
+--- Processing 21/40: soleil-de-capri ---
+2025-12-16 15:54:34,285 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/montale/soleil-de-capri-3767.html
+2025-12-16 15:54:34,285 - INFO - Throttling: Sleeping for 34.29 seconds
+2025-12-16 15:55:08,634 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/montale/soleil-de-capri-3767.html
+2025-12-16 15:55:09,567 - INFO - Status Code: 200
+2025-12-16 15:55:09,567 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 15:55:09,818 - INFO - Perfume Name: Soleil de Capri Montale
+2025-12-16 15:55:09,818 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.3767.jpg
+2025-12-16 15:55:09,956 - INFO - Saved progress after 21 rows
+2025-12-16 15:55:09,956 - INFO - 
+--- Processing 22/40: journey-woman ---
+2025-12-16 15:55:09,956 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/amouage/journey-woman-25252.html
+2025-12-16 15:55:09,957 - INFO - Throttling: Sleeping for 28.78 seconds
+2025-12-16 15:55:38,764 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/amouage/journey-woman-25252.html
+2025-12-16 15:55:39,673 - INFO - Status Code: 200
+2025-12-16 15:55:39,673 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 15:55:40,121 - INFO - Perfume Name: Journey Woman Amouage
+2025-12-16 15:55:40,122 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.25252.jpg
+2025-12-16 15:55:40,349 - INFO - 
+--- Processing 23/40: boss-woman ---
+2025-12-16 15:55:40,349 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/hugo-boss/boss-woman-381.html
+2025-12-16 15:55:40,349 - INFO - Throttling: Sleeping for 40.01 seconds
+2025-12-16 15:56:20,408 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/hugo-boss/boss-woman-381.html
+2025-12-16 15:56:21,350 - INFO - Status Code: 200
+2025-12-16 15:56:21,351 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 15:56:21,601 - INFO - Perfume Name: Boss Woman Hugo Boss
+2025-12-16 15:56:21,601 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.381.jpg
+2025-12-16 15:56:21,751 - INFO - 
+--- Processing 24/40: xeryus-rouge ---
+2025-12-16 15:56:21,751 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/givenchy/xeryus-rouge-862.html
+2025-12-16 15:56:21,752 - INFO - Throttling: Sleeping for 27.50 seconds
+2025-12-16 15:56:49,313 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/givenchy/xeryus-rouge-862.html
+2025-12-16 15:56:50,836 - INFO - Status Code: 200
+2025-12-16 15:56:50,836 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 15:56:51,243 - INFO - Perfume Name: Xeryus Rouge Givenchy
+2025-12-16 15:56:51,243 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.862.jpg
+2025-12-16 15:56:51,506 - INFO - Saved progress after 24 rows
+2025-12-16 15:56:51,507 - INFO - 
+--- Processing 25/40: tonka-imperiale ---
+2025-12-16 15:56:51,507 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/guerlain/tonka-imperiale-8705.html
+2025-12-16 15:56:51,507 - INFO - Throttling: Sleeping for 40.41 seconds
+2025-12-16 15:57:31,964 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/guerlain/tonka-imperiale-8705.html
+2025-12-16 15:57:32,953 - INFO - Status Code: 200
+2025-12-16 15:57:32,954 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 15:57:33,410 - INFO - Perfume Name: Tonka Imperiale Guerlain
+2025-12-16 15:57:33,410 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.8705.jpg
+2025-12-16 15:57:33,682 - INFO - 
+--- Processing 26/40: couture-couture ---
+2025-12-16 15:57:33,682 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/juicy-couture/couture-couture-6496.html
+2025-12-16 15:57:33,682 - INFO - Throttling: Sleeping for 21.45 seconds
+2025-12-16 15:57:55,161 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/juicy-couture/couture-couture-6496.html
+2025-12-16 15:57:55,750 - INFO - Status Code: 429
+2025-12-16 15:57:55,750 - WARNING - Blocked with status 429. Block count: 1
+2025-12-16 15:57:55,751 - WARNING - Waiting 230.34 seconds before retry...
+2025-12-16 16:01:47,204 - INFO - Perfume Name: Couture Couture Juicy Couture
+2025-12-16 16:01:47,204 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.6496.jpg
+2025-12-16 16:01:47,442 - INFO - 
+--- Processing 27/40: o-de-lancome ---
+2025-12-16 16:01:47,442 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/lancome/o-de-lancome-187.html
+2025-12-16 16:01:47,522 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/lancome/o-de-lancome-187.html
+2025-12-16 16:01:49,233 - INFO - Status Code: 200
+2025-12-16 16:01:49,234 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:01:49,792 - INFO - Perfume Name: Ô de Lancôme Lancôme
+2025-12-16 16:01:49,793 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.187.jpg
+2025-12-16 16:01:50,008 - INFO - Saved progress after 27 rows
+2025-12-16 16:01:50,008 - INFO - 
+--- Processing 28/40: mimosa-cardamom ---
+2025-12-16 16:01:50,008 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/jo-malone-london/mimosa-cardamom-31825.html
+2025-12-16 16:01:50,008 - INFO - Throttling: Sleeping for 90.70 seconds
+2025-12-16 16:03:20,742 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/jo-malone-london/mimosa-cardamom-31825.html
+2025-12-16 16:03:22,109 - INFO - Status Code: 200
+2025-12-16 16:03:22,110 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:03:22,602 - INFO - Perfume Name: Mimosa & Cardamom Jo Malone London
+2025-12-16 16:03:22,602 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.31825.jpg
+2025-12-16 16:03:22,798 - INFO - 
+--- Processing 29/40: versace-pour-femme-dylan-turquoise ---
+2025-12-16 16:03:22,799 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/versace/versace-pour-femme-dylan-turquoise-62966.html
+2025-12-16 16:03:22,799 - INFO - Throttling: Sleeping for 21.27 seconds
+2025-12-16 16:03:44,117 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/versace/versace-pour-femme-dylan-turquoise-62966.html
+2025-12-16 16:03:45,507 - INFO - Status Code: 200
+2025-12-16 16:03:45,508 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:03:45,867 - INFO - Perfume Name: Versace Pour Femme Dylan Turquoise Versace
+2025-12-16 16:03:45,867 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.62966.jpg
+2025-12-16 16:03:46,111 - INFO - 
+--- Processing 30/40: terroni ---
+2025-12-16 16:03:46,111 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/orto-parisi/terroni-45475.html
+2025-12-16 16:03:46,111 - INFO - Throttling: Sleeping for 48.36 seconds
+2025-12-16 16:04:34,505 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/orto-parisi/terroni-45475.html
+2025-12-16 16:04:35,843 - INFO - Status Code: 200
+2025-12-16 16:04:35,844 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:04:36,205 - INFO - Perfume Name: Terroni Orto Parisi
+2025-12-16 16:04:36,206 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.45475.jpg
+2025-12-16 16:04:36,384 - INFO - Saved progress after 30 rows
+2025-12-16 16:04:36,385 - INFO - 
+--- Processing 31/40: qaed-al-fursan ---
+2025-12-16 16:04:36,385 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/lattafa-perfumes/qaed-al-fursan-67996.html
+2025-12-16 16:04:36,386 - INFO - Throttling: Sleeping for 57.39 seconds
+2025-12-16 16:05:33,828 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/lattafa-perfumes/qaed-al-fursan-67996.html
+2025-12-16 16:05:34,839 - INFO - Status Code: 200
+2025-12-16 16:05:34,839 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:05:35,239 - INFO - Perfume Name: Qaed Al Fursan Lattafa Perfumes
+2025-12-16 16:05:35,239 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.67996.jpg
+2025-12-16 16:05:35,443 - INFO - 
+--- Processing 32/40: habanita-eau-de-parfum ---
+2025-12-16 16:05:35,443 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/molinard/habanita-eau-de-parfum-14676.html
+2025-12-16 16:05:35,444 - INFO - Throttling: Sleeping for 64.41 seconds
+2025-12-16 16:06:39,913 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/molinard/habanita-eau-de-parfum-14676.html
+2025-12-16 16:06:40,888 - INFO - Status Code: 200
+2025-12-16 16:06:40,888 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:06:41,218 - INFO - Perfume Name: Habanita Eau de Parfum Molinard
+2025-12-16 16:06:41,218 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.14676.jpg
+2025-12-16 16:06:41,393 - INFO - 
+--- Processing 33/40: dior-homme-eau-for-men ---
+2025-12-16 16:06:41,393 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/dior/dior-homme-eau-for-men-22860.html
+2025-12-16 16:06:41,393 - INFO - Throttling: Sleeping for 73.67 seconds
+2025-12-16 16:07:55,123 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/dior/dior-homme-eau-for-men-22860.html
+2025-12-16 16:07:56,151 - INFO - Status Code: 200
+2025-12-16 16:07:56,152 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:07:56,467 - INFO - Perfume Name: Dior Homme Eau for Men Dior
+2025-12-16 16:07:56,468 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.22860.jpg
+2025-12-16 16:07:56,677 - INFO - Saved progress after 33 rows
+2025-12-16 16:07:56,678 - INFO - 
+--- Processing 34/40: under-the-lemon-tree ---
+2025-12-16 16:07:56,678 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/maison-martin-margiela/under-the-lemon-tree-53379.html
+2025-12-16 16:07:56,678 - INFO - Throttling: Sleeping for 82.56 seconds
+2025-12-16 16:09:19,307 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/maison-martin-margiela/under-the-lemon-tree-53379.html
+2025-12-16 16:09:20,323 - INFO - Status Code: 200
+2025-12-16 16:09:20,324 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:09:20,803 - INFO - Perfume Name: Under The Lemon Tree Maison Martin Margiela
+2025-12-16 16:09:20,803 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.53379.jpg
+2025-12-16 16:09:20,951 - INFO - 
+--- Processing 35/40: boucheron ---
+2025-12-16 16:09:20,951 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/boucheron/boucheron-133.html
+2025-12-16 16:09:20,951 - INFO - Throttling: Sleeping for 44.16 seconds
+2025-12-16 16:10:05,179 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/boucheron/boucheron-133.html
+2025-12-16 16:10:06,211 - INFO - Status Code: 200
+2025-12-16 16:10:06,211 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:10:06,574 - INFO - Perfume Name: Boucheron Boucheron
+2025-12-16 16:10:06,574 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.133.jpg
+2025-12-16 16:10:06,760 - INFO - 
+--- Processing 36/40: uomo-salvatore-ferragamo ---
+2025-12-16 16:10:06,761 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/salvatore-ferragamo/uomo-salvatore-ferragamo-39466.html
+2025-12-16 16:10:06,761 - INFO - Throttling: Sleeping for 50.58 seconds
+2025-12-16 16:10:57,365 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/salvatore-ferragamo/uomo-salvatore-ferragamo-39466.html
+2025-12-16 16:10:58,403 - INFO - Status Code: 200
+2025-12-16 16:10:58,403 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:10:58,782 - INFO - Perfume Name: Uomo Salvatore Ferragamo Salvatore Ferragamo
+2025-12-16 16:10:58,782 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.39466.jpg
+2025-12-16 16:10:59,055 - INFO - Saved progress after 36 rows
+2025-12-16 16:10:59,056 - INFO - 
+--- Processing 37/40: feerie ---
+2025-12-16 16:10:59,056 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/van-cleef-arpels/feerie-4077.html
+2025-12-16 16:10:59,056 - INFO - Throttling: Sleeping for 54.62 seconds
+2025-12-16 16:11:53,738 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/van-cleef-arpels/feerie-4077.html
+2025-12-16 16:11:54,732 - INFO - Status Code: 200
+2025-12-16 16:11:54,733 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:11:55,193 - INFO - Perfume Name: Feerie Van Cleef & Arpels
+2025-12-16 16:11:55,194 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.4077.jpg
+2025-12-16 16:11:55,495 - INFO - 
+--- Processing 38/40: boss-nuit-pour-femme ---
+2025-12-16 16:11:55,495 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/hugo-boss/boss-nuit-pour-femme-15259.html
+2025-12-16 16:11:55,496 - INFO - Throttling: Sleeping for 60.54 seconds
+2025-12-16 16:12:56,082 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/hugo-boss/boss-nuit-pour-femme-15259.html
+2025-12-16 16:12:57,107 - INFO - Status Code: 200
+2025-12-16 16:12:57,108 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:12:57,530 - INFO - Perfume Name: Boss Nuit Pour Femme Hugo Boss
+2025-12-16 16:12:57,531 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.15259.jpg
+2025-12-16 16:12:57,800 - INFO - 
+--- Processing 39/40: tobacco ---
+2025-12-16 16:12:57,801 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/franck-boclet/tobacco-29147.html
+2025-12-16 16:12:57,801 - INFO - Throttling: Sleeping for 80.38 seconds
+2025-12-16 16:14:18,227 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/franck-boclet/tobacco-29147.html
+2025-12-16 16:14:19,280 - INFO - Status Code: 200
+2025-12-16 16:14:19,281 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:14:19,660 - INFO - Perfume Name: Tobacco Franck Boclet
+2025-12-16 16:14:19,660 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.29147.jpg
+2025-12-16 16:14:19,860 - INFO - Saved progress after 39 rows
+2025-12-16 16:14:19,861 - INFO - 
+--- Processing 40/40: club-de-nuit-intense ---
+2025-12-16 16:14:19,861 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/armaf/club-de-nuit-intense-27656.html
+2025-12-16 16:14:19,861 - INFO - Throttling: Sleeping for 59.07 seconds
+2025-12-16 16:15:18,989 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/armaf/club-de-nuit-intense-27656.html
+2025-12-16 16:15:20,002 - INFO - Status Code: 200
+2025-12-16 16:15:20,002 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:15:20,675 - INFO - Perfume Name: Club de Nuit Intense Armaf
+2025-12-16 16:15:20,676 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.27656.jpg
+2025-12-16 16:15:20,872 - INFO - Processing complete. Data saved to output_perfumes_v2.csv
+2025-12-16 16:26:12,135 - INFO - Processing 40 perfumes with enhanced anti-detection...
+2025-12-16 16:26:12,135 - INFO - 
+--- Processing 1/40: bentley-for-men-absolute ---
+2025-12-16 16:26:12,136 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/bentley/bentley-for-men-absolute-25694.html
+2025-12-16 16:26:12,163 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/bentley/bentley-for-men-absolute-25694.html
+2025-12-16 16:26:13,078 - INFO - Status Code: 200
+2025-12-16 16:26:13,078 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:26:13,289 - INFO - Perfume Name: Bentley For Men Absolute Bentley
+2025-12-16 16:26:13,290 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.25694.jpg
+2025-12-16 16:26:13,398 - INFO - 
+--- Processing 2/40: gucci-guilty-intense ---
+2025-12-16 16:26:13,398 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/gucci/gucci-guilty-intense-13201.html
+2025-12-16 16:26:13,399 - INFO - Throttling: Sleeping for 43.77 seconds
+2025-12-16 16:26:57,233 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/gucci/gucci-guilty-intense-13201.html
+2025-12-16 16:26:58,351 - INFO - Status Code: 200
+2025-12-16 16:26:58,352 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:26:58,743 - INFO - Perfume Name: Gucci Guilty Intense Gucci
+2025-12-16 16:26:58,743 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.13201.jpg
+2025-12-16 16:26:58,974 - INFO - 
+--- Processing 3/40: love-in-white ---
+2025-12-16 16:26:58,975 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/creed/love-in-white-4262.html
+2025-12-16 16:26:58,975 - INFO - Throttling: Sleeping for 19.91 seconds
+2025-12-16 16:27:18,946 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/creed/love-in-white-4262.html
+2025-12-16 16:27:19,969 - INFO - Status Code: 200
+2025-12-16 16:27:19,970 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:27:20,440 - INFO - Perfume Name: Love in White Creed
+2025-12-16 16:27:20,441 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.4262.jpg
+2025-12-16 16:27:20,625 - INFO - Saved progress after 3 rows
+2025-12-16 16:27:20,625 - INFO - 
+--- Processing 4/40: terre-d-hermes-eau-intense-vetiver ---
+2025-12-16 16:27:20,626 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/hermes/terre-d-hermes-eau-intense-vetiver-50672.html
+2025-12-16 16:27:20,626 - INFO - Throttling: Sleeping for 20.56 seconds
+2025-12-16 16:27:41,241 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/hermes/terre-d-hermes-eau-intense-vetiver-50672.html
+2025-12-16 16:27:42,280 - INFO - Status Code: 200
+2025-12-16 16:27:42,280 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:27:42,740 - INFO - Perfume Name: Terre D'Hermes Eau Intense Vetiver Hermès
+2025-12-16 16:27:42,740 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.50672.jpg
+2025-12-16 16:27:43,051 - INFO - 
+--- Processing 5/40: sensi ---
+2025-12-16 16:27:43,053 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/giorgio-armani/sensi-557.html
+2025-12-16 16:27:43,056 - INFO - Throttling: Sleeping for 32.12 seconds
+2025-12-16 16:28:15,233 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/giorgio-armani/sensi-557.html
+2025-12-16 16:28:16,267 - INFO - Status Code: 200
+2025-12-16 16:28:16,268 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:28:16,934 - INFO - Perfume Name: Sensi Giorgio Armani
+2025-12-16 16:28:16,934 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.557.jpg
+2025-12-16 16:28:17,211 - INFO - 
+--- Processing 6/40: tuxedo ---
+2025-12-16 16:28:17,211 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/yves-saint-laurent/tuxedo-32269.html
+2025-12-16 16:28:17,212 - INFO - Throttling: Sleeping for 18.33 seconds
+2025-12-16 16:28:35,589 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/yves-saint-laurent/tuxedo-32269.html
+2025-12-16 16:28:36,548 - INFO - Status Code: 200
+2025-12-16 16:28:36,548 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:28:36,887 - INFO - Perfume Name: Tuxedo Yves Saint Laurent
+2025-12-16 16:28:36,888 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.32269.jpg
+2025-12-16 16:28:37,107 - INFO - Saved progress after 6 rows
+2025-12-16 16:28:37,107 - INFO - 
+--- Processing 7/40: jour-d-hermes-absolu ---
+2025-12-16 16:28:37,108 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/hermes/jour-d-hermes-absolu-23907.html
+2025-12-16 16:28:37,108 - INFO - Throttling: Sleeping for 33.57 seconds
+2025-12-16 16:29:10,741 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/hermes/jour-d-hermes-absolu-23907.html
+2025-12-16 16:29:12,155 - INFO - Status Code: 200
+2025-12-16 16:29:12,156 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:29:12,560 - INFO - Perfume Name: Jour d'Hermes Absolu Hermès
+2025-12-16 16:29:12,561 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.23907.jpg
+2025-12-16 16:29:12,780 - INFO - 
+--- Processing 8/40: lolita-lempicka-au-masculin ---
+2025-12-16 16:29:12,781 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/lolita-lempicka/lolita-lempicka-au-masculin-458.html
+2025-12-16 16:29:12,781 - INFO - Throttling: Sleeping for 16.27 seconds
+2025-12-16 16:29:29,094 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/lolita-lempicka/lolita-lempicka-au-masculin-458.html
+2025-12-16 16:29:30,529 - INFO - Status Code: 200
+2025-12-16 16:29:30,529 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:29:31,042 - INFO - Perfume Name: Lolita Lempicka Au Masculin Lolita Lempicka
+2025-12-16 16:29:31,042 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.458.jpg
+2025-12-16 16:29:31,307 - INFO - 
+--- Processing 9/40: miami-glow ---
+2025-12-16 16:29:31,308 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/jennifer-lopez/miami-glow-870.html
+2025-12-16 16:29:31,308 - INFO - Throttling: Sleeping for 44.07 seconds
+2025-12-16 16:30:15,440 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/jennifer-lopez/miami-glow-870.html
+2025-12-16 16:30:16,377 - INFO - Status Code: 200
+2025-12-16 16:30:16,378 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:30:16,812 - INFO - Perfume Name: Miami Glow Jennifer Lopez
+2025-12-16 16:30:16,812 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.870.jpg
+2025-12-16 16:30:17,027 - INFO - Saved progress after 9 rows
+2025-12-16 16:30:17,028 - INFO - 
+--- Processing 10/40: lalique-pour-homme ---
+2025-12-16 16:30:17,028 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/lalique/lalique-pour-homme-1844.html
+2025-12-16 16:30:17,028 - INFO - Throttling: Sleeping for 31.78 seconds
+2025-12-16 16:30:48,830 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/lalique/lalique-pour-homme-1844.html
+2025-12-16 16:30:49,617 - INFO - Status Code: 200
+2025-12-16 16:30:49,617 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:30:49,934 - INFO - Perfume Name: Lalique Pour Homme Lalique
+2025-12-16 16:30:49,935 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.1844.jpg
+2025-12-16 16:30:50,042 - INFO - 
+--- Processing 11/40: jicky ---
+2025-12-16 16:30:50,042 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/guerlain/jicky-103.html
+2025-12-16 16:30:50,043 - INFO - Throttling: Sleeping for 15.15 seconds
+2025-12-16 16:31:05,269 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/guerlain/jicky-103.html
+2025-12-16 16:31:06,404 - INFO - Status Code: 200
+2025-12-16 16:31:06,405 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:31:06,954 - INFO - Perfume Name: Jicky Guerlain
+2025-12-16 16:31:06,955 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.103.jpg
+2025-12-16 16:31:07,201 - INFO - 
+--- Processing 12/40: the-one-desire ---
+2025-12-16 16:31:07,201 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/dolce-gabbana/the-one-desire-17124.html
+2025-12-16 16:31:07,201 - INFO - Throttling: Sleeping for 25.57 seconds
+2025-12-16 16:31:32,805 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/dolce-gabbana/the-one-desire-17124.html
+2025-12-16 16:31:33,776 - INFO - Status Code: 200
+2025-12-16 16:31:33,776 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:31:34,188 - INFO - Perfume Name: The One Desire Dolce&Gabbana
+2025-12-16 16:31:34,189 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.17124.jpg
+2025-12-16 16:31:34,416 - INFO - Saved progress after 12 rows
+2025-12-16 16:31:34,416 - INFO - 
+--- Processing 13/40: voyage-d-hermes-parfum ---
+2025-12-16 16:31:34,417 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/hermes/voyage-d-hermes-parfum-14679.html
+2025-12-16 16:31:34,417 - INFO - Throttling: Sleeping for 24.68 seconds
+2025-12-16 16:31:59,138 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/hermes/voyage-d-hermes-parfum-14679.html
+2025-12-16 16:32:00,119 - INFO - Status Code: 200
+2025-12-16 16:32:00,120 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:32:00,407 - INFO - Perfume Name: Voyage d'Hermes Parfum Hermès
+2025-12-16 16:32:00,407 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.14679.jpg
+2025-12-16 16:32:00,624 - INFO - 
+--- Processing 14/40: 212-sexy-men ---
+2025-12-16 16:32:00,624 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/carolina-herrera/212-sexy-men-1054.html
+2025-12-16 16:32:00,625 - INFO - Throttling: Sleeping for 41.13 seconds
+2025-12-16 16:32:41,780 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/carolina-herrera/212-sexy-men-1054.html
+2025-12-16 16:32:42,547 - INFO - Status Code: 200
+2025-12-16 16:32:42,547 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:32:42,781 - INFO - Perfume Name: 212 Sexy Men Carolina Herrera
+2025-12-16 16:32:42,781 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.1054.jpg
+2025-12-16 16:32:42,888 - INFO - 
+--- Processing 15/40: gentlemen-only ---
+2025-12-16 16:32:42,889 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/givenchy/gentlemen-only-17259.html
+2025-12-16 16:32:42,889 - INFO - Throttling: Sleeping for 36.43 seconds
+2025-12-16 16:33:19,388 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/givenchy/gentlemen-only-17259.html
+2025-12-16 16:33:20,433 - INFO - Status Code: 200
+2025-12-16 16:33:20,434 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:33:21,008 - INFO - Perfume Name: Gentlemen Only Givenchy
+2025-12-16 16:33:21,009 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.17259.jpg
+2025-12-16 16:33:21,209 - INFO - Saved progress after 15 rows
+2025-12-16 16:33:21,209 - INFO - 
+--- Processing 16/40: mandarino-di-amalfi ---
+2025-12-16 16:33:21,210 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/tom-ford/mandarino-di-amalfi-25481.html
+2025-12-16 16:33:21,210 - INFO - Throttling: Sleeping for 14.16 seconds
+2025-12-16 16:33:35,421 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/tom-ford/mandarino-di-amalfi-25481.html
+2025-12-16 16:33:36,461 - INFO - Status Code: 200
+2025-12-16 16:33:36,461 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:33:37,118 - INFO - Perfume Name: Mandarino di Amalfi Tom Ford
+2025-12-16 16:33:37,119 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.25481.jpg
+2025-12-16 16:33:37,330 - INFO - 
+--- Processing 17/40: quorum ---
+2025-12-16 16:33:37,330 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/antonio-puig/quorum-3825.html
+2025-12-16 16:33:37,330 - INFO - Throttling: Sleeping for 60.93 seconds
+2025-12-16 16:34:38,340 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/antonio-puig/quorum-3825.html
+2025-12-16 16:34:39,098 - INFO - Status Code: 200
+2025-12-16 16:34:39,098 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:34:39,325 - INFO - Perfume Name: Quorum Antonio Puig
+2025-12-16 16:34:39,325 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.3825.jpg
+2025-12-16 16:34:39,435 - INFO - 
+--- Processing 18/40: orange-blossom ---
+2025-12-16 16:34:39,436 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/jo-malone-london/orange-blossom-2279.html
+2025-12-16 16:34:39,436 - INFO - Throttling: Sleeping for 20.47 seconds
+2025-12-16 16:34:59,929 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/jo-malone-london/orange-blossom-2279.html
+2025-12-16 16:35:00,720 - INFO - Status Code: 200
+2025-12-16 16:35:00,720 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:35:00,926 - INFO - Perfume Name: Orange Blossom Jo Malone London
+2025-12-16 16:35:00,926 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.2279.jpg
+2025-12-16 16:35:01,027 - INFO - Saved progress after 18 rows
+2025-12-16 16:35:01,027 - INFO - 
+--- Processing 19/40: burberry-men ---
+2025-12-16 16:35:01,027 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/burberry/burberry-men-817.html
+2025-12-16 16:35:01,027 - INFO - Throttling: Sleeping for 36.90 seconds
+2025-12-16 16:35:37,956 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/burberry/burberry-men-817.html
+2025-12-16 16:35:38,830 - INFO - Status Code: 200
+2025-12-16 16:35:38,830 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:35:39,042 - INFO - Perfume Name: Burberry Men Burberry
+2025-12-16 16:35:39,042 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.817.jpg
+2025-12-16 16:35:39,146 - INFO - 
+--- Processing 20/40: iris-poudre ---
+2025-12-16 16:35:39,146 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/frederic-malle/iris-poudre-4771.html
+2025-12-16 16:35:39,146 - INFO - Throttling: Sleeping for 27.80 seconds
+2025-12-16 16:36:06,971 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/frederic-malle/iris-poudre-4771.html
+2025-12-16 16:36:07,776 - INFO - Status Code: 200
+2025-12-16 16:36:07,777 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:36:08,008 - INFO - Perfume Name: Iris Poudre Frederic Malle
+2025-12-16 16:36:08,008 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.4771.jpg
+2025-12-16 16:36:08,137 - INFO - 
+--- Processing 21/40: psychedelic-love ---
+2025-12-16 16:36:08,137 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/initio-parfums-prives/psychedelic-love-45977.html
+2025-12-16 16:36:08,137 - INFO - Throttling: Sleeping for 20.49 seconds
+2025-12-16 16:36:28,658 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/initio-parfums-prives/psychedelic-love-45977.html
+2025-12-16 16:36:29,512 - INFO - Status Code: 200
+2025-12-16 16:36:29,513 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:36:29,746 - INFO - Perfume Name: Psychedelic Love Initio Parfums Prives
+2025-12-16 16:36:29,746 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.45977.jpg
+2025-12-16 16:36:29,914 - INFO - Saved progress after 21 rows
+2025-12-16 16:36:29,914 - INFO - 
+--- Processing 22/40: shalimar-eau-de-toilette ---
+2025-12-16 16:36:29,914 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/guerlain/shalimar-eau-de-toilette-33934.html
+2025-12-16 16:36:29,915 - INFO - Throttling: Sleeping for 31.57 seconds
+2025-12-16 16:37:01,511 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/guerlain/shalimar-eau-de-toilette-33934.html
+2025-12-16 16:37:02,464 - INFO - Status Code: 200
+2025-12-16 16:37:02,465 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:37:02,835 - INFO - Perfume Name: Shalimar Eau de Toilette Guerlain
+2025-12-16 16:37:02,835 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.33934.jpg
+2025-12-16 16:37:02,948 - INFO - 
+--- Processing 23/40: clementine-california ---
+2025-12-16 16:37:02,948 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/atelier-cologne/clementine-california-42249.html
+2025-12-16 16:37:02,948 - INFO - Throttling: Sleeping for 24.43 seconds
+2025-12-16 16:37:27,408 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/atelier-cologne/clementine-california-42249.html
+2025-12-16 16:37:28,136 - INFO - Status Code: 200
+2025-12-16 16:37:28,137 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:37:28,348 - INFO - Perfume Name: Clémentine California Atelier Cologne
+2025-12-16 16:37:28,348 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.42249.jpg
+2025-12-16 16:37:28,452 - INFO - 
+--- Processing 24/40: r-e-m ---
+2025-12-16 16:37:28,453 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/ariana-grande/r-e-m-62578.html
+2025-12-16 16:37:28,453 - INFO - Throttling: Sleeping for 61.82 seconds
+2025-12-16 16:38:30,299 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/ariana-grande/r-e-m-62578.html
+2025-12-16 16:38:31,691 - INFO - Status Code: 200
+2025-12-16 16:38:31,691 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:38:31,898 - INFO - Perfume Name: R.E.M. Ariana Grande
+2025-12-16 16:38:31,898 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.62578.jpg
+2025-12-16 16:38:31,997 - INFO - Saved progress after 24 rows
+2025-12-16 16:38:31,997 - INFO - 
+--- Processing 25/40: see-by-chloe ---
+2025-12-16 16:38:31,997 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/chloe/see-by-chloe-17123.html
+2025-12-16 16:38:31,998 - INFO - Throttling: Sleeping for 27.66 seconds
+2025-12-16 16:38:59,695 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/chloe/see-by-chloe-17123.html
+2025-12-16 16:39:00,815 - INFO - Status Code: 200
+2025-12-16 16:39:00,815 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:39:01,138 - INFO - Perfume Name: See By Chloé Chloé
+2025-12-16 16:39:01,138 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.17123.jpg
+2025-12-16 16:39:01,272 - INFO - 
+--- Processing 26/40: scandal-by-night ---
+2025-12-16 16:39:01,273 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/jean-paul-gaultier/scandal-by-night-50715.html
+2025-12-16 16:39:01,273 - INFO - Throttling: Sleeping for 29.70 seconds
+2025-12-16 16:39:31,004 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/jean-paul-gaultier/scandal-by-night-50715.html
+2025-12-16 16:39:31,763 - INFO - Status Code: 200
+2025-12-16 16:39:31,764 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:39:31,976 - INFO - Perfume Name: Scandal By Night Jean Paul Gaultier
+2025-12-16 16:39:31,976 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.50715.jpg
+2025-12-16 16:39:32,090 - INFO - 
+--- Processing 27/40: la-danza-delle-libellule ---
+2025-12-16 16:39:32,091 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/nobile-1942/la-danza-delle-libellule-14845.html
+2025-12-16 16:39:32,091 - INFO - Throttling: Sleeping for 43.52 seconds
+2025-12-16 16:40:15,638 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/nobile-1942/la-danza-delle-libellule-14845.html
+2025-12-16 16:40:16,508 - INFO - Status Code: 200
+2025-12-16 16:40:16,508 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:40:16,841 - INFO - Perfume Name: La Danza delle Libellule Nobile 1942
+2025-12-16 16:40:16,841 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.14845.jpg
+2025-12-16 16:40:16,953 - INFO - Saved progress after 27 rows
+2025-12-16 16:40:16,954 - INFO - 
+--- Processing 28/40: a-la-rose ---
+2025-12-16 16:40:16,954 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/maison-francis-kurkdjian/a-la-rose-29083.html
+2025-12-16 16:40:16,954 - INFO - Throttling: Sleeping for 40.93 seconds
+2025-12-16 16:40:57,913 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/maison-francis-kurkdjian/a-la-rose-29083.html
+2025-12-16 16:40:58,685 - INFO - Status Code: 200
+2025-12-16 16:40:58,685 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:40:58,898 - INFO - Perfume Name: A La Rose Maison Francis Kurkdjian
+2025-12-16 16:40:58,898 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.29083.jpg
+2025-12-16 16:40:59,004 - INFO - 
+--- Processing 29/40: si-intense ---
+2025-12-16 16:40:59,005 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/giorgio-armani/si-intense-25947.html
+2025-12-16 16:40:59,005 - INFO - Throttling: Sleeping for 21.28 seconds
+2025-12-16 16:41:20,331 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/giorgio-armani/si-intense-25947.html
+2025-12-16 16:41:21,077 - INFO - Status Code: 200
+2025-12-16 16:41:21,077 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:41:21,293 - INFO - Perfume Name: Sì Intense Giorgio Armani
+2025-12-16 16:41:21,294 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.25947.jpg
+2025-12-16 16:41:21,404 - INFO - 
+--- Processing 30/40: acqua-di-gio-essenza ---
+2025-12-16 16:41:21,405 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/giorgio-armani/acqua-di-gio-essenza-14825.html
+2025-12-16 16:41:21,405 - INFO - Throttling: Sleeping for 34.78 seconds
+2025-12-16 16:41:56,213 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/giorgio-armani/acqua-di-gio-essenza-14825.html
+2025-12-16 16:41:56,980 - INFO - Status Code: 200
+2025-12-16 16:41:56,980 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:41:57,191 - INFO - Perfume Name: Acqua di Gio Essenza Giorgio Armani
+2025-12-16 16:41:57,191 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.14825.jpg
+2025-12-16 16:41:57,298 - INFO - Saved progress after 30 rows
+2025-12-16 16:41:57,298 - INFO - 
+--- Processing 31/40: detour-noir ---
+2025-12-16 16:41:57,298 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/al-haramain-perfumes/detour-noir-70748.html
+2025-12-16 16:41:57,298 - INFO - Throttling: Sleeping for 25.20 seconds
+2025-12-16 16:42:22,520 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/al-haramain-perfumes/detour-noir-70748.html
+2025-12-16 16:42:23,732 - INFO - Status Code: 200
+2025-12-16 16:42:23,732 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:42:23,968 - INFO - Perfume Name: Détour Noir Al Haramain Perfumes
+2025-12-16 16:42:23,968 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.70748.jpg
+2025-12-16 16:42:24,119 - INFO - 
+--- Processing 32/40: reflection-woman ---
+2025-12-16 16:42:24,120 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/amouage/reflection-woman-919.html
+2025-12-16 16:42:24,120 - INFO - Throttling: Sleeping for 45.91 seconds
+2025-12-16 16:43:10,053 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/amouage/reflection-woman-919.html
+2025-12-16 16:43:10,854 - INFO - Status Code: 200
+2025-12-16 16:43:10,854 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:43:11,057 - INFO - Perfume Name: Reflection Woman Amouage
+2025-12-16 16:43:11,058 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.919.jpg
+2025-12-16 16:43:11,158 - INFO - 
+--- Processing 33/40: boss-ma-vie-pour-femme ---
+2025-12-16 16:43:11,158 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/hugo-boss/boss-ma-vie-pour-femme-25298.html
+2025-12-16 16:43:11,158 - INFO - Throttling: Sleeping for 49.34 seconds
+2025-12-16 16:44:00,518 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/hugo-boss/boss-ma-vie-pour-femme-25298.html
+2025-12-16 16:44:01,285 - INFO - Status Code: 200
+2025-12-16 16:44:01,285 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:44:01,647 - INFO - Perfume Name: Boss Ma Vie Pour Femme Hugo Boss
+2025-12-16 16:44:01,647 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.25298.jpg
+2025-12-16 16:44:01,761 - INFO - Saved progress after 33 rows
+2025-12-16 16:44:01,761 - INFO - 
+--- Processing 34/40: layton-exclusif ---
+2025-12-16 16:44:01,761 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/parfums-de-marly/layton-exclusif-46633.html
+2025-12-16 16:44:01,761 - INFO - Throttling: Sleeping for 29.13 seconds
+2025-12-16 16:44:30,922 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/parfums-de-marly/layton-exclusif-46633.html
+2025-12-16 16:44:31,746 - INFO - Status Code: 200
+2025-12-16 16:44:31,746 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:44:31,966 - INFO - Perfume Name: Layton Exclusif Parfums de Marly
+2025-12-16 16:44:31,966 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.46633.jpg
+2025-12-16 16:44:32,090 - INFO - 
+--- Processing 35/40: givenchy-play-intense ---
+2025-12-16 16:44:32,091 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/givenchy/givenchy-play-intense-3907.html
+2025-12-16 16:44:32,091 - INFO - Throttling: Sleeping for 37.76 seconds
+2025-12-16 16:45:09,904 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/givenchy/givenchy-play-intense-3907.html
+2025-12-16 16:45:10,823 - INFO - Status Code: 200
+2025-12-16 16:45:10,823 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:45:11,042 - INFO - Perfume Name: Givenchy Play Intense Givenchy
+2025-12-16 16:45:11,042 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.3907.jpg
+2025-12-16 16:45:11,175 - INFO - 
+--- Processing 36/40: tres-nuit ---
+2025-12-16 16:45:11,175 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/armaf/tres-nuit-27711.html
+2025-12-16 16:45:11,176 - INFO - Throttling: Sleeping for 52.76 seconds
+2025-12-16 16:46:03,965 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/armaf/tres-nuit-27711.html
+2025-12-16 16:46:04,901 - INFO - Status Code: 200
+2025-12-16 16:46:04,901 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:46:05,106 - INFO - Perfume Name: Tres Nuit Armaf
+2025-12-16 16:46:05,106 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.27711.jpg
+2025-12-16 16:46:05,214 - INFO - Saved progress after 36 rows
+2025-12-16 16:46:05,214 - INFO - 
+--- Processing 37/40: gucci-eau-de-parfum ---
+2025-12-16 16:46:05,214 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/gucci/gucci-eau-de-parfum-684.html
+2025-12-16 16:46:05,215 - INFO - Throttling: Sleeping for 69.22 seconds
+2025-12-16 16:47:14,464 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/gucci/gucci-eau-de-parfum-684.html
+2025-12-16 16:47:15,226 - INFO - Status Code: 200
+2025-12-16 16:47:15,226 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:47:15,434 - INFO - Perfume Name: Gucci Eau de Parfum Gucci
+2025-12-16 16:47:15,434 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.684.jpg
+2025-12-16 16:47:15,544 - INFO - 
+--- Processing 38/40: dark-purple ---
+2025-12-16 16:47:15,545 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/montale/dark-purple-13280.html
+2025-12-16 16:47:15,545 - INFO - Throttling: Sleeping for 51.01 seconds
+2025-12-16 16:48:06,576 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/montale/dark-purple-13280.html
+2025-12-16 16:48:07,407 - INFO - Status Code: 200
+2025-12-16 16:48:07,408 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:48:07,663 - INFO - Perfume Name: Dark Purple Montale
+2025-12-16 16:48:07,663 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.13280.jpg
+2025-12-16 16:48:07,778 - INFO - 
+--- Processing 39/40: love-spell ---
+2025-12-16 16:48:07,778 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/victoria-s-secret/love-spell-7988.html
+2025-12-16 16:48:07,778 - INFO - Throttling: Sleeping for 59.57 seconds
+2025-12-16 16:49:07,367 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/victoria-s-secret/love-spell-7988.html
+2025-12-16 16:49:08,130 - INFO - Status Code: 200
+2025-12-16 16:49:08,130 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:49:08,498 - INFO - Perfume Name: Love Spell Victoria's Secret
+2025-12-16 16:49:08,498 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.7988.jpg
+2025-12-16 16:49:08,601 - INFO - Saved progress after 39 rows
+2025-12-16 16:49:08,601 - INFO - 
+--- Processing 40/40: ombre-leather-parfum ---
+2025-12-16 16:49:08,602 - INFO - Using Fragrantica URL: https://www.fragrantica.com/perfume/tom-ford/ombre-leather-parfum-68716.html
+2025-12-16 16:49:08,602 - INFO - Throttling: Sleeping for 44.73 seconds
+2025-12-16 16:49:53,361 - INFO - Attempt 1: Making request to https://www.fragrantica.com/perfume/tom-ford/ombre-leather-parfum-68716.html
+2025-12-16 16:49:54,143 - INFO - Status Code: 200
+2025-12-16 16:49:54,143 - INFO - Successfully bypassed Cloudflare protection!
+2025-12-16 16:49:54,378 - INFO - Perfume Name: Ombré Leather Parfum Tom Ford
+2025-12-16 16:49:54,378 - INFO - Image URL: https://fimgs.net/mdimg/perfume-thumbs/375x500.68716.jpg
+2025-12-16 16:49:54,498 - INFO - Processing complete. Data saved to output_perfumes_v2.csv

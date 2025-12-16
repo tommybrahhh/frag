@@ -2,71 +2,74 @@
 
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
+import Image from 'next/image';
 import SearchBar from './SearchBar';
 
 export default function GlobalHeader() {
   const { user, signOut, loading } = useAuth();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-stone-200 bg-white/90 backdrop-blur-md">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-4 sm:gap-6">
-        {/* Left: Logo */}
-        <Link href="/" className="flex-shrink-0">
-          <img
-            src="/window.svg"
-            alt="Home"
-            className="h-8 w-8"
-          />
-        </Link>
+    <header className="sticky top-0 z-[999] w-full border-b border-stone-100 bg-white/80 backdrop-blur-md transition-all duration-300">
+      {/* Changed max-w-7xl to max-w-[1400px] to match page content */}
+      <div className="max-w-[1400px] mx-auto px-6 h-20 flex items-center justify-between gap-8">
+        
+        {/* Left: Logo and Navigation */}
+        <div className="flex items-center gap-8">
+          <Link href="/" className="flex-shrink-0 flex items-center gap-3 group">
+            <div className="bg-stone-900 text-white p-2 rounded-lg group-hover:bg-stone-800 transition">
+              <Image
+                src="https://s6.imgcdn.dev/YUsNon.png"
+                alt="Scentia"
+                width={20}
+                height={20}
+                className="h-5 w-5"
+              />
+            </div>
+            <span className="font-serif text-xl font-medium tracking-tight text-stone-900">Scentia</span>
+          </Link>
 
-        {/* Center: Search Bar */}
-        <div className="flex-1 max-w-2xl mx-2">
+          <nav className="hidden lg:flex items-center gap-6">
+            <Link href="/profile" className="text-[11px] font-bold uppercase tracking-[0.15em] text-stone-500 hover:text-stone-900 transition-colors">
+              Shelf
+            </Link>
+            <Link href="/layering" className="text-[11px] font-bold uppercase tracking-[0.15em] text-stone-500 hover:text-stone-900 transition-colors">
+              Layering
+            </Link>
+            <Link href="/quiz" className="text-[11px] font-bold uppercase tracking-[0.15em] text-stone-500 hover:text-stone-900 transition-colors">
+              Quiz
+            </Link>
+          </nav>
+        </div>
+
+        {/* Center: Search Bar - Expanded width */}
+        <div className="hidden md:block flex-1 w-[75%] mx-4">
           <SearchBar />
         </div>
 
-        {/* Right: Auth Links */}
-       <div className="flex-shrink-0 flex items-center gap-3 sm:gap-6 overflow-visible">
-         {/* Common Links - Always Visible */}
-         <Link
-           href="/layering"
-           className="text-xs font-bold uppercase tracking-widest text-stone-600 hover:text-stone-900 transition-colors"
-         >
-           Layering
-         </Link>
-         <Link
-           href="/quiz"
-           className="text-xs font-bold uppercase tracking-widest text-stone-600 hover:text-stone-900 transition-colors"
-         >
-           Quiz
-         </Link>
-
-         {/* Auth Dependent Links */}
-         {loading ? (
-            <div className="w-24 h-9 bg-stone-200 animate-pulse rounded-full" />
-         ) : user ? (
-           <>
-             <Link
-               href="/profile"
-               className="text-xs font-bold uppercase tracking-widest text-stone-600 hover:text-stone-900 transition-colors"
-             >
-               My Shelf
-             </Link>
-             <button
-               onClick={signOut}
-               className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-red-500 transition-colors px-3 py-1.5 rounded-lg bg-stone-50 hover:bg-stone-100"
-             >
-               Sign Out
-             </button>
-           </>
-         ) : (
-           <Link
-             href="/login"
-             className="bg-stone-900 text-white px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-stone-800 transition shadow-lg"
-           >
-             Sign In
-           </Link>
-          )}
+        {/* Right: Auth */}
+        <div className="flex items-center gap-6 md:gap-8">
+          {/* Auth Actions */}
+          <div className="flex items-center gap-4">
+            {loading ? (
+                <div className="w-8 h-8 bg-stone-100 rounded-full animate-pulse" />
+            ) : user ? (
+              <div className="flex items-center gap-4">
+              </div>
+            ) : (
+              <Link
+                href="/login"
+                className="bg-stone-900 text-white px-5 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-stone-800 transition shadow-sm"
+              >
+                Sign In
+              </Link>
+            )}
+          </div>
         </div>
+      </div>
+      
+      {/* Mobile Search Bar - Visible only on small screens */}
+      <div className="md:hidden px-6 pb-4">
+        <SearchBar />
       </div>
     </header>
   );
