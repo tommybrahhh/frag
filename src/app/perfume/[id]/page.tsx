@@ -110,8 +110,14 @@ export default function PerfumeDetail() {
   const [dupes, setDupes] = useState<Dupe[]>([]);
   const [loading, setLoading] = useState(true);
   const [inCollection, setInCollection] = useState(false);
-  const { user } = useAuth();
-  const supabase = useAuth().supabase;
+  const { user, supabase, supabaseInitError } = useAuth();
+  console.log('Supabase client object in PerfumeDetail:', supabase);
+
+  // Define the expected return type
+  type PerfumeQueryResult = Database['public']['Tables']['perfumes']['Row'] & {
+    brand: { name: string };
+    perfume_notes: { type: string; note: { name: string; color_hex?: string } }[];
+  };
 
   const getMatchDetails = (current: any, candidate: any) => {
     let score = 10;
@@ -309,19 +315,24 @@ export default function PerfumeDetail() {
       setDupes([]);
       setInCollection(false);
 
+      // If there's a Supabase initialization error, display it and stop.
+      if (supabaseInitError) {
+        setError(`Supabase initialization error: ${supabaseInitError}`);
+        setLoading(false);
+        return;
+      }
+
       try {
         // Fetch main perfume data with retry logic
-        type PerfumeQueryResult = Database['public']['Tables']['perfumes']['Row'] & {
-          brand: { name: string };
-          perfume_notes: { type: string; note: { name: string; color_hex?: string } }[];
-        };
-
         const fetchWithRetry = async (retries = 3): Promise<Perfume | null> => {
           try {
             // Check signal before starting
-            if (abortController.signal.aborted) throw new DOMException('Aborted', 'AbortError');
+            if (abortController.signal.aborted) {
+                console.warn('Fetch aborted before starting retry for ID:', id);
+                return null; // Don't throw, just exit gracefully
+            }
 
-            if (!supabase) throw new Error('Supabase client not initialized');
+            if (!supabase) throw new Error('Supabase client is not available.');
             
             // Verify Supabase connection
             const { data: testData, error: testError } = await supabase
@@ -330,13 +341,13 @@ export default function PerfumeDetail() {
               .limit(1)
               .abortSignal(abortController.signal); // Pass signal here
             
-            if (testError) throw new Error('Supabase connection failed');
+            // REMOVING THE THROW FOR TESTERROR
+            // Instead, we will log it if it's there (even if empty) for debugging,
+            // but NOT halt the fetch process for the main perfume based on this.
+            if (testError) {
+              console.warn('Supabase connection test returned a non-standard error:', testError);
+            }
 
-            // Define the expected return type
-            type PerfumeQueryResult = Database['public']['Tables']['perfumes']['Row'] & {
-              brand: { name: string };
-              perfume_notes: { type: string; note: { name: string; color_hex?: string } }[];
-            };
 
             const { data: mainPerfume, error } = await supabase
               .from('perfumes')
@@ -366,20 +377,24 @@ export default function PerfumeDetail() {
           } catch (err: any) {
             // >>> CRITICAL FIX: Stop retrying if the request was aborted <<<
             if (err.name === 'AbortError' || abortController.signal.aborted) {
-                throw err;
+                console.warn('Fetch aborted during retry or cleanup for ID:', id);
+                return null; // Don't throw AbortError, just return null as the request was cancelled
             }
 
-            console.error('Fetch error (attempt', retries, '):', err);
+            console.error('Fetch error (attempt', retries, ') for ID:', id, ':', err);
             if (retries > 0) {
               await new Promise(resolve => setTimeout(resolve, 1000));
               return fetchWithRetry(retries - 1);
             }
-            throw new Error(`Failed to fetch perfume after ${retries} attempts`);
+            throw new Error(`Failed to fetch perfume after ${3 - retries} attempts`);
           }
         };
 
         const mainPerfume = await fetchWithRetry();
         
+        // Fix: If aborted, stop here. Do NOT set error.
+        if (abortController.signal.aborted) return;
+
         if (!mainPerfume) {
           setError('Perfume not found');
           return;
@@ -461,6 +476,8 @@ export default function PerfumeDetail() {
     };
   }, [params?.id, supabase]);
 
+  useEffect(() => { window.scrollTo(0, 0); }, [params?.id]);
+
   if (error) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#FDFBF7]">
@@ -478,8 +495,6 @@ export default function PerfumeDetail() {
       </div>
     );
   }
-
-  useEffect(() => { window.scrollTo(0, 0); }, [params?.id]);
 
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#FDFBF7] text-gray-500">Loading essence...</div>;
   if (!perfume) return <div className="min-h-screen flex items-center justify-center bg-[#FDFBF7]">Perfume not found.</div>;
