@@ -349,20 +349,25 @@ export default function PerfumeDetail() {
             }
 
 
-            const { data: mainPerfume, error } = await supabase
-              .from('perfumes')
-              .select(`
-                id, name, image_url, rating, vibe_tags,
-                perfumer, price_tier, best_season, gender,
-                longevity_rating, sillage_rating,
-                scenario, scent_profile,
-                olfactory_family,
-                brand:brands!perfumes_brand_id_fkey(name),
-                perfume_notes(type, note:notes(name, color_hex))
-              `)
-              .eq('id', id)
-              .abortSignal(abortController.signal)
-              .maybeSingle();
+            const { data: mainPerfume, error } = await Promise.race([
+              supabase
+                .from('perfumes')
+                .select(`
+                  id, name, image_url, rating, vibe_tags,
+                  perfumer, price_tier, best_season, gender,
+                  longevity_rating, sillage_rating,
+                  scenario, scent_profile,
+                  olfactory_family,
+                  brand:brands!perfumes_brand_id_fkey(name),
+                  perfume_notes(type, note:notes(name, color_hex))
+                `)
+                .eq('id', id)
+                .abortSignal(abortController.signal)
+                .maybeSingle(),
+              new Promise<{ data: null; error: any }>((_, reject) =>
+                setTimeout(() => reject(new Error('Request timed out')), 10000)
+              )
+            ]);
 
             if (error) throw new Error(`Database query failed: ${error.message}`);
 
