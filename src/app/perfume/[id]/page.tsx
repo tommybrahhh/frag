@@ -6,6 +6,48 @@ import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import CommentsSection from '@/components/CommentsSection';
 import ScentRadar from '@/components/ScentRadar';
+import { Database } from '@/types/database';
+import { SupabaseClient } from '@supabase/supabase-js';
+
+type Note = {
+  name: string;
+  color_hex?: string;
+};
+
+type PerfumeNote = {
+  type: string;
+  note: Note;
+};
+
+type Brand = {
+  name: string;
+};
+
+type Perfume = Database['public']['Tables']['perfumes']['Row'] & {
+  brand?: Brand;
+  perfume_notes?: PerfumeNote[];
+  scent_profile?: Record<string, number>;
+  perfumer?: string;
+  scenario?: string;
+  olfactory_family?: string[];
+  longevity_rating?: number;
+  sillage_rating?: number;
+  sharedNotes?: string[];
+};
+
+type UserCollection = Database['public']['Tables']['user_collections']['Insert'];
+
+type Dupe = {
+  dupe_id: string;
+  dupe_name: string;
+  dupe_image_url?: string;
+  brand_name?: string;
+  dupe_price_tier?: string;
+  match_type: string;
+  match_score: number;
+  shared_notes: string[];
+  match_percentage: string;
+};
 
 // --- GLOBAL CONSTANTS & HELPERS (Defined outside component) ---
 
@@ -62,12 +104,14 @@ const generateProfileFromVibes = (vibes: string[]) => {
 export default function PerfumeDetail() {
   const params = useParams();
   const router = useRouter();
-  const [perfume, setPerfume] = useState<any>(null);
-  const [relatedPerfumes, setRelatedPerfumes] = useState<any[]>([]);
-  const [dupes, setDupes] = useState<any[]>([]);
+
+  const [perfume, setPerfume] = useState<Perfume | null>(null);
+  const [relatedPerfumes, setRelatedPerfumes] = useState<Perfume[]>([]);
+  const [dupes, setDupes] = useState<Dupe[]>([]);
   const [loading, setLoading] = useState(true);
   const [inCollection, setInCollection] = useState(false);
-  const { user, supabase } = useAuth();
+  const { user } = useAuth();
+  const supabase = useAuth().supabase;
 
   const getMatchDetails = (current: any, candidate: any) => {
     let score = 10;
@@ -184,104 +228,251 @@ export default function PerfumeDetail() {
     checkCollection();
   }, [user, perfume, supabase]);
 
+
+
+
   const toggleCollection = async () => {
     if (!user) return router.push('/login');
-    if (inCollection) {
-      await supabase.from('user_collections').delete().eq('user_id', user.id).eq('perfume_id', perfume.id);
-      setInCollection(false);
-    } else {
-      await supabase.from('user_collections').insert({ user_id: user.id, perfume_id: perfume.id });
-      setInCollection(true);
+    if (!perfume) return;
+
+    try {
+      if (inCollection) {
+        await supabase
+          .from('user_collections')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('perfume_id', perfume.id);
+        setInCollection(false);
+      } else {
+        const collectionItem: Database['public']['Tables']['user_collections']['Insert'] = {
+          user_id: user.id,
+          perfume_id: perfume.id
+        };
+        const { error } = await supabase
+        .from<UserCollection>('user_collections')
+        .insert([collectionItem], { returning: 'minimal' });
+        if (error) throw error;
+        setInCollection(true);
+      }
+    } catch (error) {
+      console.error("Collection update error:", error);
     }
   };
 
+  const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
-    const id = params?.id;
+    const abortController = new AbortController();
     
-    // 1. Reset state immediately on navigation (Fixes "stops loading" issue)
-    setLoading(true);
-    setPerfume(null);
-    setRelatedPerfumes([]);
-    setDupes([]);
-
-    if (!id || id === 'undefined') {
-      setLoading(false);
-      return;
-    }
-
     const fetchData = async () => {
-      try {
-        const { data: mainPerfume, error } = await supabase
-          .from('perfumes')
-          .select(`
-            id, name, image_url, rating, vibe_tags,
-            perfumer, price_tier, best_season, gender,
-            longevity_rating, sillage_rating,
-            scenario, scent_profile,
-            olfactory_family,
-            brand:brands!perfumes_brand_id_fkey(name),
-            perfume_notes(type, note:notes(name, color_hex))
-          `)
-          .eq('id', id)
-          .maybeSingle();
-
-        if (error) throw error;
+      const id = params?.id as string;
       
-        if (mainPerfume) {
-          if (!mainPerfume.scent_profile) {
-            mainPerfume.scent_profile = generateProfileFromVibes(mainPerfume.vibe_tags || []);
-          }
-          setPerfume(mainPerfume);
-        }
+      // Validate ID
+      if (!id || id === 'undefined' || !/^[a-f0-9-]+$/.test(id)) {
+        setError('Invalid perfume ID');
+        setLoading(false);
+        return;
+      }
 
+      // Reset state immediately on navigation
+      setLoading(true);
+      setError(null);
+      setPerfume(null);
+      setRelatedPerfumes([]);
+      setDupes([]);
+
+      try {
+        // Fetch main perfume data with retry logic
+        type PerfumeQueryResult = Database['public']['Tables']['perfumes']['Row'] & {
+          brand: { name: string };
+          perfume_notes: { type: string; note: { name: string; color_hex?: string } }[];
+        };
+
+        const fetchWithRetry = async (retries = 3): Promise<Perfume | null> => {
+          try {
+            if (!supabase) {
+              console.error('Supabase client is undefined');
+              throw new Error('Supabase client not initialized');
+            }
+            
+            // Verify Supabase connection
+            const { data: testData, error: testError } = await supabase
+              .from('perfumes')
+              .select('id')
+              .limit(1);
+            
+            if (testError) {
+              console.error('Supabase connection test failed:', testError);
+              throw new Error('Supabase connection failed');
+            }
+
+            // Define the expected return type
+            type PerfumeQueryResult = Database['public']['Tables']['perfumes']['Row'] & {
+              brand: { name: string };
+              perfume_notes: { type: string; note: { name: string; color_hex?: string } }[];
+            };
+
+            const { data: mainPerfume, error } = await supabase
+              .from<PerfumeQueryResult>('perfumes')
+              .select(`
+                id, name, image_url, rating, vibe_tags,
+                perfumer, price_tier, best_season, gender,
+                longevity_rating, sillage_rating,
+                scenario, scent_profile,
+                olfactory_family,
+                brand:brands!perfumes_brand_id_fkey(name),
+                perfume_notes(type, note:notes(name, color_hex))
+              `)
+              .eq('id', id)
+              .abortSignal(abortController.signal)
+              .maybeSingle();
+
+            if (error) {
+              console.error('Supabase query error details:', {
+                message: error.message,
+                code: error.code,
+                details: error.details,
+                hint: error.hint,
+                query: {
+                  table: 'perfumes',
+                  select: `
+                    id, name, image_url, rating, vibe_tags,
+                    perfumer, price_tier, best_season, gender,
+                    longevity_rating, sillage_rating,
+                    scenario, scent_profile,
+                    olfactory_family,
+                    brand:brands!perfumes_brand_id_fkey(name),
+                    perfume_notes(type, note:notes(name, color_hex))
+                  `,
+                  filter: `id = ${id}`
+                }
+              });
+              throw new Error(`Database query failed: ${error.message}`);
+            }
+
+            if (!mainPerfume || Object.keys(mainPerfume).length === 0) {
+              console.warn('No perfume found for ID:', id);
+              throw new Error('Perfume not found');
+            }
+
+            // Cast to Perfume type and log success
+            const perfumeData = mainPerfume as Perfume;
+            console.log('Successfully fetched perfume:', {
+              id: perfumeData.id,
+              name: perfumeData.name
+            });
+
+            return perfumeData;
+          } catch (err) {
+            console.error('Fetch error (attempt', retries, '):', err);
+            if (retries > 0) {
+              await new Promise(resolve => setTimeout(resolve, 1000));
+              return fetchWithRetry(retries - 1);
+            }
+            throw new Error(`Failed to fetch perfume after ${retries} attempts`);
+          }
+        };
+
+        const mainPerfume = await fetchWithRetry();
+        
         if (!mainPerfume) {
-          setLoading(false);
+          setError('Perfume not found');
           return;
         }
 
+        const perfumeData: Perfume = {
+          ...mainPerfume,
+          scent_profile: mainPerfume.scent_profile || generateProfileFromVibes(mainPerfume.vibe_tags || [])
+        };
+        setPerfume(perfumeData);
+
+        // Fetch related perfumes
         let query = supabase.from('perfumes').select(`
             id, name, image_url, price_tier, best_season, vibe_tags, gender,
             brand:brands!perfumes_brand_id_fkey(name),
             perfume_notes(type, note:notes(name))
           `)
           .neq('id', id)
-          .limit(100);
+          .limit(100)
+          .abortSignal(abortController.signal);
 
         if (mainPerfume.vibe_tags && mainPerfume.vibe_tags.length > 0) {
-           query = query.overlaps('vibe_tags', mainPerfume.vibe_tags);
+           query = query.overlaps('vibe_tags', mainPerfume.vibe_tags as string[]);
         }
 
         const { data: allPerfumes, error: allPerfumesError } = await query;
         if (allPerfumesError) throw allPerfumesError;
-
-        if (allPerfumes) {
-          const mainNotesLower = mainPerfume.perfume_notes?.map((n: any) => n.note?.name?.toLowerCase()) || [];
-          const recs = allPerfumes
-            .filter((p: any) => p.vibe_tags?.some((t: string) => mainPerfume.vibe_tags.includes(t)))
-            .map((p: any) => {
-              const candidateNotes = p.perfume_notes?.map((n: any) => n.note?.name?.toLowerCase()) || [];
-              const sharedNotes = candidateNotes.filter((n: string) => mainNotesLower.some((mainNote: string) => mainNote === n)).slice(0, 3);
-              return { ...p, sharedNotes };
-            })
-            .sort((a: any, b: any) => getMatchDetails(mainPerfume, b).score - getMatchDetails(mainPerfume, a).score)
-            .filter((p: any, index: number, self: any[]) => {
-               const brandCount = self.slice(0, index).filter(prev => prev.brand?.name === p.brand?.name).length;
-               return brandCount < 2;
-            })
-            .slice(0, 9);
-          
-          setRelatedPerfumes(recs);
-          setDupes(findClientSideDupes(mainPerfume, allPerfumes));
+        
+        if (!allPerfumes) {
+          throw new Error('Failed to fetch related perfumes');
         }
-      } catch (err) {
-        console.error("Fetch error:", err);
+
+        const mainNotesLower = mainPerfume.perfume_notes?.map((n: any) => n.note?.name?.toLowerCase()) || [];
+        const recs = allPerfumes
+          .filter((p: any) => p.vibe_tags?.some((t: string) => mainPerfume.vibe_tags?.includes(t)))
+          .map((p: any) => {
+            const candidateNotes = p.perfume_notes?.map((n: any) => n.note?.name?.toLowerCase()) || [];
+            const sharedNotes = candidateNotes.filter((n: string) => mainNotesLower.some((mainNote: string) => mainNote === n)).slice(0, 3);
+            return { ...p, sharedNotes };
+          })
+          .sort((a: any, b: any) => getMatchDetails(mainPerfume, b).score - getMatchDetails(mainPerfume, a).score)
+          .filter((p: any, index: number, self: any[]) => {
+            const brandCount = self.slice(0, index).filter(prev => prev.brand?.name === p.brand?.name).length;
+            return brandCount < 2;
+          })
+          .slice(0, 9);
+          
+        setRelatedPerfumes(recs);
+        const duplicates = findClientSideDupes(mainPerfume, allPerfumes).map(dupe => ({
+          ...dupe,
+          shared_notes: dupe.shared_notes.map(note => String(note))
+        }));
+        setDupes(duplicates);
+      } catch (error: unknown) {
+        console.error('Page load error:', error);
+        if (!abortController.signal.aborted) {
+          const message = error instanceof Error ? error.message : 'Failed to load perfume data';
+          setError(message);
+          setPerfume(null);
+          setRelatedPerfumes([]);
+          setDupes([]);
+          
+          // Check if it's a Supabase error
+          if (error instanceof Error && error.message.includes('Supabase')) {
+            setError('Database connection error. Please try again later.');
+          }
+        }
       } finally {
-        setLoading(false);
+        if (!abortController.signal.aborted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchData();
+
+    return () => {
+      abortController.abort();
+    };
   }, [params?.id, supabase]);
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#FDFBF7]">
+        <h2 className="text-2xl font-serif mb-4">Error Loading Perfume</h2>
+        <p className="text-stone-600 mb-8">{error}</p>
+        <button
+          onClick={() => {
+            setError(null);
+            setLoading(true);
+          }}
+          className="px-6 py-3 bg-stone-900 text-white rounded-full hover:bg-stone-700 transition-colors"
+        >
+          Try Again
+        </button>
+      </div>
+    );
+  }
 
   useEffect(() => { window.scrollTo(0, 0); }, [params?.id]);
 
@@ -296,7 +487,10 @@ export default function PerfumeDetail() {
       </div>
 
       <div className="max-w-6xl mx-auto px-6 grid lg:grid-cols-2 gap-16 mt-10 mb-16">
-        <div className="h-[500px] flex items-center justify-center relative p-0">
+        <div
+          className="h-[500px] flex items-center justify-center relative p-0 cursor-pointer"
+          onClick={() => router.push(`/perfume/${perfume.id}`)}
+        >
           {perfume.image_url ? (
             <img src={perfume.image_url} alt={perfume.name} className="h-full w-full object-contain mix-blend-multiply drop-shadow-xl" />
           ) : <span className="text-stone-300 font-serif italic">No Image</span>}
@@ -385,7 +579,7 @@ export default function PerfumeDetail() {
             <div>
               <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-2">Sillage</h4>
               <div className="h-2 w-full bg-stone-200 rounded-full overflow-hidden">
-                <div className="h-full bg-stone-500" style={{ width: `${(perfume.sillage_rating / 5) * 100}%` }}></div>
+                <div className="h-full bg-stone-500" style={{ width: `${((perfume.sillage_rating ?? 0) / 5) * 100}%` }}></div>
               </div>
               <p className="text-[10px] text-right text-stone-500 mt-1">{perfume.sillage_rating}/5</p>
             </div>
