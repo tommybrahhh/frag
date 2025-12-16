@@ -1,1 +1,5 @@
-// Original profile route content before changes
+import { NextResponse } from 'next/server';
+
+export async function GET() {
+  return NextResponse.json({ message: 'Profile API endpoint' });
+}
