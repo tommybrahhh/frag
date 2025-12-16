@@ -219,11 +219,23 @@ export default function PerfumeDetail() {
       .slice(0, 3);
   };
 
-  useEffect(() => {
+ useEffect(() => {
     const checkCollection = async () => {
-      if (!user || !perfume || !supabase) return;
-      const { data } = await supabase.from('user_collections').select('id').eq('user_id', user.id).eq('perfume_id', perfume.id).maybeSingle();
-      if (data) setInCollection(true);
+      // If missing requirements, ensure state is reset to false
+      if (!user || !perfume || !supabase) {
+        setInCollection(false);
+        return;
+      }
+      
+      const { data } = await supabase
+        .from('user_collections')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('perfume_id', perfume.id)
+        .maybeSingle();
+      
+      // Explicitly set true OR false based on whether data exists
+      setInCollection(!!data);
     };
     checkCollection();
   }, [user, perfume, supabase]);
@@ -235,27 +247,42 @@ export default function PerfumeDetail() {
     if (!user) return router.push('/login');
     if (!perfume) return;
 
+    console.log('Toggling collection:', {
+      userId: user.id,
+      perfumeId: perfume.id,
+      currentState: inCollection
+    });
+
     try {
       if (inCollection) {
-        await supabase
+        console.log('Removing from collection...');
+        const { error: deleteError } = await supabase
           .from('user_collections')
           .delete()
           .eq('user_id', user.id)
           .eq('perfume_id', perfume.id);
+        
+        if (deleteError) throw deleteError;
         setInCollection(false);
+        console.log('Successfully removed from collection');
       } else {
-        const collectionItem: Database['public']['Tables']['user_collections']['Insert'] = {
+        const collectionItem = {
           user_id: user.id,
-          perfume_id: perfume.id
-        };
-        const { error } = await supabase
-        .from<UserCollection>('user_collections')
-        .insert([collectionItem], { returning: 'minimal' });
-        if (error) throw error;
+          perfume_id: perfume.id,
+          created_at: new Date().toISOString()
+        } satisfies Database['public']['Tables']['user_collections']['Insert'];
+        console.log('Adding to collection:', collectionItem);
+        const { error: insertError } = await supabase
+          .from('user_collections')
+          .insert(collectionItem);
+        
+        if (insertError) throw insertError;
         setInCollection(true);
+        console.log('Successfully added to collection');
       }
     } catch (error) {
       console.error("Collection update error:", error);
+      setError('Failed to update collection. Please try again.');
     }
   };
 
@@ -280,6 +307,7 @@ export default function PerfumeDetail() {
       setPerfume(null);
       setRelatedPerfumes([]);
       setDupes([]);
+      setInCollection(false);
 
       try {
         // Fetch main perfume data with retry logic
@@ -290,21 +318,19 @@ export default function PerfumeDetail() {
 
         const fetchWithRetry = async (retries = 3): Promise<Perfume | null> => {
           try {
-            if (!supabase) {
-              console.error('Supabase client is undefined');
-              throw new Error('Supabase client not initialized');
-            }
+            // Check signal before starting
+            if (abortController.signal.aborted) throw new DOMException('Aborted', 'AbortError');
+
+            if (!supabase) throw new Error('Supabase client not initialized');
             
             // Verify Supabase connection
             const { data: testData, error: testError } = await supabase
               .from('perfumes')
               .select('id')
-              .limit(1);
+              .limit(1)
+              .abortSignal(abortController.signal); // Pass signal here
             
-            if (testError) {
-              console.error('Supabase connection test failed:', testError);
-              throw new Error('Supabase connection failed');
-            }
+            if (testError) throw new Error('Supabase connection failed');
 
             // Define the expected return type
             type PerfumeQueryResult = Database['public']['Tables']['perfumes']['Row'] & {
@@ -313,7 +339,7 @@ export default function PerfumeDetail() {
             };
 
             const { data: mainPerfume, error } = await supabase
-              .from<PerfumeQueryResult>('perfumes')
+              .from('perfumes')
               .select(`
                 id, name, image_url, rating, vibe_tags,
                 perfumer, price_tier, best_season, gender,
@@ -327,28 +353,7 @@ export default function PerfumeDetail() {
               .abortSignal(abortController.signal)
               .maybeSingle();
 
-            if (error) {
-              console.error('Supabase query error details:', {
-                message: error.message,
-                code: error.code,
-                details: error.details,
-                hint: error.hint,
-                query: {
-                  table: 'perfumes',
-                  select: `
-                    id, name, image_url, rating, vibe_tags,
-                    perfumer, price_tier, best_season, gender,
-                    longevity_rating, sillage_rating,
-                    scenario, scent_profile,
-                    olfactory_family,
-                    brand:brands!perfumes_brand_id_fkey(name),
-                    perfume_notes(type, note:notes(name, color_hex))
-                  `,
-                  filter: `id = ${id}`
-                }
-              });
-              throw new Error(`Database query failed: ${error.message}`);
-            }
+            if (error) throw new Error(`Database query failed: ${error.message}`);
 
             if (!mainPerfume || Object.keys(mainPerfume).length === 0) {
               console.warn('No perfume found for ID:', id);
@@ -356,14 +361,14 @@ export default function PerfumeDetail() {
             }
 
             // Cast to Perfume type and log success
-            const perfumeData = mainPerfume as Perfume;
-            console.log('Successfully fetched perfume:', {
-              id: perfumeData.id,
-              name: perfumeData.name
-            });
-
+            const perfumeData = mainPerfume as unknown as Perfume;
             return perfumeData;
-          } catch (err) {
+          } catch (err: any) {
+            // >>> CRITICAL FIX: Stop retrying if the request was aborted <<<
+            if (err.name === 'AbortError' || abortController.signal.aborted) {
+                throw err;
+            }
+
             console.error('Fetch error (attempt', retries, '):', err);
             if (retries > 0) {
               await new Promise(resolve => setTimeout(resolve, 1000));
