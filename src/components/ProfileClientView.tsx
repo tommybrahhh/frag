@@ -15,7 +15,7 @@ type Tables<T extends keyof Database['public']['Tables']> = Database['public']['
 
 
 export default function ProfileClientView({ userEmail, initialCollection }: ProfilePageProps) {
-  const { user, supabase, loading: authLoading } = useAuth(); // Still need useAuth for logout/session mgmt
+  const { user, supabase, loading: authLoading, signOut } = useAuth(); // Destructure signOut
   const router = useRouter();
   const [collection, setCollection] = useState(initialCollection); // Initialize with server-fetched data
 
@@ -51,10 +51,18 @@ export default function ProfileClientView({ userEmail, initialCollection }: Prof
       
       {/* Header Section */}
       <div className="bg-white border-b border-stone-200 px-6 py-12">
-        <div className="max-w-6xl mx-auto">
-          <span className="text-xs font-bold uppercase tracking-widest text-stone-400">Member Profile</span>
-          <h1 className="text-4xl font-serif text-stone-900 mt-2 mb-2">My Wardrobe</h1>
-          <p className="text-stone-500">{userEmail}</p>
+        <div className="max-w-6xl mx-auto flex justify-between items-center"> {/* Added flex container */}
+          <div>
+            <span className="text-xs font-bold uppercase tracking-widest text-stone-400">Member Profile</span>
+            <h1 className="text-4xl font-serif text-stone-900 mt-2 mb-2">My Wardrobe</h1>
+            <p className="text-stone-500">{userEmail}</p>
+          </div>
+          <button
+            onClick={signOut} // Call signOut from useAuth
+            className="px-4 py-2 bg-stone-100 text-stone-600 text-xs font-bold uppercase tracking-widest rounded-full hover:bg-stone-200 transition"
+          >
+            Sign Out
+          </button>
         </div>
       </div>
 

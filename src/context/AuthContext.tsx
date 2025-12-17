@@ -136,12 +136,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [supabase, router, fetchUserProfile, supabaseInitError]);
 
   const signOut = useCallback(async () => {
-    if (!supabase) return; // Prevent signOut if client not initialized
-    await supabase.auth.signOut();
-    setUser(null);
-    router.push('/');
-    router.refresh();
-  }, [supabase, router]);
+    console.log('SignOut: Function called');
+    if (!supabase) {
+      console.log('SignOut: Supabase client not initialized, returning.');
+      return; // Prevent signOut if client not initialized
+    }
+    console.log('SignOut: Supabase client available, attempting to sign out.');
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error('SignOut: Supabase sign out error:', error);
+      // Optionally handle the error more gracefully, e.g., display a message to the user
+    } else {
+      console.log('SignOut: Successfully signed out from Supabase.');
+      setUser(null);
+      // Removed: router.push('/') and router.refresh()
+      console.log('SignOut: User state reset. Redirection handled by onAuthStateChange listener/Server Component.');
+    }
+  }, [supabase]); // router is no longer a dependency here
 
   const value = useMemo(() => ({
     user,
