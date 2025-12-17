@@ -99,12 +99,19 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-white text-stone-800 pb-24">
       <VisualGrid />
-      <LatestDrop perfume={newArrivals[0]} />
+      
+      {/* Hero Split: Latest Drop & Community Buzz */}
+      <div className="max-w-[1400px] mx-auto px-6 mb-20 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-1 h-full">
+          <LatestDrop perfume={newArrivals[0]} />
+        </div>
+        <div className="lg:col-span-2 h-full">
+          <CommunityBuzz />
+        </div>
+      </div>
       
       <SectionHeader title="Just Arrived" linkText="View All" linkHref="/search/advanced?sort=newest" />
       <HorizontalScrollRow items={newArrivals.slice(1, 8)} />
-      
-      <CommunityBuzz />
 
       <div className="sticky top-20 z-40 bg-white/95 backdrop-blur-sm border-y border-stone-100 py-4 mb-12 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)]">
          <FilterBar onFilterChange={handleFilterChange} />

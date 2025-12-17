@@ -2,6 +2,7 @@ import { createClient } from '@/utils/supabase/server';
 import PerfumeClientView from '@/components/PerfumeClientView';
 import { Database } from '@/types/database';
 import { notFound } from 'next/navigation';
+import { RecommendationEngine } from '@/lib/recommendation-engine';
 
 // --- Types ---
 
@@ -29,6 +30,8 @@ type Perfume = Database['public']['Tables']['perfumes']['Row'] & {
   longevity_rating?: number;
   sillage_rating?: number;
   sharedNotes?: string[];
+  matchScore?: number; // Added matchScore
+  matchReason?: string; // Added matchReason
 };
 
 // --- Helper Functions (Server-Side) ---
@@ -42,16 +45,6 @@ const SCENT_FAMILIES: Record<string, string[]> = {
   fresh: ['mint', 'green', 'aquatic', 'ozonic', 'marine', 'herbal', 'tea', 'sage'],
   oriental: ['amber', 'resin', 'incense', 'myrrh', 'labdanum', 'benzoin'],
   leather: ['leather', 'suede', 'tobacco', 'smoke', 'birch']
-};
-
-const getDominantFamily = (notes: string[]) => {
-  const scores: Record<string, number> = {};
-  notes.forEach(note => {
-    for (const [family, keywords] of Object.entries(SCENT_FAMILIES)) {
-      if (keywords.some(k => note.includes(k))) scores[family] = (scores[family] || 0) + 1;
-    }
-  });
-  return Object.entries(scores).sort(([,a], [,b]) => b - a)[0]?.[0] || null;
 };
 
 const categorizeScentFamily = (notes: string[], vibes: string[]): string | null => {
@@ -81,62 +74,6 @@ const generateProfileFromVibes = (vibes: string[]) => {
   });
 
   return profile;
-};
-
-const getMatchDetails = (current: any, candidate: any) => {
-    let score = 10;
-    const reasons: string[] = [];
-
-    if (current.vibe_tags && candidate.vibe_tags) {
-      const sharedVibes = current.vibe_tags.filter((t: string) => candidate.vibe_tags.includes(t));
-      score += (sharedVibes.length * 20);
-      if (sharedVibes.length > 0) reasons.push("Vibe");
-    }
-
-    const currentNoteMap = new Map();
-    current.perfume_notes?.forEach((pn: any) => {
-      if (pn.note?.name) currentNoteMap.set(pn.note.name.toLowerCase(), pn.type);
-    });
-
-    let sharedBaseNotes = 0;
-    let sharedHeartNotes = 0;
-
-    if (candidate.perfume_notes) {
-      candidate.perfume_notes.forEach((pn: any) => {
-        const name = pn.note?.name?.toLowerCase();
-        const type = pn.type;
-        
-        if (currentNoteMap.has(name)) {
-          const originalType = currentNoteMap.get(name);
-          if (type === 'Base' || originalType === 'Base') {
-            score += 25;
-            sharedBaseNotes++;
-          } else if (type === 'Heart' || originalType === 'Heart') {
-            score += 15;
-            sharedHeartNotes++;
-          } else {
-            score += 5;
-          }
-        }
-      });
-    }
-
-    const currentNotesList = current.perfume_notes?.map((n:any) => n.note?.name?.toLowerCase()) || [];
-    const candidateNotesList = candidate.perfume_notes?.map((n:any) => n.note?.name?.toLowerCase()) || [];
-    const currentFam = getDominantFamily(currentNotesList);
-    const candidateFam = getDominantFamily(candidateNotesList);
-    
-    if (currentFam && candidateFam && currentFam === candidateFam) score += 15;
-
-    if (current.best_season?.some((s: string) => candidate.best_season?.includes(s))) score += 5;
-    if (current.brand?.name === candidate.brand?.name) score += 5;
-
-    let reasonText = 'Similar vibe';
-    if (sharedBaseNotes >= 2) reasonText = 'Similar dry-down DNA';
-    else if (sharedHeartNotes >= 2) reasonText = 'Similar heart profile';
-    else if (currentFam && currentFam === candidateFam) reasonText = `Matches ${currentFam} style`;
-
-    return { score: Math.min(score, 99), reason: reasonText };
 };
 
 const findDupes = (mainPerfume: any, allPerfumes: any[]) => {
@@ -205,7 +142,7 @@ export default async function PerfumePage(
       longevity_rating, sillage_rating,
       scenario, scent_profile,
       olfactory_family,
-      brand:brands!perfumes_brand_id_fkey(name),
+      brand:brands(name),
       perfume_notes(type, note:notes(name, color_hex))
     `)
     .eq('id', id)
@@ -225,7 +162,7 @@ export default async function PerfumePage(
   // 2. Fetch Related Perfumes (Candidates)
   let query = supabase.from('perfumes').select(`
       id, name, image_url, price_tier, best_season, vibe_tags, gender,
-      brand:brands!perfumes_brand_id_fkey(name),
+      brand:brands(name),
       perfume_notes(type, note:notes(name))
     `)
     .neq('id', id)
@@ -237,21 +174,23 @@ export default async function PerfumePage(
 
   const { data: allPerfumes } = await query;
 
-  // 3. Process Recommendations
-  const mainNotesLower = perfumeData.perfume_notes?.map((n: any) => n.note?.name?.toLowerCase()) || [];
-  
-  const relatedPerfumes = (allPerfumes || [])
-    .filter((p: any) => p.vibe_tags?.some((t: string) => perfumeData.vibe_tags?.includes(t)))
-    .map((p: any) => {
-      const candidateNotes = p.perfume_notes?.map((n: any) => n.note?.name?.toLowerCase()) || [];
-      const sharedNotes = candidateNotes.filter((n: string) => mainNotesLower.some((mainNote: string) => mainNote === n)).slice(0, 3);
-      return { ...p, sharedNotes };
-    })
-    .sort((a: any, b: any) => getMatchDetails(perfumeData, b).score - getMatchDetails(perfumeData, a).score)
-    .filter((p: any, index: number, self: any[]) => {
-      const brandCount = self.slice(0, index).filter(prev => prev.brand?.name === p.brand?.name).length;
+  // 3. Process Recommendations using RecommendationEngine
+  // We use the fetched candidates to rank them using the advanced engine
+  const rankedRecommendations = RecommendationEngine.getSimilarRecommendations(perfumeData, allPerfumes || [], 100);
+
+  const relatedPerfumes = rankedRecommendations
+    // Diversity Filter: Max 2 per brand
+    .filter((rec, index, self) => {
+      const brandCount = self.slice(0, index).filter(prev => prev.perfume.brand?.name === rec.perfume.brand?.name).length;
       return brandCount < 2;
     })
+    // Map back to Perfume structure for Client View
+    .map(rec => ({
+      ...rec.perfume,
+      matchScore: rec.score,
+      matchReason: rec.reason,
+      sharedNotes: rec.sharedNotes
+    }))
     .slice(0, 9) as Perfume[];
 
   // 4. Process Dupes

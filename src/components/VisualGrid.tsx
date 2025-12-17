@@ -24,8 +24,8 @@ const VisualGrid = () => {
         {images.map((img) => (
           <Link
             key={img.alt}
-            href={`/search/advanced?vibe=${img.title.toLowerCase()}`}
-            className="group relative h-[400px] md:h-[500px] rounded-2xl overflow-hidden cursor-pointer w-full block"
+            href={`/search?vibe=${img.title.toLowerCase()}`}
+            className="group relative h-[280px] md:h-[350px] rounded-2xl overflow-hidden cursor-pointer w-full block"
             aria-label={`Explore ${img.title} scents: ${img.subtitle}`}
           >
             <div className="absolute inset-0 bg-stone-200">
