@@ -37,7 +37,7 @@ export async function GET(
         id, name, image_url, brand:brands!perfumes_brand_id_fkey(name),
         perfume_notes!inner(note_id)
       `)
-      .eq('perfume_notes.note_id', note.id);
+      .eq('perfume_notes.note_id', note!.id);
 
     if (perfumeError) throw perfumeError;
 
