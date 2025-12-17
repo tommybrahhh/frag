@@ -30,6 +30,9 @@ export async function GET(
       return NextResponse.json({ error: 'Ingredient not found' }, { status: 404 });
     }
 
+    // Explicitly cast note to avoid TypeScript 'never' inference issues
+    const noteId = (note as any).id;
+
     // 4. Fetch perfumes that use this note (removed limit to show all perfumes)
     const { data: perfumes, error: perfumeError } = await supabase
       .from('perfumes')
@@ -37,7 +40,7 @@ export async function GET(
         id, name, image_url, brand:brands!perfumes_brand_id_fkey(name),
         perfume_notes!inner(note_id)
       `)
-      .eq('perfume_notes.note_id', note.id);
+      .eq('perfume_notes.note_id', noteId);
 
     if (perfumeError) throw perfumeError;
 
