@@ -171,22 +171,77 @@ export class RecommendationEngine {
     );
   }
 
-  private static async getAllPerfumes() {
-    const supabase = createClient();
-    const { data: perfumes } = await supabase
+  public static async getAllPerfumes(supabaseClient?: any) {
+    const supabase = supabaseClient || createClient();
+    const { data: perfumes, error } = await supabase
       .from('perfumes')
       .select(`
         id, name, image_url, rating, vibe_tags, price_tier, best_season,
-        longevity_rating, sillage_rating, molecular_structure, olfactory_family,
-        brand:brands!perfumes_brand_id_fkey(name),
+        longevity_rating, sillage_rating, olfactory_family,
+        brand:brands(name),
         perfume_notes(type, note:notes(name, color_hex))
       `);
+
+    if (error) {
+        console.error('Error fetching all perfumes:', error);
+    }
 
     return perfumes || [];
   }
 
+  // Helper to create a "virtual" perfume representing the user's collection
+  public static createCompositeProfile(collection: any[]) {
+    if (!collection || collection.length === 0) return null;
+
+    const familyCounts: Record<string, number> = {};
+    const vibeCounts: Record<string, number> = {};
+    const noteCounts: Record<string, number> = {};
+    const seasonCounts: Record<string, number> = {};
+
+    collection.forEach(p => {
+        // Families
+        p.olfactory_family?.forEach((f: string) => {
+            familyCounts[f] = (familyCounts[f] || 0) + 1;
+        });
+        // Vibes
+        p.vibe_tags?.forEach((v: string) => {
+            vibeCounts[v] = (vibeCounts[v] || 0) + 1;
+        });
+        // Notes (handling the nested structure)
+        p.perfume_notes?.forEach((pn: any) => {
+            const nName = pn.note?.name;
+            if (nName) noteCounts[nName] = (noteCounts[nName] || 0) + 1;
+        });
+        // Seasons
+        p.best_season?.forEach((s: string) => {
+            seasonCounts[s] = (seasonCounts[s] || 0) + 1;
+        });
+    });
+
+    const getTop = (counts: Record<string, number>, limit: number) => 
+        Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, limit).map(e => e[0]);
+
+    const topFamilies = getTop(familyCounts, 3);
+    const topVibes = getTop(vibeCounts, 5);
+    const topNotes = getTop(noteCounts, 15);
+    const topSeasons = getTop(seasonCounts, 2);
+
+    // Return a structure matching the 'perfume' expected by analyzeScentProfile
+    return {
+        id: 'user-profile',
+        name: 'User Taste Profile',
+        olfactory_family: topFamilies,
+        vibe_tags: topVibes,
+        best_season: topSeasons,
+        perfume_notes: topNotes.map(nName => ({
+            note: { name: nName }
+        })),
+        brand: { name: 'Composite' }
+    };
+  }
+
   // Enhanced note analysis with volatility scoring
-  private static analyzeScentProfile(perfume: any) {
+  public static analyzeScentProfile(perfume: any) {
     const notes = perfume.perfume_notes?.map((n: any) => n.note?.name?.toLowerCase()) || [];
     const vibes = perfume.vibe_tags || [];
 
@@ -250,7 +305,7 @@ export class RecommendationEngine {
   }
 
   // Similar scent profile recommendations
-  private static getSimilarRecommendations(mainPerfume: any, allPerfumes: any[], count: number = 6): Recommendation[] {
+  public static getSimilarRecommendations(mainPerfume: any, allPerfumes: any[], count: number = 6): Recommendation[] {
     const mainProfile = this.analyzeScentProfile(mainPerfume);
     
     // Calculate maximum possible score for normalization
@@ -619,7 +674,7 @@ export class RecommendationEngine {
 
 
   // Discovery recommendations (similar but different)
-  private static getDiscoveryRecommendations(mainPerfume: any, allPerfumes: any[], count: number = 4): Recommendation[] {
+  public static getDiscoveryRecommendations(mainPerfume: any, allPerfumes: any[], count: number = 4): Recommendation[] {
     const mainProfile = this.analyzeScentProfile(mainPerfume);
     
     return allPerfumes

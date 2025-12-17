@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { Database } from '@/types/database';
 import WardrobeAnalytics from '@/components/WardrobeAnalytics'; // Import Analytics
 import { UserInsights } from '@/lib/analytics'; // Import Types
+import { Recommendation } from '@/lib/recommendation-engine';
 
 type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row'];
 
@@ -15,14 +16,23 @@ type ProfilePageProps = {
   displayName: string | null;
   bio: string | null;
   initialCollection: (Tables<'perfumes'> & { brand: Tables<'brands'> | null, collection_id: string })[];
-  insights: UserInsights; // New Prop
-  recommendations: (Tables<'perfumes'> & { brand: Tables<'brands'> | null })[]; // New Prop
+  insights: UserInsights;
+  topMatches: Recommendation[];
+  discoverySelections: Recommendation[];
 };
 
-export default function ProfileClientView({ userEmail, displayName, bio, initialCollection, insights, recommendations }: ProfilePageProps) {
+export default function ProfileClientView({ 
+  userEmail, 
+  displayName, 
+  bio, 
+  initialCollection = [], 
+  insights, 
+  topMatches = [], 
+  discoverySelections = [] 
+}: ProfilePageProps) {
   const { user, supabase, loading: authLoading, signOut } = useAuth();
   const router = useRouter();
-  const [collection, setCollection] = useState(initialCollection);
+  const [collection, setCollection] = useState(initialCollection || []);
   const [isRemovingId, setIsRemovingId] = useState<string | null>(null);
   const [removeError, setRemoveError] = useState<string | null>(null);
 
@@ -145,36 +155,85 @@ export default function ProfileClientView({ userEmail, displayName, bio, initial
           </div>
         )}
 
-        {/* Recommendations Section */}
-        {recommendations.length > 0 && (
+        {/* Perfect Matches Section (Fixed Tier) */}
+        {topMatches.length > 0 && (
           <div className="pt-12 border-t border-stone-200">
             <div className="flex items-center justify-between mb-8">
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-widest text-stone-400">Curated For You</span>
-                <h2 className="font-serif text-2xl text-stone-900 mt-1">Based on your taste</h2>
+                <h2 className="font-serif text-2xl text-stone-900 mt-1">Perfect Matches</h2>
+                <p className="text-stone-500 text-sm mt-1">Highly compatible with your taste profile.</p>
               </div>
             </div>
             
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {recommendations.map((perfume) => (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12">
+              {topMatches.map((rec) => (
                 <Link 
-                  key={perfume.id} 
-                  href={`/perfume/${perfume.id}`}
+                  key={rec.perfume.id} 
+                  href={`/perfume/${rec.perfume.id}`}
                   className="group bg-white rounded-xl border border-stone-100 p-4 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
                 >
-                  <div className="h-48 flex items-center justify-center p-4 mb-4 bg-stone-50 rounded-lg group-hover:bg-white transition-colors">
-                    {perfume.image_url ? (
-                      <img src={perfume.image_url} alt={perfume.name} className="h-full object-contain mix-blend-multiply opacity-80 group-hover:opacity-100 transition-opacity" />
+                  <div className="h-48 flex items-center justify-center p-4 mb-4 bg-stone-50 rounded-lg group-hover:bg-white transition-colors relative">
+                    <div className="absolute top-2 right-2 bg-stone-900 text-white text-[10px] font-bold px-2 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                      {rec.score}% Match
+                    </div>
+                    {rec.perfume.image_url ? (
+                      <img src={rec.perfume.image_url} alt={rec.perfume.name} className="h-full object-contain mix-blend-multiply opacity-80 group-hover:opacity-100 transition-opacity" />
                     ) : (
                       <span className="text-stone-300 text-xs italic">No Image</span>
                     )}
                   </div>
                   <div className="text-center">
                     <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 truncate mb-1">
-                      {perfume.brand?.name}
+                      {rec.perfume.brand?.name}
                     </div>
-                    <div className="font-serif text-lg text-stone-900 leading-tight truncate">
-                      {perfume.name}
+                    <div className="font-serif text-lg text-stone-900 leading-tight truncate mb-2">
+                      {rec.perfume.name}
+                    </div>
+                    <div className="text-xs text-stone-500 line-clamp-2 h-8 px-2">
+                      {rec.reason}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Discovery Section (Shuffled Tier) */}
+        {discoverySelections.length > 0 && (
+          <div className="pt-12 border-t border-stone-200">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-stone-400">Explore</span>
+                <h2 className="font-serif text-2xl text-stone-900 mt-1">Discover Something New</h2>
+                <p className="text-stone-500 text-sm mt-1">Intriguing scents that expand your horizons.</p>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {discoverySelections.map((rec) => (
+                <Link 
+                  key={rec.perfume.id} 
+                  href={`/perfume/${rec.perfume.id}`}
+                  className="group bg-white rounded-xl border border-stone-100 p-4 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                >
+                  <div className="h-48 flex items-center justify-center p-4 mb-4 bg-stone-50 rounded-lg group-hover:bg-white transition-colors">
+                    {rec.perfume.image_url ? (
+                      <img src={rec.perfume.image_url} alt={rec.perfume.name} className="h-full object-contain mix-blend-multiply opacity-80 group-hover:opacity-100 transition-opacity" />
+                    ) : (
+                      <span className="text-stone-300 text-xs italic">No Image</span>
+                    )}
+                  </div>
+                  <div className="text-center">
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 truncate mb-1">
+                      {rec.perfume.brand?.name}
+                    </div>
+                    <div className="font-serif text-lg text-stone-900 leading-tight truncate mb-2">
+                      {rec.perfume.name}
+                    </div>
+                    <div className="text-xs text-stone-500 line-clamp-2 h-8 px-2 italic">
+                      {rec.reason}
                     </div>
                   </div>
                 </Link>
