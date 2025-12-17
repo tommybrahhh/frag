@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createClient } from '@/utils/supabase/client';
+import { useAuth } from '@/context/AuthContext'; // Use central auth context
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -9,31 +9,29 @@ export default function LoginPage() {
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [localLoading, setLocalLoading] = useState(false); // Renamed to avoid conflict with auth loading
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const router = useRouter();
   
-  // Create the browser client
-  const supabase = createClient();
+  const { user, loading: authLoading, supabase } = useAuth(); // Get supabase from context
 
+  // Redirect if already logged in
   useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        router.replace('/');
-      }
-    };
-    checkSession();
-  }, [router, supabase]);
+    if (!authLoading && user) {
+      router.replace('/');
+    }
+  }, [user, authLoading, router]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setLocalLoading(true);
     setError(null);
     setMessage(null);
 
     try {
+      if (!supabase) throw new Error("Supabase client not initialized");
+
       if (isSignUp) {
         // --- SIGN UP FLOW (Strictly Email) ---
         if (!identifier.includes('@')) {
@@ -78,16 +76,17 @@ export default function LoginPage() {
         
         setMessage('Login successful! Redirecting...');
         
-        // Refresh the router to update Server Components (crucial for Auth)
-        router.refresh();
+        // Removed router.refresh() to avoid conflict with AuthContext
         router.replace('/');
       }
     } catch (err: any) {
       setError(err.message);
     } finally {
-      setLoading(false);
+      setLocalLoading(false);
     }
   };
+
+  if (authLoading) return null; // Prevent flicker while checking session
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#FDFBF7] p-6 pt-24">
@@ -138,10 +137,10 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={localLoading}
             className="w-full py-4 bg-stone-900 text-white rounded-xl font-bold uppercase tracking-widest hover:bg-stone-800 transition disabled:opacity-50"
           >
-            {loading ? 'Processing...' : (isSignUp ? 'Create Account' : 'Sign In')}
+            {localLoading ? 'Processing...' : (isSignUp ? 'Create Account' : 'Sign In')}
           </button>
         </form>
 

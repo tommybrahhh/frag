@@ -57,10 +57,12 @@ export default function PerfumeClientView({ perfume, relatedPerfumes, dupes }: P
   const { user, supabase } = useAuth();
   const [inCollection, setInCollection] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false); // New loading state for the button
 
   // Check initial collection status
   useEffect(() => {
     const checkCollection = async () => {
+      setError(null); // Clear previous errors on ID change
       if (!user || !perfume || !supabase) {
         setInCollection(false);
         return;
@@ -81,6 +83,9 @@ export default function PerfumeClientView({ perfume, relatedPerfumes, dupes }: P
   const toggleCollection = async () => {
     if (!user) return router.push('/login');
     if (!perfume) return;
+
+    setIsSubmitting(true); // Start loading
+    setError(null);       // Clear previous errors
 
     try {
       if (inCollection) {
@@ -104,9 +109,11 @@ export default function PerfumeClientView({ perfume, relatedPerfumes, dupes }: P
         if (insertError) throw insertError;
         setInCollection(true);
       }
-    } catch (error) {
-      console.error("Collection update error:", error);
-      setError('Failed to update collection. Please try again.');
+    } catch (err: any) {
+      console.error("Collection update error:", err);
+      setError(err.message || 'Failed to update collection. Please try again.');
+    } finally {
+      setIsSubmitting(false); // End loading
     }
   };
 
@@ -139,16 +146,22 @@ export default function PerfumeClientView({ perfume, relatedPerfumes, dupes }: P
                 {perfume.brand?.name}
               </Link>
               
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap"> {/* Added flex-wrap for responsiveness */}
                 <button
                   onClick={toggleCollection}
-                  className={`text-[10px] uppercase px-4 py-2 rounded-full transition border ${inCollection ? 'bg-stone-900 text-white border-stone-900' : 'border-stone-300 hover:bg-stone-50 text-stone-600'}`}
+                  disabled={isSubmitting} // Disable button while submitting
+                  className={`text-[10px] uppercase px-4 py-2 rounded-full transition border ${inCollection ? 'bg-stone-900 text-white border-stone-900' : 'border-stone-300 hover:bg-stone-50 text-stone-600'} ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
-                  {inCollection ? 'In Wardrobe ✓' : '+ Add to Shelf'}
+                  {isSubmitting ? (inCollection ? 'Removing...' : 'Adding...') : (inCollection ? 'In Wardrobe ✓' : '+ Add to Shelf')}
                 </button>
                 <button onClick={() => router.push(`/compare?a=${perfume.id}`)} className="border border-stone-300 text-[10px] uppercase px-4 py-2 rounded-full hover:bg-stone-900 hover:text-white transition">Compare</button>
               </div>
             </div>
+            {error && ( // Display error message
+              <div className="text-red-500 text-xs mt-2 p-2 bg-red-50 border border-red-200 rounded-lg">
+                {error}
+              </div>
+            )}
             <h1 className="text-5xl md:text-6xl font-serif font-medium text-stone-900 mb-4 leading-tight">{perfume.name}</h1>
             {perfume.perfumer && (
               <p className="text-sm text-stone-500 italic">Created by <Link href={`/creators/${encodeURIComponent(perfume.perfumer)}`} className="hover:text-stone-700 transition-colors">{perfume.perfumer}</Link></p>

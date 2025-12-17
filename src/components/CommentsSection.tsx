@@ -10,52 +10,128 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
   const [comments, setComments] = useState<any[]>([]);
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(false);
+  const [postError, setPostError] = useState<string | null>(null);
   const supabase = createClient();
 
+  // New states for editing comments
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editedCommentContent, setEditedCommentContent] = useState('');
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
+
+
   // Load Comments
+  const fetchComments = async () => { // Extracted fetchComments to be callable
+    setPostError(null); // Clear errors when refetching comments
+    const { data } = await supabase
+      .from('comments')
+      .select('*')
+      .eq('perfume_id', perfumeId)
+      .order('created_at', { ascending: false });
+    setComments(data || []);
+  };
+
   useEffect(() => {
-    const fetchComments = async () => {
-      const { data } = await supabase
-        .from('comments')
-        .select('*')
-        .eq('perfume_id', perfumeId)
-        .order('created_at', { ascending: false });
-      setComments(data || []);
-    };
     fetchComments();
   }, [perfumeId]);
 
   // Submit Comment
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !newComment.trim()) return;
-    setLoading(true);
-
-    const { error } = await supabase.from('comments').insert({
-      user_id: user.id,
-      perfume_id: perfumeId,
-      content: newComment,
-      user_name: user.email?.split('@')[0] || 'Member'
-    });
-
-    if (!error) {
-      setNewComment('');
-      // Refresh list
-      const { data } = await supabase
-        .from('comments')
-        .select('*')
-        .eq('perfume_id', perfumeId)
-        .order('created_at', { ascending: false });
-      setComments(data || []);
+    if (!user) {
+      setPostError("You must be logged in to post a comment.");
+      return;
     }
-    setLoading(false);
+    if (!newComment.trim()) {
+      setPostError("Comment cannot be empty.");
+      return;
+    }
+
+    setLoading(true);
+    setPostError(null); // Clear previous errors
+
+    try {
+      // Use explicit type for insert to leverage Database type
+      const commentToInsert: Database['public']['Tables']['comments']['Insert'] = {
+        user_id: user.id,
+        perfume_id: perfumeId,
+        content: newComment,
+        user_name: user.display_name || user.email?.split('@')[0] || 'Member', // Use display_name if available
+        created_at: new Date().toISOString()
+      };
+
+      const { error: insertError } = await supabase.from('comments').insert(commentToInsert);
+
+      if (insertError) {
+        console.error('Supabase Insert Error:', insertError); // Log the full error object
+        throw insertError; // Re-throw to be caught by the outer try/catch
+      }
+
+      setNewComment('');
+      await fetchComments(); // Re-fetch comments after successful post
+      // No need to setLoading(false) here, it's in finally
+    } catch (err: any) {
+      console.error('Error posting comment:', err);
+      setPostError(err.message || 'Failed to post comment. Please try again.');
+    } finally {
+      setLoading(false); // Ensure loading is reset on error or success
+    }
   };
 
   // Delete Comment
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this comment?')) return;
-    await supabase.from('comments').delete().eq('id', id);
-    setComments(comments.filter(c => c.id !== id));
+    try {
+      await supabase.from('comments').delete().eq('id', id);
+      setComments(comments.filter(c => c.id !== id));
+    } catch (err: any) {
+      console.error('Error deleting comment:', err);
+      // You might want to display this error to the user
+      alert('Failed to delete comment: ' + (err.message || 'Unknown error'));
+    }
+  };
+
+  // Handle Edit Click
+  const handleEditClick = (comment: any) => {
+    setEditingCommentId(comment.id);
+    setEditedCommentContent(comment.content);
+    setEditError(null); // Clear previous edit errors
+  };
+
+  // Handle Cancel Edit
+  const handleCancelEdit = () => {
+    setEditingCommentId(null);
+    setEditedCommentContent('');
+    setEditError(null);
+  };
+
+  // Handle Save Edit
+  const handleSaveEdit = async (commentId: string) => {
+    if (!user || !editedCommentContent.trim()) {
+      setEditError("Edited comment cannot be empty.");
+      return;
+    }
+    setIsSavingEdit(true);
+    setEditError(null);
+
+    try {
+      const { error } = await supabase
+        .from('comments')
+        .update({ content: editedCommentContent }) // Removed created_at from update payload
+        .eq('id', commentId)
+        .eq('user_id', user.id); // Ensure only the owner can update
+
+      if (error) throw error;
+
+      setEditingCommentId(null);
+      setEditedCommentContent('');
+      await fetchComments(); // Refresh comments list
+    } catch (err: any) {
+      console.error('Error saving edited comment:', err);
+      setEditError(err.message || 'Failed to save comment changes.');
+    } finally {
+      setIsSavingEdit(false);
+    }
   };
 
   return (
@@ -75,6 +151,11 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
 
               {user ? (
                 <form onSubmit={handleSubmit} className="space-y-4">
+                  {postError && ( // Display post error message
+                    <div className="text-red-500 text-xs mt-2 p-2 bg-red-50 border border-red-200 rounded-lg">
+                      {postError}
+                    </div>
+                  )}
                   <div className="relative">
                     <textarea
                       value={newComment}
@@ -88,7 +169,7 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
                   </div>
                   <button 
                     type="submit" 
-                    disabled={loading || !newComment.trim()}
+                    disabled={loading || !newComment.trim()} // Disable button while loading or empty
                     className="w-full py-4 bg-stone-900 text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-stone-800 transition disabled:opacity-50 flex justify-center items-center gap-2"
                   >
                     {loading ? 'Posting...' : 'Post Review'}
@@ -112,9 +193,12 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
               <span className="text-[10px] font-bold uppercase tracking-widest text-stone-400">
                 {comments.length} {comments.length === 1 ? 'Review' : 'Reviews'}
               </span>
-              {/* Optional: Sort filter could go here */}
             </div>
-
+            {editError && ( // Display edit error message
+              <div className="text-red-500 text-xs mb-4 p-2 bg-red-50 border border-red-200 rounded-lg">
+                {editError}
+              </div>
+            )}
             <div className="space-y-8">
               {comments.length === 0 ? (
                 <div className="text-center py-20 border border-dashed border-stone-200 rounded-2xl">
@@ -124,15 +208,25 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
               ) : (
                 comments.map((c) => (
                   <div key={c.id} className="group relative">
-                    {/* Delete Button (Hover) */}
                     {user?.id === c.user_id && (
-                      <button 
-                        onClick={() => handleDelete(c.id)} 
-                        className="absolute top-0 right-0 text-stone-300 hover:text-red-400 opacity-0 group-hover:opacity-100 transition p-2"
-                        title="Delete Review"
-                      >
-                        ✕
-                      </button>
+                      <div className="absolute top-0 right-0 flex space-x-2 opacity-0 group-hover:opacity-100 transition p-2">
+                        {/* Edit Button */}
+                        <button 
+                          onClick={() => handleEditClick(c)} 
+                          className="text-stone-400 hover:text-stone-600"
+                          title="Edit Review"
+                        >
+                          ✎
+                        </button>
+                        {/* Delete Button */}
+                        <button 
+                          onClick={() => handleDelete(c.id)} 
+                          className="text-stone-300 hover:text-red-400"
+                          title="Delete Review"
+                        >
+                          ✕
+                        </button>
+                      </div>
                     )}
 
                     {/* Header */}
@@ -150,9 +244,37 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
 
                     {/* Content */}
                     <div className="pl-11">
-                      <p className="text-stone-700 text-sm leading-7 font-serif">
-                        {c.content}
-                      </p>
+                      {editingCommentId === c.id ? (
+                        // Edit Mode
+                        <div className="space-y-2">
+                          <textarea
+                            value={editedCommentContent}
+                            onChange={(e) => setEditedCommentContent(e.target.value)}
+                            className="w-full p-2 border border-stone-200 rounded-md focus:ring-0 focus:border-stone-400 outline-none text-sm resize-none min-h-[100px]"
+                          />
+                          <div className="flex justify-end space-x-2">
+                            <button
+                              onClick={handleCancelEdit}
+                              className="px-4 py-2 text-sm border border-stone-300 rounded-md hover:bg-stone-100 transition"
+                              disabled={isSavingEdit}
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              onClick={() => handleSaveEdit(c.id)}
+                              className="px-4 py-2 text-sm bg-stone-900 text-white rounded-md hover:bg-stone-700 transition disabled:opacity-50"
+                              disabled={isSavingEdit || !editedCommentContent.trim()}
+                            >
+                              {isSavingEdit ? 'Saving...' : 'Save Changes'}
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        // Display Mode
+                        <p className="text-stone-700 text-sm leading-7 font-serif whitespace-pre-wrap">
+                          {c.content}
+                        </p>
+                      )}
                     </div>
 
                     {/* Separator */}

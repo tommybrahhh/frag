@@ -43,13 +43,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!supabase) { // Check if supabase client is available
       return {
         ...sessionUser,
-        display_name: sessionUser.email?.split('@')[0]
+        display_name: sessionUser.email?.split('@')[0],
+        bio: null // Default bio if profile fetch fails
       };
     }
     try {
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('display_name')
+        .select('display_name, bio') // Select both display_name and bio
         .eq('id', sessionUser.id)
         .maybeSingle();
       
@@ -57,19 +58,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.error('Error fetching profile:', profileError);
         return {
           ...sessionUser,
-          display_name: profile?.display_name || sessionUser.email?.split('@')[0]
+          display_name: sessionUser.email?.split('@')[0],
+          bio: null // Default bio if profile fetch fails
         };
       }
       
       return {
         ...sessionUser,
-        display_name: profile?.display_name || sessionUser.email?.split('@')[0]
+        display_name: profile?.display_name || sessionUser.email?.split('@')[0],
+        bio: profile?.bio || null // Merge bio
       };
     } catch (error) {
       console.error('Error in profile fetch:', error);
       return {
         ...sessionUser,
-        display_name: sessionUser.email?.split('@')[0]
+        display_name: sessionUser.email?.split('@')[0],
+        bio: null // Default bio on error
       };
     }
   }, [supabase]);
