@@ -44,6 +44,32 @@ export type Database = {
           website_url?: string | null
         }
       }
+      comments: {
+        Row: {
+          id: string
+          user_id: string
+          perfume_id: string
+          content: string
+          user_name: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          perfume_id: string
+          content: string
+          user_name: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          perfume_id?: string
+          content?: string
+          user_name?: string
+          created_at?: string
+        }
+      }
       notes: {
         Row: {
           color_hex: string | null

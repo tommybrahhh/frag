@@ -16,12 +16,17 @@ export async function GET(request: Request) {
     // 1. Get IDs for the requested notes
     // We use a broader search to ensure we catch capitalized/lowercase variations if possible, 
     // but .in() is case-sensitive. Ideally, ensure your inputs match DB casing.
-    const { data: notes, error: notesError } = await supabase
+    const { data: rawNotes, error: notesError } = await supabase
       .from('notes')
       .select('id, name, description, family, color_hex')
       .in('name', ingredientNames);
 
     if (notesError) throw notesError;
+    
+    // Explicitly type the result to avoid 'never' inference issues
+    type Note = { id: string; name: string; description: string | null; family: string | null; color_hex: string | null };
+    const notes = rawNotes as Note[] | null;
+
     if (!notes || notes.length === 0) {
       return NextResponse.json({ ingredients: [], perfumes: [] });
     }
