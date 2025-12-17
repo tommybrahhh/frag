@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
+import { createClient } from '@/utils/supabase/client';
 import CommentsSection from '@/components/CommentsSection';
 import ScentRadar from '@/components/ScentRadar';
 import { Database } from '@/types/database';
@@ -323,34 +324,19 @@ export default function PerfumeDetail() {
       }
 
       try {
-        // Fetch main perfume data with retry logic
-        const fetchWithRetry = async (retries = 3): Promise<Perfume | null> => {
+        // Updated fetchWithRetry to accept a client instance
+        const fetchWithRetry = async (retries = 3, currentClient = supabase): Promise<Perfume | null> => {
           try {
-            // Check signal before starting
             if (abortController.signal.aborted) {
                 console.warn('Fetch aborted before starting retry for ID:', id);
-                return null; // Don't throw, just exit gracefully
+                return null;
             }
 
-            if (!supabase) throw new Error('Supabase client is not available.');
-            
-            // Verify Supabase connection
-            const { data: testData, error: testError } = await supabase
-              .from('perfumes')
-              .select('id')
-              .limit(1)
-              .abortSignal(abortController.signal); // Pass signal here
-            
-            // REMOVING THE THROW FOR TESTERROR
-            // Instead, we will log it if it's there (even if empty) for debugging,
-            // but NOT halt the fetch process for the main perfume based on this.
-            if (testError) {
-              console.warn('Supabase connection test returned a non-standard error:', testError);
-            }
+            if (!currentClient) throw new Error('Supabase client is not available.');
 
-
+            // Main Query with 10s Timeout using 'currentClient'
             const { data: mainPerfume, error } = await Promise.race([
-              supabase
+              currentClient
                 .from('perfumes')
                 .select(`
                   id, name, image_url, rating, vibe_tags,
@@ -376,20 +362,21 @@ export default function PerfumeDetail() {
               throw new Error('Perfume not found');
             }
 
-            // Cast to Perfume type and log success
-            const perfumeData = mainPerfume as unknown as Perfume;
-            return perfumeData;
+            return mainPerfume as unknown as Perfume;
           } catch (err: any) {
-            // >>> CRITICAL FIX: Stop retrying if the request was aborted <<<
             if (err.name === 'AbortError' || abortController.signal.aborted) {
                 console.warn('Fetch aborted during retry or cleanup for ID:', id);
-                return null; // Don't throw AbortError, just return null as the request was cancelled
+                return null;
             }
 
-            console.error('Fetch error (attempt', retries, ') for ID:', id, ':', err);
+            console.error(`Fetch error (attempt ${retries}) for ID: ${id}:`, err);
+            
             if (retries > 0) {
+              console.log('Creating fresh Supabase client for retry...');
+              const freshClient = createClient(); // Create a FRESH client instance
               await new Promise(resolve => setTimeout(resolve, 1000));
-              return fetchWithRetry(retries - 1);
+              // Retry with the NEW client
+              return fetchWithRetry(retries - 1, freshClient);
             }
             throw new Error(`Failed to fetch perfume after ${3 - retries} attempts`);
           }
