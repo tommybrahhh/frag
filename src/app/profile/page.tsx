@@ -91,8 +91,6 @@ export default async function ProfilePage() {
     // 1. Fetch all perfumes for analysis (cached/optimized in real world, direct here)
     // Pass the server-side supabase client to ensure it works in this server component
     const allPerfumes = await RecommendationEngine.getAllPerfumes(supabase);
-    console.log('DEBUG: initialCollection count:', initialCollection.length);
-    console.log('DEBUG: allPerfumes count:', allPerfumes.length);
 
     // 2. Create Composite User Profile
     const userProfile = RecommendationEngine.createCompositeProfile(initialCollection);
@@ -107,7 +105,6 @@ export default async function ProfilePage() {
         topMatches = rawTopMatches
             .filter(rec => !ownedIds.has(rec.perfume.id))
             .slice(0, 6);
-        console.log('DEBUG: topMatches count:', topMatches.length);
 
         // B. Discovery (Shuffled, Intriguing)
         const rawDiscovery = RecommendationEngine.getDiscoveryRecommendations(userProfile, allPerfumes, 20);
@@ -115,7 +112,6 @@ export default async function ProfilePage() {
         
         // Shuffle the discovery list to keep it fresh
         discoverySelections = shuffleArray(filteredDiscovery).slice(0, 6);
-        console.log('DEBUG: discoverySelections count:', discoverySelections.length);
     }
   }
 

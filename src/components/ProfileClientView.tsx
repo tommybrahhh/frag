@@ -213,30 +213,46 @@ export default function ProfileClientView({
             
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {discoverySelections.map((rec) => (
-                <Link 
+                <div 
                   key={rec.perfume.id} 
-                  href={`/perfume/${rec.perfume.id}`}
-                  className="group bg-white rounded-xl border border-stone-100 p-4 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                  className="group bg-white rounded-xl border border-stone-100 p-4 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col"
                 >
-                  <div className="h-48 flex items-center justify-center p-4 mb-4 bg-stone-50 rounded-lg group-hover:bg-white transition-colors">
-                    {rec.perfume.image_url ? (
-                      <img src={rec.perfume.image_url} alt={rec.perfume.name} className="h-full object-contain mix-blend-multiply opacity-80 group-hover:opacity-100 transition-opacity" />
-                    ) : (
-                      <span className="text-stone-300 text-xs italic">No Image</span>
-                    )}
-                  </div>
-                  <div className="text-center">
-                    <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 truncate mb-1">
-                      {rec.perfume.brand?.name}
+                  <Link href={`/perfume/${rec.perfume.id}`} className="block flex-1">
+                    <div className="h-48 flex items-center justify-center p-4 mb-4 bg-stone-50 rounded-lg group-hover:bg-white transition-colors">
+                      {rec.perfume.image_url ? (
+                        <img src={rec.perfume.image_url} alt={rec.perfume.name} className="h-full object-contain mix-blend-multiply opacity-80 group-hover:opacity-100 transition-opacity" />
+                      ) : (
+                        <span className="text-stone-300 text-xs italic">No Image</span>
+                      )}
                     </div>
-                    <div className="font-serif text-lg text-stone-900 leading-tight truncate mb-2">
-                      {rec.perfume.name}
+                    <div className="text-center">
+                      <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 truncate mb-1">
+                        {rec.perfume.brand?.name}
+                      </div>
+                      <div className="font-serif text-lg text-stone-900 leading-tight truncate mb-2">
+                        {rec.perfume.name}
+                      </div>
+                      <div className="text-xs text-stone-500 line-clamp-2 h-8 px-2 italic">
+                        {rec.reason}
+                      </div>
                     </div>
-                    <div className="text-xs text-stone-500 line-clamp-2 h-8 px-2 italic">
-                      {rec.reason}
+                  </Link>
+
+                  {/* Vibe Chips */}
+                  {rec.sharedVibes && rec.sharedVibes.length > 0 && (
+                    <div className="flex flex-wrap gap-1 justify-center mt-3 px-2 pt-2 border-t border-stone-50">
+                      {rec.sharedVibes.map((vibe) => (
+                        <Link
+                          key={vibe}
+                          href={`/search?vibe=${encodeURIComponent(vibe)}`}
+                          className="text-[9px] uppercase tracking-widest px-2 py-1 bg-stone-50 text-stone-400 rounded-full hover:bg-stone-200 hover:text-stone-600 transition-colors z-10 relative"
+                        >
+                          {vibe}
+                        </Link>
+                      ))}
                     </div>
-                  </div>
-                </Link>
+                  )}
+                </div>
               ))}
             </div>
           </div>
