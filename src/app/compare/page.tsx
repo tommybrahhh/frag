@@ -120,6 +120,12 @@ export default async function ComparePage(props: { searchParams: Promise<{ a?: s
         return p.perfume_notes?.filter((n: any) => n.type === type) || [];
     };
 
+    const getBrandName = (p: any) => {
+        if (!p.brand) return 'Unknown Brand';
+        if (Array.isArray(p.brand)) return p.brand[0]?.name;
+        return p.brand.name;
+    };
+
     return (
         <div className="min-h-screen bg-stone-50 text-gray-800 font-sans">
             <div className="px-6 py-4 border-b border-stone-200 flex justify-between items-center bg-white/90 backdrop-blur-md sticky top-16 z-10">
@@ -136,7 +142,7 @@ export default async function ComparePage(props: { searchParams: Promise<{ a?: s
                     <div className="bg-white rounded-2xl p-6 border border-stone-100 mb-6 h-56 md:h-72 flex items-center justify-center relative">
                         {p.image_url ? <img src={p.image_url} className="h-full object-contain mix-blend-multiply" /> : "No Image"}
                     </div>
-                    <div className="text-[10px] font-bold tracking-widest text-stone-400 uppercase mb-2">{p.brand?.name}</div>
+                    <div className="text-[10px] font-bold tracking-widest text-stone-400 uppercase mb-2">{getBrandName(p)}</div>
                     <Link href={`/perfume/${p.id}`}>
                     <h2 className="font-serif text-xl md:text-4xl text-stone-900 leading-tight mb-2 hover:text-stone-600 cursor-pointer transition-colors">{p.name}</h2>
                     </Link>
