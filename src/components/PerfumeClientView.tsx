@@ -104,7 +104,7 @@ export default function PerfumeClientView({ perfume, recommendationCategories, d
   }, [user, perfume, supabase]);
 
   const toggleCollection = async () => {
-    if (!user) {
+    if (!user || !supabase) {
       router.push('/login');
       return;
     }
