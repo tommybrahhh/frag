@@ -58,7 +58,15 @@ export default function ProfileClientView({
 
   // PROFILE SETTINGS STATE
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [profileData, setProfileData] = useState({ displayName, bio, signatureScentId: initialSignatureScentId });
+  const [profileData, setProfileData] = useState<{
+    displayName: string | null;
+    bio: string | null;
+    signatureScentId: string | null;
+  }>({ 
+    displayName, 
+    bio, 
+    signatureScentId: initialSignatureScentId ?? null 
+  });
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [saveProfileError, setSaveProfileError] = useState<string | null>(null);
   const [saveProfileSuccess, setSaveProfileSuccess] = useState(false);
@@ -684,7 +692,7 @@ export default function ProfileClientView({
         onSave={handleSaveProfile}
         initialDisplayName={profileData.displayName}
         initialBio={profileData.bio}
-        initialSignatureScentId={profileData.signatureScentId}
+        initialSignatureScentId={profileData.signatureScentId ?? null}
         collection={collection}
         isSaving={isSavingProfile}
         saveError={saveProfileError}
