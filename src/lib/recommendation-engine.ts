@@ -3,19 +3,18 @@ import { mixPerfumes } from '@/lib/alchemy';
 
 export interface Recommendation {
   perfume: any;
-  type: 'similar' | 'complementary' | 'same-brand' | 'seasonal' | 'price-alternative' | 'discovery' | 'dupe';
+  type: 'similar' | 'complementary' | 'same-brand' | 'seasonal' | 'price-alternative' | 'discovery' | 'dupe'; // Added 'dupe'
   score: number;
   reason: string;
   sharedNotes?: string[];
   sharedVibes?: string[];
-  sharedFamilies?: string[];
   priceComparison?: 'cheaper' | 'similar' | 'premium';
-  guidance?: string; // Added field for structured layering instructions
+  // New field for the Dupe Logic
   tradeOffs?: {
-    longevityDiff: string;
-    missingNotes: string[];
-    complexity: string;
-    savings: number;
+    longevityDiff: string; // e.g., "Lasts 2 hours less"
+    missingNotes: string[]; // e.g., ["Guaiac Wood", "Orris"]
+    complexity: 'lower' | 'similar' | 'higher';
+    savings: number; // Approximate tier difference or dollar amount if available
   };
 }
 
@@ -178,7 +177,7 @@ export class RecommendationEngine {
     );
   }
 
-  public static async getAllPerfumes(supabaseClient?: any, limit: number = 10000) {
+  public static async getAllPerfumes(supabaseClient?: any) {
     const supabase = supabaseClient || createClient();
     const { data: perfumes, error } = await supabase
       .from('perfumes')
@@ -187,8 +186,7 @@ export class RecommendationEngine {
         longevity_rating, sillage_rating, olfactory_family,
         brand:brands(name),
         perfume_notes(type, note:notes(name, color_hex))
-      `)
-      .limit(limit);
+      `);
 
     if (error) {
         console.error('Error fetching all perfumes:', error);
@@ -330,7 +328,7 @@ export class RecommendationEngine {
       .filter(candidate => { // New filter for minimum shared notes
         const candidateProfile = RecommendationEngine.analyzeScentProfile(candidate);
         const sharedNotes = mainProfile.notes.filter((note: string) => candidateProfile.notes.includes(note));
-        return sharedNotes.length >= 2;
+        return sharedNotes.length >= 3;
       })
       .map(candidate => {
         const candidateProfile = RecommendationEngine.analyzeScentProfile(candidate);
@@ -534,8 +532,7 @@ export class RecommendationEngine {
           perfume: candidate,
           type: 'complementary' as const,
           score: Math.round(finalScore),
-          reason: scentDescription, // Reason is now just the description
-          guidance: layeringGuidance, // Guidance is separated
+          reason: `${scentDescription}. ${layeringGuidance}`,
           sharedVibes: mixResult.combinedVibes.slice(0, 3)
         };
       })
@@ -546,20 +543,13 @@ export class RecommendationEngine {
   // Price tier alternatives with scent similarity matching
   private static getPriceAlternatives(mainPerfume: any, allPerfumes: any[], count: number = 6): Recommendation[] {
     const mainProfile = this.analyzeScentProfile(mainPerfume);
-    
-    const getPriceLevel = (p: any) => {
-        if (typeof p.price_tier === 'number') return p.price_tier;
-        if (typeof p.price_tier === 'string') return p.price_tier.length;
-        return 3; // Default to mid-range
-    };
-
-    const mainPriceValue = getPriceLevel(mainPerfume);
+    const mainPriceValue = mainPerfume.price_tier || 3; // Default to mid-range if not specified
     
     return allPerfumes
       .filter(p => p.id !== mainPerfume.id)
       .map(candidate => {
         const candidateProfile = this.analyzeScentProfile(candidate);
-        const candidatePriceValue = getPriceLevel(candidate);
+        const candidatePriceValue = candidate.price_tier || 3;
 
         // Calculate scent similarity score (0-100)
         const sharedNotes = mainProfile.notes.filter((note: string) =>
@@ -723,103 +713,6 @@ export class RecommendationEngine {
   }
 
 
-  // Add inside RecommendationEngine class
-  private static getDupeRecommendations(mainPerfume: any, allPerfumes: any[], count: number = 4): Recommendation[] {
-    const mainProfile = this.analyzeScentProfile(mainPerfume);
-    // Default to tier 3 (Mid) if missing. Assuming tier 1=Cheap, 5=Luxury (Wait, previous logic used length of string "$$$", so I should probably normalize it. 
-    // Actually, in `findDupes` in `src/app/perfume/[id]/page.tsx`, it used `perfume.price_tier.length`.
-    // Let's assume price_tier is a string like "$" or "$$$$$" or "Cheap", "Luxury".
-    // The previous implementation used `candidatePrice < mainPriceValue - 1`.
-    // If price_tier is a string like "Designer" (which is in DB types) or "$$$", we need to map it.
-    // The DB type says `price_tier: string`. Let's assume standard "$" counting or map tiers.
-    // However, the provided snippet assumes `price_tier` is a number or convertable.
-    // Let's look at `getPriceAlternatives` implementation in this file. 
-    // It does `const mainPriceValue = mainPerfume.price_tier || 3;`. It seems it expects a number?
-    // BUT `src/types/database.ts` says `price_tier: string | null`.
-    // And `PerfumeClientView` displays it directly `<span>{perfume.price_tier || '$$$'}</span>`.
-    // So it is likely a string like "$$$".
-    // I should convert string length to number for comparison if it is "$$$".
-    // OR if it is "Designer"/"Niche", map it.
-    // Let's check `getPriceAlternatives` again.
-    // `const mainPriceValue = mainPerfume.price_tier || 3;` -> this implies it might be treating it as number if it's not string?
-    // Wait, in `getPriceAlternatives`, it compares `candidatePriceValue < mainPriceValue - 1`.
-    // If `price_tier` is "$$$", then `mainPerfume.price_tier` is a string. `|| 3` would only work if it's null/undefined.
-    // If it's "$$$", `candidatePriceValue < "$$$" - 1` is NaN.
-    // The existing `getPriceAlternatives` might be broken if price_tier is "$$$".
-    // Let's safely convert length.
-    
-    const getPriceLevel = (p: any) => {
-        if (typeof p.price_tier === 'number') return p.price_tier;
-        if (typeof p.price_tier === 'string') return p.price_tier.length; // "$$$" -> 3
-        return 3;
-    };
-
-    const mainPrice = getPriceLevel(mainPerfume);
-
-    return allPerfumes
-      .filter(p => {
-        // 1. Must be significantly cheaper (at least 1 tier lower)
-        const candidatePrice = getPriceLevel(p);
-        return candidatePrice < mainPrice && p.id !== mainPerfume.id;
-      })
-      .map(candidate => {
-        const candidateProfile = this.analyzeScentProfile(candidate);
-        
-        // 2. Calculate Similarity (Reusing your logic)
-        const sharedNotes = mainProfile.notes.filter((n: string) => candidateProfile.notes.includes(n));
-        const sharedVibes = mainProfile.vibes.filter((v: string) => candidateProfile.vibes.includes(v));
-        const sharedFamilies = mainProfile.dominantFamilies.filter(f => candidateProfile.dominantFamilies.includes(f));
-        
-        // Calculate Score
-        let score = 0;
-        score += sharedNotes.length * 15;
-        score += sharedVibes.length * 10;
-        score += sharedFamilies.length * 25;
-        const maxScore = (mainProfile.notes.length * 15) + (mainProfile.vibes.length * 10) + 75; // Approx max
-        const percentMatch = Math.min(100, Math.round((score / maxScore) * 100));
-
-        // 3. STRICT Filter: Must be at least an 75% match to be called a "Dupe"
-        if (percentMatch < 75) return null;
-
-        // 4. Calculate Trade-offs (The Educational Part)
-        
-        // Longevity Check (Using DB rating or Calculated volatility)
-        const mainLong = mainPerfume.longevity_rating || mainProfile.composition.longevity;
-        const candLong = candidate.longevity_rating || candidateProfile.composition.longevity;
-        const longDiff = mainLong - candLong;
-        let longevityText = "Similar longevity";
-        if (longDiff > 1.5) longevityText = "Fades faster (expect frequent re-application)";
-        else if (longDiff > 0.5) longevityText = "Moderate longevity compared to original";
-
-        // Missing Complex Notes Check
-        // We look for notes present in Main but missing in Dupe
-        const missingNotes = mainProfile.notes.filter((n: string) => !candidateProfile.notes.includes(n));
-        
-        // Complexity Check (Simple count comparison)
-        const complexityDiff = mainProfile.notes.length - candidateProfile.notes.length;
-        const complexity = complexityDiff > 2 ? 'lower' : 'similar';
-
-        return {
-          perfume: candidate,
-          type: 'dupe' as const,
-          score: percentMatch,
-          reason: `High similarity (${percentMatch}%) alternative`,
-          priceComparison: 'cheaper',
-          sharedNotes: sharedNotes.slice(0, 5),
-          tradeOffs: {
-            longevityDiff: longevityText,
-            missingNotes: missingNotes.slice(0, 3), // Show top 3 missing notes
-            complexity: complexity,
-            savings: mainPrice - getPriceLevel(candidate) // Tier difference
-          }
-        };
-      })
-      .filter(rec => rec !== null) // Remove failed matches
-      .sort((a, b) => b!.score - a!.score) // Best matches first
-      .slice(0, count) as Recommendation[];
-  }
-
-
   private static applyUserPreferences(recommendations: Recommendation[], preferences: any): Recommendation[] {
     if (!preferences) return recommendations;
 
@@ -868,7 +761,7 @@ export class RecommendationEngine {
         type: 'similar',
         title: 'The Direct Alternatives',
         description: 'If you love the structure of this scent...',
-        recommendations: this.getSimilarRecommendations(mainPerfume, allPerfumes, 18)
+        recommendations: this.getSimilarRecommendations(mainPerfume, allPerfumes, 6)
       },
       {
         type: 'complementary',
@@ -881,12 +774,6 @@ export class RecommendationEngine {
         title: 'The Curator\'s Pivot',
         description: 'Step out of your comfort zone',
         recommendations: this.getDiscoveryRecommendations(mainPerfume, allPerfumes, 1) // Only 1 needed for the Hero card
-      },
-      {
-        type: 'dupe',
-        title: 'The Smart Buy',
-        description: 'High similarity alternatives at a better price point',
-        recommendations: this.getDupeRecommendations(mainPerfume, allPerfumes, 3)
       }
     ];
 
