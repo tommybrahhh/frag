@@ -49,7 +49,7 @@ type Dupe = {
   match_percentage: string;
 };
 
-import { RecommendationCategory } from '@/lib/recommendation-engine';
+import { RecommendationCategory, Recommendation } from '@/lib/recommendation-engine';
 
 interface PerfumeClientViewProps {
   perfume: Perfume;
@@ -809,7 +809,7 @@ export default function PerfumeClientView({ perfume, recommendationCategories, d
                           <span className="text-xs">ⓘ</span> Reality Check
                         </div>
                         <p className="text-xs text-stone-600 leading-relaxed">
-                          "Captures the opening notes perfectly, but <span className="font-medium text-stone-900">{rec.tradeOffs?.longevityDiff.toLowerCase()}</span>. 
+                          "Captures the opening notes perfectly, but <span className="font-medium text-stone-900">{(rec.tradeOffs?.longevityDiff || 'has moderate longevity').toLowerCase()}</span>. 
                           {rec.tradeOffs?.missingNotes && rec.tradeOffs.missingNotes.length > 0 && (
                             <> Note that it lacks the <span className="font-medium text-stone-900">{rec.tradeOffs.missingNotes.join(', ')}</span> found in the original.</>
                           )}"

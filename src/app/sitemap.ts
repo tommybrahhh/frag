@@ -27,13 +27,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const supabase = await createClient();
     const { data: perfumes } = await supabase
       .from('perfumes')
-      .select('id, updated_at')
+      .select('id, created_at')
       .limit(1000); // Index up to 1000 perfumes for now
 
     if (perfumes) {
       perfumeRoutes = perfumes.map((p) => ({
         url: `${baseUrl}/perfume/${p.id}`,
-        lastModified: p.updated_at ? new Date(p.updated_at) : new Date(),
+        lastModified: p.created_at ? new Date(p.created_at) : new Date(),
         changeFrequency: 'monthly' as const,
         priority: 0.6,
       }));
