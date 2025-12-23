@@ -48,12 +48,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       };
     }
     try {
-      const { data: profile, error: profileError } = await supabase
+      // Fetch data and alias to 'rawProfile'
+      const { data: rawProfile, error: profileError } = await supabase
         .from('profiles')
-        .select('display_name, bio') // Select both display_name and bio
+        .select('display_name, bio')
         .eq('id', sessionUser.id)
         .maybeSingle();
       
+      // Explicitly cast the result to match our Database schema
+      const profile = rawProfile as { display_name: string | null; bio: string | null } | null;
+
       if (profileError) {
         console.error('Error fetching profile:', profileError);
         return {
