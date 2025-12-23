@@ -112,7 +112,7 @@ export default function ProfileClientView({
 
   // Handle Remove from Collection
   const handleRemoveFromCollection = async (collectionItemId: string) => {
-    if (!user || !confirm('Are you sure you want to remove this fragrance from your wardrobe?')) return;
+    if (!user || !supabase || !confirm('Are you sure you want to remove this fragrance from your wardrobe?')) return;
 
     setIsRemovingId(collectionItemId);
     setRemoveError(null);
@@ -137,7 +137,7 @@ export default function ProfileClientView({
 
   // Handle Save Profile
   const handleSaveProfile = async (newDisplayName: string, newBio: string, newSignatureScentId: string | null) => {
-    if (!user) return;
+    if (!user || !supabase) return;
     setIsSavingProfile(true);
     setSaveProfileError(null);
     setSaveProfileSuccess(false);
