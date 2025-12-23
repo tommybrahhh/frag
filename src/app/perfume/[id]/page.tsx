@@ -142,8 +142,9 @@ export default async function PerfumePage(
       longevity_rating, sillage_rating,
       scenario, scent_profile,
       olfactory_family,
-      brand:brands(name),
-      perfume_notes(type, note:notes(name, color_hex))
+      release_year,
+      brand:brands(name, tier),
+      perfume_notes(type, note:notes(name, color_hex, description))
     `)
     .eq('id', id)
     .maybeSingle();
@@ -176,24 +177,10 @@ export default async function PerfumePage(
 
   // 3. Process Recommendations using RecommendationEngine
   // We use the fetched candidates to rank them using the advanced engine
-  const rankedRecommendations = RecommendationEngine.getSimilarRecommendations(perfumeData, allPerfumes || [], 100);
+  const recommendationCategories = await RecommendationEngine.getEnhancedRecommendations(perfumeData);
 
-  const relatedPerfumes = rankedRecommendations
-    // Diversity Filter: Max 2 per brand
-    .filter((rec, index, self) => {
-      const brandCount = self.slice(0, index).filter(prev => prev.perfume.brand?.name === rec.perfume.brand?.name).length;
-      return brandCount < 2;
-    })
-    // Map back to Perfume structure for Client View
-    .map(rec => ({
-      ...rec.perfume,
-      matchScore: rec.score,
-      matchReason: rec.reason,
-      sharedNotes: rec.sharedNotes
-    }))
-    .slice(0, 9) as Perfume[];
-
-  // 4. Process Dupes
+  // 4. Process Dupes (Keep existing logic if needed, but maybe Module A covers it? 
+  // User asked specifically for Module A, B, C. I will pass the categories directly.)
   const dupes = findDupes(perfumeData, allPerfumes || []).map(dupe => ({
     ...dupe,
     shared_notes: dupe.shared_notes.map(note => String(note))
@@ -203,7 +190,7 @@ export default async function PerfumePage(
   return (
     <PerfumeClientView 
       perfume={perfumeData} 
-      relatedPerfumes={relatedPerfumes} 
+      recommendationCategories={recommendationCategories}
       dupes={dupes} 
     />
   );

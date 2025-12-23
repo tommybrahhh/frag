@@ -48,7 +48,10 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
                 `)
                 .contains('vibe_tags', [vibe])
                 .limit(50);
-             results = vibeData?.map(p => ({ ...p, brand_name: p.brand?.name })) || [];
+             results = vibeData?.map(p => ({ 
+                 ...p, 
+                 brand_name: Array.isArray(p.brand) ? p.brand[0]?.name : (p.brand as any)?.name 
+             })) || [];
         } else {
             throw rpcError;
         }
@@ -65,7 +68,10 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
         .ilike('name', `%${searchTerm}%`)
         .limit(50);
     
-    results = fallbackData?.map(p => ({ ...p, brand_name: p.brand?.name })) || [];
+    results = fallbackData?.map(p => ({ 
+        ...p, 
+        brand_name: Array.isArray(p.brand) ? p.brand[0]?.name : (p.brand as any)?.name 
+    })) || [];
   }
 
   return (

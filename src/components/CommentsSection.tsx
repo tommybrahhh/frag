@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
+import { Database } from '@/types/database';
 
 export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
   const { user } = useAuth();
@@ -60,7 +61,7 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
         created_at: new Date().toISOString()
       };
 
-      const { error: insertError } = await supabase.from('comments').insert(commentToInsert);
+      const { error: insertError } = await supabase.from('comments').insert(commentToInsert as any);
 
       if (insertError) {
         console.error('Supabase Insert Error:', insertError); // Log the full error object
@@ -115,8 +116,8 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
     setEditError(null);
 
     try {
-      const { error } = await supabase
-        .from('comments')
+      const { error } = await (supabase
+        .from('comments') as any)
         .update({ content: editedCommentContent }) // Removed created_at from update payload
         .eq('id', commentId)
         .eq('user_id', user.id); // Ensure only the owner can update

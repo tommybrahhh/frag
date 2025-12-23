@@ -8,21 +8,35 @@ interface PerfumePickerProps {
   onSelect: (perfume: any) => void;
   selected?: any;
   placeholder?: string;
-  filterOptions?: any[];
   showFilters?: boolean;
 }
 
-export default function PerfumePicker({ label, onSelect, selected, placeholder, filterOptions, showFilters }: PerfumePickerProps) {
+export default function PerfumePicker({ label, onSelect, selected, placeholder, showFilters }: PerfumePickerProps) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<any[]>([]);
+  const [suggestions, setSuggestions] = useState<any[]>([]); // New state for default suggestions
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedFilter, setSelectedFilter] = useState<string>('all');
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [isLoading, setIsLoading] = useState(false);
   const pickerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Memoize the client
   const supabase = useMemo(() => createClient(), []);
+
+  // Fetch initial suggestions on mount
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      const { data } = await supabase
+        .from('perfumes')
+        .select('id, name, image_url, brand:brands(name)')
+        .order('rating', { ascending: false }) // Assuming 'rating' exists, otherwise order by name or random
+        .limit(5);
+      
+      if (data) setSuggestions(data);
+    };
+    fetchSuggestions();
+  }, [supabase]);
 
   // Close dropdown if clicking outside
   useEffect(() => {
@@ -36,91 +50,85 @@ export default function PerfumePicker({ label, onSelect, selected, placeholder, 
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Search Logic
+  // Server-Side Search Logic
   useEffect(() => {
     const controller = new AbortController();
+    const signal = controller.signal;
 
-    if (filterOptions && filterOptions.length > 0) {
-      // Use filtered options if provided
-      let filtered = filterOptions;
-      
-      // Apply vibe filter if selected
-      if (selectedFilter !== 'all') {
-        filtered = filtered.filter(p =>
-          p.vibe_tags?.includes(selectedFilter)
-        );
+    const fetchResults = async () => {
+      if (query.length < 2) {
+        setResults([]); // Clear search results, will fall back to suggestions
+        setIsLoading(false);
+        return;
       }
-      
-      // Apply text search
-      filtered = filtered.filter(p =>
-        p.name.toLowerCase().includes(query.toLowerCase()) ||
-        p.brand_name.toLowerCase().includes(query.toLowerCase())
-      );
-      
-      setResults(filtered.slice(0, 5));
-      setIsOpen(query.length > 0 || selectedFilter !== 'all');
-      setSelectedIndex(-1);
-    } else if (query.length < 2 && selectedFilter === 'all') {
-      setResults([]);
-      setSelectedIndex(-1);
-      return;
-    } else {
-      // Fetch from database with filters
-      const fetchResults = async () => {
-        try {
-          let queryBuilder = supabase.from('perfumes').select('*');
-          
-          if (query.length >= 2) {
-            queryBuilder = queryBuilder.ilike('name', `%${query}%`);
+
+      setIsLoading(true);
+      try {
+        // Simplify search to just perfume name for stability first
+        // Temporarily removing relation fetch to isolate the error
+        const { data, error } = await supabase
+          .from('perfumes')
+          .select('id, name, image_url, brand:brands(name)') 
+          .ilike('name', `%${query}%`)
+          .limit(10)
+          .abortSignal(signal);
+
+        if (error) {
+          // Ignore abort errors which are expected during rapid typing
+          if (!error.message?.includes('AbortError') && !error.message?.includes('aborted')) {
+             console.error("Supabase search error message:", error.message, error);
           }
-          
-          if (selectedFilter !== 'all') {
-            queryBuilder = queryBuilder.contains('vibe_tags', [selectedFilter]);
-          }
-          
-          const { data, error } = await queryBuilder.limit(5).abortSignal(controller.signal);
-          
-          if (!error && data) {
-             setResults(data);
-             setIsOpen(true);
-             setSelectedIndex(-1);
-          }
-        } catch (error: any) {
-           if (error.name !== 'AbortError') {
-             console.error("Search error:", error);
-           }
         }
-      };
-      
-      const timer = setTimeout(fetchResults, 200); // Reduced debounce time
-      return () => {
-        clearTimeout(timer);
-        controller.abort();
-      };
-    }
-  }, [query, filterOptions, selectedFilter, supabase]);
+
+        if (!error && data) {
+          setResults(data);
+          setIsOpen(true);
+          setSelectedIndex(-1);
+        }
+      } catch (error: any) {
+        if (error.name !== 'AbortError') {
+          console.error("Search error:", error);
+        }
+      } finally {
+        // Only turn off loading if this request wasn't aborted (i.e., it was the final one)
+        if (!signal.aborted) {
+           setIsLoading(false);
+        }
+      }
+    };
+
+    const timer = setTimeout(fetchResults, 250); // 250ms debounce
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [query, supabase]);
+
+  // Determine what list to show
+  const displayList = query.length >= 2 ? results : suggestions;
+  const listLabel = query.length >= 2 ? (results.length === 0 ? "No matches" : "Results") : "Popular Now";
 
   // Keyboard navigation
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (!isOpen || results.length === 0) return;
+    if (!isOpen || displayList.length === 0) return;
 
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault();
         setSelectedIndex(prev =>
-          prev < results.length - 1 ? prev + 1 : 0
+          prev < displayList.length - 1 ? prev + 1 : 0
         );
         break;
       case 'ArrowUp':
         e.preventDefault();
         setSelectedIndex(prev =>
-          prev > 0 ? prev - 1 : results.length - 1
+          prev > 0 ? prev - 1 : displayList.length - 1
         );
         break;
       case 'Enter':
         e.preventDefault();
-        if (selectedIndex >= 0 && selectedIndex < results.length) {
-          handleSelect(results[selectedIndex]);
+        if (selectedIndex >= 0 && selectedIndex < displayList.length) {
+          handleSelect(displayList[selectedIndex]);
         }
         break;
       case 'Escape':
@@ -129,13 +137,13 @@ export default function PerfumePicker({ label, onSelect, selected, placeholder, 
         setSelectedIndex(-1);
         break;
       case 'Tab':
-        if (selectedIndex >= 0 && selectedIndex < results.length) {
+        if (selectedIndex >= 0 && selectedIndex < displayList.length) {
           e.preventDefault();
-          handleSelect(results[selectedIndex]);
+          handleSelect(displayList[selectedIndex]);
         }
         break;
     }
-  }, [isOpen, results, selectedIndex]);
+  }, [isOpen, displayList, selectedIndex]);
 
   const handleSelect = (perfume: any) => {
     onSelect(perfume);
@@ -168,17 +176,25 @@ export default function PerfumePicker({ label, onSelect, selected, placeholder, 
   // If a perfume is already selected, show the "Loaded" card
   if (selected) {
     return (
-      <div className="w-full relative group cursor-pointer" onClick={() => onSelect(null)}>
-        <div className="absolute -top-3 left-4 bg-white px-2 text-[10px] font-bold uppercase tracking-widest text-stone-400 z-10">{label}</div>
-        <div className="border border-stone-300 rounded-xl p-4 flex items-center gap-4 bg-white shadow-sm hover:border-red-300 transition">
-          <div className="w-12 h-16 bg-stone-50 rounded-md flex items-center justify-center">
-             {selected.image_url ? <img src={selected.image_url} className="h-full object-contain mix-blend-multiply" /> : null}
+      <div className="w-full relative group" onClick={() => onSelect(null)}>
+        <div className="flex justify-between items-baseline mb-2 px-1">
+             <span className="text-[9px] font-bold uppercase tracking-widest text-stone-400">{label}</span>
+             <span className="text-[9px] font-bold uppercase tracking-widest text-stone-300 group-hover:text-red-400 transition cursor-pointer">Remove</span>
+        </div>
+        
+        <div className="bg-white rounded-2xl p-4 flex items-center gap-5 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_16px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all duration-300 cursor-pointer border border-stone-50">
+          <div className="w-16 h-20 flex-shrink-0 flex items-center justify-center bg-stone-50 rounded-lg">
+             {selected.image_url ? (
+               <img src={selected.image_url} className="h-full w-full object-contain mix-blend-multiply opacity-90" /> 
+             ) : (
+               <div className="w-8 h-8 rounded-full border border-stone-200"></div>
+             )}
           </div>
-          <div>
-            <div className="text-[10px] font-bold uppercase text-stone-400">{selected.brand_name}</div>
-            <div className="font-serif text-lg leading-none">{selected.name}</div>
+          
+          <div className="flex-1 min-w-0">
+            <div className="text-[9px] font-bold uppercase tracking-widest text-stone-400 mb-1 truncate">{selected.brand?.name || selected.brand_name}</div>
+            <div className="font-serif text-xl text-stone-800 leading-tight truncate pr-2">{selected.name}</div>
           </div>
-          <div className="ml-auto text-stone-300 text-xl group-hover:text-red-400">×</div>
         </div>
       </div>
     );
@@ -187,60 +203,61 @@ export default function PerfumePicker({ label, onSelect, selected, placeholder, 
   // Otherwise show the Search Input
   return (
     <div className="relative w-full" ref={pickerRef}>
-      <div className="absolute -top-3 left-4 bg-white px-2 text-[10px] font-bold uppercase tracking-widest text-stone-400 z-10">{label}</div>
+      <div className="mb-2 px-1">
+           <span className="text-[9px] font-bold uppercase tracking-widest text-stone-400">{label}</span>
+      </div>
       
-      {/* Filter Bar */}
-      {showFilters && (
-        <div className="flex gap-1 mb-2">
-          {['all', 'Floral', 'Woody', 'Oriental', 'Fresh', 'Gourmand'].map((filter) => (
-            <button
-              key={filter}
-              onClick={() => setSelectedFilter(filter)}
-              className={`px-2 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full border transition ${
-                selectedFilter === filter
-                  ? 'bg-stone-900 text-white border-stone-900'
-                  : 'bg-white text-stone-400 border-stone-200 hover:border-stone-400'
-              }`}
-            >
-              {filter === 'all' ? 'All' : filter}
-            </button>
-          ))}
-        </div>
-      )}
-      
-      <input
-        ref={inputRef}
-        type="text"
-        placeholder={placeholder || "Search perfume..."}
-        className="w-full bg-transparent border-0 border-b border-stone-300 px-4 py-3 outline-none focus:border-stone-800 transition placeholder:text-stone-400"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onFocus={() => setIsOpen(true)}
-        onBlur={() => setTimeout(() => setIsOpen(false), 200)}
-      />
+      <div className="relative group">
+          <input
+            ref={inputRef}
+            type="text"
+            placeholder={placeholder || "Search perfume..."}
+            className="w-full bg-white border border-stone-200 rounded-2xl pl-5 pr-10 py-4 outline-none focus:border-stone-800 focus:ring-1 focus:ring-stone-800 transition placeholder:text-stone-300 text-sm shadow-sm font-serif"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onFocus={() => {
+              // Always open if we have something to show (suggestions or results)
+              if (displayList.length > 0) setIsOpen(true);
+            }}
+            // Remove onBlur timeout or make it robust for click handling
+            onBlur={() => setTimeout(() => setIsOpen(false), 200)}
+          />
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-300 pointer-events-none">
+             {isLoading ? (
+               <div className="w-4 h-4 border-2 border-stone-200 border-t-stone-800 rounded-full animate-spin"></div>
+             ) : (
+               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+             )}
+          </div>
+      </div>
       
       {/* Dropdown Results */}
-      {isOpen && results.length > 0 && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-2xl shadow-xl z-50 overflow-hidden border border-stone-100">
-          {results.map((p, index) => (
-            <div key={p.id}
-              className={`flex items-center gap-3 p-3 hover:bg-stone-50 cursor-pointer border-b border-stone-50 last:border-0 transition ${index === selectedIndex ? 'bg-stone-50' : ''}`}
-              onClick={() => {
-                onSelect(p); // Pass the full perfume object back
-                setQuery('');
-                setIsOpen(false);
-              }}
-            >
-               <div className="w-8 h-10 bg-white rounded flex items-center justify-center">
-                 {p.image_url && <img src={p.image_url} className="h-full object-contain mix-blend-multiply" />}
-               </div>
-               <div>
-                 <div className="text-xs font-bold text-stone-900">{highlightMatch(p.name, query)}</div>
-                 <div className="text-[9px] uppercase text-stone-400">{p.brand_name}</div>
-               </div>
-            </div>
-          ))}
+      {isOpen && displayList.length > 0 && (
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-xl z-50 border border-stone-100 overflow-hidden">
+          <div className="px-4 py-2 bg-stone-50 border-b border-stone-100 text-[9px] font-bold uppercase tracking-widest text-stone-400">
+            {listLabel}
+          </div>
+          <div className="max-h-60 overflow-y-auto">
+            {displayList.map((p, index) => (
+              <div key={p.id}
+                className={`flex items-center gap-3 p-3 hover:bg-stone-50 cursor-pointer border-b border-stone-50 last:border-0 transition ${index === selectedIndex ? 'bg-stone-50' : ''}`}
+                onClick={() => {
+                  onSelect(p); // Pass the full perfume object back
+                  setQuery('');
+                  setIsOpen(false);
+                }}
+              >
+                 <div className="w-10 h-12 bg-stone-50 rounded flex items-center justify-center shrink-0">
+                   {p.image_url ? <img src={p.image_url} className="h-full object-contain mix-blend-multiply" /> : <div className="w-full h-full bg-stone-100 rounded"></div>}
+                 </div>
+                 <div>
+                   <div className="text-sm font-serif text-stone-900 leading-tight">{highlightMatch(p.name, query)}</div>
+                   <div className="text-[9px] uppercase tracking-wider text-stone-400 mt-0.5">{p.brand?.name || p.brand_name}</div>
+                 </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>

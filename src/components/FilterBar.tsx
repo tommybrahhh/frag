@@ -29,11 +29,15 @@ export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
   const filterButtonRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
-  // Apply filters callback
+  // Apply filters callback with debounce
   useEffect(() => {
     if (isModified) {
-      onFilterChange(filters);
-      setIsModified(false);
+      const timeoutId = setTimeout(() => {
+        onFilterChange(filters);
+        setIsModified(false);
+      }, 500); // 500ms debounce
+
+      return () => clearTimeout(timeoutId);
     }
   }, [isModified, filters, onFilterChange, setIsModified]);
 

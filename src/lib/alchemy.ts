@@ -297,6 +297,28 @@ export function analyzeIngredientCombination(ingredients: any[]): {
   };
 }
 
+// Helper to generate profile from vibes if missing
+export const generateProfileFromVibes = (vibes: string[]) => {
+  const profile = { fresh: 3, sweet: 3, spicy: 3, woody: 3, floral: 3, depth: 3 };
+  if (!vibes || vibes.length === 0) return profile;
+
+  const lowerVibes = vibes.map(v => v.toLowerCase());
+
+  if (lowerVibes.some(v => v.includes('citrus') || v.includes('fresh') || v.includes('aquatic') || v.includes('blue'))) profile.fresh += 6;
+  if (lowerVibes.some(v => v.includes('gourmand') || v.includes('vanilla') || v.includes('sweet') || v.includes('fruity'))) profile.sweet += 6;
+  if (lowerVibes.some(v => v.includes('spicy') || v.includes('warm') || v.includes('oriental') || v.includes('amber'))) profile.spicy += 6;
+  if (lowerVibes.some(v => v.includes('woody') || v.includes('earthy') || v.includes('mossy') || v.includes('leather'))) profile.woody += 6;
+  if (lowerVibes.some(v => v.includes('floral') || v.includes('rose') || v.includes('white flower'))) profile.floral += 6;
+  if (lowerVibes.some(v => v.includes('dark') || v.includes('intense') || v.includes('night') || v.includes('musk') || v.includes('oud'))) profile.depth += 6;
+
+  Object.keys(profile).forEach(k => {
+    // @ts-ignore
+    if (profile[k] > 10) profile[k] = 10;
+  });
+
+  return profile;
+};
+
 export function mixPerfumes(p1: any, p2: any, ratio: number = 0.5) {
   // Helper to extract and deduplicate notes by type
   const getNotes = (pos: string) => {
@@ -317,18 +339,7 @@ export function mixPerfumes(p1: any, p2: any, ratio: number = 0.5) {
   const n1 = p1.name || 'Scent A';
   const n2 = p2.name || 'Scent B';
 
-  const nameOptions = [
-    () => `${n1.split(' ')[0]} ${n2.split(' ').pop()}`,
-    () => `${n1.split(' ')[0]} & ${n2.split(' ')[0]}`,
-    // Only use brand name if it's valid
-    () => (b1 !== 'Unknown' && b1 === b2) ? `${b1} Fusion` : `${n1.split(' ')[0]} ${b2}`,
-    () => {
-      const shared = p1.vibe_tags?.filter((v: string) => p2.vibe_tags?.includes(v)) || [];
-      return shared.length > 0 ? `${shared[0]} Nocturne` : `The ${n1.split(' ')[0]} Blend`;
-    }
-  ];
-  
-  const mixName = nameOptions[Math.floor(Math.random() * nameOptions.length)]();
+  const mixName = "Custom Blend";
 
   // 2. ANALYZE VIBES
   const combinedVibes = Array.from(new Set([...(p1.vibe_tags || []), ...(p2.vibe_tags || [])]));
@@ -430,14 +441,19 @@ export function mixPerfumes(p1: any, p2: any, ratio: number = 0.5) {
   }
 
   // NEW: Calculate Weighted Profile using ratio
-  // If p1 or p2 is missing a profile, default to 0
-  const getVal = (p: any, key: string) => p.scent_profile?.[key] || 0;
+  // Ensure profile exists or generate from vibes
+  const profile1 = p1.scent_profile || generateProfileFromVibes(p1.vibe_tags || []);
+  const profile2 = p2.scent_profile || generateProfileFromVibes(p2.vibe_tags || []);
+
+  const getVal = (p: any, key: string) => p[key] || 0;
 
   const newProfile = {
-    fresh: (getVal(p1, 'fresh') * ratio) + (getVal(p2, 'fresh') * (1 - ratio)),
-    sweet: (getVal(p1, 'sweet') * ratio) + (getVal(p2, 'sweet') * (1 - ratio)),
-    spicy: (getVal(p1, 'spicy') * ratio) + (getVal(p2, 'spicy') * (1 - ratio)),
-    depth: (getVal(p1, 'depth') * ratio) + (getVal(p2, 'depth') * (1 - ratio)),
+    fresh: (getVal(profile1, 'fresh') * ratio) + (getVal(profile2, 'fresh') * (1 - ratio)),
+    sweet: (getVal(profile1, 'sweet') * ratio) + (getVal(profile2, 'sweet') * (1 - ratio)),
+    spicy: (getVal(profile1, 'spicy') * ratio) + (getVal(profile2, 'spicy') * (1 - ratio)),
+    woody: (getVal(profile1, 'woody') * ratio) + (getVal(profile2, 'woody') * (1 - ratio)),
+    floral: (getVal(profile1, 'floral') * ratio) + (getVal(profile2, 'floral') * (1 - ratio)),
+    depth: (getVal(profile1, 'depth') * ratio) + (getVal(profile2, 'depth') * (1 - ratio)),
   };
 
   // Calculate performance metrics

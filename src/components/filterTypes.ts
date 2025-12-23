@@ -34,7 +34,7 @@ export interface FilterSectionProps {
 
 export const PRICE_OPTIONS = ['$', '$$', '$$$', '$$$$'];
 export const GENDER_OPTIONS = ['Male', 'Female', 'Unisex'];
-export const CONCENTRATION_OPTIONS = ['EDT', 'EDP', 'Parfum', 'Extrait'];
+export const CONCENTRATION_OPTIONS = ['EDT', 'EDP', 'Parfum', 'Extrait', 'Cologne'];
 export const TIER_OPTIONS = ['Designer', 'Niche', 'Indie'];
 export const LONGEVITY_OPTIONS = ['1-2 hours', '3-4 hours', '5-6 hours', '7-8 hours', '8+ hours'];
 export const SEASON_OPTIONS = ['Spring', 'Summer', 'Fall', 'Winter'];

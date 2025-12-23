@@ -26,7 +26,7 @@ export default async function ProfilePage() {
   // 2. Fetch User's Profile (server-side)
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('display_name, bio')
+    .select('display_name, bio, signature_scent_id')
     .eq('id', user.id)
     .single();
 
@@ -36,6 +36,7 @@ export default async function ProfilePage() {
 
   const displayName = profile?.display_name || user.email?.split('@')[0] || null;
   const bio = profile?.bio || null;
+  const signatureScentId = profile?.signature_scent_id || null;
 
   // 3. Fetch User's Collection (server-side)
   const { data: rawCollection, error: collectionError } = await supabase
@@ -50,6 +51,7 @@ export default async function ProfilePage() {
         olfactory_family,
         best_season,
         vibe_tags,
+        rating,
         perfume_notes(type, note:notes(name))
       )
     `)
@@ -65,7 +67,13 @@ export default async function ProfilePage() {
             displayName={displayName} 
             bio={bio} 
             initialCollection={[]} 
-            insights={{ totalCount: 0, topFamilies: [], topBrands: [], seasonPreference: [] }}
+            insights={{ 
+              totalCount: 0, 
+              topFamilies: [], 
+              topBrands: [], 
+              seasonPreference: [],
+              scentDNA: { warmth: 0, freshness: 0, floral: 0, woody: 0, spicy: 0, depth: 0 }
+            }}
             topMatches={[]}
             discoverySelections={[]}
         />
@@ -74,11 +82,15 @@ export default async function ProfilePage() {
   
   // Flatten and type-assert the collection
   // Note: We fetched more data (notes, vibes) to help with the engine
-  const initialCollection = (rawCollection?.map((item) => ({
-    ...item.perfume, // Spread perfume data
-    collection_id: item.id // Add the collection item ID
-  }))
-    .filter((perfume): perfume is Perfumes & { brand: Brands | null, collection_id: string } => perfume !== null) || []) as (Perfumes & { brand: Brands | null, collection_id: string })[];
+  const initialCollection = (rawCollection?.map((item: any) => {
+    const perfumeData = Array.isArray(item.perfume) ? item.perfume[0] : item.perfume;
+    if (!perfumeData) return null;
+    return {
+      ...perfumeData,
+      collection_id: item.id
+    };
+  })
+    .filter((p): p is any => p !== null) || []) as (Perfumes & { brand: Brands | null, collection_id: string })[];
 
   // --- NEW: ANALYTICS & RECOMMENDATIONS ---
   const insights = analyzeWardrobe(initialCollection);
@@ -121,6 +133,7 @@ export default async function ProfilePage() {
       userEmail={user.email || 'Member'}
       displayName={displayName}
       bio={bio}
+      initialSignatureScentId={signatureScentId}
       initialCollection={initialCollection}
       insights={insights}
       topMatches={topMatches}

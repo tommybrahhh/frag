@@ -50,11 +50,12 @@ export default function AllRecommendationsPage() {
 
           if (profile) {
             console.log('Profile data:', profile);
-            if (profile.vibe_tags && profile.vibe_tags.length > 0) {
-               setSelectedVibe(profile.vibe_tags[0]);
+            const userProfile = profile as any;
+            if (userProfile.vibe_tags && userProfile.vibe_tags.length > 0) {
+               setSelectedVibe(userProfile.vibe_tags[0]);
             }
-            if (profile.best_season) {
-              setSelectedSeason(profile.best_season);
+            if (userProfile.best_season) {
+              setSelectedSeason(userProfile.best_season);
             }
           }
         }

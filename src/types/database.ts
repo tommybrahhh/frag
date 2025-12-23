@@ -44,6 +44,44 @@ export type Database = {
           website_url?: string | null
         }
       }
+      blog_posts: {
+        Row: {
+          id: string
+          title: string
+          slug: string
+          content: string
+          excerpt: string | null
+          image_url: string | null
+          is_published: boolean
+          author_id: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          slug: string
+          content: string
+          excerpt?: string | null
+          image_url?: string | null
+          is_published?: boolean
+          author_id?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          slug?: string
+          content?: string
+          excerpt?: string | null
+          image_url?: string | null
+          is_published?: boolean
+          author_id?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
       comments: {
         Row: {
           id: string
@@ -256,9 +294,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
-    }
-    Enums: {
       [_ in never]: never
     }
     CompositeTypes: {

@@ -22,6 +22,11 @@ export async function GET(request: Request) {
     const tier = searchParams.get('tier');
     const moment = searchParams.get('moment');   // Maps to 'best_time'
     const occasion = searchParams.get('occasion');
+    
+    // Additional Filters
+    const year = searchParams.get('year');
+    const family = searchParams.get('family');
+    const vibe = searchParams.get('vibe');
 
     const supabase = await createClient();
 
@@ -35,6 +40,7 @@ export async function GET(request: Request) {
         image_url,
         rating,
         vibe_tags,
+        scent_profile,
         price_tier,
         best_season,
         longevity_rating,
@@ -43,6 +49,7 @@ export async function GET(request: Request) {
         best_time,      
         occasions,
         olfactory_family,
+        release_year,
         brand_id,
         brand:brands!perfumes_brand_id_fkey(name, tier) 
       `, { count: 'exact' });
@@ -100,6 +107,21 @@ export async function GET(request: Request) {
     if (occasion) {
       // If user selects 'Date', find perfumes where occasions array includes 'Date'
       query = query.overlaps('occasions', occasion.split(','));
+    }
+
+    // Year (Exact match)
+    if (year) {
+      query = query.eq('release_year', year);
+    }
+
+    // Family (Array contains)
+    if (family) {
+      query = query.overlaps('olfactory_family', family.split(','));
+    }
+
+    // Vibe (Array contains)
+    if (vibe) {
+      query = query.overlaps('vibe_tags', vibe.split(','));
     }
 
     // 4. Sort and Execute

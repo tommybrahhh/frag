@@ -7,9 +7,11 @@ import { SupabaseClient } from '@supabase/supabase-js'; // Import SupabaseClient
 type ProfileSettingsModalProps = {
   initialDisplayName: string | null;
   initialBio: string | null;
+  initialSignatureScentId: string | null;
+  collection: any[]; // Using any[] for flexibility, or we can import the strict type
   isOpen: boolean;
   onClose: () => void;
-  onSave: (displayName: string, bio: string) => Promise<void>; // Save profile data
+  onSave: (displayName: string, bio: string, signatureScentId: string | null) => Promise<void>;
   isSaving: boolean;
   saveError: string | null;
   saveSuccess: boolean;
@@ -18,6 +20,8 @@ type ProfileSettingsModalProps = {
 export default function ProfileSettingsModal({
   initialDisplayName,
   initialBio,
+  initialSignatureScentId,
+  collection,
   isOpen,
   onClose,
   onSave,
@@ -27,14 +31,16 @@ export default function ProfileSettingsModal({
 }: ProfileSettingsModalProps) {
   const [editedDisplayName, setEditedDisplayName] = useState(initialDisplayName || '');
   const [editedBio, setEditedBio] = useState(initialBio || '');
+  const [selectedSignatureId, setSelectedSignatureId] = useState<string | null>(initialSignatureScentId || '');
 
   // Sync internal state with prop changes when modal opens
   useEffect(() => {
     if (isOpen) {
       setEditedDisplayName(initialDisplayName || '');
       setEditedBio(initialBio || '');
+      setSelectedSignatureId(initialSignatureScentId || '');
     }
-  }, [isOpen, initialDisplayName, initialBio]);
+  }, [isOpen, initialDisplayName, initialBio, initialSignatureScentId]);
 
   if (!isOpen) return null;
 
@@ -65,6 +71,25 @@ export default function ProfileSettingsModal({
               placeholder="Your display name"
             />
           </div>
+          
+          <div>
+            <label htmlFor="signatureScent" className="block text-xs font-bold uppercase tracking-widest text-stone-400 mb-1">Signature Scent</label>
+            <select
+              id="signatureScent"
+              value={selectedSignatureId || ''}
+              onChange={(e) => setSelectedSignatureId(e.target.value || null)}
+              className="w-full p-2 border border-stone-200 rounded-md focus:ring-0 focus:border-stone-400 outline-none text-sm bg-white"
+            >
+              <option value="">-- Select from Wardrobe --</option>
+              {collection.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name} ({p.brand?.name})
+                </option>
+              ))}
+            </select>
+             <p className="text-[10px] text-stone-400 mt-1">Choose a fragrance from your current collection.</p>
+          </div>
+
           <div>
             <label htmlFor="bio" className="block text-xs font-bold uppercase tracking-widest text-stone-400 mb-1">Bio</label>
             <textarea
@@ -93,7 +118,7 @@ export default function ProfileSettingsModal({
               Cancel
             </button>
             <button
-              onClick={() => onSave(editedDisplayName, editedBio)}
+              onClick={() => onSave(editedDisplayName, editedBio, selectedSignatureId)}
               disabled={isSaving || !editedDisplayName.trim()}
               className="py-2 px-4 text-sm bg-stone-900 text-white rounded-md hover:bg-stone-700 transition disabled:opacity-50"
             >
