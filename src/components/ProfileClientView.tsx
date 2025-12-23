@@ -209,7 +209,7 @@ export default function ProfileClientView({
     return sorted;
   }, [filteredCollection, sortBy]);
 
-  const sections = useMemo(() => {
+  const sections = useMemo<[string, typeof collection][]>(() => {
     if (viewMode === 'season') {
         const groups: Record<string, typeof collection> = { Spring: [], Summer: [], Fall: [], Winter: [] };
         sortedCollection.forEach(p => {
@@ -219,7 +219,7 @@ export default function ProfileClientView({
                 });
             }
         });
-        return Object.entries(groups).filter(([_, items]) => items.length > 0);
+        return Object.entries(groups).filter(([_, items]) => items.length > 0) as [string, typeof collection][];
     }
     return [['All', sortedCollection]];
   }, [sortedCollection, viewMode]);
