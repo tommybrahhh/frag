@@ -1,0 +1,1 @@
+The name of the basic scraper script that scrapes names, direct links, and image links from a brand house URL is `fragrantica_brand_scraper.py`.

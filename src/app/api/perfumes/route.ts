@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
+import { longevityMappings } from '@/lib/longevity-utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -61,16 +62,24 @@ export async function GET(request: Request) {
     if (gender) query = query.in('gender', gender.split(','));
     
     if (longevity) {
-      const ranges = longevity.split(',');
+      const selectedRanges = longevity.split(',');
       const conditions: string[] = [];
-      ranges.forEach(r => {
-        if (r === '1-2 hours') conditions.push('longevity_rating.eq.1');
-        if (r === '3-4 hours') conditions.push('longevity_rating.eq.2');
-        if (r === '5-6 hours') conditions.push('longevity_rating.eq.3');
-        if (r === '7-8 hours') conditions.push('longevity_rating.eq.4');
-        if (r === '8+ hours') conditions.push('longevity_rating.eq.5');
+
+      selectedRanges.forEach(r => {
+        // Find all ratings that correspond to the selected hour range
+        const ratingsForRange = longevityMappings
+          .filter(mapping => mapping.hourRange === r)
+          .map(mapping => mapping.rating);
+        
+        if (ratingsForRange.length > 0) {
+          // Use 'in' operator for multiple ratings
+          conditions.push(`longevity_rating.in.(${ratingsForRange.join(',')})`);
+        }
       });
-      if (conditions.length > 0) query = query.or(conditions.join(','));
+      
+      if (conditions.length > 0) {
+        query = query.or(conditions.join(','));
+      }
     }
 
     if (season) {

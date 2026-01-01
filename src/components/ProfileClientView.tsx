@@ -17,7 +17,13 @@ type ProfilePageProps = {
   displayName: string | null;
   bio: string | null;
   initialSignatureScentId?: string | null;
-  initialCollection: (Tables<'perfumes'> & { brand: Tables<'brands'> | null, collection_id: string })[];
+  initialAvatarUrl?: string | null;
+  isVerified?: boolean;
+  initialCollection: (Tables<'perfumes'> & { 
+    brand: (Tables<'brands'> & { tier: Database["public"]["Enums"]["brand_tier_type"] | null }) | null, 
+    collection_id: string,
+    list_type: "owned" | "wishlist" | "tested"
+  })[];
   insights: UserInsights;
   topMatches: Recommendation[];
   discoverySelections: Recommendation[];
@@ -46,6 +52,8 @@ export default function ProfileClientView({
   displayName, 
   bio, 
   initialSignatureScentId,
+  initialAvatarUrl,
+  isVerified,
   initialCollection = [], 
   insights, 
   topMatches = [], 
@@ -62,10 +70,14 @@ export default function ProfileClientView({
     displayName: string | null;
     bio: string | null;
     signatureScentId: string | null;
+    avatarUrl: string | null;
+    isVerified: boolean | null;
   }>({ 
     displayName, 
     bio, 
-    signatureScentId: initialSignatureScentId ?? null 
+    signatureScentId: initialSignatureScentId ?? null,
+    avatarUrl: initialAvatarUrl ?? null,
+    isVerified: isVerified ?? false,
   });
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [saveProfileError, setSaveProfileError] = useState<string | null>(null);
@@ -84,8 +96,9 @@ export default function ProfileClientView({
     seasons: string[];
   }>({ families: [], seasons: [] });
 
-  // 1. Calculate Real-time DNA 
-  const dna = calculateScentDNA(collection);
+  // 1. Calculate Real-time DNA (Only from Owned items)
+  const ownedItems = useMemo(() => collection.filter(p => p.list_type === 'owned' || !p.list_type), [collection]);
+  const dna = calculateScentDNA(ownedItems);
 
   // 2. Derive Signature Scent Object
   const signatureScent = useMemo(() => {
@@ -103,11 +116,11 @@ export default function ProfileClientView({
   const currentSeason = getCurrentSeason();
   
   const rotationPicks = useMemo(() => {
-      return collection.filter(p => 
+      return ownedItems.filter(p => 
         p.best_season?.includes(currentSeason) || 
         p.vibe_tags?.some((tag: string) => tag.toLowerCase().includes('dark') || tag.toLowerCase().includes('cozy'))
       ).slice(0, 3);
-  }, [collection, currentSeason]);
+  }, [ownedItems, currentSeason]);
 
   // Extract Filter Options
   const availableFamilies = useMemo(() => {
@@ -144,28 +157,43 @@ export default function ProfileClientView({
   };
 
   // Handle Save Profile
-  const handleSaveProfile = async (newDisplayName: string, newBio: string, newSignatureScentId: string | null) => {
+  const handleSaveProfile = async (newDisplayName: string, newBio: string, newSignatureScentId: string | null, newAvatarUrl: string | null) => {
     if (!user || !supabase) return;
     setIsSavingProfile(true);
     setSaveProfileError(null);
     setSaveProfileSuccess(false);
 
     try {
-      const { error } = await supabase
+      const updatePromise = supabase
         .from('profiles')
         .update({ 
           display_name: newDisplayName, 
           bio: newBio,
-          signature_scent_id: newSignatureScentId 
+          signature_scent_id: newSignatureScentId,
+          avatar_url: newAvatarUrl
         })
         .eq('id', user.id);
+      
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Save operation timed out. Please check your network connection or try again.')), 15000)
+      );
 
-      if (error) throw error;
+      const result = await Promise.race([updatePromise, timeoutPromise]);
+      
+      // The result of a successful Supabase query is an object like { data, error, ... }
+      // We need to check for the error property within the resolved object.
+      // @ts-ignore - Supabase promise race result type is tricky
+      if (result && result.error) {
+        // @ts-ignore
+        throw result.error;
+      }
 
       setProfileData({ 
         displayName: newDisplayName, 
         bio: newBio, 
-        signatureScentId: newSignatureScentId 
+        signatureScentId: newSignatureScentId,
+        avatarUrl: newAvatarUrl,
+        isVerified: profileData.isVerified // Keep the existing isVerified status
       });
       setSaveProfileSuccess(true);
       setTimeout(() => {
@@ -183,6 +211,15 @@ export default function ProfileClientView({
   // --- FILTERING LOGIC ---
   const filteredCollection = useMemo(() => {
     return collection.filter(p => {
+      // 0. Filter by Tab (List Type)
+      const isWishlist = activeTab === 'wishlist';
+      // Default to 'owned' if list_type is missing/null, unless we are in wishlist tab
+      const itemType = p.list_type || 'owned'; 
+      
+      if (isWishlist && itemType !== 'wishlist') return false;
+      if (!isWishlist && activeTab === 'wardrobe' && itemType !== 'owned') return false;
+      // If activeTab is 'reviews', we might show something else, but here we control collection view
+
       // 1. Search
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
@@ -205,7 +242,7 @@ export default function ProfileClientView({
 
       return true;
     });
-  }, [collection, searchQuery, activeFilters]);
+  }, [collection, searchQuery, activeFilters, activeTab]);
 
   // --- SORTING & GROUPING LOGIC ---
   const sortedCollection = useMemo(() => {
@@ -289,12 +326,74 @@ export default function ProfileClientView({
   );
 
 
+  // Categorize Top Matches by Brand Tier
+  const categorizedTopMatches = useMemo(() => {
+    const categoryOrder = ["Niche", "Designer", "Indie", "Celebrity", "Historical", "Other"];
+    const grouped: Record<string, Recommendation[]> = {
+      "Niche": [],
+      "Designer": [],
+      "Indie": [],
+      "Celebrity": [],
+      "Historical": [],
+      "Other": []
+    };
+
+    topMatches.forEach(rec => {
+      const tier = rec.perfume.brand?.tier;
+      if (tier && categoryOrder.includes(tier)) {
+        grouped[tier].push(rec);
+      } else {
+        grouped["Other"].push(rec);
+      }
+    });
+
+    // Sort categories based on predefined order
+    const sortedGrouped: Record<string, Recommendation[]> = {};
+    categoryOrder.forEach(category => {
+      if (grouped[category] && grouped[category].length > 0) {
+        sortedGrouped[category] = grouped[category];
+      }
+    });
+    // Add any categories not in categoryOrder (e.g., new tiers) at the end
+    for (const category in grouped) {
+        if (!categoryOrder.includes(category) && grouped[category].length > 0) {
+            sortedGrouped[category] = grouped[category];
+        }
+    }
+
+    return sortedGrouped;
+  }, [topMatches]);
+
+
+  const wardrobeCount = collection.filter(p => p.list_type === 'owned' || !p.list_type).length;
+  const wishlistCount = collection.filter(p => p.list_type === 'wishlist').length;
+
   return (
     <div className="min-h-screen bg-[#FDFBF7] text-gray-800 font-sans pb-20">
       
       {/* Header Section */}
       <div className="bg-white border-b border-stone-200 px-6 py-12">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+          
+          {/* Avatar Area */}
+          <div className="relative group">
+            <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-stone-50 bg-stone-100 shadow-sm transition-transform duration-500 group-hover:scale-105">
+                {profileData.avatarUrl ? (
+                    <img src={profileData.avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-stone-200 text-stone-400 text-4xl font-bold uppercase">
+                        {profileData.displayName?.[0] || userEmail?.[0]}
+                    </div>
+                )}
+            </div>
+            <button 
+                onClick={() => setIsEditModalOpen(true)}
+                className="absolute bottom-1 right-1 w-8 h-8 bg-white rounded-full shadow-md border border-stone-100 flex items-center justify-center text-stone-400 opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+                ✎
+            </button>
+          </div>
+
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
                  <span className="text-xs font-bold uppercase tracking-widest text-stone-400">Member Profile</span>
@@ -302,8 +401,19 @@ export default function ProfileClientView({
                  <span className="text-xs font-bold text-stone-400">Est. {new Date().getFullYear()}</span>
             </div>
             
-            <h1 className="text-4xl font-serif text-stone-900 mb-2">
-                {profileData.displayName || userEmail?.split('@')[0]}
+            <h1 className="text-4xl font-serif text-stone-900 mb-2 flex items-center gap-3">
+                <span>{profileData.displayName || userEmail?.split('@')[0]}</span>
+                {profileData.isVerified && (
+                    <svg 
+                      xmlns="http://www.w3.org/2000/svg" 
+                      viewBox="0 0 20 20" 
+                      fill="currentColor" 
+                      className="w-6 h-6 text-sky-500"
+                    >
+                      <title>Verified User</title>
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" />
+                    </svg>
+                )}
             </h1>
             
             {profileData.bio ? (
@@ -357,13 +467,13 @@ export default function ProfileClientView({
                     onClick={() => setActiveTab('wardrobe')}
                     className={`py-4 text-xs font-bold uppercase tracking-widest border-b-2 transition-colors ${activeTab === 'wardrobe' ? 'border-stone-900 text-stone-900' : 'border-transparent text-stone-400 hover:text-stone-600'}`}
                 >
-                    Wardrobe ({collection.length})
+                    Wardrobe ({wardrobeCount})
                 </button>
                 <button 
                     onClick={() => setActiveTab('wishlist')}
                     className={`py-4 text-xs font-bold uppercase tracking-widest border-b-2 transition-colors ${activeTab === 'wishlist' ? 'border-stone-900 text-stone-900' : 'border-transparent text-stone-400 hover:text-stone-600'}`}
                 >
-                    Wishlist (0)
+                    Wishlist ({wishlistCount})
                 </button>
                 <button 
                     onClick={() => setActiveTab('reviews')}
@@ -563,12 +673,34 @@ export default function ProfileClientView({
             </div>
         )}
 
-        {/* Placeholders for Future Features */}
+        {/* Wishlist Content */}
         {activeTab === 'wishlist' && (
-            <div className="py-20 text-center animate-in fade-in duration-300">
-                <div className="text-4xl mb-4">✨</div>
-                <h3 className="font-serif text-xl text-stone-900 mb-2">Wishlist Coming Soon</h3>
-                <p className="text-stone-500">Keep track of the fragrances you want to try next.</p>
+            <div className="animate-in fade-in duration-300">
+                 {/* Wishlist uses the same filter bar for now */}
+                 <div className="bg-[#FDFBF7]/95 pt-4 pb-2 mb-6 border-b border-stone-200">
+                    <div className="flex items-center justify-between gap-4 mb-4">
+                        <div className="flex items-baseline gap-3">
+                            <h2 className="font-serif text-2xl text-stone-900">My Wishlist</h2>
+                        </div>
+                        {/* Reusing search logic/state for simplicity */}
+                    </div>
+                </div>
+
+                {filteredCollection.length > 0 ? (
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-24">
+                        {filteredCollection.map(perfume => (
+                            <PerfumeCard key={perfume.collection_id} perfume={perfume} />
+                        ))}
+                    </div>
+                ) : (
+                    <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-stone-300 mb-24">
+                         <h3 className="font-serif text-xl text-stone-400 mb-4">Your wishlist is empty</h3>
+                         <p className="text-stone-500 mb-6">Find perfumes you want to try and add them here.</p>
+                         <Link href="/" className="px-6 py-3 bg-stone-900 text-white text-xs font-bold uppercase tracking-widest rounded-full hover:bg-stone-700 transition">
+                            Explore Perfumes
+                         </Link>
+                    </div>
+                )}
             </div>
         )}
 
@@ -587,41 +719,51 @@ export default function ProfileClientView({
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-widest text-stone-400">Curated For You</span>
                 <h2 className="font-serif text-2xl text-stone-900 mt-1">Perfect Matches</h2>
-                <p className="text-stone-500 text-sm mt-1">Highly compatible with your taste profile.</p>
+                <p className="text-stone-500 text-sm mt-1">Highly compatible with your taste profile, categorized by brand tier.</p>
               </div>
             </div>
             
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12">
-              {topMatches.map((rec) => (
-                <Link 
-                  key={rec.perfume.id} 
-                  href={`/perfume/${rec.perfume.id}`}
-                  className="group bg-white rounded-xl border border-stone-100 p-4 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
-                >
-                  <div className="h-48 flex items-center justify-center p-4 mb-4 bg-stone-50 rounded-lg group-hover:bg-white transition-colors relative">
-                    <div className="absolute top-2 right-2 bg-stone-900 text-white text-[10px] font-bold px-2 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                      {rec.score}% Match
+            {Object.entries(categorizedTopMatches).map(([category, recommendations]) => (
+                recommendations.length > 0 && (
+                    <div key={category} className="mb-10">
+                        <h3 className="font-serif text-xl text-stone-900 mb-5 border-l-4 border-stone-200 pl-3">
+                            {category} Perfumes
+                            <span className="text-stone-400 text-sm font-sans font-normal ml-2">({recommendations.length})</span>
+                        </h3>
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12">
+                        {recommendations.map((rec) => (
+                            <Link 
+                            key={rec.perfume.id} 
+                            href={`/perfume/${rec.perfume.id}`}
+                            className="group bg-white rounded-xl border border-stone-100 p-4 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                            >
+                            <div className="h-48 flex items-center justify-center p-4 mb-4 bg-stone-50 rounded-lg group-hover:bg-white transition-colors relative">
+                                <div className="absolute top-2 right-2 bg-stone-900 text-white text-[10px] font-bold px-2 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                {rec.score}% Match
+                                </div>
+                                {rec.perfume.image_url ? (
+                                <img src={rec.perfume.image_url} alt={rec.perfume.name} className="h-full object-contain mix-blend-multiply opacity-80 group-hover:opacity-100 transition-opacity" />
+                                ) : (
+                                <span className="text-stone-300 text-xs italic">No Image</span>
+                                )}
+                            </div>
+                            <div className="text-center">
+                                <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 truncate mb-1">
+                                {rec.perfume.brand?.name}
+                                </div>
+                                <div className="font-serif text-lg text-stone-900 leading-tight truncate mb-2">
+                                {rec.perfume.name}
+                                </div>
+                                <div className="text-xs text-stone-500 line-clamp-2 h-8 px-2">
+                                {rec.reason}
+                                </div>
+                            </div>
+                            </Link>
+                        ))}
+                        </div>
                     </div>
-                    {rec.perfume.image_url ? (
-                      <img src={rec.perfume.image_url} alt={rec.perfume.name} className="h-full object-contain mix-blend-multiply opacity-80 group-hover:opacity-100 transition-opacity" />
-                    ) : (
-                      <span className="text-stone-300 text-xs italic">No Image</span>
-                    )}
-                  </div>
-                  <div className="text-center">
-                    <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 truncate mb-1">
-                      {rec.perfume.brand?.name}
-                    </div>
-                    <div className="font-serif text-lg text-stone-900 leading-tight truncate mb-2">
-                      {rec.perfume.name}
-                    </div>
-                    <div className="text-xs text-stone-500 line-clamp-2 h-8 px-2">
-                      {rec.reason}
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
+                )
+            ))}
           </div>
         )}
 
@@ -693,6 +835,7 @@ export default function ProfileClientView({
         initialDisplayName={profileData.displayName}
         initialBio={profileData.bio}
         initialSignatureScentId={profileData.signatureScentId ?? null}
+        initialAvatarUrl={profileData.avatarUrl}
         collection={collection}
         isSaving={isSavingProfile}
         saveError={saveProfileError}

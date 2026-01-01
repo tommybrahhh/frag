@@ -8,19 +8,29 @@ type ProfileSettingsModalProps = {
   initialDisplayName: string | null;
   initialBio: string | null;
   initialSignatureScentId: string | null;
+  initialAvatarUrl: string | null;
   collection: any[]; // Using any[] for flexibility, or we can import the strict type
   isOpen: boolean;
   onClose: () => void;
-  onSave: (displayName: string, bio: string, signatureScentId: string | null) => Promise<void>;
+  onSave: (displayName: string, bio: string, signatureScentId: string | null, avatarUrl: string | null) => Promise<void>;
   isSaving: boolean;
   saveError: string | null;
   saveSuccess: boolean;
 };
 
+const AVATAR_PRESETS = [
+  { id: 'clean', name: 'Clean', url: 'clean.png' },
+  { id: 'dark', name: 'Dark', url: 'Dark.png' },
+  { id: 'floral', name: 'Floral', url: 'Floral.png' },
+  { id: 'fresh', name: 'Fresh', url: 'Fresh.png' },
+  { id: 'woody', name: 'Woody', url: 'Woody.png' },
+];
+
 export default function ProfileSettingsModal({
   initialDisplayName,
   initialBio,
   initialSignatureScentId,
+  initialAvatarUrl,
   collection,
   isOpen,
   onClose,
@@ -32,6 +42,7 @@ export default function ProfileSettingsModal({
   const [editedDisplayName, setEditedDisplayName] = useState(initialDisplayName || '');
   const [editedBio, setEditedBio] = useState(initialBio || '');
   const [selectedSignatureId, setSelectedSignatureId] = useState<string | null>(initialSignatureScentId || '');
+  const [selectedAvatarUrl, setSelectedAvatarUrl] = useState<string | null>(initialAvatarUrl || '');
 
   // Sync internal state with prop changes when modal opens
   useEffect(() => {
@@ -39,14 +50,21 @@ export default function ProfileSettingsModal({
       setEditedDisplayName(initialDisplayName || '');
       setEditedBio(initialBio || '');
       setSelectedSignatureId(initialSignatureScentId || '');
+      setSelectedAvatarUrl(initialAvatarUrl || '');
     }
-  }, [isOpen, initialDisplayName, initialBio, initialSignatureScentId]);
+  }, [isOpen, initialDisplayName, initialBio, initialSignatureScentId, initialAvatarUrl]);
 
   if (!isOpen) return null;
 
+  // Helper to construct Supabase Storage URL
+  const getAvatarUrl = (path: string) => {
+      if (path.startsWith('http')) return path;
+      return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatar/${path}`;
+  };
+
   return (
     <div className="fixed inset-0 bg-stone-900 bg-opacity-75 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl p-6 md:p-8 w-full max-w-md relative">
+      <div className="bg-white rounded-xl shadow-2xl p-6 md:p-8 w-full max-w-md relative max-h-[90vh] overflow-y-auto">
         
         {/* Close Button */}
         <button
@@ -59,7 +77,34 @@ export default function ProfileSettingsModal({
         <h2 className="font-serif text-2xl text-stone-900 mb-6">Edit Profile</h2>
 
         {/* Profile Details Section */}
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-6">
+          
+          {/* Avatar Picker */}
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-widest text-stone-400 mb-3">Choose Your Persona</label>
+            <div className="grid grid-cols-5 gap-3">
+                {AVATAR_PRESETS.map((preset) => {
+                    const fullUrl = getAvatarUrl(preset.url);
+                    const isSelected = selectedAvatarUrl === fullUrl || selectedAvatarUrl === preset.url;
+                    return (
+                        <button
+                            key={preset.id}
+                            onClick={() => setSelectedAvatarUrl(fullUrl)}
+                            className={`relative aspect-square rounded-full overflow-hidden border-2 transition-all ${isSelected ? 'border-stone-900 scale-110 shadow-md' : 'border-transparent hover:border-stone-200'}`}
+                            title={preset.name}
+                        >
+                            <img src={fullUrl} alt={preset.name} className="w-full h-full object-cover" />
+                            {isSelected && (
+                                <div className="absolute inset-0 bg-stone-900/10 flex items-center justify-center">
+                                    <span className="text-white text-xs">✓</span>
+                                </div>
+                            )}
+                        </button>
+                    );
+                })}
+            </div>
+          </div>
+
           <div>
             <label htmlFor="displayName" className="block text-xs font-bold uppercase tracking-widest text-stone-400 mb-1">Display Name</label>
             <input
@@ -118,7 +163,7 @@ export default function ProfileSettingsModal({
               Cancel
             </button>
             <button
-              onClick={() => onSave(editedDisplayName, editedBio, selectedSignatureId)}
+              onClick={() => onSave(editedDisplayName, editedBio, selectedSignatureId, selectedAvatarUrl)}
               disabled={isSaving || !editedDisplayName.trim()}
               className="py-2 px-4 text-sm bg-stone-900 text-white rounded-md hover:bg-stone-700 transition disabled:opacity-50"
             >

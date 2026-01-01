@@ -44,7 +44,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return {
         ...sessionUser,
         display_name: sessionUser.email?.split('@')[0],
-        bio: null // Default bio if profile fetch fails
+        bio: null,
+        avatar_url: null
       };
     }
     try {
@@ -56,28 +57,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .maybeSingle();
       
       // Explicitly cast the result to match our Database schema
-      const profile = rawProfile as { display_name: string | null; bio: string | null } | null;
+      const profile = rawProfile as { display_name: string | null; bio: string | null; } | null;
 
       if (profileError) {
         console.error('Error fetching profile:', profileError);
         return {
           ...sessionUser,
           display_name: sessionUser.email?.split('@')[0],
-          bio: null // Default bio if profile fetch fails
+          bio: null,
+          avatar_url: null
         };
       }
       
       return {
         ...sessionUser,
         display_name: profile?.display_name || sessionUser.email?.split('@')[0],
-        bio: profile?.bio || null // Merge bio
+        bio: profile?.bio || null,
+        avatar_url: null // Temporarily set to null
       };
     } catch (error) {
       console.error('Error in profile fetch:', error);
       return {
         ...sessionUser,
         display_name: sessionUser.email?.split('@')[0],
-        bio: null // Default bio on error
+        bio: null,
+        avatar_url: null
       };
     }
   }, [supabase]);
@@ -157,10 +161,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } else {
       console.log('SignOut: Successfully signed out from Supabase.');
       setUser(null);
-      // Removed: router.push('/') and router.refresh()
-      console.log('SignOut: User state reset. Redirection handled by onAuthStateChange listener/Server Component.');
+      router.push('/login'); // Explicitly redirect after signOut
+      router.refresh(); // Force a refresh of server components
+      console.log('SignOut: User state reset and redirection triggered.');
     }
-  }, [supabase]); // router is no longer a dependency here
+  }, [supabase, router]); // router is now a dependency
 
   const value = useMemo(() => ({
     user,

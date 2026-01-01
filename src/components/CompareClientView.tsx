@@ -5,13 +5,25 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import PerfumePicker from '@/components/PerfumePicker';
-import { ratingToHourRange } from '@/lib/longevity-utils';
+import { ratingToHourRange, ratingToDescription } from '@/lib/longevity-utils';
 
 interface CompareClientViewProps {
   initialPerfumes: any[]; // The perfumes fetched by the server
 }
 
 const OCCASIONS = ['Date Night', 'Office Safe', 'Casual Daily', 'Formal Event', 'Party / Club', 'Summer Vacation', 'Gym / Sport'];
+
+// Helper function for Sillage description
+const getSillageDescription = (rating: number | null | undefined): string => {
+  if (rating === null || rating === undefined) return 'Moderate';
+  if (rating >= 1 && rating <= 3) return 'Intimate';
+  if (rating >= 4 && rating <= 5) return 'Moderate';
+  if (rating >= 6 && rating <= 7) return 'Strong';
+  if (rating === 8) return 'Enormous';
+  if (rating === 9) return 'Beast Mode';
+  if (rating === 10) return 'Suffocating';
+  return 'Moderate'; // Default for out-of-range values
+};
 
 export default function CompareClientView({ initialPerfumes }: CompareClientViewProps) {
   const router = useRouter();
@@ -109,9 +121,7 @@ export default function CompareClientView({ initialPerfumes }: CompareClientView
     
     if (occasion === 'Date Night' && (vibes.includes('sexy') || vibes.includes('romantic') || vibes.includes('intimate'))) return true;
     if (occasion === 'Office Safe' && (vibes.includes('clean') || vibes.includes('fresh') || (p.sillage_rating && p.sillage_rating <= 3))) return true;
-    if (occasion === 'Casual Daily' && (vibes.includes('casual') || vibes.includes('easy'))) return true;
-    if (occasion === 'Formal Event' && (vibes.includes('elegant') || vibes.includes('luxurious'))) return true;
-    if (occasion === 'Party / Club' && (vibes.includes('loud') || vibes.includes('bold') || (p.sillage_rating && p.sillage_rating >= 4))) return true;
+    if (occasion === 'Party / Club' && (vibes.includes('loud') || vibes.includes('bold') || (p.sillage_rating && p.sillage_rating >= 6))) return true;
     if (occasion === 'Summer Vacation' && (seasons.includes('Summer') || vibes.includes('tropical'))) return true;
     if (occasion === 'Gym / Sport' && (vibes.includes('sporty') || vibes.includes('energy'))) return true;
     return false;
@@ -251,26 +261,28 @@ export default function CompareClientView({ initialPerfumes }: CompareClientView
                                 <div className="p-4 text-[10px] font-bold uppercase tracking-widest text-stone-400 flex items-center">Longevity</div>
                                 {slots.map((p, i) => (
                                     <div key={i} className="p-4 text-center text-sm font-medium text-stone-800 border-l border-stone-100">
-                                        {p?.longevity_rating ? ratingToHourRange(p.longevity_rating) : '-'}
+                                        {p?.longevity_rating ? ratingToDescription(p.longevity_rating) : '-'}
                                     </div>
                                 ))}
                             </div>
 
                             {/* Sillage */}
                             <div className="grid border-b border-stone-100 last:border-0 hover:bg-stone-50 transition" style={{ gridTemplateColumns: `100px repeat(${slots.length}, 1fr)` }}>
-                                <div className="p-4 text-[10px] font-bold uppercase tracking-widest text-stone-400 flex items-center">Sillage</div>
-                                {slots.map((p, i) => (
-                                    <div key={i} className="p-4 text-center border-l border-stone-100">
-                                        {p ? (
-                                            <div className="flex items-center justify-center gap-1">
-                                                {[1,2,3,4,5].map(star => (
-                                                    <div key={star} className={`h-1.5 w-4 rounded-full ${star <= (p.sillage_rating || 0) ? 'bg-stone-800' : 'bg-stone-200'}`}></div>
-                                                ))}
-                                            </div>
-                                        ) : '-'}
-                                    </div>
-                                ))}
-                            </div>
+                                                               <div className="p-4 text-[10px] font-bold uppercase tracking-widest text-stone-400 flex items-center">Sillage</div>
+                                                               {slots.map((p, i) => (
+                                                                   <div key={i} className="p-4 text-center border-l border-stone-100">
+                                                                       {p ? (
+                                                                           <div className="flex flex-col items-center justify-center gap-1">
+                                                                                <span className="text-xs font-medium text-stone-800 mb-1">{getSillageDescription(p.sillage_rating)}</span>
+                                                                                <div className="flex items-center justify-center gap-1">
+                                                                                    {[1,2,3,4,5,6,7,8,9,10].map(star => (
+                                                                                        <div key={star} className={`h-1.5 w-3 rounded-full ${star <= (p.sillage_rating || 0) ? 'bg-stone-800' : 'bg-stone-200'}`}></div>
+                                                                                    ))}
+                                                                                </div>
+                                                                           </div>
+                                                                       ) : '-'}
+                                                                   </div>
+                                                               ))}                            </div>
 
                             {/* Gender */}
                             <div className="grid border-b border-stone-100 last:border-0 hover:bg-stone-50 transition" style={{ gridTemplateColumns: `100px repeat(${slots.length}, 1fr)` }}>

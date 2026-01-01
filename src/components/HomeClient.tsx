@@ -161,31 +161,31 @@ export default function HomeClient({ initialBlogPosts }: HomeClientProps) {
           </div>
         )}
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-6 gap-y-16">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
           {perfumes.map((p, index) => {
             const isLast = index === perfumes.length - 1;
             return (
               <div key={`${p.id}-${index}`} ref={isLast ? lastPerfumeElementRef : null}>
-                <Link href={`/perfume/${p.id}`} className="group block h-full">
-                  <div className="bg-[#F9F9F9] rounded-xl h-72 flex items-center justify-center p-8 relative overflow-hidden mb-5 group-hover:bg-[#F0F0F0] transition-colors duration-500">
+                <Link href={`/perfume/${p.id}`} className="group block h-full bg-white rounded-2xl border border-stone-100 p-4 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                  <div className="h-64 flex items-center justify-center mb-4 bg-stone-50 rounded-xl group-hover:bg-white transition-colors relative overflow-hidden">
                     {p.image_url ? (
                       <img 
                         src={p.image_url} 
                         alt={p.name} 
-                        className="h-full w-full object-contain mix-blend-multiply group-hover:scale-110 transition duration-700 ease-in-out" 
+                        className="h-full w-full object-contain mix-blend-multiply brightness-[1.05] group-hover:scale-105 transition duration-700 ease-in-out" 
                       />
                     ) : (
                       <div className="text-stone-300 text-xs font-bold uppercase tracking-widest">No Image</div>
                     )}
                     
                     {p.rating && (
-                      <div className="absolute top-4 right-4 bg-white px-2 py-1 rounded text-[10px] font-bold text-stone-900 shadow-sm z-10">
-                        {p.rating.toFixed(1)}
+                      <div className="absolute top-3 right-3 bg-white px-2 py-1 rounded-full text-[10px] font-bold text-stone-900 shadow-sm z-10">
+                        ★ {p.rating.toFixed(1)}
                       </div>
                     )}
 
-                    {/* HOVER OVERLAY: Stats */}
-                    <div className="absolute inset-0 bg-white/95 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-6 flex flex-col justify-center gap-4">
+                    {/* HOVER OVERLAY: Stats (Restored) */}
+                    <div className="absolute inset-0 bg-white/95 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-6 flex flex-col justify-center gap-4 z-20">
                       
                       {/* Main Accords Chart */}
                       {p.scent_profile && (
@@ -225,17 +225,27 @@ export default function HomeClient({ initialBlogPosts }: HomeClientProps) {
                           </div>
                         </div>
                       )}
-
                     </div>
                   </div>
                   
                   <div className="text-center">
-                    <div className="text-[9px] font-bold tracking-[0.2em] text-stone-400 uppercase mb-2 truncate">
+                    <div className="text-[10px] font-bold tracking-[0.2em] text-stone-400 uppercase mb-1 truncate">
                       {p.brand?.name || 'Unknown Brand'}
                     </div>
-                    <h4 className="font-serif text-lg text-stone-900 leading-tight group-hover:text-stone-600 transition-colors line-clamp-2">
+                    <h4 className="font-serif text-lg text-stone-900 leading-tight truncate px-2 mb-2 group-hover:text-stone-600 transition-colors">
                       {p.name}
                     </h4>
+                    
+                    {/* Optional: Minimal Vibe Tags */}
+                    {p.vibe_tags && p.vibe_tags.length > 0 && (
+                      <div className="flex flex-wrap justify-center gap-1 mt-2 opacity-60 group-hover:opacity-100 transition-opacity">
+                        {p.vibe_tags.slice(0, 2).map(tag => (
+                          <span key={tag} className="text-[9px] uppercase tracking-wider text-stone-500 px-1.5 py-0.5 bg-stone-50 rounded border border-stone-100">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </Link>
               </div>

@@ -1,9 +1,15 @@
 import { createClient } from '@/lib/supabase';
 import { mixPerfumes } from '@/lib/alchemy';
+import { Database } from '@/types/database'; // Import Database type
+
+// Define a type for Perfume with Brand and its Tier
+type PerfumeWithBrandAndTier = Database['public']['Tables']['perfumes']['Row'] & {
+  brand: (Database['public']['Tables']['brands']['Row'] & { tier: Database["public"]["Enums"]["brand_tier_type"] | null }) | null;
+};
 
 export interface Recommendation {
-  perfume: any;
-  type: 'similar' | 'complementary' | 'same-brand' | 'seasonal' | 'price-alternative' | 'discovery' | 'dupe';
+  perfume: PerfumeWithBrandAndTier;
+  type: 'similar' | 'complementary' | 'same-brand' | 'seasonal' | 'price-alternative' | 'discovery' | 'dupe' | 'layer_amplify' | 'layer_add_dimension';
   score: number;
   reason: string;
   sharedNotes?: string[];
@@ -16,6 +22,14 @@ export interface Recommendation {
     missingNotes: string[];
     complexity: string;
     savings: number;
+  };
+  resultingScent?: {
+    name: string;
+    family: string;
+    longevity: number;
+    sillage: number;
+    occasion: string;
+    profile: Record<string, number>;
   };
 }
 
@@ -185,7 +199,7 @@ export class RecommendationEngine {
       .select(`
         id, name, image_url, rating, vibe_tags, price_tier, best_season,
         longevity_rating, sillage_rating, olfactory_family,
-        brand:brands(name),
+        brand:brands(name, tier),
         perfume_notes(type, note:notes(name, color_hex))
       `)
       .limit(limit);
@@ -195,6 +209,13 @@ export class RecommendationEngine {
     }
 
     return perfumes || [];
+  }
+
+  // Helper to convert price_tier string to numerical value
+  private static getPriceLevel(perfume: PerfumeWithBrandAndTier): number {
+    if (typeof perfume.price_tier === 'number') return perfume.price_tier;
+    if (typeof perfume.price_tier === 'string') return perfume.price_tier.length; // "$$$" -> 3
+    return 3; // Default
   }
 
   // Helper to create a "virtual" perfume representing the user's collection
@@ -317,230 +338,345 @@ export class RecommendationEngine {
     const mainProfile = this.analyzeScentProfile(mainPerfume);
     
     // Calculate maximum possible score for normalization
-    const maxNotesScore = mainProfile.notes.length * 15;
-    const maxVibesScore = mainProfile.vibes.length * 10;
-    const maxFamiliesScore = mainProfile.dominantFamilies.length * 25;
-    const maxBrandScore = 20; // Brand bonus
-    const maxSeasonsScore = mainPerfume.best_season?.length * 8 || 0;
+            const maxNotesScore = mainProfile.notes.length * 15;
+            const maxVibesScore = mainProfile.vibes.length * 10;
+            const maxFamiliesScore = mainProfile.dominantFamilies.length * 25;
+            const maxBrandScore = 20; // Brand bonus
+            const maxSeasonsScore = mainPerfume.best_season?.length * 8 || 0;
+            const maxPriceBonus = 30; // Max possible bonus for being significantly cheaper
+            const maxBrandTierBonus = 20; // Max possible bonus for a good tier match
     
-    const maxPossibleScore = maxNotesScore + maxVibesScore + maxFamiliesScore + maxBrandScore + maxSeasonsScore;
+            const maxPossibleScore = maxNotesScore + maxVibesScore + maxFamiliesScore + maxBrandScore + maxSeasonsScore + maxPriceBonus + maxBrandTierBonus;
     
-    return allPerfumes
-      .filter(p => p.id !== mainPerfume.id)
-      .filter(candidate => { // Relaxed filter: minimum 2 shared notes
-        const candidateProfile = RecommendationEngine.analyzeScentProfile(candidate);
-        const sharedNotes = mainProfile.notes.filter((note: string) => candidateProfile.notes.includes(note));
-        return sharedNotes.length >= 2;
-      })
-      .map(candidate => {
-        const candidateProfile = RecommendationEngine.analyzeScentProfile(candidate);
-        
-        // Calculate raw similarity score
-        let rawScore = 0;
-        const sharedNotes = mainProfile.notes.filter((note: string) => candidateProfile.notes.includes(note));
-        const sharedVibes = mainProfile.vibes.filter((vibe: string) => candidateProfile.vibes.includes(vibe));
-        const sharedFamilies = mainProfile.dominantFamilies.filter(family =>
-          candidateProfile.dominantFamilies.includes(family)
-        );
+            const sortedCandidates = allPerfumes
+                .filter(p => p.id !== mainPerfume.id)
+                .filter(candidate => { // Stricter filter: minimum 2 shared notes AND at least 1 shared dominant family
+                    const candidateProfile = RecommendationEngine.analyzeScentProfile(candidate);
+                    const sharedNotes = mainProfile.notes.filter((note: string) => candidateProfile.notes.includes(note));
+                    const sharedFamilies = mainProfile.dominantFamilies.filter(family =>
+                        candidateProfile.dominantFamilies.includes(family)
+                    );
+                    return sharedNotes.length >= 2 && sharedFamilies.length >= 1;
+                })
+                .map(candidate => {
+                    const candidateProfile = RecommendationEngine.analyzeScentProfile(candidate);
+    
+                    // Calculate raw similarity score
+                    let rawScore = 0;
+                    const sharedNotes = mainProfile.notes.filter((note: string) => candidateProfile.notes.includes(note));
+                    const sharedVibes = mainProfile.vibes.filter((vibe: string) => candidateProfile.vibes.includes(vibe));
+                    const sharedFamilies = mainProfile.dominantFamilies.filter(family =>
+                        candidateProfile.dominantFamilies.includes(family)
+                    );
+    
+    
+    
+                    rawScore += sharedNotes.length * 15;
+                    rawScore += sharedVibes.length * 10;
+                    rawScore += sharedFamilies.length * 25;
+    
+                    // Brand bonus (removed for now, as there's a dedicated 'same-brand' category)
+    
+                    // Season compatibility
+                    const sharedSeasons = mainPerfume.best_season?.filter((s: string) =>
+                        candidate.best_season?.includes(s)
+                    ) || [];
+                    rawScore += sharedSeasons.length * 8;
+    
+                    // --- NEW: Price and Brand Tier Scoring ---
+                    const mainPriceValue = RecommendationEngine.getPriceLevel(mainPerfume);
+                    const candidatePriceValue = RecommendationEngine.getPriceLevel(candidate);
+                    let priceScoreModifier = 0;
+    
+                    if (candidatePriceValue < mainPriceValue) {
+                        // Cheaper alternative: bonus
+                        priceScoreModifier += (mainPriceValue - candidatePriceValue) * 10; // 10 points per tier cheaper
+                    } else if (candidatePriceValue > mainPriceValue) {
+                        // More expensive alternative: penalty
+                        priceScoreModifier -= (candidatePriceValue - mainPriceValue) * 5; // 5 points per tier more expensive
+                    }
+    
+                    rawScore += priceScoreModifier;
+    
+                    let brandTierScoreModifier = 0;
+                    const mainBrandTier = mainPerfume.brand?.tier;
+                    const candidateBrandTier = candidate.brand?.tier;
+    
+                    if (mainBrandTier && candidateBrandTier) {
+                        if (mainBrandTier === candidateBrandTier) {
+                            brandTierScoreModifier += 5; // Small bonus for same tier
+                        } else if (mainBrandTier === 'Niche' && candidateBrandTier === 'Designer' && candidatePriceValue < mainPriceValue) {
+                            brandTierScoreModifier += 15; // Good value designer alternative for niche perfume
+                        } else if (mainBrandTier === 'Designer' && candidateBrandTier === 'Niche' && candidatePriceValue > mainPriceValue) {
+                            brandTierScoreModifier -= 10; // Penalize expensive niche if looking for designer
+                        } else if (candidateBrandTier === 'Celebrity') {
+                            brandTierScoreModifier -= 5; // Small penalty for celebrity brands, generally lower quality perception
+                        }
+                    }
+                    rawScore += brandTierScoreModifier;
+                    // --- END NEW ---
+    
+    
+                    // Add molecular similarity score if structures are available
+                    const molecularScore = 0;
+    
+                    // Composition similarity scoring
+                    const compositionScore = 0;
+    
+                    // Normalize score to 0-100 scale
+                    const normalizedScore = Math.min(100, Math.round(
+                        (rawScore / maxPossibleScore) * 60 + molecularScore + compositionScore * 0.4
+                    ));
+    
+                    return {
+                        perfume: candidate,
+                        type: 'similar' as const,
+                        score: Math.max(0, normalizedScore),
+                        reason: sharedFamilies.length > 0
+                            ? `Shares ${sharedFamilies.join(', ')} scent family`
+                            : sharedNotes.length > 0
+                                ? `Shares ${sharedNotes.slice(0, 3).join(', ')} notes`
+                                : 'Similar vibe profile',
+                        sharedNotes: sharedNotes.slice(0, 5),
+                        sharedVibes: sharedVibes.slice(0, 3)
+                    };
+                })
+                .sort((a, b) => b.score - a.score);
 
+            const finalRecommendations: Recommendation[] = [];
+            const mainPerfumeBrandName = mainPerfume.brand?.name;
+            let sameBrandCount = 0;
+            const sameBrandLimit = 2; // Allow up to 2 recommendations from the main perfume's brand
 
+            for (const rec of sortedCandidates) {
+                if (finalRecommendations.length >= count) {
+                    break;
+                }
 
-        rawScore += sharedNotes.length * 15;
-        rawScore += sharedVibes.length * 10;
-        rawScore += sharedFamilies.length * 25;
+                if (rec.perfume.brand?.name === mainPerfumeBrandName) {
+                    if (sameBrandCount < sameBrandLimit) {
+                        finalRecommendations.push(rec);
+                        sameBrandCount++;
+                    }
+                } else {
+                    finalRecommendations.push(rec);
+                }
+            }
 
-        // Brand bonus
-        if (mainPerfume.brand?.name === candidate.brand?.name) {
-          rawScore += 20;
+            return finalRecommendations.slice(0, count) as Recommendation[];
+
+            const sortedRecommendations = allPerfumes
+                .filter(p => p.id !== mainPerfume.id)
+                .filter(candidate => { // Stricter filter: minimum 2 shared notes AND at least 1 shared dominant family
+                    const candidateProfile = RecommendationEngine.analyzeScentProfile(candidate);
+                    const sharedNotes = mainProfile.notes.filter((note: string) => candidateProfile.notes.includes(note));
+                    const sharedFamilies = mainProfile.dominantFamilies.filter(family =>
+                        candidateProfile.dominantFamilies.includes(family)
+                    );
+                    return sharedNotes.length >= 2 && sharedFamilies.length >= 1;
+                })
+                .map(candidate => {
+                    const candidateProfile = RecommendationEngine.analyzeScentProfile(candidate);
+    
+                    // Calculate raw similarity score
+                    let rawScore = 0;
+                    const sharedNotes = mainProfile.notes.filter((note: string) => candidateProfile.notes.includes(note));
+                    const sharedVibes = mainProfile.vibes.filter((vibe: string) => candidateProfile.vibes.includes(vibe));
+                    const sharedFamilies = mainProfile.dominantFamilies.filter(family =>
+                        candidateProfile.dominantFamilies.includes(family)
+                    );
+    
+    
+    
+                    rawScore += sharedNotes.length * 15;
+                    rawScore += sharedVibes.length * 10;
+                    rawScore += sharedFamilies.length * 25;
+    
+                    // Season compatibility
+                    const sharedSeasons = mainPerfume.best_season?.filter((s: string) =>
+                        candidate.best_season?.includes(s)
+                    ) || [];
+                    rawScore += sharedSeasons.length * 8;
+    
+                    // --- NEW: Price and Brand Tier Scoring ---
+                    const mainPriceValue = RecommendationEngine.getPriceLevel(mainPerfume);
+                    const candidatePriceValue = RecommendationEngine.getPriceLevel(candidate);
+                    let priceScoreModifier = 0;
+    
+                    if (candidatePriceValue < mainPriceValue) {
+                        // Cheaper alternative: bonus
+                        priceScoreModifier += (mainPriceValue - candidatePriceValue) * 10; // 10 points per tier cheaper
+                    } else if (candidatePriceValue > mainPriceValue) {
+                        // More expensive alternative: penalty
+                        priceScoreModifier -= (candidatePriceValue - mainPriceValue) * 5; // 5 points per tier more expensive
+                    }
+    
+                    rawScore += priceScoreModifier;
+    
+                    let brandTierScoreModifier = 0;
+                    const mainBrandTier = mainPerfume.brand?.tier;
+                    const candidateBrandTier = candidate.brand?.tier;
+    
+                    if (mainBrandTier && candidateBrandTier) {
+                        if (mainBrandTier === candidateBrandTier) {
+                            brandTierScoreModifier += 5; // Small bonus for same tier
+                        } else if (mainBrandTier === 'Niche' && candidateBrandTier === 'Designer' && candidatePriceValue < mainPriceValue) {
+                            brandTierScoreModifier += 15; // Good value designer alternative for niche perfume
+                        } else if (mainBrandTier === 'Designer' && candidateBrandTier === 'Niche' && candidatePriceValue > mainPriceValue) {
+                            brandTierScoreModifier -= 10; // Penalize expensive niche if looking for designer
+                        } else if (candidateBrandTier === 'Celebrity') {
+                            brandTierScoreModifier -= 5; // Small penalty for celebrity brands, generally lower quality perception
+                        }
+                    }
+                    rawScore += brandTierScoreModifier;
+                    // --- END NEW ---
+    
+    
+                    // Add molecular similarity score if structures are available
+                    const molecularScore = 0;
+    
+                    // Composition similarity scoring
+                    const compositionScore = 0;
+    
+                    // Normalize score to 0-100 scale
+                    const normalizedScore = Math.min(100, Math.round(
+                        (rawScore / maxPossibleScore) * 60 + molecularScore + compositionScore * 0.4
+                    ));
+    
+                    return {
+                        perfume: candidate,
+                        type: 'similar' as const,
+                        score: Math.max(0, normalizedScore),
+                        reason: sharedFamilies.length > 0
+                            ? `Shares ${sharedFamilies.join(', ')} scent family`
+                            : sharedNotes.length > 0
+                                ? `Shares ${sharedNotes.slice(0, 3).join(', ')} notes`
+                                : 'Similar vibe profile',
+                        sharedNotes: sharedNotes.slice(0, 5),
+                        sharedVibes: sharedVibes.slice(0, 3)
+                    };
+                })
+                .sort((a, b) => b.score - a.score);
         }
+  private static getLayeringRecommendations(mainPerfume: any, allPerfumes: any[], count: number = 3): Recommendation[] {
+    const amplifyRecs = this.getAmplifyNoteRecommendations(mainPerfume, allPerfumes, 2);
+    const dimensionRecs = this.getAddDimensionRecommendations(mainPerfume, allPerfumes, 2);
 
-        // Season compatibility
-        const sharedSeasons = mainPerfume.best_season?.filter((s: string) =>
-          candidate.best_season?.includes(s)
-        ) || [];
-        rawScore += sharedSeasons.length * 8;
-
-        // Add molecular similarity score if structures are available
-        const molecularScore = 0;
-
-        // Composition similarity scoring
-        const compositionScore = 0;
-        
-        // Normalize score to 0-100 scale
-        const normalizedScore = Math.min(100, Math.round(
-          (rawScore / maxPossibleScore) * 60 + molecularScore + compositionScore * 0.4
-        ));
-
-        return {
-          perfume: candidate,
-          type: 'similar' as const,
-          score: Math.max(0, normalizedScore),
-          reason: sharedFamilies.length > 0
-            ? `Shares ${sharedFamilies.join(', ')} scent family`
-            : sharedNotes.length > 0
-              ? `Shares ${sharedNotes.slice(0, 3).join(', ')} notes`
-              : 'Similar vibe profile',
-          sharedNotes: sharedNotes.slice(0, 5),
-          sharedVibes: sharedVibes.slice(0, 3)
-        };
-      })
-      .sort((a, b) => b.score - a.score)
-      .slice(0, count) as Recommendation[];
+    // Combine and return a diverse set of recommendations
+    // Prioritize having at least one of each if possible
+    const finalRecs: Recommendation[] = [];
+    if (amplifyRecs.length > 0) finalRecs.push(amplifyRecs[0]);
+    if (dimensionRecs.length > 0) finalRecs.push(dimensionRecs[0]);
+    if (amplifyRecs.length > 1) finalRecs.push(amplifyRecs[1]);
+    
+    return finalRecs.slice(0, count);
   }
 
-  // Enhanced complementary recommendations with volatility-based pairing
-  private static getComplementaryRecommendations(mainPerfume: any, allPerfumes: any[], count: number = 4): Recommendation[] {
-    const mainProfile = this.analyzeScentProfile(mainPerfume);
-    
-    // Scent combination descriptions with volatility considerations
-    const combinationDescriptions: Record<string, string> = {
-      'Fresh+Oriental': 'creates a sparkling oriental with bright top notes',
-      'Citrus+Woody': 'balances zesty freshness with warm, earthy depth',
-      'Floral+Spicy': 'adds warmth and complexity to delicate florals',
-      'Gourmand+Fresh': 'counters sweetness with refreshing volatility',
-      'Woody+Citrus': 'grounds volatile citrus with woody stability',
-      'Oriental+Fresh': 'adds airy freshness to rich oriental bases',
-      'Floral+Woody': 'creates a sophisticated floral-woody harmony',
-      'Spicy+Sweet': 'tempers sweetness with spicy complexity',
-      'Aquatic+Amber': 'combines marine freshness with warm amber glow',
-      'Fruity+Woody': 'balances fruity volatility with woody depth',
-      'Green+Floral': 'creates a fresh, natural floral bouquet',
-      'Leather+Floral': 'adds intriguing contrast to delicate florals'
-    };
+  private static _createLayeringRecommendation(mainPerfume: any, candidate: any, goal: 'amplify' | 'dimension'): Recommendation {
+    const mix = mixPerfumes(mainPerfume, candidate);
 
-    // Volatility balance scoring
-    const getVolatilityBalance = (mainVol: number, candidateVol: number): number => {
-      const diff = Math.abs(mainVol - candidateVol);
-      if (diff < 0.5) return 50; // Neutral score for similar volatility
-      if (diff > 1.5) return 80; // High score for complementary volatility
-      return 65; // Moderate score for mild difference
+    // 1. Determine Resulting Family
+    const profileEntries = Object.entries(mix.newProfile);
+    const dominantTrait = profileEntries.sort((a, b) => (b[1] as number) - (a[1] as number))[0][0];
+    const resultingFamily = dominantTrait.charAt(0).toUpperCase() + dominantTrait.slice(1);
+
+    // 2. Estimate Performance
+    const avgLongevity = ((mainPerfume.longevity_rating || 5) + (candidate.longevity_rating || 5)) / 2;
+    const avgSillage = ((mainPerfume.sillage_rating || 5) + (candidate.sillage_rating || 5)) / 2;
+    // Layering often enhances performance slightly
+    const resultingLongevity = Math.min(10, avgLongevity + 1);
+    const resultingSillage = Math.min(10, avgSillage + 1);
+
+    // 3. Suggest Occasion
+    let occasion = 'Anytime, Anywhere';
+    if (mix.newProfile.spicy > 6 || mix.newProfile.depth > 6) {
+      occasion = 'Evening Wear';
+    } else if (mix.newProfile.fresh > 6 || mix.newProfile.floral > 6) {
+      occasion = 'Daytime Casual';
+    } else if (mix.newProfile.woody > 6) {
+      occasion = 'Office & Formal';
+    }
+
+    // 4. Create Name
+    const mainFamily = mainPerfume.olfactory_family?.[0] || 'Scent';
+    const candidateFamily = candidate.olfactory_family?.[0] || 'Aroma';
+    const creativeName = goal === 'amplify'
+      ? `${mainFamily} Intense`
+      : `${mainFamily} & ${candidateFamily}`;
+
+    return {
+      perfume: candidate,
+      type: goal === 'amplify' ? 'layer_amplify' : 'layer_add_dimension',
+      score: mix.safety,
+      reason: mix.description,
+      guidance: mix.mixingTips.join(' | '),
+      resultingScent: {
+        name: creativeName,
+        family: resultingFamily,
+        longevity: resultingLongevity,
+        sillage: resultingSillage,
+        occasion: occasion,
+        profile: mix.newProfile,
+      }
     };
-    
+  }
+
+  private static getAmplifyNoteRecommendations(mainPerfume: any, allPerfumes: any[], count: number = 2): Recommendation[] {
+    const mainProfile = this.analyzeScentProfile(mainPerfume);
+    const keyNotes = mainProfile.notes.slice(0, 5); // Focus on the top 5 most prominent notes
+
     return allPerfumes
       .filter(p => p.id !== mainPerfume.id)
       .map(candidate => {
         const candidateProfile = this.analyzeScentProfile(candidate);
-        const mixResult = mixPerfumes(mainPerfume, candidate, 0.5);
+        const sharedNotes = keyNotes.filter((note: string) => candidateProfile.notes.includes(note));
         
-        // Enhanced layering scoring with volatility balance
-        let layeringScore = 50; // Start with neutral base
-        
-        // 1. Volatility balance (weighted heavily)
-        const volatilityBalance = getVolatilityBalance(mainProfile.overallVolatility, candidateProfile.overallVolatility);
-        layeringScore += volatilityBalance - 50; // Adjust based on volatility balance
-        
-        // 2. Complementary scent families and composition
-        const complementaryFamilyPairs = [
-          ['Fresh', 'Oriental'], ['Citrus', 'Woody'], ['Floral', 'Spicy'],
-          ['Gourmand', 'Fresh'], ['Woody', 'Citrus'], ['Oriental', 'Fresh'],
-          ['Floral', 'Woody'], ['Spicy', 'Sweet'], ['Aquatic', 'Amber'],
-          ['Fruity', 'Woody'], ['Green', 'Floral'], ['Leather', 'Floral']
-        ];
-        
-        // Composition complementarity scoring
-        const compositionScore = 0;
-        
-        let familyScore = 0;
-        let combinationKey = '';
-        
-        mainProfile.dominantFamilies.forEach(mainFamily => {
-          candidateProfile.dominantFamilies.forEach(candidateFamily => {
-            const pairKey = `${mainFamily}+${candidateFamily}`;
-            const reverseKey = `${candidateFamily}+${mainFamily}`;
-            
-            if (complementaryFamilyPairs.some(pair =>
-              (pair[0] === mainFamily && pair[1] === candidateFamily) ||
-              (pair[1] === mainFamily && pair[0] === candidateFamily)
-            )) {
-              familyScore += 20;
-              combinationKey = combinationDescriptions[pairKey] || combinationDescriptions[reverseKey] || '';
-            } else if (mainFamily === candidateFamily) {
-              familyScore -= 10; // Penalty for same family
-            }
-          });
-        });
-        
-        // 3. Note diversity and volatility harmony
-        const uniqueNotes = new Set([...mainProfile.notes, ...candidateProfile.notes]);
-        const noteDiversityScore = Math.min(25, (uniqueNotes.size - Math.min(mainProfile.notes.length, candidateProfile.notes.length)) * 5);
-        
-        // 4. Volatility-based safety adjustment
-        const volatilityDiff = Math.abs(mainProfile.overallVolatility - candidateProfile.overallVolatility);
-        const safetyAdjustment = volatilityDiff > 1.5 ? 15 : volatilityDiff > 0.5 ? 5 : -5;
-        
-        // 5. Season compatibility with volatility considerations
-        const sharedSeasons = mainPerfume.best_season?.filter((s: string) =>
-          candidate.best_season?.includes(s)
-        ) || [];
-        const seasonScore = Math.min(10, sharedSeasons.length * 3);
-        
-        // 6. Volatility balance in common notes
-        const commonNotes = mainProfile.notes.filter((note: string) => candidateProfile.notes.includes(note));
-        const sharedVolatilityScore = commonNotes.length > 0 ?
-          Math.min(10, commonNotes.reduce((sum: number, note: string) => sum + (NOTE_VOLATILITY[note] || 1), 0) / commonNotes.length) :
-          0;
-        
-        // Calculate final layering score with volatility balance
-        const finalScore = Math.min(95, Math.max(40,
-          layeringScore + familyScore + noteDiversityScore + safetyAdjustment +
-          seasonScore + sharedVolatilityScore + compositionScore * 0.3
-        ));
-        
-        // Generate scent description with volatility insights
-        let scentDescription = '';
-        let layeringGuidance = '';
-        
-        if (finalScore >= 85) {
-          scentDescription = `Perfect pairing - ${combinationKey || 'exceptional harmony'}`;
-          if (volatilityDiff > 1.5) {
-            scentDescription += ' with complementary volatility';
-            layeringGuidance = 'Apply volatile scent first, then layer the more stable one';
-          } else {
-            layeringGuidance = 'Apply base first, wait 2 minutes, then layer complement';
-          }
-        } else if (finalScore >= 70) {
-          scentDescription = `Great combination - ${combinationKey || 'harmonious blend'}`;
-          if (volatilityDiff > 1.5) {
-            scentDescription += ' with balanced intensity';
-            layeringGuidance = 'Apply 50/50 ratio for balanced volatility';
-          } else {
-            layeringGuidance = '70% base + 30% complement creates balanced depth';
-          }
-        } else if (finalScore >= 55) {
-          scentDescription = `Interesting mix - ${combinationKey || 'intriguing contrast'}`;
-          if (volatilityDiff > 1.5) {
-            scentDescription += ' with contrasting volatility';
-            layeringGuidance = 'Test on skin first, start with small amounts';
-          } else {
-            layeringGuidance = 'Test on skin first, apply lightly to pulse points';
-          }
-        } else {
-          scentDescription = `Experimental pairing - ${combinationKey || 'bold combination'}`;
-          if (volatilityDiff > 1.5) {
-            scentDescription += ' with extreme volatility contrast';
-            layeringGuidance = 'Use sparingly, focus on single application points';
-          } else {
-            layeringGuidance = 'Use sparingly, focus on single application points';
-          }
-        }
-        
-        // Add specific note combinations if available
-        const sharedNotes = mainProfile.notes.filter((note: string) => candidateProfile.notes.includes(note));
+        // Score based on shared notes and overall similarity
+        let score = 0;
         if (sharedNotes.length > 0) {
-          scentDescription += ` with shared ${sharedNotes.slice(0, 2).join(', ')} notes`;
+          score = 60 + (sharedNotes.length * 20); // High base score for sharing a key note
+        } else {
+          return null; // Must share at least one key note
         }
         
-        return {
-          perfume: candidate,
-          type: 'complementary' as const,
-          score: Math.round(finalScore),
-          reason: scentDescription,
-          guidance: layeringGuidance,
-          sharedVibes: mixResult.combinedVibes.slice(0, 3)
-        };
+        const sharedVibes = mainProfile.vibes.filter((vibe: string) => candidateProfile.vibes.includes(vibe));
+        score += sharedVibes.length * 5;
+
+        return { perfume: candidate, score };
+      })
+      .filter(rec => rec !== null)
+      .sort((a, b) => b!.score - a!.score)
+      .slice(0, count)
+      .map(rec => this._createLayeringRecommendation(mainPerfume, rec!.perfume, 'amplify'));
+  }
+
+  private static getAddDimensionRecommendations(mainPerfume: any, allPerfumes: any[], count: number = 2): Recommendation[] {
+    const mainProfile = this.analyzeScentProfile(mainPerfume);
+    const mainFamilies = mainProfile.dominantFamilies;
+    
+    // Families known to add interesting dimensions
+    const dimensionFamilies = ['Smoky', 'Leather', 'Spicy', 'Aquatic', 'Green', 'Gourmand'];
+
+    return allPerfumes
+      .filter(p => {
+        if (p.id === mainPerfume.id) return false;
+        const candidateProfile = this.analyzeScentProfile(p);
+        const candidateFamilies = candidateProfile.dominantFamilies;
+        
+        // Must not share dominant families
+        if (mainFamilies.some(mf => candidateFamilies.includes(mf))) return false;
+        
+        // Must belong to one of the "dimension" families
+        return candidateFamilies.some(cf => dimensionFamilies.includes(cf));
+      })
+      .map(candidate => {
+         const mix = mixPerfumes(mainPerfume, candidate);
+         // Score is based on the harmony score from the mix
+         return { perfume: candidate, score: mix.safety };
       })
       .sort((a, b) => b.score - a.score)
-      .slice(0, count);
+      .slice(0, count)
+      .map(rec => this._createLayeringRecommendation(mainPerfume, rec.perfume, 'dimension'));
   }
 
   // Price tier alternatives with scent similarity matching
@@ -688,37 +824,99 @@ export class RecommendationEngine {
 
 
 
-  // Discovery recommendations (similar but different)
-  public static getDiscoveryRecommendations(mainPerfume: any, allPerfumes: any[], count: number = 4): Recommendation[] {
+  private static readonly SCENT_PATHWAYS: Record<string, string[]> = {
+    'Citrus': ['Woody', 'Aromatic', 'Fresh'],
+    'Floral': ['Spicy', 'Fruity', 'Oriental', 'Woody'],
+    'Woody': ['Leather', 'Oriental', 'Spicy', 'Aromatic'],
+    'Spicy': ['Oriental', 'Woody', 'Gourmand', 'Amber'],
+    'Gourmand': ['Oriental', 'Spicy', 'Fruity', 'Woody'],
+    'Fresh': ['Citrus', 'Aquatic', 'Green', 'Aromatic'],
+    'Oriental': ['Gourmand', 'Woody', 'Floral', 'Amber'],
+    'Fruity': ['Floral', 'Gourmand', 'Citrus'],
+    'Aromatic': ['Woody', 'Fresh', 'Citrus'],
+    'Leather': ['Woody', 'Smoky', 'Spicy'],
+    'Amber': ['Oriental', 'Spicy', 'Gourmand'],
+    'Aquatic': ['Fresh', 'Citrus', 'Green'],
+    'Green': ['Fresh', 'Woody', 'Aromatic'],
+  };
+
+  public static getDiscoveryRecommendations(mainPerfume: any, allPerfumes: any[], count: number = 1): Recommendation[] {
     const mainProfile = this.analyzeScentProfile(mainPerfume);
-    
-    return allPerfumes
-      .filter(p => p.id !== mainPerfume.id)
-      .map(candidate => {
-        const candidateProfile = this.analyzeScentProfile(candidate);
+    const mainFamily = mainProfile.dominantFamilies[0];
+
+    let discoveryRecs: Recommendation[] = [];
+
+    // --- Primary Logic: Scent Pathways ---
+    if (mainFamily && this.SCENT_PATHWAYS[mainFamily]) {
+      const pathwayFamilies = this.SCENT_PATHWAYS[mainFamily];
+      
+      const candidates = allPerfumes
+        .filter(p => {
+          if (p.id === mainPerfume.id) return false;
+          const candidateProfile = this.analyzeScentProfile(p);
+          const candidateFamily = candidateProfile.dominantFamilies[0];
+          
+          return pathwayFamilies.includes(candidateFamily) && candidateFamily !== mainFamily;
+        })
+        .map(candidate => {
+          const sharedVibes = mainProfile.vibes.filter((v: string) => candidate.vibe_tags?.includes(v));
+          const score = 40 + ((candidate.rating || 3.5) * 10) + (sharedVibes.length * 15);
+          return { perfume: candidate, score, sharedVibes };
+        })
+        .sort((a, b) => b.score - a.score);
+
+      if (candidates.length > 0) {
+        const bestCandidate = candidates[0];
+        const candidatePerfume = bestCandidate.perfume;
+        const candidateProfile = this.analyzeScentProfile(candidatePerfume);
+        const candidateFamily = candidateProfile.dominantFamilies[0] || 'new';
+        const bridge = bestCandidate.sharedVibes.length > 0 
+          ? `the '${bestCandidate.sharedVibes[0]}' character you enjoy` 
+          : `a similar sensibility`;
+
+        const reason = `Because you love the ${mainFamily.toLowerCase()} nature of ${mainPerfume.name}, you're perfectly positioned to explore its ${candidateFamily.toLowerCase()} counterpart. ${candidatePerfume.name} takes ${bridge} and introduces a fascinating new dimension.`;
         
-        // Look for perfumes that share some characteristics but introduce new elements
-        const sharedVibes = mainProfile.vibes.filter((vibe: string) => candidateProfile.vibes.includes(vibe));
-        const newFamilies = candidateProfile.dominantFamilies.filter(family => 
-          !mainProfile.dominantFamilies.includes(family)
-        );
+        discoveryRecs.push({
+            perfume: candidatePerfume,
+            type: 'discovery',
+            score: Math.min(99, Math.round(bestCandidate.score)),
+            reason: reason,
+            sharedVibes: bestCandidate.sharedVibes
+        });
+      }
+    }
 
-        const score = 50 + (sharedVibes.length * 5) + (newFamilies.length * 15);
+    // --- Fallback Logic ---
+    if (discoveryRecs.length === 0) {
+      const fallbackCandidates = allPerfumes
+        .filter(p => p.id !== mainPerfume.id)
+        .map(candidate => {
+          const candidateProfile = this.analyzeScentProfile(candidate);
+          const newFamilies = candidateProfile.dominantFamilies.filter(f => !mainProfile.dominantFamilies.includes(f));
+          if (newFamilies.length === 0) return null;
 
-        return {
-          perfume: candidate,
-          type: 'discovery' as const,
-          score,
-          reason: newFamilies.length > 0 
-            ? `Introduces ${newFamilies.join(', ')} notes to familiar vibe`
-            : sharedVibes.length > 0
-              ? 'Similar vibe with new character'
-              : 'Completely different exploration',
-          sharedVibes: sharedVibes.slice(0, 2)
-        };
-      })
-      .sort((a, b) => b.score - a.score)
-      .slice(0, count);
+          const sharedVibes = mainProfile.vibes.filter((v: string) => candidate.vibe_tags?.includes(v));
+          const score = 50 + (newFamilies.length * 10) + (sharedVibes.length * 5);
+          return { perfume: candidate, score, sharedVibes, newFamilies };
+        })
+        .filter(c => c !== null)
+        .sort((a, b) => b!.score - a!.score);
+
+      if (fallbackCandidates.length > 0) {
+        const bestFallback = fallbackCandidates[0]!;
+        const reason = `For a completely new experience, try exploring the world of ${bestFallback.newFamilies[0]} fragrances. It's a step in a new direction that might surprise you.`;
+        
+        discoveryRecs.push({
+            perfume: bestFallback.perfume,
+            type: 'discovery',
+            score: Math.min(99, Math.round(bestFallback.score)),
+            reason: reason,
+            sharedVibes: bestFallback.sharedVibes
+        });
+      }
+    }
+
+    return discoveryRecs.slice(0, count);
   }
 
 
@@ -835,18 +1033,17 @@ export class RecommendationEngine {
   public static async getEnhancedRecommendations(mainPerfume: any, preferences?: any): Promise<RecommendationCategory[]> {
     const allPerfumes = await this.getAllPerfumes();
     
+    const similarRecs = this.getSimilarRecommendations(mainPerfume, allPerfumes, 36);
+    
+    const priceCategories = this.getPriceTierCategories(mainPerfume, similarRecs);
+
     const categories: RecommendationCategory[] = [
+      ...priceCategories,
       {
-        type: 'similar',
-        title: 'The Direct Alternatives',
-        description: 'If you love the structure of this scent...', 
-        recommendations: this.getSimilarRecommendations(mainPerfume, allPerfumes, 18)
-      },
-      {
-        type: 'complementary',
+        type: 'layering',
         title: 'The Layering Experiment',
-        description: 'Make it Unique: Layering Combinations',
-        recommendations: this.getComplementaryRecommendations(mainPerfume, allPerfumes, 4)
+        description: 'Discover unique combinations by layering scents.',
+        recommendations: this.getLayeringRecommendations(mainPerfume, allPerfumes, 3)
       },
       {
         type: 'discovery',
@@ -864,5 +1061,118 @@ export class RecommendationEngine {
 
     // Filter out empty categories
     return categories.filter(category => category.recommendations.length > 0);
+  }
+
+  private static getPriceTierCategories(mainPerfume: any, recommendations: Recommendation[]): RecommendationCategory[] {
+    const mainPriceLevel = this.getPriceLevel(mainPerfume);
+    const priceCategories: RecommendationCategory[] = [];
+
+    // Filter recommendations into price levels
+    const recsByLevel: { [level: number]: Recommendation[] } = { 1: [], 2: [], 3: [], 4: [] };
+    for (const r of recommendations) {
+        const level = this.getPriceLevel(r.perfume);
+        if (level >= 1 && level <= 4) {
+            recsByLevel[level].push(r);
+        }
+    }
+
+    // 1. Same Price Category
+    if (recsByLevel[mainPriceLevel].length > 0) {
+        priceCategories.push({
+            type: 'price_same',
+            title: 'In The Same Price Range',
+            description: `Similar perfumes at around the same price point as ${mainPerfume.name}.`,
+            recommendations: recsByLevel[mainPriceLevel]
+        });
+    }
+
+    // 2. Cheaper Categories
+    if (mainPriceLevel === 4) { // For $$$$
+        if (recsByLevel[3].length > 0) {
+            priceCategories.push({
+                type: 'price_cheaper_3',
+                title: 'Premium Alternatives',
+                description: 'High-quality scents just a step down in price.',
+                recommendations: recsByLevel[3]
+            });
+        }
+        const budgetRecs = [...recsByLevel[2], ...recsByLevel[1]];
+        if (budgetRecs.length > 0) {
+            priceCategories.push({
+                type: 'price_cheaper_1_2',
+                title: 'Budget-Friendly Finds',
+                description: 'Excellent perfumes at a more accessible price point.',
+                recommendations: budgetRecs
+            });
+        }
+    } else if (mainPriceLevel === 3) { // For $$$
+        const budgetRecs = [...recsByLevel[2], ...recsByLevel[1]];
+        if (budgetRecs.length > 0) {
+            priceCategories.push({
+                type: 'price_cheaper_1_2',
+                title: 'More Affordable Options',
+                description: 'Great alternatives that are easier on the wallet.',
+                recommendations: budgetRecs
+            });
+        }
+    } else if (mainPriceLevel === 2) { // For $$
+        if (recsByLevel[1].length > 0) {
+            priceCategories.push({
+                type: 'price_cheaper_1',
+                title: 'Budget-Friendly Finds',
+                description: 'Quality scents at a great value.',
+                recommendations: recsByLevel[1]
+            });
+        }
+    }
+
+    // 3. Upgrade Categories
+    if (mainPriceLevel === 1) { // For $
+        if (recsByLevel[2].length > 0) {
+            priceCategories.push({
+                type: 'price_upgrade_2',
+                title: 'A Step Up',
+                description: 'Explore more complex scents with a modest price increase.',
+                recommendations: recsByLevel[2]
+            });
+        }
+        const luxuryRecs = [...recsByLevel[3], ...recsByLevel[4]];
+        if (luxuryRecs.length > 0) {
+            priceCategories.push({
+                type: 'price_upgrade_3_4',
+                title: 'Worthy Splurges',
+                description: 'Indulge in the world of premium and niche perfumery.',
+                recommendations: luxuryRecs
+            });
+        }
+    } else if (mainPriceLevel === 2) { // For $$
+        if (recsByLevel[3].length > 0) {
+            priceCategories.push({
+                type: 'price_upgrade_3',
+                title: 'Entry-Luxe Upgrades',
+                description: 'Discover perfumes with a more premium feel.',
+                recommendations: recsByLevel[3]
+            });
+        }
+        if (recsByLevel[4].length > 0) {
+            priceCategories.push({
+                type: 'price_upgrade_4',
+                title: 'Top-Tier Luxury',
+                description: 'The best of the best in terms of quality and artistry.',
+                recommendations: recsByLevel[4]
+            });
+        }
+    } else if (mainPriceLevel === 3) { // For $$$
+        if (recsByLevel[4].length > 0) {
+            priceCategories.push({
+                type: 'price_upgrade_4',
+                title: 'Top-Tier Luxury',
+                description: 'Experience the pinnacle of perfumery.',
+                recommendations: recsByLevel[4]
+            });
+        }
+    }
+
+    return priceCategories;
   }
 }

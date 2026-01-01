@@ -7,6 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import CommentsSection from '@/components/CommentsSection';
 import ScentRadar from '@/components/ScentRadar';
 import { Database } from '@/types/database';
+import { ratingToDescription } from '@/lib/longevity-utils';
 
 type Note = {
   name: string;
@@ -37,33 +38,34 @@ type Perfume = Database['public']['Tables']['perfumes']['Row'] & {
   release_year?: number | null;
 };
 
-type Dupe = {
-  dupe_id: string;
-  dupe_name: string;
-  dupe_image_url?: string;
-  brand_name?: string;
-  dupe_price_tier?: string;
-  match_type: string;
-  match_score: number;
-  shared_notes: string[];
-  match_percentage: string;
-};
 
 import { RecommendationCategory, Recommendation } from '@/lib/recommendation-engine';
 
 interface PerfumeClientViewProps {
   perfume: Perfume;
   recommendationCategories: RecommendationCategory[];
-  dupes: Dupe[];
 }
 
-export default function PerfumeClientView({ perfume, recommendationCategories, dupes }: PerfumeClientViewProps) {
+// Helper function for Sillage description
+const getSillageDescription = (rating: number | null | undefined): string => {
+  if (rating === null || rating === undefined) return 'Moderate';
+  if (rating >= 1 && rating <= 3) return 'Intimate';
+  if (rating >= 4 && rating <= 5) return 'Moderate';
+  if (rating >= 6 && rating <= 7) return 'Strong';
+  if (rating === 8) return 'Enormous';
+  if (rating === 9) return 'Beast Mode';
+  if (rating === 10) return 'Suffocating';
+  return 'Moderate'; // Default for out-of-range values
+};
+
+export default function PerfumeClientView({ perfume, recommendationCategories }: PerfumeClientViewProps) {
   const router = useRouter();
   const { user, supabase } = useAuth();
   const [inCollection, setInCollection] = useState(false);
+  const [listType, setListType] = useState<'owned' | 'wishlist' | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false); // New loading state for the button
-  
+    
   // Micro-Interaction States
   const heroRef = useRef<HTMLDivElement>(null);
   const [activeNote, setActiveNote] = useState<string | null>(null);
@@ -88,36 +90,53 @@ export default function PerfumeClientView({ perfume, recommendationCategories, d
       setError(null); // Clear previous errors on ID change
       if (!user || !perfume || !supabase) {
         setInCollection(false);
+        setListType(null);
         return;
       }
       
       const { data } = await supabase
         .from('user_collections')
-        .select('id')
+        .select('id, list_type')
         .eq('user_id', user.id)
         .eq('perfume_id', perfume.id)
         .maybeSingle();
       
       setInCollection(!!data);
+      setListType(data?.list_type as 'owned' | 'wishlist' || (data ? 'owned' : null));
     };
     checkCollection();
   }, [user, perfume, supabase]);
 
-  const toggleCollection = async () => {
+  const handleCollectionAction = async (targetType: 'owned' | 'wishlist') => {
     if (!user || !supabase) {
       router.push('/login');
       return;
     }
     if (!perfume) return;
+    if (isSubmitting) return;
 
-    const previousState = inCollection;
-    setInCollection(!previousState); // Optimistic update
+    // Determine Action: Add, Remove, or Move
+    // If clicking same type -> Remove
+    // If clicking different type -> Move (Update)
+    const action = (listType === targetType) ? 'remove' : (listType ? 'move' : 'add');
+
     setIsSubmitting(true);
     setError(null);
 
+    // Optimistic Update
+    const prevInCollection = inCollection;
+    const prevListType = listType;
+
+    if (action === 'remove') {
+        setInCollection(false);
+        setListType(null);
+    } else {
+        setInCollection(true);
+        setListType(targetType);
+    }
+
     try {
-      if (previousState) {
-        // Was in collection, so remove it
+      if (action === 'remove') {
         const { error: deleteError } = await supabase
           .from('user_collections')
           .delete()
@@ -125,30 +144,44 @@ export default function PerfumeClientView({ perfume, recommendationCategories, d
           .eq('perfume_id', perfume.id);
         
         if (deleteError) throw deleteError;
+      } else if (action === 'move') {
+         const { error: updateError } = await supabase
+          .from('user_collections')
+          .update({ list_type: targetType })
+          .eq('user_id', user.id)
+          .eq('perfume_id', perfume.id);
+         
+         if (updateError) throw updateError;
       } else {
-        // Was not in collection, so add it
+        // Add
         const { error: insertError } = await supabase
           .from('user_collections')
           .insert({
             user_id: user.id,
             perfume_id: perfume.id,
+            list_type: targetType,
             created_at: new Date().toISOString()
           });
         
-        // Handle "Unique violation" (code 23505) gracefully
-        // If it's already there, we treat it as success and keep the UI as "In Collection"
         if (insertError) {
              if (insertError.code === '23505') {
-                 console.warn("Item already in collection (race condition handled).");
-                 // Do NOT revert state, keep it as true
-                 return;
+                 // Race condition: already exists, try update instead
+                 const { error: retryError } = await supabase
+                    .from('user_collections')
+                    .update({ list_type: targetType })
+                    .eq('user_id', user.id)
+                    .eq('perfume_id', perfume.id);
+                 if (retryError) throw retryError;
+             } else {
+                 throw insertError;
              }
-             throw insertError;
         }
       }
     } catch (err: any) {
       console.error("Collection update error:", err);
-      setInCollection(previousState); // Revert on actual error
+      // Revert
+      setInCollection(prevInCollection);
+      setListType(prevListType);
       setError(err.message || 'Failed to update collection. Please try again.');
     } finally {
       setIsSubmitting(false);
@@ -188,17 +221,33 @@ export default function PerfumeClientView({ perfume, recommendationCategories, d
               </Link>
               
               <div className="flex gap-2 flex-wrap"> 
+                {/* Wardrobe Button */}
                 <button
-                  onClick={toggleCollection}
+                  onClick={() => handleCollectionAction('owned')}
                   disabled={isSubmitting} 
-                  className={`text-[10px] font-bold uppercase tracking-widest px-5 py-2.5 rounded-full transition-all border ${
-                    inCollection 
+                  className={`text-[10px] font-bold uppercase tracking-widest px-5 py-2.5 rounded-full transition-all border flex items-center gap-2 ${
+                    listType === 'owned'
                       ? 'bg-transparent border-[#1C1917] text-[#1C1917]' 
                       : 'bg-[#1C1917] border-[#1C1917] text-[#FAFAF9] hover:bg-[#292524]'
                   } ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
-                  {isSubmitting ? (inCollection ? 'Adding...' : 'Removing...') : (inCollection ? 'In Wardrobe' : 'Add to Shelf')}
+                  {isSubmitting && listType === 'owned' ? 'Updating...' : (listType === 'owned' ? 'In Wardrobe' : (listType === 'wishlist' ? 'Move to Wardrobe' : 'Add to Shelf'))}
                 </button>
+
+                {/* Wishlist Button */}
+                <button
+                  onClick={() => handleCollectionAction('wishlist')}
+                  disabled={isSubmitting}
+                  className={`w-10 h-10 flex items-center justify-center rounded-full border transition-colors ${
+                      listType === 'wishlist'
+                      ? 'bg-red-50 border-red-200 text-red-500'
+                      : 'bg-transparent border-[#A8A29E] text-[#A8A29E] hover:border-[#1C1917] hover:text-[#1C1917]'
+                  }`}
+                  title={listType === 'wishlist' ? "Remove from Wishlist" : "Add to Wishlist"}
+                >
+                    {listType === 'wishlist' ? '♥' : '♡'}
+                </button>
+
                 <button onClick={() => router.push(`/compare?a=${perfume.id}`)} className="bg-transparent border border-[#A8A29E] text-[#57534E] text-[10px] font-bold uppercase tracking-widest px-5 py-2.5 rounded-full hover:border-[#1C1917] hover:text-[#1C1917] transition-all">Compare</button>
               </div>
             </div>
@@ -348,13 +397,11 @@ export default function PerfumeClientView({ perfume, recommendationCategories, d
                   <div className="flex justify-between items-end mb-2">
                     <span className="text-[10px] font-bold uppercase tracking-widest text-stone-500">Longevity</span>
                     <span className="text-xs font-serif italic text-stone-900">
-                      {perfume.longevity_rating ? 
-                        ['Intimate', 'Weak', 'Moderate', 'Long Lasting', 'Eternal'][Math.min(4, Math.max(0, Math.round(perfume.longevity_rating) - 1))] 
-                        : 'Moderate'}
+                      {ratingToDescription(perfume.longevity_rating || 0)}
                     </span>
                   </div>
                   <div className="flex gap-1 h-2">
-                    {[1, 2, 3, 4, 5].map(step => (
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(step => (
                       <div 
                         key={step} 
                         className={`flex-1 rounded-full transition-all duration-1000 ${
@@ -367,30 +414,27 @@ export default function PerfumeClientView({ perfume, recommendationCategories, d
                   </div>
                 </div>
 
-                {/* Sillage */}
-                <div>
-                  <div className="flex justify-between items-end mb-2">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-stone-500">Sillage</span>
-                    <span className="text-xs font-serif italic text-stone-900">
-                      {perfume.sillage_rating ? 
-                        ['Skin Scent', 'Intimate', 'Moderate', 'Strong', 'Enormous'][Math.min(4, Math.max(0, Math.round(perfume.sillage_rating) - 1))] 
-                        : 'Moderate'}
-                    </span>
-                  </div>
-                  <div className="flex gap-1 h-2">
-                    {[1, 2, 3, 4, 5].map(step => (
-                      <div 
-                        key={step} 
-                        className={`flex-1 rounded-full transition-all duration-1000 ${
-                          (perfume.sillage_rating || 0) >= step 
-                            ? 'bg-stone-800' 
-                            : 'bg-stone-100'
-                        }`} 
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
+                                {/* Sillage */}
+                                <div>
+                                  <div className="flex justify-between items-end mb-2">
+                                    <span className="text-[10px] font-bold uppercase tracking-widest text-stone-500">Sillage</span>
+                                    <span className="text-xs font-serif italic text-stone-900">
+                                      {getSillageDescription(perfume.sillage_rating)}
+                                    </span>
+                                  </div>
+                                  <div className="flex gap-1 h-2">
+                                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(step => (
+                                      <div 
+                                        key={step} 
+                                        className={`flex-1 rounded-full transition-all duration-1000 ${
+                                          (perfume.sillage_rating || 0) >= step 
+                                            ? 'bg-stone-800' 
+                                            : 'bg-stone-100'
+                                        }`} 
+                                      />
+                                    ))}
+                                  </div>
+                                </div>              </div>
             </div>
 
             {/* Radar Chart */}
@@ -520,316 +564,40 @@ export default function PerfumeClientView({ perfume, recommendationCategories, d
         </div>
       </div>
 
-      {dupes.length > 0 && (
-        <div className="max-w-6xl mx-auto px-6 mt-20 mb-20">
-          <div className="flex items-baseline justify-between mb-8 border-b border-stone-200 pb-4">
-            <h3 className="font-serif text-2xl text-stone-900">Alternative Options</h3>
-            <span className="text-xs font-bold tracking-widest text-stone-400 uppercase">Based on Scent DNA (3+ Matches)</span>
-          </div>
-          <div className="grid md:grid-cols-3 gap-6">
-            {dupes.map((d: any) => {
-              const isCheaper = d.match_type === 'Smart Buy';
-              const badgeClass = isCheaper ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : 'bg-stone-100 text-stone-600 border-stone-200';
-              return (
-                <div key={d.dupe_id} className="group bg-white rounded-2xl p-5 border border-stone-200 hover:border-stone-400 hover:shadow-lg transition-all duration-500 flex flex-col relative">
-                   <div className="flex justify-between items-start mb-4">
-                     <span className="text-[10px] font-bold tracking-widest text-stone-400 uppercase truncate pr-2">{d.brand_name}</span>
-                     <span className={`text-[9px] font-bold px-2 py-1 rounded-full uppercase tracking-wide border ${badgeClass}`}>{d.match_type}</span>
-                   </div>
-                   <div className="h-48 mb-6 flex items-center justify-center p-4 bg-stone-50/50 rounded-xl group-hover:bg-stone-50 transition-colors">
-                      {d.dupe_image_url ? <img src={d.dupe_image_url} className="h-full w-full object-contain mix-blend-multiply group-hover:scale-110 transition duration-700" alt={d.dupe_name} /> : <span className="text-xs text-stone-300">No Image</span>}
-                   </div>
-                   <div className="mb-6 flex-grow">
-                     <h4 className="font-serif text-xl text-stone-900 leading-tight mb-2">{d.dupe_name}</h4>
-                     {isCheaper && perfume.price_tier && (
-                       <div className="flex items-center gap-2 text-xs mb-3">
-                          <span className="text-stone-300 line-through decoration-stone-300">{perfume.price_tier}</span>
-                          <span className="text-stone-400">→</span>
-                          <span className="font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">{d.dupe_price_tier}</span>
-                       </div>
-                     )}
-                     <div className="flex flex-wrap gap-1.5">
-                       {d.shared_notes?.map((note: string) => <span key={note} className="text-[9px] px-2 py-1 bg-stone-100 text-stone-600 rounded-md border border-stone-200 uppercase tracking-wide">{note}</span>)}
-                     </div>
-                   </div>
-                   <button onClick={() => router.push(`/compare?a=${perfume.id}&b=${d.dupe_id}`)} className="w-full py-3 rounded-xl border border-stone-200 text-xs font-bold uppercase tracking-widest text-stone-500 hover:bg-stone-900 hover:text-white hover:border-stone-900 transition-all flex items-center justify-center gap-2"><span>Compare Specs</span><span className="text-lg leading-none">→</span></button>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
 
-      {/* 3 EDUCATIONAL MODULES */}
+
+      {/* Recommendation Modules */}
       <div className="max-w-6xl mx-auto px-6 mt-24 mb-20 space-y-24">
-        
-        {/* MODULE A: The Direct Alternatives */}
-        {(() => {
-          const similarRecommendations = recommendationCategories.find(c => c.type === 'similar')?.recommendations || [];
-          if (similarRecommendations.length === 0) return null;
-
-          return (
-            <section>
-              <div className="mb-8 border-b border-stone-100 pb-4">
-                <h3 className="font-serif text-2xl text-stone-900 mb-2">The Direct Alternatives</h3>
-                <p className="text-stone-500 text-sm">If you love the {perfume.olfactory_family?.[0] || 'scent'} structure...</p>
-              </div>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                {similarRecommendations.slice(0, visibleSimilarCount).map((rec) => (
-                  <div key={rec.perfume.id} className="group cursor-pointer" onClick={() => router.push(`/perfume/${rec.perfume.id}`)}>
-                    <div className="relative h-[320px] bg-stone-50 rounded-2xl mb-4 flex items-center justify-center p-6 transition-colors group-hover:bg-[#F0F0F0]">
-                      <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-2 py-1 rounded-full border border-stone-100 shadow-sm z-10">
-                        <span className="text-[10px] font-bold text-stone-900 tabular-nums">{rec.score}% Match</span>
-                      </div>
-                      {rec.perfume.image_url ? (
-                        <img src={rec.perfume.image_url} className="h-full w-full object-contain mix-blend-multiply group-hover:scale-105 transition duration-700" alt={rec.perfume.name} />
-                      ) : (
-                        <span className="text-stone-300 text-xs">No Image</span>
-                      )}
-                    </div>
-                    <div className="text-center">
-                      <div className="text-[10px] font-bold tracking-widest text-stone-400 uppercase mb-1">{rec.perfume.brand?.name}</div>
-                      <h4 className="font-serif text-lg text-stone-900 group-hover:text-stone-600 transition">{rec.perfume.name}</h4>
-                      <p className="text-xs text-stone-500 mt-1">{rec.reason}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {visibleSimilarCount < similarRecommendations.length && (
-                <div className="flex justify-center mt-12">
-                  <button
-                    onClick={() => setVisibleSimilarCount(prev => prev + 6)}
-                    className="group flex items-center gap-2 px-8 py-3 bg-white border border-stone-200 text-stone-500 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-stone-900 hover:text-white hover:border-stone-900 transition-all"
-                  >
-                    Show More Alternatives
-                    <svg className="w-3 h-3 group-hover:translate-y-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                  </button>
-                </div>
-              )}
-            </section>
-          );
-        })()}
-
-        {/* MODULE B: The Layering Experiment */}
-        {recommendationCategories.find(c => c.type === 'complementary') && (
-          <section className="max-w-4xl mx-auto">
-            <div className="text-center mb-12">
-              <h3 className="font-serif text-3xl md:text-4xl text-stone-900">The Layering Experiment</h3>
-              <p className="text-stone-500 mt-2">Unlock new olfactory dimensions</p>
+        {recommendationCategories.map(category => (
+          <section key={category.type}>
+            <div className="mb-8 border-b border-stone-100 pb-4">
+              <h3 className="font-serif text-2xl text-stone-900 mb-2">{category.title}</h3>
+              <p className="text-stone-500 text-sm">{category.description}</p>
             </div>
-
-            <div className="space-y-8">
-              {recommendationCategories.find(c => c.type === 'complementary')?.recommendations.slice(0, 2).map((rec, i) => (
-                <div key={rec.perfume.id} className="w-full bg-white border border-stone-100 rounded-2xl overflow-hidden shadow-xl text-stone-800">
-                  {/* Header */}
-                  <div className="bg-stone-50 px-6 py-4 border-b border-stone-100 flex justify-between items-center">
-                    <h3 className="text-stone-400 text-sm font-mono tracking-widest uppercase">The Alchemy Lab</h3>
-                    <span className="text-emerald-600 text-xs font-bold px-3 py-1 bg-emerald-50 rounded-full border border-emerald-100">{rec.score}% Harmony Score</span>
-                  </div>
-
-                  <div className="flex flex-col md:flex-row">
-                    
-                    {/* Left: The Visual Equation (35% Width) */}
-                    <div className="w-full md:w-[35%] bg-gradient-to-br from-stone-50 to-stone-100 p-8 flex flex-col justify-center items-center border-r border-stone-100 relative">
-                      <div className="flex items-center gap-4">
-                        {/* Base Perfume */}
-                        <div className="flex flex-col items-center">
-                          <div className="h-24 w-16 relative flex items-center justify-center bg-white rounded-xl shadow-sm p-2">
-                             {perfume.image_url ? (
-                               <img src={perfume.image_url} className="h-full w-full object-contain mix-blend-multiply opacity-90" alt="Base" />
-                             ) : <div className="w-10 h-16 bg-stone-200 rounded" />}
-                          </div>
-                          <span className="mt-3 text-[9px] font-bold tracking-wider text-stone-400 uppercase">Base</span>
-                        </div>
-                        
-                        <span className="text-stone-300 text-2xl font-light">+</span>
-                        
-                        {/* Top Perfume */}
-                        <div className="flex flex-col items-center cursor-pointer group/bottle" onClick={() => router.push(`/perfume/${rec.perfume.id}`)}>
-                          <div className="h-24 w-16 relative flex items-center justify-center bg-white rounded-xl shadow-sm p-2 transition-transform group-hover/bottle:-translate-y-1">
-                             {rec.perfume.image_url ? (
-                               <img src={rec.perfume.image_url} className="h-full w-full object-contain mix-blend-multiply group-hover/bottle:scale-110 transition duration-500" alt="Top" />
-                             ) : <div className="w-10 h-16 bg-stone-200 rounded" />}
-                          </div>
-                          <span className="mt-3 text-[9px] font-bold tracking-wider text-[#C5A028] uppercase">Layer</span>
-                        </div>
-                      </div>
-                      
-                      {/* Resulting Vibes */}
-                      {rec.sharedVibes && rec.sharedVibes.length > 0 && (
-                        <div className="mt-6 flex flex-wrap justify-center gap-1.5">
-                           {rec.sharedVibes.map(vibe => (
-                             <span key={vibe} className="px-2 py-1 bg-white/80 border border-stone-200 rounded-md text-[9px] uppercase tracking-wide font-bold text-stone-600 shadow-sm">
-                               {vibe}
-                             </span>
-                           ))}
-                        </div>
-                      )}
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              {category.recommendations.map((rec) => (
+                <div key={rec.perfume.id} className="group cursor-pointer" onClick={() => router.push(`/perfume/${rec.perfume.id}`)}>
+                  <div className="relative h-[320px] bg-stone-50 rounded-2xl mb-4 flex items-center justify-center p-6 transition-colors group-hover:bg-[#F0F0F0]">
+                    <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-2 py-1 rounded-full border border-stone-100 shadow-sm z-10">
+                      <span className="text-[10px] font-bold text-stone-900 tabular-nums">{rec.score}% Match</span>
                     </div>
-
-                    {/* Right: The Education (65% Width) */}
-                    <div className="w-full md:w-[65%] p-8 flex flex-col justify-center text-left">
-                      
-                      {/* 1. The Title */}
-                      <h2 className="text-2xl font-serif text-stone-900 mb-2">
-                        The {perfume.olfactory_family?.[0] || 'Base'}-{rec.perfume.olfactory_family?.[0] || 'Top'} Union
-                      </h2>
-                      
-                      {/* 2. The Explanation */}
-                      <p className="text-stone-600 text-sm leading-relaxed mb-6 italic">
-                        "{rec.reason}"
-                      </p>
-
-                      {/* 3. The Actionable Guidance (The "Lab Tip") */}
-                      <div className="flex items-start bg-stone-50 border border-stone-100 rounded-xl p-5">
-                        <div className="text-[#C5A028] mr-4 mt-0.5">
-                          {/* Beaker Icon */}
-                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
-                        </div>
-                        <div>
-                          <span className="block text-[10px] font-bold text-stone-900 uppercase tracking-[0.1em] mb-1">Recipe</span>
-                          <p className="text-xs text-stone-600 leading-normal">
-                            {rec.guidance || 'Apply the Base first (low volatility). Wait 2 minutes. Mist the Top layer.'}
-                          </p>
-                        </div>
-                      </div>
-
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* MODULE C: The Curator's Pivot */}
-        {recommendationCategories.find(c => c.type === 'discovery') && (
-          <section>
-             {recommendationCategories.find(c => c.type === 'discovery')?.recommendations.slice(0, 1).map(rec => (
-               <div key={rec.perfume.id} className="relative rounded-[32px] overflow-hidden bg-[#F5F5F0] min-h-[500px] flex flex-col md:flex-row">
-                 
-                 {/* Content Side */}
-                 <div className="flex-1 p-10 md:p-20 flex flex-col justify-center items-start z-10">
-                   <span className="px-3 py-1 border border-stone-300 rounded-full text-[10px] font-bold uppercase tracking-widest mb-6">The Curator's Pivot</span>
-                   <h3 className="font-serif text-4xl md:text-5xl text-stone-900 mb-6 leading-tight">
-                     Step out of your comfort zone.
-                   </h3>
-                   <p className="text-lg text-stone-600 mb-8 max-w-md leading-relaxed">
-                     You seem to like <span className="font-semibold text-stone-900">{perfume.vibe_tags?.[0] || 'Bold'}</span> scents. 
-                     Have you tried <span className="font-semibold text-stone-900">{rec.perfume.olfactory_family?.[0] || 'Leather'}</span>? 
-                     {rec.reason}
-                   </p>
-                   <button 
-                     onClick={() => router.push(`/perfume/${rec.perfume.id}`)}
-                     className="px-8 py-4 bg-stone-900 text-white rounded-full text-xs font-bold uppercase tracking-widest hover:bg-stone-800 transition shadow-lg hover:shadow-xl hover:-translate-y-1"
-                   >
-                     Discover {rec.perfume.name}
-                   </button>
-                 </div>
-
-                 {/* Visual Side */}
-                 <div className="flex-1 relative min-h-[300px] md:min-h-auto bg-[#EAEae5] flex items-center justify-center">
-                    {/* Abstract Shapes */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] border border-stone-300 rounded-full opacity-50"></div>
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[60%] border border-stone-300 rounded-full opacity-50"></div>
-                    
                     {rec.perfume.image_url ? (
-                      <img 
-                        src={rec.perfume.image_url} 
-                        className="relative z-10 w-[60%] h-[60%] object-contain mix-blend-multiply drop-shadow-2xl hover:scale-110 transition duration-1000 ease-in-out" 
-                        alt={rec.perfume.name} 
-                      />
+                      <img src={rec.perfume.image_url} className="h-full w-full object-contain mix-blend-multiply" alt={rec.perfume.name} />
                     ) : (
-                      <div className="text-stone-300 font-serif italic">No Image</div>
+                      <span className="text-stone-300 text-xs">No Image</span>
                     )}
-                 </div>
-
-               </div>
-             ))}
-          </section>
-        )}
-
-        {/* MODULE D: The Smart Buy (Dupe Hunter) */}
-        {recommendationCategories.find(c => c.type === 'dupe') && (
-          <section>
-            <div className="flex flex-col md:flex-row items-baseline gap-4 mb-8 border-b border-stone-100 pb-4">
-              <h3 className="font-serif text-2xl text-stone-900">The Smart Buy</h3>
-              <p className="text-stone-500 text-sm italic">High-similarity alternatives with calculated trade-offs</p>
-            </div>
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {recommendationCategories.find(c => c.type === 'dupe')?.recommendations.map((rec) => (
-                <div key={rec.perfume.id} className="bg-white rounded-3xl border border-stone-100 shadow-sm overflow-hidden hover:shadow-lg transition-all duration-500 group">
-                  {/* Header: The Match % */}
-                  <div className="bg-stone-50 px-6 py-4 flex justify-between items-center border-b border-stone-100">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-stone-400">Analysis</span>
-                    <span className="text-xs font-bold text-stone-900 bg-white px-3 py-1 rounded-full shadow-sm">
-                      The {rec.score}% Match
-                    </span>
                   </div>
-
-                  {/* The Equation: Current vs Dupe */}
-                  <div className="p-6">
-                    <div className="flex items-center justify-around mb-8 relative">
-                      {/* Current Perfume */}
-                      <div className="w-20 h-20 relative opacity-40 grayscale group-hover:opacity-60 transition duration-500">
-                        {perfume.image_url ? (
-                          <img src={perfume.image_url} className="w-full h-full object-contain" alt="Original" />
-                        ) : (
-                          <div className="w-full h-full bg-stone-200 rounded-lg" />
-                        )}
-                      </div>
-
-                      {/* VS / Match icon */}
-                      <div className="text-stone-300 font-light text-2xl">≈</div>
-
-                      {/* Dupe Perfume */}
-                      <div className="w-32 h-32 relative">
-                        {rec.perfume.image_url ? (
-                          <img src={rec.perfume.image_url} className="w-full h-full object-contain mix-blend-multiply drop-shadow-md group-hover:scale-110 transition duration-700" alt={rec.perfume.name} />
-                        ) : (
-                          <div className="w-full h-full bg-stone-100 rounded-xl" />
-                        )}
-                        <div className="absolute -bottom-2 -right-2 bg-emerald-500 text-white text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded-md shadow-lg">
-                          Budget Friendly
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Content */}
-                    <div className="text-center mb-6">
-                      <div className="text-[10px] font-bold tracking-[0.2em] text-stone-400 uppercase mb-1">{rec.perfume.brand?.name}</div>
-                      <h4 className="font-serif text-xl text-stone-900 mb-4">{rec.perfume.name}</h4>
-                      
-                      {/* The Reality Check (Educational Text) */}
-                      <div className="bg-stone-50 rounded-2xl p-4 text-left border border-stone-100">
-                        <div className="text-[9px] font-bold uppercase tracking-widest text-emerald-600 mb-2 flex items-center gap-1">
-                          <span className="text-xs">ⓘ</span> Reality Check
-                        </div>
-                        <p className="text-xs text-stone-600 leading-relaxed">
-                          "Captures the opening notes perfectly, but <span className="font-medium text-stone-900">{(rec.tradeOffs?.longevityDiff || 'has moderate longevity').toLowerCase()}</span>. 
-                          {rec.tradeOffs?.missingNotes && rec.tradeOffs.missingNotes.length > 0 && (
-                            <> Note that it lacks the <span className="font-medium text-stone-900">{rec.tradeOffs.missingNotes.join(', ')}</span> found in the original.</>
-                          )}"
-                        </p>
-                      </div>
-                    </div>
-
-                    <button 
-                      onClick={() => router.push(`/perfume/${rec.perfume.id}`)}
-                      className="w-full py-3 bg-white border border-stone-200 text-stone-900 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-stone-900 hover:text-white transition-colors flex items-center justify-center gap-2"
-                    >
-                      View Specs <span>→</span>
-                    </button>
+                  <div className="text-center">
+                    <div className="text-[10px] font-bold tracking-widest text-stone-400 uppercase mb-1">{rec.perfume.brand?.name}</div>
+                    <h4 className="font-serif text-lg text-stone-900 group-hover:text-stone-600 transition">{rec.perfume.name}</h4>
+                    <p className="text-xs text-stone-500 mt-1">{rec.reason}</p>
                   </div>
                 </div>
               ))}
             </div>
           </section>
-        )}
-
+        ))}
       </div>
 
       <CommentsSection perfumeId={perfume.id} />

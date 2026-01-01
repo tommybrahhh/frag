@@ -22,14 +22,53 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
 
 
   // Load Comments
-  const fetchComments = async () => { // Extracted fetchComments to be callable
+  const fetchComments = async () => {
     setPostError(null); // Clear errors when refetching comments
-    const { data } = await supabase
+
+    // Step 1: Fetch comments
+    const { data: commentsData, error: commentsError } = await supabase
       .from('comments')
-      .select('*')
+      .select('*') // Fetch all columns from comments
       .eq('perfume_id', perfumeId)
-      .order('created_at', { ascending: false });
-    setComments(data || []);
+      .order('created_at', { ascending: false }) as { data: Database['public']['Tables']['comments']['Row'][] | null, error: any };
+
+    if (commentsError) {
+      console.error('Error fetching comments:', commentsError);
+      setComments([]);
+      return;
+    }
+
+    if (!commentsData || commentsData.length === 0) {
+      setComments([]);
+      return;
+    }
+
+    // Step 2: Extract unique user_ids from commentsData
+    const userIds = [...new Set(commentsData.map(comment => comment.user_id))];
+
+    // Step 3: Fetch profile data for these users
+    const { data: profilesData, error: profilesError } = await supabase
+      .from('profiles')
+      .select('id, avatar_url, is_verified') // Fetch only necessary profile fields
+      .in('id', userIds) as { data: Pick<Database['public']['Tables']['profiles']['Row'], 'id' | 'avatar_url' | 'is_verified'>[] | null, error: any };
+
+    if (profilesError) {
+      console.error('Error fetching profiles for comments:', profilesError);
+      // Proceed with comments but without profile data if this fails
+      setComments(commentsData.map(comment => ({ ...comment, profile: null })));
+      return;
+    }
+
+    // Step 4: Create a map of profiles for easy lookup
+    const profilesMap = new Map(profilesData?.map(profile => [profile.id, profile]));
+
+    // Step 5: Augment comments with profile data
+    const augmentedComments = commentsData.map(comment => ({
+      ...comment,
+      profile: profilesMap.get(comment.user_id) || null, // Attach profile or null if not found
+    }));
+
+    setComments(augmentedComments);
   };
 
   useEffect(() => {
@@ -232,11 +271,27 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
 
                     {/* Header */}
                     <div className="flex items-center gap-3 mb-3">
-                      <div className="w-8 h-8 rounded-full bg-stone-200 flex items-center justify-center text-xs font-bold text-stone-500 uppercase">
-                        {c.user_name[0]}
+                      <div className="w-8 h-8 rounded-full bg-stone-200 flex items-center justify-center overflow-hidden">
+                        {c.profile?.avatar_url ? (
+                          <img src={c.profile.avatar_url} alt={c.user_name} className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="text-xs font-bold text-stone-500 uppercase">{c.user_name[0]}</span>
+                        )}
                       </div>
                       <div>
-                        <div className="text-xs font-bold text-stone-900">{c.user_name}</div>
+                        <div className="text-xs font-bold text-stone-900 flex items-center gap-1.5">
+                          {c.user_name}
+                          {c.profile?.is_verified && (
+                                                          <svg 
+                                                            xmlns="http://www.w3.org/2000/svg" 
+                                                            viewBox="0 0 20 20" 
+                                                            fill="currentColor" 
+                                                            className="w-4 h-4 text-sky-500"
+                                                          >
+                                                            <title>Verified Reviewer</title>
+                                                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" />
+                                                          </svg>                          )}
+                        </div>
                         <div className="text-[10px] text-stone-400 uppercase tracking-wide">
                           {new Date(c.created_at).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
                         </div>

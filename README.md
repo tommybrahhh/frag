@@ -63,6 +63,23 @@ Error handling improvements include:
 - [`bulk_fragrantica_search.py`](bulk_fragrantica_search.py) - Main bulk processing script
 - [`selenium_fragrantica_search.py`](selenium_fragrantica_search.py) - Individual search script
 - [`google_fragrantica_search.py`](google_fragrantica_search.py) - Alternative method (may be blocked by Google)
+- [`fragrantica_brand_scraper.py`](fragrantica_brand_scraper.py) - Scrapes all perfumes for a given brand URL or name.
+
+## Fragrantica Brand Scraper Usage
+
+To scrape all perfumes for a specific brand, use the `fragrantica_brand_scraper.py` script.
+
+### Usage:
+```bash
+python fragrantica_brand_scraper.py <brand_name_or_url>
+```
+- Replace `<brand_name_or_url>` with the full URL of the brand's page on Fragrantica (e.g., `https://www.fragrantica.com/designers/Maison-Martin-Margiela.html`) or the brand name (e.g., `Maison Martin Margiela`).
+
+### Example:
+```bash
+python fragrantica_brand_scraper.py https://www.fragrantica.com/designers/Maison-Martin-Margiela.html
+```
+This will generate a CSV file named `maison_martin_margiela_fragrances.csv` (or similar, based on the brand name) containing details of all perfumes from that brand.
 
 ## Features
 

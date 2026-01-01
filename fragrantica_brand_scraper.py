@@ -22,8 +22,28 @@ def scrape_brand_fragrances(brand_name):
         scraper = cloudscraper.create_scraper()
         time.sleep(random.uniform(5, 10)) # Random delay for bot protection
         
-        response = scraper.get(url, timeout=30)
-        response.raise_for_status() # Raise an exception for bad status codes (4xx or 5xx)
+        
+        retries = 3
+        for i in range(retries):
+            try:
+                response = scraper.get(url, timeout=30)
+                response.raise_for_status() # Raise an exception for bad status codes (4xx or 5xx)
+                break # If successful, break the loop
+            except requests.exceptions.HTTPError as e:
+                if e.response.status_code == 429:
+                    print(f"Rate limited (429). Retrying in {2**(i+1)} seconds...")
+                    time.sleep(2**(i+1) + random.uniform(0, 2)) # Exponential backoff with jitter
+                else:
+                    raise # Re-raise for other HTTP errors
+            except requests.exceptions.RequestException as e:
+                print(f"Network or request error on attempt {i+1}/{retries}: {e}")
+                if i < retries - 1:
+                    time.sleep(2**(i+1) + random.uniform(0, 2)) # Exponential backoff with jitter
+                else:
+                    raise # Re-raise if last attempt
+        else:
+            print(f"Failed to retrieve data for {brand_name} after {retries} attempts due to persistent errors.")
+            return []
         
         soup = BeautifulSoup(response.content, 'html.parser')
         
@@ -57,7 +77,13 @@ def scrape_brand_fragrances(brand_name):
             name = name.replace(brand_name + " ", "", 1) # Remove brand name prefix once
             name = name.strip()
             
-            fragrances.append({"name": name, "link": link})
+            # Extract ID from the link for image URL
+            match = re.search(r'-(\d+)\.html$', link)
+            image_id = match.group(1) if match else None
+            
+            image_url = f"https://fimgs.net/mdimg/perfume-thumbs/375x500.{image_id}.jpg" if image_id else ""
+            
+            fragrances.append({"name": name, "link": link, "image_url": image_url})
             
         return fragrances
                 

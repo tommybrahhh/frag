@@ -245,6 +245,8 @@ export type Database = {
           updated_at: string | null
           vibe_tags: string[] | null
           best_season: string | null
+          avatar_url: string | null
+          is_verified: boolean | null
         }
         Insert: {
           bio?: string | null
@@ -256,6 +258,8 @@ export type Database = {
           updated_at?: string | null
           vibe_tags?: string[] | null
           best_season?: string | null
+          avatar_url?: string | null
+          is_verified?: boolean | null
         }
         Update: {
           bio?: string | null
@@ -267,6 +271,8 @@ export type Database = {
           updated_at?: string | null
           vibe_tags?: string[] | null
           best_season?: string | null
+          avatar_url?: string | null
+          is_verified?: boolean | null
         }
       }
       user_collections: {
@@ -275,18 +281,21 @@ export type Database = {
           id: string
           perfume_id: string
           user_id: string
+          list_type: "owned" | "wishlist" | "tested"
         }
         Insert: {
           created_at?: string | null
           id?: string
           perfume_id: string
           user_id: string
+          list_type?: "owned" | "wishlist" | "tested"
         }
         Update: {
           created_at?: string | null
           id?: string
           perfume_id?: string
           user_id?: string
+          list_type?: "owned" | "wishlist" | "tested"
         }
       }
     }

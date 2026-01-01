@@ -18,7 +18,7 @@ export default function GlobalHeader() {
           <Link href="/" className="flex-shrink-0 flex items-center gap-3 group">
             <div className="bg-stone-900 text-white p-2 rounded-lg group-hover:bg-stone-800 transition">
               <Image
-                src="https://s6.imgcdn.dev/YUsNon.png"
+                src="/logo.svg"
                 alt="Scentia"
                 width={20}
                 height={20}

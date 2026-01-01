@@ -459,13 +459,13 @@ export function mixPerfumes(p1: any, p2: any, ratio: number = 0.5) {
   // Calculate performance metrics
   const calculatePerformance = () => {
     let longevity = 8; // Base hours
-    let sillage = 3; // Base sillage (1-5 scale)
+    let sillage = 6; // Base sillage (1-10 scale)
     let projection = 2; // Base projection (1-5 scale)
     
     // Adjust based on perfume characteristics
     if (p1.vibe_tags?.includes('Oriental') || p2.vibe_tags?.includes('Oriental')) {
       longevity += 2;
-      sillage += 1;
+      sillage += 2; // Scaled for 1-10
     }
     if (p1.vibe_tags?.includes('Woody') || p2.vibe_tags?.includes('Woody')) {
       longevity += 1;
@@ -481,7 +481,7 @@ export function mixPerfumes(p1: any, p2: any, ratio: number = 0.5) {
     
     return {
       longevity: Math.max(2, Math.min(12, longevity)),
-      sillage: Math.max(1, Math.min(5, sillage)),
+      sillage: Math.max(1, Math.min(10, sillage)), // Scaled for 1-10
       projection: Math.max(1, Math.min(5, projection))
     };
   };

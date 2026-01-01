@@ -17,6 +17,7 @@ export async function GET(
       .from('brands')
       .select('id, name')
       .ilike('name', brandName)
+      .limit(1)
       .maybeSingle();
 
     if (brandError) throw brandError;
@@ -31,13 +32,16 @@ export async function GET(
       .select(`
         id, name, image_url,
         rating, price_tier, best_season, vibe_tags,
-        brand:brands!perfumes_brand_id_fkey(name),
+        brand:brands(name),
         perfumer
       `)
       .eq('brand_id', brandData.id)
       .order('name');
 
-    if (perfumeError) throw perfumeError;
+    if (perfumeError) {
+      console.error('Perfume Fetch Error:', perfumeError);
+      throw perfumeError;
+    }
 
     return NextResponse.json({
       brand: brandData.name, // Return the canonical name from DB
@@ -46,6 +50,6 @@ export async function GET(
 
   } catch (error: any) {
     console.error('Brand API Error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error.message || 'Unknown error' }, { status: 500 });
   }
 }

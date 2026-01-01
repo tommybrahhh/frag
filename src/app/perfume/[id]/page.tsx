@@ -76,55 +76,7 @@ const generateProfileFromVibes = (vibes: string[]) => {
   return profile;
 };
 
-const findDupes = (mainPerfume: any, allPerfumes: any[]) => {
-    if (!mainPerfume || !allPerfumes) return [];
-    const mainNotesRaw = mainPerfume.perfume_notes?.map((n: any) => n.note?.name) || [];
-    const mainNotesLower = mainNotesRaw.filter((n: string) => n != null && n.trim() !== '').map((n: string) => n.toLowerCase());
-    const mainVibes = mainPerfume.vibe_tags || [];
-    const mainFamily = categorizeScentFamily(mainNotesLower, mainVibes);
 
-    return allPerfumes
-      .filter((perfume: any) => {
-        if (perfume.id === mainPerfume.id) return false;
-        const candidateNotesRaw = perfume.perfume_notes?.map((n: any) => n.note?.name) || [];
-        const candidateNotesLower = candidateNotesRaw.filter((n: string) => n != null && n.trim() !== '').map((n: string) => n.toLowerCase());
-        const candidateVibes = perfume.vibe_tags || [];
-        const candidateFamily = categorizeScentFamily(candidateNotesLower, candidateVibes);
-
-        if (!mainFamily || !candidateFamily || mainFamily !== candidateFamily) return false;
-        const totalMainNotes = mainNotesLower.length;
-        if (totalMainNotes === 0) return false;
-        const sharedCount = candidateNotesLower.filter((n: string) => mainNotesLower.includes(n)).length;
-        return (sharedCount / totalMainNotes) * 100 >= 70;
-      })
-      .map((perfume: any) => {
-         const candidateNotesRaw = perfume.perfume_notes?.map((n: any) => n.note?.name) || [];
-         const candidateNotesLower = candidateNotesRaw.filter((n: string) => n != null && n.trim() !== '').map((n: string) => n.toLowerCase());
-         const totalMainNotes = mainNotesLower.length;
-         const sharedCount = candidateNotesLower.filter((n: string) => mainNotesLower.includes(n)).length;
-         const matchPercentage = (sharedCount / totalMainNotes) * 100;
-         const actualSharedNotes = Array.from(new Set(
-           candidateNotesRaw.filter((n: string) => n != null && n.trim() !== '').filter((n: string) => mainNotesLower.includes(n.toLowerCase()))
-         ));
-         const sharedVibesCount = perfume.vibe_tags?.filter((t:string) => mainVibes.includes(t)).length || 0;
-         const score = Math.min(98, Math.round(matchPercentage * 0.8) + (sharedVibesCount * 5));
-         const isCheaper = perfume.price_tier && mainPerfume.price_tier && perfume.price_tier.length < mainPerfume.price_tier.length;
-
-         return {
-            dupe_id: perfume.id,
-            dupe_name: perfume.name,
-            dupe_image_url: perfume.image_url,
-            brand_name: perfume.brand?.name,
-            dupe_price_tier: perfume.price_tier,
-            match_type: isCheaper ? 'Smart Buy' : 'DNA Match',
-            match_score: score,
-            shared_notes: actualSharedNotes,
-            match_percentage: `${Math.round(matchPercentage)}%`
-         };
-      })
-      .sort((a: any, b: any) => b.match_score - a.match_score)
-      .slice(0, 3);
-};
 
 export default async function PerfumePage(
   props: { params: Promise<{ id: string }> }
@@ -175,23 +127,14 @@ export default async function PerfumePage(
 
   const { data: allPerfumes } = await query;
 
-  // 3. Process Recommendations using RecommendationEngine
-  // We use the fetched candidates to rank them using the advanced engine
+  // 4. Process Recommendations using RecommendationEngine
   const recommendationCategories = await RecommendationEngine.getEnhancedRecommendations(perfumeData);
-
-  // 4. Process Dupes (Keep existing logic if needed, but maybe Module A covers it? 
-  // User asked specifically for Module A, B, C. I will pass the categories directly.)
-  const dupes = findDupes(perfumeData, allPerfumes || []).map(dupe => ({
-    ...dupe,
-    shared_notes: dupe.shared_notes.map(note => String(note))
-  }));
 
   // 5. Render Client View
   return (
     <PerfumeClientView 
       perfume={perfumeData} 
       recommendationCategories={recommendationCategories}
-      dupes={dupes} 
     />
   );
 }
