@@ -2,7 +2,7 @@
 
 import React from 'react';
 import type { Recommendation } from '@/lib/recommendation-engine';
-import type { Perfume } from '@/components/perfume/PerfumeClientView'; // Re-use the main perfume type
+import type { Perfume } from '@/components/PerfumeClientView'; // Re-use the main perfume type
 
 interface LayeringCardProps {
   mainPerfume: Perfume;
@@ -42,7 +42,11 @@ export default function LayeringCard({ mainPerfume, recommendation }: LayeringCa
         {/* Perfume 1 (Main) */}
         <div className="flex flex-col items-center text-center h-full">
           <div className="relative h-28 w-28 flex items-center justify-center">
-            <img src={mainPerfume.image_url} alt={mainPerfume.name} className="h-full w-full object-contain mix-blend-multiply" />
+            {mainPerfume.image_url ? (
+                <img src={mainPerfume.image_url} alt={mainPerfume.name} className="h-full w-full object-contain mix-blend-multiply" />
+            ) : (
+                <span className="text-stone-300 text-xs italic">No Image</span>
+            )}
           </div>
           <p className="font-bold text-sm mt-2 w-full truncate" title={mainPerfume.name}>{mainPerfume.name}</p>
           <p className="text-xs text-stone-500 w-full truncate" title={mainPerfume.brand?.name}>{mainPerfume.brand?.name}</p>
@@ -52,7 +56,11 @@ export default function LayeringCard({ mainPerfume, recommendation }: LayeringCa
         <div className="flex flex-col items-center text-center h-full">
             <div className="text-3xl text-stone-300 mb-2 font-thin">+</div>
             <div className="relative h-28 w-28 flex items-center justify-center">
-              <img src={candidatePerfume.image_url} alt={candidatePerfume.name} className="h-full w-full object-contain mix-blend-multiply" />
+              {candidatePerfume.image_url ? (
+                  <img src={candidatePerfume.image_url} alt={candidatePerfume.name} className="h-full w-full object-contain mix-blend-multiply" />
+              ) : (
+                  <span className="text-stone-300 text-xs italic">No Image</span>
+              )}
             </div>
             <p className="font-bold text-sm mt-2 w-full truncate" title={candidatePerfume.name}>{candidatePerfume.name}</p>
             <p className="text-xs text-stone-500 w-full truncate" title={candidatePerfume.brand?.name}>{candidatePerfume.brand?.name}</p>

@@ -83,6 +83,7 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) { setPostError("You must be logged in to post a comment."); return; }
+    if (!supabase) { setPostError("System error: Supabase client not initialized."); return; }
     if (!newComment.trim()) { setPostError("Comment cannot be empty."); return; }
 
     setIsSubmitting(true);
@@ -109,6 +110,7 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
   };
 
   const handleDelete = async (id: string) => {
+    if (!supabase) return;
     await supabase.from('comments').delete().eq('id', id);
     setComments(prev => prev.filter(c => c.id !== id));
     setDeletingCommentId(null);
@@ -130,6 +132,10 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
     if (!user || !editedCommentContent.trim()) {
       setEditError("Comment cannot be empty.");
       return;
+    }
+    if (!supabase) {
+        setEditError("System error: Supabase client not initialized.");
+        return;
     }
     setIsSavingEdit(true);
     setEditError(null);
@@ -164,7 +170,7 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
   };
 
   const handleUpvote = async (comment: EnrichedComment) => {
-    if (!user) return;
+    if (!user || !supabase) return;
     const hasUpvoted = comment.user_has_upvoted;
     const newUpvoteCount = hasUpvoted ? comment.upvote_count - 1 : comment.upvote_count + 1;
     setComments(prev => prev.map(c => 

@@ -30,8 +30,12 @@ export default function DiscoveryCard({ recommendation }: DiscoveryCardProps) {
 
       {/* Right Side: The "What" */}
       <div className="bg-white/50 rounded-xl p-6 flex flex-col sm:flex-row items-center gap-6">
-        <div className="relative h-40 w-40 flex-shrink-0">
-          <img src={perfume.image_url} alt={perfume.name} className="h-full w-full object-contain mix-blend-multiply" />
+        <div className="relative h-40 w-40 flex-shrink-0 flex items-center justify-center">
+          {perfume.image_url ? (
+            <img src={perfume.image_url} alt={perfume.name} className="h-full w-full object-contain mix-blend-multiply" />
+          ) : (
+             <span className="text-stone-300 text-xs italic">No Image</span>
+          )}
         </div>
         <div className="text-center sm:text-left">
           <div className="text-xs font-bold tracking-widest text-stone-500 uppercase mb-2">{perfume.brand?.name}</div>

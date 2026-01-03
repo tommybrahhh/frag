@@ -10,24 +10,24 @@ import { Database } from '@/types/database';
 import { ratingToDescription } from '@/lib/longevity-utils';
 import { RecommendationCategory } from '@/lib/recommendation-engine';
 
-type Note = {
+export type Note = {
   name: string;
   color_hex?: string;
   description?: string;
   url?: string;
 };
 
-type PerfumeNote = {
+export type PerfumeNote = {
   type: string;
   note: Note;
 };
 
-type Brand = {
+export type Brand = {
   name: string;
   tier?: string;
 };
 
-type Perfume = Database['public']['Tables']['perfumes']['Row'] & {
+export type Perfume = Database['public']['Tables']['perfumes']['Row'] & {
   brand?: Brand;
   perfume_notes?: PerfumeNote[];
   scent_profile?: Record<string, number>;

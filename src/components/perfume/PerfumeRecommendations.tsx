@@ -1,4 +1,4 @@
-in'use client';
+'use client';
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
@@ -14,7 +14,7 @@ export default function PerfumeRecommendations({ recommendationCategories }: Per
 
   // This component will now handle the case where a category has no recommendations,
   // preventing the UI from looking broken.
-  const handleRecommendationClick = (id: number) => {
+  const handleRecommendationClick = (id: string) => {
     // Navigate to the new perfume page. Using router.push enables client-side navigation.
     router.push(`/perfume/${id}`);
   };

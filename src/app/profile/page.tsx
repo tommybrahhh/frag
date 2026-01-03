@@ -105,6 +105,7 @@ export default async function ProfilePage() {
                 bio={bio}
                 isVerified={isVerified}
                 initialCollection={[]} 
+                initialComments={[]}
                 insights={{ 
                     totalCount: 0, 
                     topFamilies: [], 

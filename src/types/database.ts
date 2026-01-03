@@ -303,7 +303,48 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      debug_search_perfumes: {
+        Args: {
+          p_query: string
+        }
+        Returns: {
+          id: string
+          name: string
+          brand_name: string
+          image_url: string | null
+        }[]
+      }
+      get_comments_with_upvotes: {
+        Args: {
+          p_perfume_id: string
+          p_order_by?: string
+        }
+        Returns: {
+          id: string
+          created_at: string
+          content: string
+          user_id: string
+          perfume_id: string
+          user_name: string
+          upvote_count: number
+          user_has_upvoted: boolean
+          profile: Json
+        }[]
+      }
+      get_user_comments: {
+        Args: {
+          p_user_id: string
+        }
+        Returns: {
+          id: string
+          created_at: string
+          content: string
+          perfume_id: string
+          perfume_name: string
+          perfume_image_url: string | null
+          brand_name: string
+        }[]
+      }
     }
     CompositeTypes: {
       [_ in never]: never

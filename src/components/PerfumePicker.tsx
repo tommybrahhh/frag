@@ -66,7 +66,7 @@ export default function PerfumePicker({ label, onSelect, selected, placeholder, 
       setIsLoading(true);
       try {
         // Use the debug RPC function to bypass RLS for this test
-        const { data, error } = await supabase
+        const { data, error } = await (supabase as any)
           .rpc('debug_search_perfumes', { p_query: query })
           .limit(10)
           .abortSignal(signal);
@@ -80,7 +80,7 @@ export default function PerfumePicker({ label, onSelect, selected, placeholder, 
 
         if (!error && data) {
           // Manually add a null 'brand' property to match the previous data structure
-          const dataWithBrand = data.map(p => ({...p, brand: null}));
+          const dataWithBrand = data.map((p: any) => ({...p, brand: null}));
           setResults(dataWithBrand);
           setIsOpen(true);
           setSelectedIndex(-1);

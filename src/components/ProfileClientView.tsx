@@ -717,7 +717,19 @@ export default function ProfileClientView({
                         </div>
                     </div>
                 </div>
-                {user && <UserCommentsList userId={user.id} />}
+                {user && (
+                    <UserCommentsList 
+                        initialData={initialComments.map((c: any) => ({
+                            id: c.id,
+                            created_at: c.created_at,
+                            content: c.content,
+                            perfume_id: c.perfume_id,
+                            perfume_name: c.perfume_name,
+                            perfume_image_url: c.perfume_image_url,
+                            brand_name: c.brand_name
+                        }))} 
+                    />
+                )}
             </div>
         )}
 
