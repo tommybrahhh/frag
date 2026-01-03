@@ -420,24 +420,24 @@ export function mixPerfumes(p1: any, p2: any, ratio: number = 0.5) {
   // Normalize score and determine verdict
   const safety = Math.max(0, Math.min(100, 100 - riskScore));
 
-  let verdict = "Masterpiece Blend";
-  let description = "Exceptional harmony with complex depth";
+  let verdict = "A Perfect Union";
+  let description = "A stunning combination that feels like it was always meant to be. Creates a new, signature-worthy scent.";
   
   if (safety >= 85) {
-    verdict = "Masterpiece Blend";
-    description = "Exceptional harmony with complex depth";
+    verdict = "A Perfect Union";
+    description = "A stunning combination that feels like it was always meant to be. Creates a new, signature-worthy scent.";
   } else if (safety >= 70) {
-    verdict = "Harmonious Blend";
-    description = "Well-balanced with good complementarity";
+    verdict = "Beautifully Balanced";
+    description = "These scents complement each other beautifully, creating a balanced and cohesive new aroma.";
   } else if (safety >= 50) {
-    verdict = "Experimental Mix";
-    description = "Interesting combination with some challenges";
+    verdict = "Creative & Unique";
+    description = "An intriguing mix that plays on contrast. The result is unique, though some notes may compete for attention.";
   } else if (safety >= 30) {
-    verdict = "Risky Experiment";
-    description = "Bold combination that might not work for everyone";
+    verdict = "An Unconventional Twist";
+    description = "A daring and avant-garde pairing. This creates a statement scent that won't go unnoticed.";
   } else {
-    verdict = "Biohazard Warning";
-    description = "Strong potential for discordant notes";
+    verdict = "Clashing Notes";
+    description = "These two profiles may not harmonize well. The resulting mix could be sharp or dissonant. Layer with care!";
   }
 
   // NEW: Calculate Weighted Profile using ratio
@@ -458,31 +458,42 @@ export function mixPerfumes(p1: any, p2: any, ratio: number = 0.5) {
 
   // Calculate performance metrics
   const calculatePerformance = () => {
-    let longevity = 8; // Base hours
-    let sillage = 6; // Base sillage (1-10 scale)
-    let projection = 2; // Base projection (1-5 scale)
+    // Helper: Get rating or default
+    const getLong = (p: any) => p.longevity_rating || 6; // Default 6 hours
+    const getSill = (p: any) => p.sillage_rating || 5; // Default 5/10
+
+    const baseLongevity = getLong(p1);
+    const baseSillage = getSill(p1);
+
+    // Weighted average based on ratio
+    let mixLongevity = (baseLongevity * ratio) + (getLong(p2) * (1 - ratio));
+    let mixSillage = (baseSillage * ratio) + (getSill(p2) * (1 - ratio));
+
+    // Synergy Bonus: Layering usually increases longevity due to density
+    mixLongevity *= 1.1; 
     
-    // Adjust based on perfume characteristics
+    // Adjust based on perfume characteristics (Vibe bonuses)
     if (p1.vibe_tags?.includes('Oriental') || p2.vibe_tags?.includes('Oriental')) {
-      longevity += 2;
-      sillage += 2; // Scaled for 1-10
+      mixLongevity += 1;
+      mixSillage += 1;
     }
     if (p1.vibe_tags?.includes('Woody') || p2.vibe_tags?.includes('Woody')) {
-      longevity += 1;
-      projection += 1;
+      mixLongevity += 0.5;
     }
-    if (p1.vibe_tags?.includes('Fresh') || p2.vibe_tags?.includes('Fresh')) {
-      longevity -= 2;
-      projection -= 1;
-    }
-    if (p1.vibe_tags?.includes('Citrus') || p2.vibe_tags?.includes('Citrus')) {
-      longevity -= 1;
+    if (p1.vibe_tags?.includes('Fresh') && p2.vibe_tags?.includes('Fresh')) {
+      // Two freshies might not last super long
+      mixLongevity *= 0.95;
     }
     
     return {
-      longevity: Math.max(2, Math.min(12, longevity)),
-      sillage: Math.max(1, Math.min(10, sillage)), // Scaled for 1-10
-      projection: Math.max(1, Math.min(5, projection))
+      base: {
+        longevity: Math.round(baseLongevity * 10) / 10,
+        sillage: Math.round(baseSillage * 10) / 10
+      },
+      result: {
+        longevity: Math.min(12, Math.round(mixLongevity * 10) / 10),
+        sillage: Math.min(10, Math.round(mixSillage * 10) / 10)
+      }
     };
   };
 

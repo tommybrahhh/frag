@@ -156,30 +156,27 @@ export default function QuizPage() {
       const supabase = createClient();
       
       console.log('Fetching perfumes from database');
+      // Use a left join by default (brands(name)) instead of an inner join (brands!...).
+      // This is safer and prevents perfumes with null brand_id from being excluded.
       const { data, error } = await supabase
         .from('perfumes')
         .select(`
           id, name, image_url, gender,
           vibe_tags, occasions, best_season,
           sillage_rating, price_tier,
-          brand:brands!perfumes_brand_id_fkey(name)
+          brand:brands(name)
         `);
       
       if (error) {
-        console.error('Error fetching perfumes:', {
-          message: error.message,
-          code: error.code,
-          details: error.details
-        });
-        return;
+        // This throw will be caught by the outer catch block.
+        throw error;
       }
       
       console.log('Successfully fetched perfumes:', data?.length);
       
-      console.log('Flattening perfume data');
       const flatData = data?.map((p: any) => ({
         ...p,
-        brand_name: p.brand?.name // Flatten it so the engine can use it easily
+        brand_name: p.brand?.name 
       })) || [];
       
       console.log('Generating recommendations');
@@ -195,14 +192,16 @@ export default function QuizPage() {
         ...prev,
         currentStep: prev.currentStep + 1,
         recommendations: [...topMatches, ...possibleSwitches, ...newDiscoveries],
-        isSubmitting: false
       }));
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error submitting quiz:', {
-        error: error instanceof Error ? error.message : error,
-        stack: error instanceof Error ? error.stack : undefined
+        error: error.message,
+        stack: error.stack,
       });
+      // Optionally, you could set an error message in the state to show to the user.
+    } finally {
+      // This will run regardless of success or failure, preventing a stuck UI.
       setQuizState(prev => ({ ...prev, isSubmitting: false }));
     }
   };

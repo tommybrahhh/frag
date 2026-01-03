@@ -338,226 +338,136 @@ export class RecommendationEngine {
     const mainProfile = this.analyzeScentProfile(mainPerfume);
     
     // Calculate maximum possible score for normalization
-            const maxNotesScore = mainProfile.notes.length * 15;
-            const maxVibesScore = mainProfile.vibes.length * 10;
-            const maxFamiliesScore = mainProfile.dominantFamilies.length * 25;
-            const maxBrandScore = 20; // Brand bonus
-            const maxSeasonsScore = mainPerfume.best_season?.length * 8 || 0;
-            const maxPriceBonus = 30; // Max possible bonus for being significantly cheaper
-            const maxBrandTierBonus = 20; // Max possible bonus for a good tier match
-    
-            const maxPossibleScore = maxNotesScore + maxVibesScore + maxFamiliesScore + maxBrandScore + maxSeasonsScore + maxPriceBonus + maxBrandTierBonus;
-    
-            const sortedCandidates = allPerfumes
-                .filter(p => p.id !== mainPerfume.id)
-                .filter(candidate => { // Stricter filter: minimum 2 shared notes AND at least 1 shared dominant family
-                    const candidateProfile = RecommendationEngine.analyzeScentProfile(candidate);
-                    const sharedNotes = mainProfile.notes.filter((note: string) => candidateProfile.notes.includes(note));
-                    const sharedFamilies = mainProfile.dominantFamilies.filter(family =>
-                        candidateProfile.dominantFamilies.includes(family)
-                    );
-                    return sharedNotes.length >= 2 && sharedFamilies.length >= 1;
-                })
-                .map(candidate => {
-                    const candidateProfile = RecommendationEngine.analyzeScentProfile(candidate);
-    
-                    // Calculate raw similarity score
-                    let rawScore = 0;
-                    const sharedNotes = mainProfile.notes.filter((note: string) => candidateProfile.notes.includes(note));
-                    const sharedVibes = mainProfile.vibes.filter((vibe: string) => candidateProfile.vibes.includes(vibe));
-                    const sharedFamilies = mainProfile.dominantFamilies.filter(family =>
-                        candidateProfile.dominantFamilies.includes(family)
-                    );
-    
-    
-    
-                    rawScore += sharedNotes.length * 15;
-                    rawScore += sharedVibes.length * 10;
-                    rawScore += sharedFamilies.length * 25;
-    
-                    // Brand bonus (removed for now, as there's a dedicated 'same-brand' category)
-    
-                    // Season compatibility
-                    const sharedSeasons = mainPerfume.best_season?.filter((s: string) =>
-                        candidate.best_season?.includes(s)
-                    ) || [];
-                    rawScore += sharedSeasons.length * 8;
-    
-                    // --- NEW: Price and Brand Tier Scoring ---
-                    const mainPriceValue = RecommendationEngine.getPriceLevel(mainPerfume);
-                    const candidatePriceValue = RecommendationEngine.getPriceLevel(candidate);
-                    let priceScoreModifier = 0;
-    
-                    if (candidatePriceValue < mainPriceValue) {
-                        // Cheaper alternative: bonus
-                        priceScoreModifier += (mainPriceValue - candidatePriceValue) * 10; // 10 points per tier cheaper
-                    } else if (candidatePriceValue > mainPriceValue) {
-                        // More expensive alternative: penalty
-                        priceScoreModifier -= (candidatePriceValue - mainPriceValue) * 5; // 5 points per tier more expensive
-                    }
-    
-                    rawScore += priceScoreModifier;
-    
-                    let brandTierScoreModifier = 0;
-                    const mainBrandTier = mainPerfume.brand?.tier;
-                    const candidateBrandTier = candidate.brand?.tier;
-    
-                    if (mainBrandTier && candidateBrandTier) {
-                        if (mainBrandTier === candidateBrandTier) {
-                            brandTierScoreModifier += 5; // Small bonus for same tier
-                        } else if (mainBrandTier === 'Niche' && candidateBrandTier === 'Designer' && candidatePriceValue < mainPriceValue) {
-                            brandTierScoreModifier += 15; // Good value designer alternative for niche perfume
-                        } else if (mainBrandTier === 'Designer' && candidateBrandTier === 'Niche' && candidatePriceValue > mainPriceValue) {
-                            brandTierScoreModifier -= 10; // Penalize expensive niche if looking for designer
-                        } else if (candidateBrandTier === 'Celebrity') {
-                            brandTierScoreModifier -= 5; // Small penalty for celebrity brands, generally lower quality perception
-                        }
-                    }
-                    rawScore += brandTierScoreModifier;
-                    // --- END NEW ---
-    
-    
-                    // Add molecular similarity score if structures are available
-                    const molecularScore = 0;
-    
-                    // Composition similarity scoring
-                    const compositionScore = 0;
-    
-                    // Normalize score to 0-100 scale
-                    const normalizedScore = Math.min(100, Math.round(
-                        (rawScore / maxPossibleScore) * 60 + molecularScore + compositionScore * 0.4
-                    ));
-    
-                    return {
-                        perfume: candidate,
-                        type: 'similar' as const,
-                        score: Math.max(0, normalizedScore),
-                        reason: sharedFamilies.length > 0
-                            ? `Shares ${sharedFamilies.join(', ')} scent family`
-                            : sharedNotes.length > 0
-                                ? `Shares ${sharedNotes.slice(0, 3).join(', ')} notes`
-                                : 'Similar vibe profile',
-                        sharedNotes: sharedNotes.slice(0, 5),
-                        sharedVibes: sharedVibes.slice(0, 3)
-                    };
-                })
-                .sort((a, b) => b.score - a.score);
+    const maxNotesScore = mainProfile.notes.length * 15;
+    const maxVibesScore = mainProfile.vibes.length * 10;
+    const maxFamiliesScore = mainProfile.dominantFamilies.length * 25;
+    const maxSeasonsScore = mainPerfume.best_season?.length * 8 || 0;
+    const maxPriceBonus = 30; // Max possible bonus for being significantly cheaper
+    const maxBrandTierBonus = 20; // Max possible bonus for a good tier match
 
-            const finalRecommendations: Recommendation[] = [];
-            const mainPerfumeBrandName = mainPerfume.brand?.name;
-            let sameBrandCount = 0;
-            const sameBrandLimit = 2; // Allow up to 2 recommendations from the main perfume's brand
+    const maxPossibleScore = maxNotesScore + maxVibesScore + maxFamiliesScore + maxSeasonsScore + maxPriceBonus + maxBrandTierBonus;
 
-            for (const rec of sortedCandidates) {
-                if (finalRecommendations.length >= count) {
-                    break;
-                }
+    const sortedCandidates = allPerfumes
+        .filter(p => p.id !== mainPerfume.id)
+        // REMOVED: Strict pre-filter that caused empty recommendation lists.
+        // All perfumes will now be scored, and those with low scores will naturally rank lower.
+        .map(candidate => {
+            const candidateProfile = RecommendationEngine.analyzeScentProfile(candidate);
 
-                if (rec.perfume.brand?.name === mainPerfumeBrandName) {
-                    if (sameBrandCount < sameBrandLimit) {
-                        finalRecommendations.push(rec);
-                        sameBrandCount++;
-                    }
-                } else {
-                    finalRecommendations.push(rec);
-                }
+            // Calculate raw similarity score
+            let rawScore = 0;
+            const sharedNotes = mainProfile.notes.filter((note: string) => candidateProfile.notes.includes(note));
+            const sharedVibes = mainProfile.vibes.filter((vibe: string) => candidateProfile.vibes.includes(vibe));
+            const sharedFamilies = mainProfile.dominantFamilies.filter(family =>
+                candidateProfile.dominantFamilies.includes(family)
+            );
+
+            // Give a minimum score for having at least one shared note or family, to avoid zero scores for everything.
+            if (sharedNotes.length === 0 && sharedFamilies.length === 0) {
+              return {
+                perfume: candidate,
+                type: 'similar' as const,
+                score: 0,
+                reason: 'A different profile to explore.',
+                sharedNotes: [],
+                sharedVibes: []
+              };
             }
 
-            return finalRecommendations.slice(0, count) as Recommendation[];
+            rawScore += sharedNotes.length * 15;
+            rawScore += sharedVibes.length * 10;
+            rawScore += sharedFamilies.length * 25;
 
-            const sortedRecommendations = allPerfumes
-                .filter(p => p.id !== mainPerfume.id)
-                .filter(candidate => { // Stricter filter: minimum 2 shared notes AND at least 1 shared dominant family
-                    const candidateProfile = RecommendationEngine.analyzeScentProfile(candidate);
-                    const sharedNotes = mainProfile.notes.filter((note: string) => candidateProfile.notes.includes(note));
-                    const sharedFamilies = mainProfile.dominantFamilies.filter(family =>
-                        candidateProfile.dominantFamilies.includes(family)
-                    );
-                    return sharedNotes.length >= 2 && sharedFamilies.length >= 1;
-                })
-                .map(candidate => {
-                    const candidateProfile = RecommendationEngine.analyzeScentProfile(candidate);
-    
-                    // Calculate raw similarity score
-                    let rawScore = 0;
-                    const sharedNotes = mainProfile.notes.filter((note: string) => candidateProfile.notes.includes(note));
-                    const sharedVibes = mainProfile.vibes.filter((vibe: string) => candidateProfile.vibes.includes(vibe));
-                    const sharedFamilies = mainProfile.dominantFamilies.filter(family =>
-                        candidateProfile.dominantFamilies.includes(family)
-                    );
-    
-    
-    
-                    rawScore += sharedNotes.length * 15;
-                    rawScore += sharedVibes.length * 10;
-                    rawScore += sharedFamilies.length * 25;
-    
-                    // Season compatibility
-                    const sharedSeasons = mainPerfume.best_season?.filter((s: string) =>
-                        candidate.best_season?.includes(s)
-                    ) || [];
-                    rawScore += sharedSeasons.length * 8;
-    
-                    // --- NEW: Price and Brand Tier Scoring ---
-                    const mainPriceValue = RecommendationEngine.getPriceLevel(mainPerfume);
-                    const candidatePriceValue = RecommendationEngine.getPriceLevel(candidate);
-                    let priceScoreModifier = 0;
-    
-                    if (candidatePriceValue < mainPriceValue) {
-                        // Cheaper alternative: bonus
-                        priceScoreModifier += (mainPriceValue - candidatePriceValue) * 10; // 10 points per tier cheaper
-                    } else if (candidatePriceValue > mainPriceValue) {
-                        // More expensive alternative: penalty
-                        priceScoreModifier -= (candidatePriceValue - mainPriceValue) * 5; // 5 points per tier more expensive
-                    }
-    
-                    rawScore += priceScoreModifier;
-    
-                    let brandTierScoreModifier = 0;
-                    const mainBrandTier = mainPerfume.brand?.tier;
-                    const candidateBrandTier = candidate.brand?.tier;
-    
-                    if (mainBrandTier && candidateBrandTier) {
-                        if (mainBrandTier === candidateBrandTier) {
-                            brandTierScoreModifier += 5; // Small bonus for same tier
-                        } else if (mainBrandTier === 'Niche' && candidateBrandTier === 'Designer' && candidatePriceValue < mainPriceValue) {
-                            brandTierScoreModifier += 15; // Good value designer alternative for niche perfume
-                        } else if (mainBrandTier === 'Designer' && candidateBrandTier === 'Niche' && candidatePriceValue > mainPriceValue) {
-                            brandTierScoreModifier -= 10; // Penalize expensive niche if looking for designer
-                        } else if (candidateBrandTier === 'Celebrity') {
-                            brandTierScoreModifier -= 5; // Small penalty for celebrity brands, generally lower quality perception
-                        }
-                    }
-                    rawScore += brandTierScoreModifier;
-                    // --- END NEW ---
-    
-    
-                    // Add molecular similarity score if structures are available
-                    const molecularScore = 0;
-    
-                    // Composition similarity scoring
-                    const compositionScore = 0;
-    
-                    // Normalize score to 0-100 scale
-                    const normalizedScore = Math.min(100, Math.round(
-                        (rawScore / maxPossibleScore) * 60 + molecularScore + compositionScore * 0.4
-                    ));
-    
-                    return {
-                        perfume: candidate,
-                        type: 'similar' as const,
-                        score: Math.max(0, normalizedScore),
-                        reason: sharedFamilies.length > 0
-                            ? `Shares ${sharedFamilies.join(', ')} scent family`
-                            : sharedNotes.length > 0
-                                ? `Shares ${sharedNotes.slice(0, 3).join(', ')} notes`
-                                : 'Similar vibe profile',
-                        sharedNotes: sharedNotes.slice(0, 5),
-                        sharedVibes: sharedVibes.slice(0, 3)
-                    };
-                })
-                .sort((a, b) => b.score - a.score);
+            // Season compatibility
+            const sharedSeasons = mainPerfume.best_season?.filter((s: string) =>
+                candidate.best_season?.includes(s)
+            ) || [];
+            rawScore += sharedSeasons.length * 8;
+
+            // Price and Brand Tier Scoring
+            const mainPriceValue = RecommendationEngine.getPriceLevel(mainPerfume);
+            const candidatePriceValue = RecommendationEngine.getPriceLevel(candidate);
+            let priceScoreModifier = 0;
+
+            if (candidatePriceValue < mainPriceValue) {
+                priceScoreModifier += (mainPriceValue - candidatePriceValue) * 10;
+            } else if (candidatePriceValue > mainPriceValue) {
+                priceScoreModifier -= (candidatePriceValue - mainPriceValue) * 5;
+            }
+            rawScore += priceScoreModifier;
+
+            let brandTierScoreModifier = 0;
+            const mainBrandTier = mainPerfume.brand?.tier;
+            const candidateBrandTier = candidate.brand?.tier;
+
+            if (mainBrandTier && candidateBrandTier) {
+                if (mainBrandTier === candidateBrandTier) {
+                    brandTierScoreModifier += 5;
+                } else if (mainBrandTier === 'Niche' && candidateBrandTier === 'Designer' && candidatePriceValue < mainPriceValue) {
+                    brandTierScoreModifier += 15;
+                } else if (mainBrandTier === 'Designer' && candidateBrandTier === 'Niche' && candidatePriceValue > mainPriceValue) {
+                    brandTierScoreModifier -= 10;
+                } else if (candidateBrandTier === 'Celebrity') {
+                    brandTierScoreModifier -= 5;
+                }
+            }
+            rawScore += brandTierScoreModifier;
+
+            // Normalize score to 0-100 scale
+            // The normalization is now safer because maxPossibleScore is less likely to be zero.
+            const normalizedScore = maxPossibleScore > 0 
+                ? Math.min(100, Math.round((rawScore / maxPossibleScore) * 100))
+                : 0;
+
+            // NEW: Create a more descriptive reason for the recommendation.
+            const reasonParts = [];
+            if (sharedFamilies.length > 0) {
+                // Capitalize the family name for better display
+                const familyName = sharedFamilies[0].charAt(0).toUpperCase() + sharedFamilies[0].slice(1);
+                reasonParts.push(`the <strong>${familyName}</strong> family`);
+            }
+            if (sharedNotes.length > 1) { // Only add notes if there's more than one to show
+                reasonParts.push(`notes like <strong>${sharedNotes.slice(0, 2).join(', ')}</strong>`);
+            }
+
+            let reason = 'It has a similar vibe profile.';
+            if (reasonParts.length > 0) {
+                reason = `You might like this as it shares ${reasonParts.join(' and ')}.`;
+            }
+
+            return {
+                perfume: candidate,
+                type: 'similar' as const,
+                score: Math.max(0, normalizedScore),
+                reason: reason,
+                sharedNotes: sharedNotes.slice(0, 5),
+                sharedVibes: sharedVibes.slice(0, 3)
+            };
+        })
+        .sort((a, b) => b.score - a.score);
+
+    const finalRecommendations: Recommendation[] = [];
+    const mainPerfumeBrandName = mainPerfume.brand?.name;
+    let sameBrandCount = 0;
+    const sameBrandLimit = 2;
+
+    for (const rec of sortedCandidates) {
+        if (finalRecommendations.length >= count) {
+            break;
         }
+
+        if (rec.perfume.brand?.name === mainPerfumeBrandName) {
+            if (sameBrandCount < sameBrandLimit) {
+                finalRecommendations.push(rec);
+                sameBrandCount++;
+            }
+        } else {
+            finalRecommendations.push(rec);
+        }
+    }
+
+    return finalRecommendations.slice(0, count);
+  }
   private static getLayeringRecommendations(mainPerfume: any, allPerfumes: any[], count: number = 3): Recommendation[] {
     const amplifyRecs = this.getAmplifyNoteRecommendations(mainPerfume, allPerfumes, 2);
     const dimensionRecs = this.getAddDimensionRecommendations(mainPerfume, allPerfumes, 2);
@@ -954,8 +864,8 @@ export class RecommendationEngine {
         const maxScore = (mainProfile.notes.length * 15) + (mainProfile.vibes.length * 10) + 75; // Approx max
         const percentMatch = Math.min(100, Math.round((score / maxScore) * 100));
 
-        // 3. STRICT Filter: Must be at least an 75% match to be called a "Dupe"
-        if (percentMatch < 75) return null;
+        // 3. Looser Filter: Must be at least a 60% match to be considered a "Smart Buy"
+        if (percentMatch < 60) return null;
 
         // 4. Calculate Trade-offs (The Educational Part)
         const mainLong = mainPerfume.longevity_rating || mainProfile.composition.longevity;
@@ -1030,9 +940,7 @@ export class RecommendationEngine {
     });
   }
 
-  public static async getEnhancedRecommendations(mainPerfume: any, preferences?: any): Promise<RecommendationCategory[]> {
-    const allPerfumes = await this.getAllPerfumes();
-    
+  public static getEnhancedRecommendations(mainPerfume: any, allPerfumes: any[], preferences?: any): RecommendationCategory[] {
     const similarRecs = this.getSimilarRecommendations(mainPerfume, allPerfumes, 36);
     
     const priceCategories = this.getPriceTierCategories(mainPerfume, similarRecs);
@@ -1059,8 +967,9 @@ export class RecommendationEngine {
       }
     ];
 
-    // Filter out empty categories
-    return categories.filter(category => category.recommendations.length > 0);
+    // Return all categories, even if their recommendations are empty.
+    // The frontend will handle displaying an "empty state" UI.
+    return categories;
   }
 
   private static getPriceTierCategories(mainPerfume: any, recommendations: Recommendation[]): RecommendationCategory[] {

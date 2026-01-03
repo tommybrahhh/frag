@@ -176,6 +176,10 @@ export default async function ProfilePage() {
     }
   }
 
+  // --- NEW: Fetch User Comments ---
+  const { data: userComments } = await supabase
+    .rpc('get_user_comments', { p_user_id: user.id });
+
   // Render the Client Component with pre-fetched data
   return (
     <ProfileClientView 
@@ -186,6 +190,7 @@ export default async function ProfilePage() {
       initialAvatarUrl={avatarUrl}
       isVerified={isVerified}
       initialCollection={initialCollection}
+      initialComments={userComments || []}
       insights={insights}
       topMatches={topMatches}
       discoverySelections={discoverySelections}

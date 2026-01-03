@@ -9,6 +9,8 @@ import { RecommendationEngine } from '@/lib/recommendation-engine';
 type Note = {
   name: string;
   color_hex?: string;
+  description?: string;
+  url?: string;
 };
 
 type PerfumeNote = {
@@ -96,7 +98,7 @@ export default async function PerfumePage(
       olfactory_family,
       release_year,
       brand:brands(name, tier),
-      perfume_notes(type, note:notes(name, color_hex, description))
+      perfume_notes(type, note:notes(name, color_hex, description, url))
     `)
     .eq('id', id)
     .maybeSingle();
@@ -128,7 +130,7 @@ export default async function PerfumePage(
   const { data: allPerfumes } = await query;
 
   // 4. Process Recommendations using RecommendationEngine
-  const recommendationCategories = await RecommendationEngine.getEnhancedRecommendations(perfumeData);
+  const recommendationCategories = RecommendationEngine.getEnhancedRecommendations(perfumeData, allPerfumes || []);
 
   // 5. Render Client View
   return (

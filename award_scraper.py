@@ -39,17 +39,43 @@ def scrape_fragrantica_awards(url):
     try:
         driver.get(url)
         # Add a longer sleep to ensure dynamic content has ample time to load for debugging purposes
-        time.sleep(10)
-        
-        page_source = driver.page_source
+        time.sleep(10)page_source = driver.page_source
         
         # Always save the page source to a local HTML file for debugging, regardless of explicit wait success
         with open("debug_awards_page.html", "w", encoding="utf-8") as f:
             f.write(page_source)
         print("Page source saved to debug_awards_page.html for inspection.")
         
-        # For now, return an empty list. We are debugging page content, not scraping yet.
-        return []
+        soup = BeautifulSoup(page_source, 'html.parser')
+        
+        scraped_data = []
+        award_cards = soup.find_all('div', class_='award-card')
+        
+        for card in award_cards:
+            fragrance_name_tag = card.find('h3', class_='text-base font-semibold text-zinc-800 dark:text-zinc-100 mb-1 leading-tight')
+            fragrance_name = fragrance_name_tag.get_text(strip=True) if fragrance_name_tag else 'N/A'
+            
+            brand_tag = card.find('p', class_='text-sm text-zinc-600 dark:text-zinc-400')
+            brand = brand_tag.get_text(strip=True) if brand_tag else 'N/A'
+            
+            image_tag = card.find('img')
+            image_url = image_tag['src'] if image_tag and 'src' in image_tag else 'N/A'
+            
+            link_tag = card.find('a', class_='absolute inset-0')
+            fragrance_url = f"https://www.fragrantica.com{link_tag['href']}" if link_tag and 'href' in link_tag else 'N/A'
+
+            votes_tag = card.find('div', class_='absolute bottom-3 right-3 text-xs text-zinc-500 dark:text-zinc-400')
+            votes_text = votes_tag.get_text(strip=True) if votes_tag else '0 votes'
+            votes = int(re.search(r'\d+', votes_text).group()) if re.search(r'\d+', votes_text) else 0
+
+            scraped_data.append({
+                'Fragrance Name': fragrance_name,
+                'Brand': brand,
+                'Image URL': image_url,
+                'Fragrance URL': fragrance_url,
+                'Votes': votes
+            })
+        return scraped_data
 
     except Exception as e:
         print(f"Error fetching the URL with Selenium: {e}")
@@ -58,7 +84,7 @@ def scrape_fragrantica_awards(url):
         driver.quit()
 
 if __name__ == "__main__":
-    url = "https://www.fragrantica.com/awards2025/category/Best-Womens-Fragrance-2025"
+    url = "https://www.fragrantica.com/awards2025/category/Best-Niche-Fragrance-of-All-Time"
     scraped_data = scrape_fragrantica_awards(url)
 
     if scraped_data:

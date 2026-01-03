@@ -9,9 +9,10 @@ interface PerfumePickerProps {
   selected?: any;
   placeholder?: string;
   showFilters?: boolean;
+  compact?: boolean;
 }
 
-export default function PerfumePicker({ label, onSelect, selected, placeholder, showFilters }: PerfumePickerProps) {
+export default function PerfumePicker({ label, onSelect, selected, placeholder, showFilters, compact = false }: PerfumePickerProps) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<any[]>([]);
   const [suggestions, setSuggestions] = useState<any[]>([]); // New state for default suggestions
@@ -64,24 +65,23 @@ export default function PerfumePicker({ label, onSelect, selected, placeholder, 
 
       setIsLoading(true);
       try {
-        // Simplify search to just perfume name for stability first
-        // Temporarily removing relation fetch to isolate the error
+        // Use the debug RPC function to bypass RLS for this test
         const { data, error } = await supabase
-          .from('perfumes')
-          .select('id, name, image_url, brand:brands(name)') 
-          .ilike('name', `%${query}%`)
+          .rpc('debug_search_perfumes', { p_query: query })
           .limit(10)
           .abortSignal(signal);
 
         if (error) {
           // Ignore abort errors which are expected during rapid typing
           if (!error.message?.includes('AbortError') && !error.message?.includes('aborted')) {
-             console.error("Supabase search error message:", error.message, error);
+             console.error("Supabase RPC error message:", error.message, error);
           }
         }
 
         if (!error && data) {
-          setResults(data);
+          // Manually add a null 'brand' property to match the previous data structure
+          const dataWithBrand = data.map(p => ({...p, brand: null}));
+          setResults(dataWithBrand);
           setIsOpen(true);
           setSelectedIndex(-1);
         }
@@ -182,8 +182,8 @@ export default function PerfumePicker({ label, onSelect, selected, placeholder, 
              <span className="text-[9px] font-bold uppercase tracking-widest text-stone-300 group-hover:text-red-400 transition cursor-pointer">Remove</span>
         </div>
         
-        <div className="bg-white rounded-2xl p-4 flex items-center gap-5 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_16px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all duration-300 cursor-pointer border border-stone-50">
-          <div className="w-16 h-20 flex-shrink-0 flex items-center justify-center bg-stone-50 rounded-lg">
+        <div className={`bg-white rounded-2xl flex items-center gap-4 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_16px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all duration-300 cursor-pointer border border-stone-50 ${compact ? 'p-2' : 'p-4 gap-5'}`}>
+          <div className={`${compact ? 'w-10 h-12' : 'w-16 h-20'} flex-shrink-0 flex items-center justify-center bg-stone-50 rounded-lg`}>
              {selected.image_url ? (
                <img src={selected.image_url} className="h-full w-full object-contain mix-blend-multiply opacity-90" /> 
              ) : (
@@ -193,7 +193,7 @@ export default function PerfumePicker({ label, onSelect, selected, placeholder, 
           
           <div className="flex-1 min-w-0">
             <div className="text-[9px] font-bold uppercase tracking-widest text-stone-400 mb-1 truncate">{selected.brand?.name || selected.brand_name}</div>
-            <div className="font-serif text-xl text-stone-800 leading-tight truncate pr-2">{selected.name}</div>
+            <div className={`font-serif text-stone-800 leading-tight truncate pr-2 ${compact ? 'text-sm' : 'text-xl'}`}>{selected.name}</div>
           </div>
         </div>
       </div>
@@ -212,22 +212,34 @@ export default function PerfumePicker({ label, onSelect, selected, placeholder, 
             ref={inputRef}
             type="text"
             placeholder={placeholder || "Search perfume..."}
-            className="w-full bg-white border border-stone-200 rounded-2xl pl-5 pr-10 py-4 outline-none focus:border-stone-800 focus:ring-1 focus:ring-stone-800 transition placeholder:text-stone-300 text-sm shadow-sm font-serif"
+            className={`w-full bg-white border border-stone-200 rounded-2xl pl-5 pr-10 outline-none focus:border-stone-800 focus:ring-1 focus:ring-stone-800 transition placeholder:text-stone-300 text-sm shadow-sm font-serif ${compact ? 'py-2' : 'py-4'}`}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
+            onClick={() => {
+                if (displayList.length > 0) setIsOpen(true);
+            }}
             onFocus={() => {
-              // Always open if we have something to show (suggestions or results)
               if (displayList.length > 0) setIsOpen(true);
             }}
-            // Remove onBlur timeout or make it robust for click handling
             onBlur={() => setTimeout(() => setIsOpen(false), 200)}
           />
-          <div className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-300 pointer-events-none">
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-300">
              {isLoading ? (
                <div className="w-4 h-4 border-2 border-stone-200 border-t-stone-800 rounded-full animate-spin"></div>
+             ) : query.length > 0 ? (
+               <button 
+                onClick={() => {
+                    setQuery('');
+                    setResults([]);
+                    if (inputRef.current) inputRef.current.focus();
+                }}
+                className="hover:text-stone-600 transition-colors"
+               >
+                 ✕
+               </button>
              ) : (
-               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+               <svg className="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
              )}
           </div>
       </div>

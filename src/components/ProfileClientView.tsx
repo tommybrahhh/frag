@@ -9,6 +9,7 @@ import WardrobeAnalytics from '@/components/WardrobeAnalytics';
 import { UserInsights, calculateScentDNA } from '@/lib/analytics'; 
 import { Recommendation } from '@/lib/recommendation-engine';
 import ProfileSettingsModal from './ProfileSettingsModal';
+import UserCommentsList from './UserCommentsList';
 
 type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row'];
 
@@ -24,6 +25,7 @@ type ProfilePageProps = {
     collection_id: string,
     list_type: "owned" | "wishlist" | "tested"
   })[];
+  initialComments: any[]; // Add this prop
   insights: UserInsights;
   topMatches: Recommendation[];
   discoverySelections: Recommendation[];
@@ -55,6 +57,7 @@ export default function ProfileClientView({
   initialAvatarUrl,
   isVerified,
   initialCollection = [], 
+  initialComments = [], // Add this prop
   insights, 
   topMatches = [], 
   discoverySelections = [] 
@@ -367,6 +370,7 @@ export default function ProfileClientView({
 
   const wardrobeCount = collection.filter(p => p.list_type === 'owned' || !p.list_type).length;
   const wishlistCount = collection.filter(p => p.list_type === 'wishlist').length;
+  const reviewsCount = initialComments.length;
 
   return (
     <div className="min-h-screen bg-[#FDFBF7] text-gray-800 font-sans pb-20">
@@ -479,7 +483,7 @@ export default function ProfileClientView({
                     onClick={() => setActiveTab('reviews')}
                     className={`py-4 text-xs font-bold uppercase tracking-widest border-b-2 transition-colors ${activeTab === 'reviews' ? 'border-stone-900 text-stone-900' : 'border-transparent text-stone-400 hover:text-stone-600'}`}
                 >
-                    Reviews (0)
+                    Reviews ({reviewsCount})
                 </button>
             </div>
         </div>
@@ -705,10 +709,15 @@ export default function ProfileClientView({
         )}
 
         {activeTab === 'reviews' && (
-            <div className="py-20 text-center animate-in fade-in duration-300">
-                 <div className="text-4xl mb-4">✍️</div>
-                <h3 className="font-serif text-xl text-stone-900 mb-2">My Reviews</h3>
-                <p className="text-stone-500">See all your past reviews and ratings in one place.</p>
+            <div className="animate-in fade-in duration-300">
+                <div className="bg-[#FDFBF7]/95 pt-4 pb-2 mb-6 border-b border-stone-200">
+                    <div className="flex items-center justify-between gap-4 mb-4">
+                        <div className="flex items-baseline gap-3">
+                            <h2 className="font-serif text-2xl text-stone-900">My Reviews</h2>
+                        </div>
+                    </div>
+                </div>
+                {user && <UserCommentsList userId={user.id} />}
             </div>
         )}
 
