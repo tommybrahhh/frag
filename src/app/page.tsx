@@ -1,5 +1,5 @@
 import { createClient } from '@/utils/supabase/server';
-import HomeClient from '@/components/HomeClient';
+import HomeClient from '@/components/features/home/HomeClient';
 
 export const dynamic = 'force-dynamic';
 

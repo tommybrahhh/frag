@@ -1,5 +1,5 @@
 import { createClient } from '@/utils/supabase/server';
-import PerfumeClientView from '@/components/PerfumeClientView';
+import PerfumeClientView from '@/components/features/perfume/PerfumeClientView';
 import { Database } from '@/types/database';
 import { notFound } from 'next/navigation';
 import { RecommendationEngine } from '@/lib/recommendation-engine';

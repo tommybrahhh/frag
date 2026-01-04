@@ -1,5 +1,5 @@
 import { createClient } from '@/utils/supabase/server';
-import CompareClientView from '@/components/CompareClientView';
+import CompareClientView from '@/components/features/compare/CompareClientView';
 
 export default async function ComparePage(props: { searchParams: Promise<{ a?: string, b?: string, ids?: string }> }) {
   const searchParams = await props.searchParams;

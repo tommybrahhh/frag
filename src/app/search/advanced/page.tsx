@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase';
-import NotePicker from '@/components/NotePicker';
+import NotePicker from '@/components/features/notes/NotePicker';
 import Link from 'next/link';
 
 interface SearchResult {

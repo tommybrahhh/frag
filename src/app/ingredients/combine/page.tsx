@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import IngredientSearch from '@/components/IngredientSearch';
+import IngredientSearch from '@/components/features/notes/IngredientSearch';
 import { analyzeIngredientCombination, classifyNoteVolatility } from '@/lib/alchemy';
 
 interface Perfume {

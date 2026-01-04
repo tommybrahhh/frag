@@ -7,9 +7,9 @@ import { getLayeringSuggestions } from '@/app/actions/layering';
 import Link from 'next/link';
 
 // Import new/refactored components
-import PerfumePicker from '@/components/PerfumePicker';
-import MixingControls from '@/components/layering/MixingControls';
-import LayeringAnalysis from '@/components/layering/LayeringAnalysis';
+import PerfumePicker from '@/components/features/perfume/PerfumePicker';
+import MixingControls from '@/components/features/layering/MixingControls';
+import LayeringAnalysis from '@/components/features/layering/LayeringAnalysis';
 
 // Mock "Chef's Specials" to solve the blank canvas problem
 const CHEF_SPECIALS = [

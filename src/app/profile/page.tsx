@@ -1,6 +1,6 @@
 import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
-import ProfileClientView from '@/components/ProfileClientView';
+import ProfileClientView from '@/components/features/profile/ProfileClientView';
 import { Database } from '@/types/database';
 import { analyzeWardrobe } from '@/lib/analytics';
 import { RecommendationEngine, Recommendation } from '@/lib/recommendation-engine';

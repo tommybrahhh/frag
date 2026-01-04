@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
-import { FilterCategory, FilterValues } from '../components/filterTypes';
+import { FilterCategory, FilterValues } from '@/components/features/search/filterTypes';
 
 export function useFilters() {
   const [isModified, setIsModified] = useState(false);
