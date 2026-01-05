@@ -206,9 +206,9 @@ export default function AllRecommendationsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {perfumes.map((perfume) => (
             <div key={perfume.id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow flex">
-              <div className="w-1/3 bg-gray-100 flex items-center justify-center relative">
+              <div className="w-1/3 bg-stone-50 flex items-center justify-center relative p-3">
                  {perfume.image_url ? (
-                   <img src={perfume.image_url} alt={perfume.name} className="object-cover h-full w-full" />
+                   <img src={perfume.image_url} alt={perfume.name} className="object-contain h-full w-full mix-blend-multiply" />
                  ) : (
                    <span className="text-4xl">🧴</span>
                  )}

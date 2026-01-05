@@ -266,6 +266,67 @@ export default function PerfumeClientView({ perfume, recommendationCategories }:
   };
 
 
+  // --- RECOMMENDATION SECTION COMPONENT ---
+  const RecommendationSection = ({ category }: { category: RecommendationCategory }) => {
+    const [isExpanded, setIsExpanded] = useState(false);
+    
+    // Only apply limiting logic to specific price/tier related categories as requested
+    // or generally if the list is long. The user asked specifically for:
+    // "in the same price range", "entry luxe upgrade", "top-tier luxury"
+    // We'll check the category.type or title to be safe, or just apply to all for better UX.
+    // Let's apply to all categories that have more than 6 items for consistency.
+    
+    const visibleRecommendations = isExpanded 
+      ? category.recommendations 
+      : category.recommendations.slice(0, 6);
+      
+    const hasHiddenItems = category.recommendations.length > 6;
+
+    return (
+      <section>
+        <div className="mb-8 border-b border-stone-100 pb-4 flex justify-between items-end">
+          <div>
+            <h3 className="font-serif text-2xl text-stone-900 mb-2">{category.title}</h3>
+            <p className="text-stone-500 text-sm">{category.description}</p>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {visibleRecommendations.map((rec) => (
+            <div key={rec.perfume.id} className="group cursor-pointer" onClick={() => router.push(`/perfume/${rec.perfume.id}`)}>
+              <div className="relative h-[320px] bg-stone-50 rounded-2xl mb-4 flex items-center justify-center p-6 transition-colors group-hover:bg-[#F0F0F0]">
+                <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-2 py-1 rounded-full border border-stone-100 shadow-sm z-10">
+                  <span className="text-[10px] font-bold text-stone-900 tabular-nums">{rec.score}% Match</span>
+                </div>
+                {rec.perfume.image_url ? (
+                  <img src={rec.perfume.image_url} className="h-full w-full object-contain mix-blend-multiply" alt={rec.perfume.name} />
+                ) : (
+                  <span className="text-stone-300 text-xs">No Image</span>
+                )}
+              </div>
+              <div className="text-center">
+                <div className="text-[10px] font-bold tracking-widest text-stone-400 uppercase mb-1">{rec.perfume.brand?.name}</div>
+                <h4 className="font-serif text-lg text-stone-900 group-hover:text-stone-600 transition">{rec.perfume.name}</h4>
+                <p className="text-xs text-stone-500 mt-1">{rec.reason}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {hasHiddenItems && (
+           <div className="mt-8 text-center">
+              <button 
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="inline-flex items-center gap-2 px-6 py-3 bg-white border border-stone-200 rounded-full text-xs font-bold uppercase tracking-widest text-stone-600 hover:border-stone-900 hover:text-stone-900 transition-all shadow-sm hover:shadow-md"
+              >
+                {isExpanded ? 'Show Less' : `Show ${category.recommendations.length - 6} More`}
+              </button>
+           </div>
+        )}
+      </section>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-[#FAFAF9] text-[#1C1917] pb-20 font-sans selection:bg-[#1C1917] selection:text-[#FAFAF9]">
       <div className="px-6 py-4 sticky top-0 bg-[#FAFAF9]/90 backdrop-blur-md z-30 flex justify-between items-center border-b border-[#E7E5E4]">
@@ -299,10 +360,10 @@ export default function PerfumeClientView({ perfume, recommendationCategories }:
 
           {/* COLUMN 2: Hero Image */}
           <div className="lg:col-span-6 flex flex-col items-center justify-center min-h-[500px] order-1 lg:order-2">
-            <div className="relative w-full h-[600px] flex items-center justify-center" ref={heroRef}>
-                 <div className="absolute w-[400px] h-[400px] rounded-full bg-stone-50/50 blur-3xl -z-10"></div>
+            <div className="relative w-full h-[600px] bg-stone-50/50 rounded-[40px] flex items-center justify-center overflow-hidden" ref={heroRef}>
+                 <div className="absolute w-[400px] h-[400px] rounded-full bg-stone-100/30 blur-3xl -z-10"></div>
                  {perfume.image_url ? (
-                    <img src={perfume.image_url} alt={perfume.name} className="h-full w-full object-contain mix-blend-multiply drop-shadow-2xl" />
+                    <img src={perfume.image_url} alt={perfume.name} className="h-[80%] w-[80%] object-contain mix-blend-multiply" />
                  ) : (
                     <div className="w-64 h-80 border-2 border-stone-100 flex items-center justify-center text-stone-300 italic">No Bottle Image</div>
                  )}
@@ -493,33 +554,7 @@ export default function PerfumeClientView({ perfume, recommendationCategories }:
       {/* Recommendation Modules */}
       <div className="max-w-6xl mx-auto px-6 mt-24 mb-20 space-y-24">
         {recommendationCategories.map(category => (
-          <section key={category.type}>
-            <div className="mb-8 border-b border-stone-100 pb-4">
-              <h3 className="font-serif text-2xl text-stone-900 mb-2">{category.title}</h3>
-              <p className="text-stone-500 text-sm">{category.description}</p>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {category.recommendations.map((rec) => (
-                <div key={rec.perfume.id} className="group cursor-pointer" onClick={() => router.push(`/perfume/${rec.perfume.id}`)}>
-                  <div className="relative h-[320px] bg-stone-50 rounded-2xl mb-4 flex items-center justify-center p-6 transition-colors group-hover:bg-[#F0F0F0]">
-                    <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-2 py-1 rounded-full border border-stone-100 shadow-sm z-10">
-                      <span className="text-[10px] font-bold text-stone-900 tabular-nums">{rec.score}% Match</span>
-                    </div>
-                    {rec.perfume.image_url ? (
-                      <img src={rec.perfume.image_url} className="h-full w-full object-contain mix-blend-multiply" alt={rec.perfume.name} />
-                    ) : (
-                      <span className="text-stone-300 text-xs">No Image</span>
-                    )}
-                  </div>
-                  <div className="text-center">
-                    <div className="text-[10px] font-bold tracking-widest text-stone-400 uppercase mb-1">{rec.perfume.brand?.name}</div>
-                    <h4 className="font-serif text-lg text-stone-900 group-hover:text-stone-600 transition">{rec.perfume.name}</h4>
-                    <p className="text-xs text-stone-500 mt-1">{rec.reason}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
+          <RecommendationSection key={category.type} category={category} />
         ))}
       </div>
 
