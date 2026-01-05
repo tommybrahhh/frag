@@ -9,6 +9,7 @@ import ScentRadar from '@/components/ui/ScentRadar';
 import { Database } from '@/types/database';
 import { ratingToDescription } from '@/lib/longevity-utils';
 import { RecommendationCategory } from '@/lib/recommendation-engine';
+import LayeringCard from '@/components/features/perfume/LayeringCard';
 
 export type Note = {
   name: string;
@@ -293,23 +294,27 @@ export default function PerfumeClientView({ perfume, recommendationCategories }:
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {visibleRecommendations.map((rec) => (
-            <div key={rec.perfume.id} className="group cursor-pointer" onClick={() => router.push(`/perfume/${rec.perfume.id}`)}>
-              <div className="relative h-[320px] bg-stone-50 rounded-2xl mb-4 flex items-center justify-center p-6 transition-colors group-hover:bg-[#F0F0F0]">
-                <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-2 py-1 rounded-full border border-stone-100 shadow-sm z-10">
-                  <span className="text-[10px] font-bold text-stone-900 tabular-nums">{rec.score}% Match</span>
+            category.type === 'layering' ? (
+              <LayeringCard key={rec.perfume.id} mainPerfume={perfume} recommendation={rec} />
+            ) : (
+              <div key={rec.perfume.id} className="group cursor-pointer" onClick={() => router.push(`/perfume/${rec.perfume.id}`)}>
+                <div className="relative h-[320px] bg-stone-50 rounded-2xl mb-4 flex items-center justify-center p-6 transition-colors group-hover:bg-[#F0F0F0]">
+                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-2 py-1 rounded-full border border-stone-100 shadow-sm z-10">
+                    <span className="text-[10px] font-bold text-stone-900 tabular-nums">{rec.score}% Match</span>
+                  </div>
+                  {rec.perfume.image_url ? (
+                    <img src={rec.perfume.image_url} className="h-full w-full object-contain mix-blend-multiply" alt={rec.perfume.name} />
+                  ) : (
+                    <span className="text-stone-300 text-xs">No Image</span>
+                  )}
                 </div>
-                {rec.perfume.image_url ? (
-                  <img src={rec.perfume.image_url} className="h-full w-full object-contain mix-blend-multiply" alt={rec.perfume.name} />
-                ) : (
-                  <span className="text-stone-300 text-xs">No Image</span>
-                )}
+                <div className="text-center">
+                  <div className="text-[10px] font-bold tracking-widest text-stone-400 uppercase mb-1">{rec.perfume.brand?.name}</div>
+                  <h4 className="font-serif text-lg text-stone-900 group-hover:text-stone-600 transition">{rec.perfume.name}</h4>
+                  <p className="text-xs text-stone-500 mt-1">{rec.reason}</p>
+                </div>
               </div>
-              <div className="text-center">
-                <div className="text-[10px] font-bold tracking-widest text-stone-400 uppercase mb-1">{rec.perfume.brand?.name}</div>
-                <h4 className="font-serif text-lg text-stone-900 group-hover:text-stone-600 transition">{rec.perfume.name}</h4>
-                <p className="text-xs text-stone-500 mt-1">{rec.reason}</p>
-              </div>
-            </div>
+            )
           ))}
         </div>
 

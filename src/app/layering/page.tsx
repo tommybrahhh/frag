@@ -5,6 +5,7 @@ import { createClient } from '@/utils/supabase/client';
 import { mixPerfumes } from '@/lib/alchemy';
 import { getLayeringSuggestions } from '@/app/actions/layering';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 
 // Import new/refactored components
 import PerfumePicker from '@/components/features/perfume/PerfumePicker';
@@ -19,12 +20,26 @@ const CHEF_SPECIALS = [
 ];
 
 export default function LayeringLab() {
+  const searchParams = useSearchParams();
+  const baseId = searchParams.get('base');
+  const topId = searchParams.get('top');
+
   const [slot1, setSlot1] = useState<any>(null);
   const [slot2, setSlot2] = useState<any>(null);
   const [result, setResult] = useState<any>(null);
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [ratio, setRatio] = useState(50);
   const [recentMixes, setRecentMixes] = useState<any[]>([]);
+
+  // Pre-load from query params
+  useEffect(() => {
+    if (baseId) {
+      hydrateAndSet({ id: baseId }, setSlot1);
+    }
+    if (topId) {
+      hydrateAndSet({ id: topId }, setSlot2);
+    }
+  }, [baseId, topId]);
 
   // 1. Generate Suggestions for Slot 2
   useEffect(() => {

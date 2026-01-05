@@ -949,7 +949,7 @@ export class RecommendationEngine {
       ...priceCategories,
       {
         type: 'layering',
-        title: 'The Layering Experiment',
+        title: 'Layering',
         description: 'Discover unique combinations by layering scents.',
         recommendations: this.getLayeringRecommendations(mainPerfume, allPerfumes, 3)
       },
