@@ -424,10 +424,10 @@ export class RecommendationEngine {
             if (sharedFamilies.length > 0) {
                 // Capitalize the family name for better display
                 const familyName = sharedFamilies[0].charAt(0).toUpperCase() + sharedFamilies[0].slice(1);
-                reasonParts.push(`the <strong>${familyName}</strong> family`);
+                reasonParts.push(`the ${familyName} family`);
             }
             if (sharedNotes.length > 1) { // Only add notes if there's more than one to show
-                reasonParts.push(`notes like <strong>${sharedNotes.slice(0, 2).join(', ')}</strong>`);
+                reasonParts.push(`notes like ${sharedNotes.slice(0, 2).join(', ')}`);
             }
 
             let reason = 'It has a similar vibe profile.';
@@ -955,16 +955,11 @@ export class RecommendationEngine {
       },
       {
         type: 'discovery',
-        title: 'The Curator\'s Pivot',
+        title: 'Discover',
         description: 'Step out of your comfort zone',
         recommendations: this.getDiscoveryRecommendations(mainPerfume, allPerfumes, 1) // Only 1 needed for the Hero card
       },
-      {
-        type: 'dupe',
-        title: 'The Smart Buy',
-        description: 'High similarity alternatives at a better price point',
-        recommendations: this.getDupeRecommendations(mainPerfume, allPerfumes, 3)
-      }
+
     ];
 
     // Return all categories, even if their recommendations are empty.

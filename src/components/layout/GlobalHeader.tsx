@@ -35,7 +35,7 @@ export default function GlobalHeader() {
             <Link href="/layering" className="text-[11px] font-bold uppercase tracking-[0.15em] text-stone-500 hover:text-stone-900 transition-colors">
               Layering
             </Link>
-            <Link href="/search/advanced" className="text-[11px] font-bold uppercase tracking-[0.15em] text-stone-500 hover:text-stone-900 transition-colors">
+            <Link href="/search" className="text-[11px] font-bold uppercase tracking-[0.15em] text-stone-500 hover:text-stone-900 transition-colors">
               Notes
             </Link>
             <Link href="/compare" className="text-[11px] font-bold uppercase tracking-[0.15em] text-stone-500 hover:text-stone-900 transition-colors">

@@ -51,7 +51,7 @@ const HorizontalScrollRow = ({ items }: { items: Perfume[] }) => {
         ))}
         <div className="min-w-[100px] flex items-center justify-center">
           <Link
-            href="/search/advanced"
+            href="/search"
             className="w-12 h-12 rounded-full border border-stone-200 flex items-center justify-center text-stone-400 hover:bg-stone-900 hover:border-stone-900 hover:text-white transition"
             aria-label="Explore more scents"
           >

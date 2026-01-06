@@ -10,6 +10,7 @@ import { UserInsights, calculateScentDNA } from '@/lib/analytics';
 import { Recommendation } from '@/lib/recommendation-engine';
 import ProfileSettingsModal from './ProfileSettingsModal';
 import UserCommentsList from '@/components/features/community/UserCommentsList';
+import DiscoverMatches from './DiscoverMatches';
 
 type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row'];
 
@@ -329,43 +330,7 @@ export default function ProfileClientView({
   );
 
 
-  // Categorize Top Matches by Brand Tier
-  const categorizedTopMatches = useMemo(() => {
-    const categoryOrder = ["Niche", "Designer", "Indie", "Celebrity", "Historical", "Other"];
-    const grouped: Record<string, Recommendation[]> = {
-      "Niche": [],
-      "Designer": [],
-      "Indie": [],
-      "Celebrity": [],
-      "Historical": [],
-      "Other": []
-    };
 
-    topMatches.forEach(rec => {
-      const tier = rec.perfume.brand?.tier;
-      if (tier && categoryOrder.includes(tier)) {
-        grouped[tier].push(rec);
-      } else {
-        grouped["Other"].push(rec);
-      }
-    });
-
-    // Sort categories based on predefined order
-    const sortedGrouped: Record<string, Recommendation[]> = {};
-    categoryOrder.forEach(category => {
-      if (grouped[category] && grouped[category].length > 0) {
-        sortedGrouped[category] = grouped[category];
-      }
-    });
-    // Add any categories not in categoryOrder (e.g., new tiers) at the end
-    for (const category in grouped) {
-        if (!categoryOrder.includes(category) && grouped[category].length > 0) {
-            sortedGrouped[category] = grouped[category];
-        }
-    }
-
-    return sortedGrouped;
-  }, [topMatches]);
 
 
   const wardrobeCount = collection.filter(p => p.list_type === 'owned' || !p.list_type).length;
@@ -733,60 +698,8 @@ export default function ProfileClientView({
             </div>
         )}
 
-        {/* Perfect Matches Section (Fixed Tier) */}
-        {topMatches.length > 0 && activeTab === 'wardrobe' && (
-          <div className="pt-12 border-t border-stone-200">
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-stone-400">Curated For You</span>
-                <h2 className="font-serif text-2xl text-stone-900 mt-1">Perfect Matches</h2>
-                <p className="text-stone-500 text-sm mt-1">Highly compatible with your taste profile, categorized by brand tier.</p>
-              </div>
-            </div>
-            
-            {Object.entries(categorizedTopMatches).map(([category, recommendations]) => (
-                recommendations.length > 0 && (
-                    <div key={category} className="mb-10">
-                        <h3 className="font-serif text-xl text-stone-900 mb-5 border-l-4 border-stone-200 pl-3">
-                            {category} Perfumes
-                            <span className="text-stone-400 text-sm font-sans font-normal ml-2">({recommendations.length})</span>
-                        </h3>
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12">
-                        {recommendations.map((rec) => (
-                            <Link 
-                            key={rec.perfume.id} 
-                            href={`/perfume/${rec.perfume.id}`}
-                            className="group bg-white rounded-xl border border-stone-100 p-4 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
-                            >
-                            <div className="h-48 flex items-center justify-center p-4 mb-4 bg-stone-50 rounded-lg group-hover:bg-white transition-colors relative">
-                                <div className="absolute top-2 right-2 bg-stone-900 text-white text-[10px] font-bold px-2 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                                {rec.score}% Match
-                                </div>
-                                {rec.perfume.image_url ? (
-                                <img src={rec.perfume.image_url} alt={rec.perfume.name} className="h-full object-contain mix-blend-multiply opacity-80 group-hover:opacity-100 transition-opacity" />
-                                ) : (
-                                <span className="text-stone-300 text-xs italic">No Image</span>
-                                )}
-                            </div>
-                            <div className="text-center">
-                                <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 truncate mb-1">
-                                {rec.perfume.brand?.name}
-                                </div>
-                                <div className="font-serif text-lg text-stone-900 leading-tight truncate mb-2">
-                                {rec.perfume.name}
-                                </div>
-                                <div className="text-xs text-stone-500 line-clamp-2 h-8 px-2">
-                                {rec.reason}
-                                </div>
-                            </div>
-                            </Link>
-                        ))}
-                        </div>
-                    </div>
-                )
-            ))}
-          </div>
-        )}
+        {/* Discover Matches Section */}
+        {activeTab === 'wardrobe' && <DiscoverMatches topMatches={topMatches} />}
 
         {/* Discovery Section (Shuffled Tier) */}
         {discoverySelections.length > 0 && activeTab === 'wardrobe' && (
@@ -799,47 +712,50 @@ export default function ProfileClientView({
               </div>
             </div>
             
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
               {discoverySelections.map((rec) => (
                 <div 
                   key={rec.perfume.id} 
-                  className="group bg-white rounded-xl border border-stone-100 p-4 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col"
+                  className="group relative bg-white rounded-xl border border-stone-100 p-3 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full flex flex-col"
                 >
-                  <Link href={`/perfume/${rec.perfume.id}`} className="block flex-1">
-                    <div className="h-48 flex items-center justify-center p-4 mb-4 bg-stone-50 rounded-lg group-hover:bg-white transition-colors">
+                  <Link href={`/perfume/${rec.perfume.id}`} className="flex-1 flex flex-col">
+                    <div className="h-40 flex items-center justify-center p-4 mb-3 bg-stone-50 rounded-lg group-hover:bg-white transition-colors relative overflow-hidden">
                       {rec.perfume.image_url ? (
-                        <img src={rec.perfume.image_url} alt={rec.perfume.name} className="h-full object-contain mix-blend-multiply opacity-80 group-hover:opacity-100 transition-opacity" />
+                        <img src={rec.perfume.image_url} alt={rec.perfume.name} className="h-full object-contain mix-blend-multiply opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" />
                       ) : (
                         <span className="text-stone-300 text-xs italic">No Image</span>
                       )}
                     </div>
-                    <div className="text-center">
-                      <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 truncate mb-1">
+                    
+                    <div className="flex-1 flex flex-col text-center">
+                      <div className="text-[9px] font-bold uppercase tracking-widest text-stone-400 truncate mb-1">
                         {rec.perfume.brand?.name}
                       </div>
-                      <div className="font-serif text-lg text-stone-900 leading-tight truncate mb-2">
+                      <div className="font-serif text-base text-stone-900 leading-tight truncate mb-2 group-hover:text-stone-600 transition-colors">
                         {rec.perfume.name}
                       </div>
-                      <div className="text-xs text-stone-500 line-clamp-2 h-8 px-2 italic">
-                        {rec.reason}
+                      
+                      <div className="mt-auto pt-3 border-t border-stone-50 w-full">
+                        <p className="text-[10px] text-stone-500 leading-relaxed line-clamp-2 italic mb-2">
+                            &quot;{rec.reason}&quot;
+                        </p>
+                         
+                        {/* Vibe Chips */}
+                        {rec.sharedVibes && rec.sharedVibes.length > 0 && (
+                            <div className="flex flex-wrap gap-1 justify-center">
+                            {rec.sharedVibes.slice(0, 3).map((vibe) => (
+                                <span
+                                key={vibe}
+                                className="text-[8px] uppercase tracking-wider px-1.5 py-0.5 bg-stone-100 text-stone-500 rounded-sm border border-stone-200"
+                                >
+                                {vibe}
+                                </span>
+                            ))}
+                            </div>
+                        )}
                       </div>
                     </div>
                   </Link>
-
-                  {/* Vibe Chips */}
-                  {rec.sharedVibes && rec.sharedVibes.length > 0 && (
-                    <div className="flex flex-wrap gap-1 justify-center mt-3 px-2 pt-2 border-t border-stone-50">
-                      {rec.sharedVibes.map((vibe) => (
-                        <Link
-                          key={vibe}
-                          href={`/search?vibe=${encodeURIComponent(vibe)}`}
-                          className="text-[9px] uppercase tracking-widest px-2 py-1 bg-stone-50 text-stone-400 rounded-full hover:bg-stone-200 hover:text-stone-600 transition-colors z-10 relative"
-                        >
-                          {vibe}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
                 </div>
               ))}
             </div>

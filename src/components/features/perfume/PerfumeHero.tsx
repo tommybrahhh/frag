@@ -164,11 +164,12 @@ export default function PerfumeHero({ perfume }: PerfumeHeroProps) {
 
         {/* COLUMN 2: Hero Image */}
         <div className="lg:col-span-6 flex flex-col items-center justify-center min-h-[500px] order-1 lg:order-2">
-                      <div className="relative w-full h-[600px] flex items-center justify-center bg-[#FAFAF9] rounded-2xl" ref={heroRef}>               {perfume.image_url ? (
-                  <img src={perfume.image_url} alt={perfume.name} className="h-full w-full object-contain mix-blend-multiply" />
-               ) : (
-                  <div className="w-64 h-80 border-2 border-stone-100 flex items-center justify-center text-stone-300 italic">No Bottle Image</div>
-               )}
+          <div className="relative w-full h-[600px] flex items-center justify-center bg-[#FAFAF9] rounded-2xl" ref={heroRef}>
+            {perfume.image_url ? (
+              <img src={perfume.image_url} alt={perfume.name} className="h-full w-full object-contain mix-blend-multiply" />
+            ) : (
+              <div className="w-64 h-80 border-2 border-stone-100 flex items-center justify-center text-stone-300 italic">No Bottle Image</div>
+            )}
           </div>
         </div>
 
@@ -197,48 +198,41 @@ export default function PerfumeHero({ perfume }: PerfumeHeroProps) {
                </div>
            </div>
 
-           {/* 3c. MOVED DATA: Olfactive, Perfumer, Price */}
-           <div className="space-y-10 pt-8 border-t border-stone-100">
-              {/* Olfactive Family */}
-              <div>
-                 <h3 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-4">Olfactive Family</h3>
-                 <div className="space-y-4">
-                     <div className="flex items-center gap-4">
-                         <div className="w-10 h-10 rounded-full bg-stone-100 border border-stone-200 flex items-center justify-center text-lg shadow-sm">🌸</div>
-                         <div>
-                             <div className="text-xs font-bold uppercase tracking-wider text-stone-900">{perfume.olfactory_family?.[0] || 'Floral'}</div>
-                             <div className="text-[9px] uppercase tracking-widest text-stone-400">Primary</div>
-                         </div>
-                     </div>
-                     {perfume.olfactory_family?.[1] && (
-                         <div className="flex items-center gap-4">
-                             <div className="w-10 h-10 rounded-full bg-stone-100 border border-stone-200 flex items-center justify-center text-lg shadow-sm">🌫️</div>
-                             <div>
-                                 <div className="text-xs font-bold uppercase tracking-wider text-stone-900">{perfume.olfactory_family[1]}</div>
-                                 <div className="text-[9px] uppercase tracking-widest text-stone-400">Secondary</div>
-                             </div>
-                         </div>
-                     )}
-                 </div>
-              </div>
+            {/* 3c. Olfactive, Perfumer, Price */}
+            <div className="space-y-6 pt-8 border-t border-stone-100">
+                {/* Olfactive Family */}
+                <div>
+                   <h3 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-2">Olfactive Family</h3>
+                   <div className="space-y-3">
+                       <div>
+                           <div className="font-serif text-base text-stone-900">{perfume.olfactory_family?.[0] || 'N/A'}</div>
+                           <div className="text-[9px] uppercase tracking-widest text-stone-500">Primary</div>
+                       </div>
+                       {perfume.olfactory_family?.[1] && (
+                           <div>
+                               <div className="font-serif text-base text-stone-900">{perfume.olfactory_family[1]}</div>
+                               <div className="text-[9px] uppercase tracking-widest text-stone-500">Secondary</div>
+                           </div>
+                       )}
+                   </div>
+                </div>
 
-              {/* Perfumer */}
-              <div className="pt-6 border-t border-stone-100">
-                 <h3 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-2">Perfumer</h3>
-                 <div className="text-sm font-medium text-stone-900">
-                     {perfume.perfumer ? (
-                         <Link href={`/creators/${encodeURIComponent(perfume.perfumer)}`} className="hover:underline decoration-stone-400 underline-offset-4">{perfume.perfumer}</Link>
-                     ) : 'Unknown Nose'}
-                 </div>
-              </div>
+                {/* Perfumer */}
+                <div className="pt-4 border-t border-stone-100">
+                   <h3 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-1">Perfumer</h3>
+                   <div className="font-serif text-base text-stone-900">
+                       {perfume.perfumer ? (
+                           <Link href={`/creators/${encodeURIComponent(perfume.perfumer)}`} className="hover:underline decoration-stone-400 underline-offset-4">{perfume.perfumer}</Link>
+                       ) : 'Unknown Nose'}
+                   </div>
+                </div>
 
-              {/* Price Range */}
-              <div>
-                 <h3 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-2">Price Range</h3>
-                 <span className="font-serif text-xl text-stone-900 tracking-widest">{perfume.price_tier || '$$$'}</span>
-              </div>
-           </div>
-
+                {/* Price Range */}
+                <div className="pt-4 border-t border-stone-100">
+                   <h3 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-1">Price Range</h3>
+                   <span className="font-serif text-base text-stone-900">{perfume.price_tier || 'N/A'}</span>
+                </div>
+            </div>
         </div>
       </div>
     </div>

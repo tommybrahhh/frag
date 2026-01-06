@@ -1,0 +1,117 @@
+'use client';
+
+import React, { useMemo } from 'react';
+import Link from 'next/link';
+import { Recommendation } from '@/lib/recommendation-engine';
+
+interface DiscoverMatchesProps {
+  topMatches: Recommendation[];
+}
+
+export default function DiscoverMatches({ topMatches }: DiscoverMatchesProps) {
+  // Categorize Top Matches by Brand Tier
+  const categorizedTopMatches = useMemo(() => {
+    const categoryOrder = ["Niche", "Designer", "Indie", "Celebrity", "Historical", "Other"];
+    const grouped: Record<string, Recommendation[]> = {
+      "Niche": [],
+      "Designer": [],
+      "Indie": [],
+      "Celebrity": [],
+      "Historical": [],
+      "Other": []
+    };
+
+    topMatches.forEach(rec => {
+      const tier = rec.perfume.brand?.tier;
+      if (tier && categoryOrder.includes(tier)) {
+        grouped[tier].push(rec);
+      } else {
+        grouped["Other"].push(rec);
+      }
+    });
+
+    // Sort categories based on predefined order
+    const sortedGrouped: Record<string, Recommendation[]> = {};
+    categoryOrder.forEach(category => {
+      if (grouped[category] && grouped[category].length > 0) {
+        sortedGrouped[category] = grouped[category];
+      }
+    });
+    // Add any categories not in categoryOrder (e.g., new tiers) at the end
+    for (const category in grouped) {
+        if (!categoryOrder.includes(category) && grouped[category].length > 0) {
+            sortedGrouped[category] = grouped[category];
+        }
+    }
+
+    return sortedGrouped;
+  }, [topMatches]);
+
+  if (topMatches.length === 0) return null;
+
+  return (
+    <div className="pt-12 border-t border-stone-200">
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-stone-400">Curated For You</span>
+          <h2 className="font-serif text-2xl text-stone-900 mt-1">Discover</h2>
+          <p className="text-stone-500 text-sm mt-1">Highly compatible with your taste profile, categorized by brand tier.</p>
+        </div>
+      </div>
+      
+      {Object.entries(categorizedTopMatches).map(([category, recommendations]) => (
+          recommendations.length > 0 && (
+              <div key={category} className="mb-10">
+                  <div className="flex items-center gap-3 mb-5">
+                      <h3 className="font-serif text-xl text-stone-900">
+                          {category} Perfumes
+                      </h3>
+                      <span className="px-2 py-0.5 rounded-full bg-stone-100 text-stone-500 text-xs font-bold">
+                          {recommendations.length}
+                      </span>
+                      <div className="h-px bg-stone-100 flex-1"></div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                  {recommendations.map((rec) => (
+                      <Link 
+                      key={rec.perfume.id} 
+                      href={`/perfume/${rec.perfume.id}`}
+                      className="group relative bg-white rounded-xl border border-stone-100 p-3 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full flex flex-col"
+                      >
+                      <div className="h-40 flex items-center justify-center p-4 mb-3 bg-stone-50 rounded-lg group-hover:bg-white transition-colors relative overflow-hidden">
+                          {/* Match Badge */}
+                          <div className="absolute top-2 right-2 bg-stone-900/90 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm z-10">
+                          {rec.score}%
+                          </div>
+                          
+                          {rec.perfume.image_url ? (
+                          <img src={rec.perfume.image_url} alt={rec.perfume.name} className="h-full object-contain mix-blend-multiply opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" />
+                          ) : (
+                          <span className="text-stone-300 text-xs italic">No Image</span>
+                          )}
+                      </div>
+                      
+                      <div className="flex-1 flex flex-col text-center">
+                          <div className="text-[9px] font-bold uppercase tracking-widest text-stone-400 truncate mb-1">
+                          {rec.perfume.brand?.name}
+                          </div>
+                          <div className="font-serif text-base text-stone-900 leading-tight truncate mb-2 group-hover:text-stone-600 transition-colors">
+                          {rec.perfume.name}
+                          </div>
+                          
+                          <div className="mt-auto pt-3 border-t border-stone-50">
+                              <p className="text-[10px] text-stone-500 leading-relaxed line-clamp-2 italic">
+                                  &quot;{rec.reason}&quot;
+                              </p>
+                          </div>
+                      </div>
+                      </Link>
+                  ))}
+                  </div>
+              </div>
+          )
+      ))}
+    </div>
+  );
+}

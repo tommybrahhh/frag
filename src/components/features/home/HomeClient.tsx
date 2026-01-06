@@ -136,8 +136,7 @@ export default function HomeClient({ initialBlogPosts }: HomeClientProps) {
         </div>
       </div>
       
-      <SectionHeader title="Just Arrived" linkText="View All" linkHref="/search/advanced?sort=newest" />
-      <HorizontalScrollRow items={newArrivals.slice(1, 8)} />
+              <SectionHeader title="Just Arrived" linkText="View All" linkHref="/search?sort=newest" />      <HorizontalScrollRow items={newArrivals.slice(1, 8)} />
 
       <div className="sticky top-20 z-40 bg-white/95 backdrop-blur-sm border-y border-stone-100 py-4 mb-12 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)]">
          <FilterBar onFilterChange={handleFilterChange} />

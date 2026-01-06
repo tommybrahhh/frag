@@ -19,8 +19,7 @@ export default function NotFound() {
           Return to Collection
         </Link>
         <Link 
-          href="/search/advanced" 
-          className="px-8 py-3 bg-white border border-stone-200 text-stone-600 rounded-full text-xs font-bold uppercase tracking-widest hover:border-stone-400 transition"
+                      href="/search"          className="px-8 py-3 bg-white border border-stone-200 text-stone-600 rounded-full text-xs font-bold uppercase tracking-widest hover:border-stone-400 transition"
         >
           Find a New Scent
         </Link>

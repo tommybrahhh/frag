@@ -24,7 +24,7 @@ export default function GlobalFooter() {
         <div>
           <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-900 mb-4">Explore</h4>
           <ul className="space-y-3">
-            <li><Link href="/search/advanced" className="text-xs text-stone-500 hover:text-stone-900 transition">Note Laboratory</Link></li>
+            <li><Link href="/search" className="text-xs text-stone-500 hover:text-stone-900 transition">Note Laboratory</Link></li>
             <li><Link href="/layering" className="text-xs text-stone-500 hover:text-stone-900 transition">Layering Lab</Link></li>
             <li><Link href="/compare" className="text-xs text-stone-500 hover:text-stone-900 transition">Battle Analysis</Link></li>
             <li><Link href="/quiz" className="text-xs text-stone-500 hover:text-stone-900 transition">Scent Quiz</Link></li>
