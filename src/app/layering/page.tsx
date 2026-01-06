@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { mixPerfumes } from '@/lib/alchemy';
 import { getLayeringSuggestions } from '@/app/actions/layering';
@@ -11,6 +11,7 @@ import { useSearchParams } from 'next/navigation';
 import PerfumePicker from '@/components/features/perfume/PerfumePicker';
 import MixingControls from '@/components/features/layering/MixingControls';
 import LayeringAnalysis from '@/components/features/layering/LayeringAnalysis';
+import Spinner from '@/components/ui/Spinner';
 
 // Mock "Chef's Specials" to solve the blank canvas problem
 const CHEF_SPECIALS = [
@@ -19,7 +20,7 @@ const CHEF_SPECIALS = [
   { id: 'special-3', name: 'Midnight Rose', desc: 'Oud + Rose', ids: ['190d87e6-7959-48a1-abe6-79cc8cc387a5', 'd4ade9d3-9ce6-46c1-80f5-df33334fb403'] }, // Dhaneloudh Al Nafees + Atomic Rose
 ];
 
-export default function LayeringLab() {
+function LayeringLabContent() {
   const searchParams = useSearchParams();
   const baseId = searchParams.get('base');
   const topId = searchParams.get('top');
@@ -185,5 +186,17 @@ export default function LayeringLab() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function LayeringLab() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-stone-50">
+        <Spinner />
+      </div>
+    }>
+      <LayeringLabContent />
+    </Suspense>
   );
 }

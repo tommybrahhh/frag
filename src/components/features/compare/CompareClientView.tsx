@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import PerfumePicker from '@/components/features/perfume/PerfumePicker';
@@ -27,7 +27,6 @@ const getSillageDescription = (rating: number | null | undefined): string => {
 
 export default function CompareClientView({ initialPerfumes }: CompareClientViewProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
   
   // State for the comparison slots. 
   // We initialize based on URL params but allow local manipulation before pushing URL?

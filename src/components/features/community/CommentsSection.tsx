@@ -41,40 +41,69 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
         throw new Error('Supabase client not initialized');
       }
 
-      console.log('CommentsSection: Calling rpc get_comments_with_upvotes');
-      
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Request timed out after 30s')), 30000)
-      );
+      // 1. Fetch Comments
+      const { data: commentsData, error: commentsError } = await supabase
+        .from('comments')
+        .select(`
+          *,
+          profile:profiles(avatar_url, is_verified)
+        `)
+        .eq('perfume_id', perfumeId)
+        .order('created_at', { ascending: false });
 
-      const rpcPromise = supabase
-        .rpc('get_comments_with_upvotes', { p_perfume_id: perfumeId, p_order_by: sortOrder });
+      if (commentsError) throw commentsError;
 
-      // Use Promise.race to race against the timeout
-      // Note: We cast to 'any' because the types of the two promises are different (one returns data/error, one throws)
-      // but in the happy path, it returns the Supabase response.
-      const { data, error } = await Promise.race([rpcPromise, timeoutPromise]) as any;
-
-      console.log('CommentsSection: RPC result', { data, error });
-
-      if (error) {
-        throw error;
-      }
-      
-      if (data) {
-        setComments(data as EnrichedComment[]);
-      } else {
+      if (!commentsData || commentsData.length === 0) {
         setComments([]);
+        return;
       }
+
+      const commentIds = commentsData.map((c: any) => c.id);
+
+      // 2. Fetch All Upvotes for these comments to calculate counts
+      // Note: For very popular items, a 'count' aggregation view would be better, 
+      // but for now we fetch the IDs which is lighter than full rows.
+      const { data: allUpvotes, error: upvotesError } = await supabase
+        .from('comment_upvotes')
+        .select('comment_id, user_id') // We need user_id to check if current user upvoted too
+        .in('comment_id', commentIds);
+
+      if (upvotesError) throw upvotesError;
+
+      // 3. Process Upvotes (Count & User Status)
+      const upvoteCounts: Record<string, number> = {};
+      const userUpvoted: Record<string, boolean> = {};
+
+      allUpvotes?.forEach((u: any) => {
+        upvoteCounts[u.comment_id] = (upvoteCounts[u.comment_id] || 0) + 1;
+        if (user && u.user_id === user.id) {
+          userUpvoted[u.comment_id] = true;
+        }
+      });
+
+      // 4. Merge Data
+      let enrichedComments = commentsData.map((c: any) => ({
+        ...c,
+        profile: Array.isArray(c.profile) ? c.profile[0] : c.profile,
+        upvote_count: upvoteCounts[c.id] || 0,
+        user_has_upvoted: !!userUpvoted[c.id]
+      }));
+
+      // 5. Apply Sorting (if not default created_at)
+      if (sortOrder === 'upvote_count') {
+        enrichedComments.sort((a, b) => b.upvote_count - a.upvote_count);
+      }
+
+      setComments(enrichedComments as EnrichedComment[]);
+
     } catch (error: any) {
       console.error('Error fetching comments:', error);
       setComments([]);
       setFeedError('Failed to load comments. Please try again later.');
     } finally {
-      console.log('CommentsSection: fetchComments finished, setting loading to false');
       setIsFeedLoading(false);
     }
-  }, [perfumeId, sortOrder, supabase]);
+  }, [perfumeId, sortOrder, supabase, user]);
 
   useEffect(() => {
     fetchComments();
