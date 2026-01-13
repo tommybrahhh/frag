@@ -300,7 +300,7 @@ export default function ProfileClientView({
         ) : '✕'}
       </button>
 
-      <Link href={`/perfume/${perfume.id}`} className="flex-1 flex flex-col">
+      <Link href={`/perfume/${perfume.slug}`} className="flex-1 flex flex-col">
         {/* Image Area */}
         <div className="h-40 flex items-center justify-center p-4 mb-3 bg-stone-50 rounded-lg group-hover:bg-white transition-colors relative">
             {perfume.image_url ? (
@@ -393,7 +393,7 @@ export default function ProfileClientView({
 
             {/* Signature Scent Badge */}
             {signatureScent && (
-                <Link href={`/perfume/${signatureScent.id}`} className="inline-flex items-center gap-3 bg-stone-50 border border-stone-200 pr-4 rounded-full hover:border-stone-400 transition-colors group">
+                <Link href={`/perfume/${signatureScent.slug}`} className="inline-flex items-center gap-3 bg-stone-50 border border-stone-200 pr-4 rounded-full hover:border-stone-400 transition-colors group">
                     <div className="w-10 h-10 rounded-full bg-white border border-stone-100 flex items-center justify-center overflow-hidden">
                         {signatureScent.image_url ? (
                             <img src={signatureScent.image_url} className="w-8 h-8 object-contain" alt="" />
@@ -718,7 +718,7 @@ export default function ProfileClientView({
                   key={rec.perfume.id} 
                   className="group relative bg-white rounded-xl border border-stone-100 p-3 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full flex flex-col"
                 >
-                  <Link href={`/perfume/${rec.perfume.id}`} className="flex-1 flex flex-col">
+                  <Link href={`/perfume/${rec.perfume.slug}`} className="flex-1 flex flex-col">
                     <div className="h-40 flex items-center justify-center p-4 mb-3 bg-stone-50 rounded-lg group-hover:bg-white transition-colors relative overflow-hidden">
                       {rec.perfume.image_url ? (
                         <img src={rec.perfume.image_url} alt={rec.perfume.name} className="h-full object-contain mix-blend-multiply opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" />

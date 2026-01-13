@@ -165,7 +165,7 @@ export default function HomeClient({ initialBlogPosts }: HomeClientProps) {
             const isLast = index === perfumes.length - 1;
             return (
               <div key={`${p.id}-${index}`} ref={isLast ? lastPerfumeElementRef : null}>
-                <Link href={`/perfume/${p.id}`} className="group block h-full bg-white rounded-2xl border border-stone-100 p-4 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                <Link href={`/perfume/${p.slug || p.id}`} className="group block h-full bg-white rounded-2xl border border-stone-100 p-4 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
                   <div className="h-64 flex items-center justify-center mb-4 bg-stone-50 rounded-xl group-hover:bg-white transition-colors relative overflow-hidden">
                     {p.image_url ? (
                       <img 

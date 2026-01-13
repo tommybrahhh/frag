@@ -195,7 +195,7 @@ function calculateNotePreferenceMatch(perfume: Perfume, profile: PersonalityProf
   // Check perfume notes against scent preferences
   if (perfume.perfume_notes && profile.scentPreferences.length > 0) {
     const noteMatches = perfume.perfume_notes.filter(note =>
-      profile.scentPreferences.some(pref =>
+      note?.note?.name && profile.scentPreferences.some(pref =>
         note.note.name.toLowerCase().includes(pref.toLowerCase())
       )
     ).length;
@@ -238,7 +238,7 @@ function calculateScentPreferenceMatch(perfume: Perfume, profile: PersonalityPro
   // Check perfume notes if available
   if (perfume.perfume_notes && profile.scentPreferences.length > 0) {
     const noteMatches = perfume.perfume_notes.filter(note =>
-      profile.scentPreferences.some(pref => 
+      note?.note?.name && profile.scentPreferences.some(pref => 
         note.note.name.toLowerCase().includes(pref.toLowerCase())
       )
     ).length;

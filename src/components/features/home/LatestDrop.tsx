@@ -5,6 +5,7 @@ import Image from 'next/image';
 
 interface Perfume {
   id: string;
+  slug: string;
   name: string;
   brand: { name: string };
   image_url: string;
@@ -17,7 +18,7 @@ const LatestDrop = ({ perfume }: { perfume: Perfume }) => {
 
   return (
     <div className="h-full bg-[#EBE9E4] rounded-3xl overflow-hidden relative group">
-      <Link href={`/perfume/${perfume.id}`} className="block w-full h-full">
+      <Link href={`/perfume/${perfume.slug}`} className="block w-full h-full">
         {/* Full Height Image */}
         <div className="absolute inset-0 w-full h-full p-8 md:p-12">
            <Image

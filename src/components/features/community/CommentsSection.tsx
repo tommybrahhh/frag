@@ -44,10 +44,7 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
       // 1. Fetch Comments
       const { data: commentsData, error: commentsError } = await supabase
         .from('comments')
-        .select(`
-          *,
-          profile:profiles(avatar_url, is_verified)
-        `)
+        .select('*')
         .eq('perfume_id', perfumeId)
         .order('created_at', { ascending: false });
 
@@ -59,6 +56,20 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
       }
 
       const commentIds = commentsData.map((c: any) => c.id);
+      const userIds = Array.from(new Set(commentsData.map((c: any) => c.user_id)));
+
+      // 1b. Fetch Profiles (Manual Join)
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, avatar_url, is_verified')
+        .in('id', userIds);
+
+      if (profilesError) throw profilesError;
+
+      const profilesMap = (profilesData || []).reduce((acc: any, profile: any) => {
+        acc[profile.id] = profile;
+        return acc;
+      }, {});
 
       // 2. Fetch All Upvotes for these comments to calculate counts
       // Note: For very popular items, a 'count' aggregation view would be better, 
@@ -84,7 +95,7 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
       // 4. Merge Data
       let enrichedComments = commentsData.map((c: any) => ({
         ...c,
-        profile: Array.isArray(c.profile) ? c.profile[0] : c.profile,
+        profile: profilesMap[c.user_id] || null,
         upvote_count: upvoteCounts[c.id] || 0,
         user_has_upvoted: !!userUpvoted[c.id]
       }));

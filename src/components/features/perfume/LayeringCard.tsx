@@ -91,7 +91,7 @@ export default function LayeringCard({ mainPerfume, recommendation }: LayeringCa
                 </div>
 
                 {/* Candidate Perfume */}
-                <Link href={`/perfume/${candidatePerfume.id}`} className="flex flex-col items-center text-center group">
+                <Link href={`/perfume/${candidatePerfume.slug}`} className="flex flex-col items-center text-center group">
                   <div className="relative h-32 w-32 bg-stone-50 rounded-2xl flex items-center justify-center p-4 mb-4 group-hover:bg-stone-100 transition-colors">
                     {candidatePerfume.image_url ? (
                       <img src={candidatePerfume.image_url} alt={candidatePerfume.name} className="h-full w-full object-contain mix-blend-multiply" />
@@ -161,7 +161,7 @@ export default function LayeringCard({ mainPerfume, recommendation }: LayeringCa
                 }
              </div>
              <Link 
-                href={`/layering?base=${mainPerfume.id}&top=${candidatePerfume.id}`}
+                href={`/layering?base=${mainPerfume.slug}&top=${candidatePerfume.slug}`}
                 className="w-full py-3 bg-stone-900 text-white text-[10px] font-bold uppercase tracking-widest text-center rounded-xl hover:bg-stone-800 transition-colors shadow-lg shadow-stone-200"
              >
                 Open in Studio →

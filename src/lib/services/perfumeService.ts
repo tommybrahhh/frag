@@ -42,6 +42,7 @@ export async function getPerfumes(params: PerfumeFilterParams) {
     .select(`
       id,
       name,
+      slug,
       image_url,
       rating,
       vibe_tags,

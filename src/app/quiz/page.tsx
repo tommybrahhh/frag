@@ -12,6 +12,8 @@ interface QuizState {
   answers: QuizAnswers;
   isSubmitting: boolean;
   recommendations: Recommendation[];
+  errorMsg?: string | null;
+  status?: string;
 }
 
 // Perfume Card Component for better organization
@@ -97,7 +99,9 @@ export default function QuizPage() {
     currentStep: 0,
     answers: {},
     isSubmitting: false,
-    recommendations: []
+    recommendations: [],
+    errorMsg: null,
+    status: ''
   });
 
   const currentQuestion = questions[quizState.currentStep];
@@ -149,7 +153,7 @@ export default function QuizPage() {
 
   const submitQuiz = async () => {
     console.log('Starting quiz submission');
-    setQuizState(prev => ({ ...prev, isSubmitting: true }));
+    setQuizState(prev => ({ ...prev, isSubmitting: true, errorMsg: null, status: 'Connecting to scent database...' }));
     
     try {
       console.log('Creating Supabase client');
@@ -158,22 +162,50 @@ export default function QuizPage() {
       console.log('Fetching perfumes from database');
       // Use a left join by default (brands(name)) instead of an inner join (brands!...).
       // This is safer and prevents perfumes with null brand_id from being excluded.
-      const { data, error } = await supabase
+      // Also fetching perfume_notes for better matching algorithm
+      let query = supabase
         .from('perfumes')
         .select(`
           id, name, image_url, gender,
           vibe_tags, occasions, best_season,
           sillage_rating, price_tier,
-          brand:brands(name)
+          brand:brands(name),
+          perfume_notes:perfume_notes(note:notes(name))
         `);
+
+      // Apply gender filter to reduce dataset size and improve performance
+      // If user selected 'feminine', exclude 'Male' perfumes
+      if (quizState.answers.gender === 'feminine') {
+        query = query.neq('gender', 'Male');
+      } 
+      // If user selected 'masculine', exclude 'Female' perfumes
+      else if (quizState.answers.gender === 'masculine') {
+        query = query.neq('gender', 'Female');
+      }
+      
+      // Create a promise that rejects after 15 seconds
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Request timed out. Please try again.')), 15000)
+      );
+
+      // Limit results to prevent browser freezing with too much data
+      // Reduced limit to 300 for better performance
+      const dbPromise = query.limit(300);
+      
+      const result: any = await Promise.race([dbPromise, timeoutPromise]);
+      const { data, error } = result;
       
       if (error) {
         // This throw will be caught by the outer catch block.
         throw error;
       }
       
+      setQuizState(prev => ({ ...prev, status: `Analyzing ${data?.length || 0} fragrances...` }));
       console.log('Successfully fetched perfumes:', data?.length);
       
+      // Small delay to allow UI to update before heavy calculation
+      await new Promise(resolve => setTimeout(resolve, 100));
+
       const flatData = data?.map((p: any) => ({
         ...p,
         brand_name: p.brand?.name 
@@ -195,11 +227,9 @@ export default function QuizPage() {
       }));
       
     } catch (error: any) {
-      console.error('Error submitting quiz:', {
-        error: error.message,
-        stack: error.stack,
-      });
-      // Optionally, you could set an error message in the state to show to the user.
+      console.error('Error submitting quiz:', error);
+      const msg = error?.message || error?.error_description || 'An unexpected error occurred. Please try again.';
+      setQuizState(prev => ({ ...prev, errorMsg: msg, status: '' }));
     } finally {
       // This will run regardless of success or failure, preventing a stuck UI.
       setQuizState(prev => ({ ...prev, isSubmitting: false }));
@@ -333,6 +363,21 @@ export default function QuizPage() {
         </div>
 
 
+        {/* Error Message */}
+        {quizState.errorMsg && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6 flex items-center justify-between">
+            <span>{quizState.errorMsg}</span>
+            <button onClick={() => setQuizState(prev => ({...prev, errorMsg: null}))} className="text-red-500 font-bold px-2">&times;</button>
+          </div>
+        )}
+
+        {/* Status Message */}
+        {quizState.isSubmitting && quizState.status && (
+          <div className="bg-stone-50 border border-stone-200 text-stone-700 px-4 py-2 rounded-xl mb-6 text-sm text-center animate-pulse">
+            {quizState.status}
+          </div>
+        )}
+
         {/* Question Card */}
         <div className="bg-white rounded-2xl p-8 border border-stone-100 shadow-sm">
           <h2 className="font-serif text-2xl text-stone-900 mb-8 text-center">
@@ -374,10 +419,10 @@ export default function QuizPage() {
             
             <button
               onClick={handleNext}
-              disabled={!quizState.answers[currentQuestion.id]}
-              className="bg-stone-900 text-white px-8 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-stone-800 transition-colors"
+              disabled={!quizState.answers[currentQuestion.id] || quizState.isSubmitting}
+              className={`bg-stone-900 text-white px-8 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-stone-800 transition-colors ${quizState.isSubmitting ? 'animate-pulse' : ''}`}
             >
-              {isLastQuestion ? 'Find My Scent' : 'Next'}
+              {quizState.isSubmitting ? 'Processing...' : (isLastQuestion ? 'Find My Scent' : 'Next')}
             </button>
           </div>
         </div>

@@ -941,142 +941,116 @@ export class RecommendationEngine {
   }
 
   public static getEnhancedRecommendations(mainPerfume: any, allPerfumes: any[], preferences?: any): RecommendationCategory[] {
-    const similarRecs = this.getSimilarRecommendations(mainPerfume, allPerfumes, 36);
+    const baseRecs = this.getSimilarRecommendations(mainPerfume, allPerfumes, 80);
     
-    const priceCategories = this.getPriceTierCategories(mainPerfume, similarRecs);
+    // 1. Signature Match: Merges DNA (Family) and Story (Vibe)
+    const signatureCategory = this.getSignatureCategory(mainPerfume, baseRecs);
 
-    const categories: RecommendationCategory[] = [
-      ...priceCategories,
-      {
-        type: 'layering',
-        title: 'Layering',
-        description: 'Discover unique combinations by layering scents.',
-        recommendations: this.getLayeringRecommendations(mainPerfume, allPerfumes, 3)
-      },
-      {
+    // 2. Moment: Occasion & Time
+    const momentCategory = this.getMomentCategory(mainPerfume, baseRecs);
+
+    const categories: RecommendationCategory[] = [];
+
+    if (signatureCategory) categories.push(signatureCategory);
+    if (momentCategory) categories.push(momentCategory);
+
+    // 3. Special Categories
+    categories.push({
+      type: 'layering',
+      title: 'Layering Combinations',
+      description: 'Create a unique signature by mixing these scents.',
+      recommendations: this.getLayeringRecommendations(mainPerfume, allPerfumes, 3)
+    });
+
+    categories.push({
         type: 'discovery',
-        title: 'Discover',
-        description: 'Step out of your comfort zone',
-        recommendations: this.getDiscoveryRecommendations(mainPerfume, allPerfumes, 1) // Only 1 needed for the Hero card
-      },
+        title: 'Wildcard',
+        description: 'Something different, yet familiar.',
+        recommendations: this.getDiscoveryRecommendations(mainPerfume, allPerfumes, 1) 
+    });
 
-    ];
-
-    // Return all categories, even if their recommendations are empty.
-    // The frontend will handle displaying an "empty state" UI.
     return categories;
   }
 
-  private static getPriceTierCategories(mainPerfume: any, recommendations: Recommendation[]): RecommendationCategory[] {
-    const mainPriceLevel = this.getPriceLevel(mainPerfume);
-    const priceCategories: RecommendationCategory[] = [];
+  private static getSignatureCategory(mainPerfume: any, recommendations: Recommendation[]): RecommendationCategory | null {
+    const mainFamily = mainPerfume.olfactory_family?.[0];
+    const mainVibe = mainPerfume.vibe_tags?.[0];
 
-    // Filter recommendations into price levels
-    const recsByLevel: { [level: number]: Recommendation[] } = { 1: [], 2: [], 3: [], 4: [] };
-    for (const r of recommendations) {
-        const level = this.getPriceLevel(r.perfume);
-        if (level >= 1 && level <= 4) {
-            recsByLevel[level].push(r);
-        }
+    if (!mainFamily && !mainVibe) return null;
+
+    // Filter for perfumes that capture BOTH the DNA and the Vibe where possible
+    const matches = recommendations.filter(rec => {
+        const hasFamily = mainFamily ? rec.perfume.olfactory_family?.includes(mainFamily) : false;
+        const hasVibe = mainVibe ? rec.sharedVibes?.includes(mainVibe) : false;
+        
+        // Include if it matches either, but we sort by intersection below
+        return hasFamily || hasVibe;
+    });
+
+    // Sort priority:
+    // 1. Matches BOTH Family & Vibe
+    // 2. Matches Family
+    // 3. Matches Vibe
+    const sorted = matches.sort((a, b) => {
+        const aFamily = mainFamily ? a.perfume.olfactory_family?.includes(mainFamily) : false;
+        const aVibe = mainVibe ? a.sharedVibes?.includes(mainVibe) : false;
+        const bFamily = mainFamily ? b.perfume.olfactory_family?.includes(mainFamily) : false;
+        const bVibe = mainVibe ? b.sharedVibes?.includes(mainVibe) : false;
+
+        const aScore = (aFamily ? 2 : 0) + (aVibe ? 1 : 0);
+        const bScore = (bFamily ? 2 : 0) + (bVibe ? 1 : 0);
+
+        return bScore - aScore || b.score - a.score;
+    }).slice(0, 18);
+
+    if (sorted.length === 0) return null;
+
+    let title = "Perfect Match";
+    if (mainFamily && mainVibe) {
+        title = `The ${mainVibe} ${mainFamily} Edit`;
+    } else if (mainFamily) {
+        title = `Best of ${mainFamily}`;
+    } else if (mainVibe) {
+        title = `The ${mainVibe} Collection`;
     }
 
-    // 1. Same Price Category
-    if (recsByLevel[mainPriceLevel].length > 0) {
-        priceCategories.push({
-            type: 'price_same',
-            title: 'In The Same Price Range',
-            description: `Similar perfumes at around the same price point as ${mainPerfume.name}.`,
-            recommendations: recsByLevel[mainPriceLevel]
-        });
+    return {
+        type: 'signature',
+        title: title,
+        description: `Fragrances that capture the ${mainVibe?.toLowerCase() || ''} soul and ${mainFamily?.toLowerCase() || ''} DNA you love.`,
+        recommendations: sorted
+    };
+  }
+
+  private static getMomentCategory(mainPerfume: any, recommendations: Recommendation[]): RecommendationCategory | null {
+    const bestTime = mainPerfume.best_time; // e.g., "Day", "Night"
+    const occasions = mainPerfume.occasions || []; // e.g., ["Date", "Office"]
+
+    if (!bestTime && occasions.length === 0) return null;
+
+    const momentRecs = recommendations
+        .filter(rec => {
+            const p = rec.perfume;
+            const timeMatch = bestTime ? p.best_time === bestTime : false;
+            const occasionMatch = occasions.some((o: string) => p.occasions?.includes(o));
+            return timeMatch || occasionMatch;
+        })
+        .slice(0, 18);
+
+    if (momentRecs.length === 0) return null;
+
+    // Dynamic Title
+    if (occasions.length > 0) {
+        title = `Perfect for ${occasions[0]} & More`;
+    } else if (bestTime) {
+        title = `Best for ${bestTime} Wear`;
     }
 
-    // 2. Cheaper Categories
-    if (mainPriceLevel === 4) { // For $$$$
-        if (recsByLevel[3].length > 0) {
-            priceCategories.push({
-                type: 'price_cheaper_3',
-                title: 'Premium Alternatives',
-                description: 'High-quality scents just a step down in price.',
-                recommendations: recsByLevel[3]
-            });
-        }
-        const budgetRecs = [...recsByLevel[2], ...recsByLevel[1]];
-        if (budgetRecs.length > 0) {
-            priceCategories.push({
-                type: 'price_cheaper_1_2',
-                title: 'Budget-Friendly Finds',
-                description: 'Excellent perfumes at a more accessible price point.',
-                recommendations: budgetRecs
-            });
-        }
-    } else if (mainPriceLevel === 3) { // For $$$
-        const budgetRecs = [...recsByLevel[2], ...recsByLevel[1]];
-        if (budgetRecs.length > 0) {
-            priceCategories.push({
-                type: 'price_cheaper_1_2',
-                title: 'More Affordable Options',
-                description: 'Great alternatives that are easier on the wallet.',
-                recommendations: budgetRecs
-            });
-        }
-    } else if (mainPriceLevel === 2) { // For $$
-        if (recsByLevel[1].length > 0) {
-            priceCategories.push({
-                type: 'price_cheaper_1',
-                title: 'Budget-Friendly Finds',
-                description: 'Quality scents at a great value.',
-                recommendations: recsByLevel[1]
-            });
-        }
-    }
-
-    // 3. Upgrade Categories
-    if (mainPriceLevel === 1) { // For $
-        if (recsByLevel[2].length > 0) {
-            priceCategories.push({
-                type: 'price_upgrade_2',
-                title: 'A Step Up',
-                description: 'Explore more complex scents with a modest price increase.',
-                recommendations: recsByLevel[2]
-            });
-        }
-        const luxuryRecs = [...recsByLevel[3], ...recsByLevel[4]];
-        if (luxuryRecs.length > 0) {
-            priceCategories.push({
-                type: 'price_upgrade_3_4',
-                title: 'Worthy Splurges',
-                description: 'Indulge in the world of premium and niche perfumery.',
-                recommendations: luxuryRecs
-            });
-        }
-    } else if (mainPriceLevel === 2) { // For $$
-        if (recsByLevel[3].length > 0) {
-            priceCategories.push({
-                type: 'price_upgrade_3',
-                title: 'Entry-Luxe Upgrades',
-                description: 'Discover perfumes with a more premium feel.',
-                recommendations: recsByLevel[3]
-            });
-        }
-        if (recsByLevel[4].length > 0) {
-            priceCategories.push({
-                type: 'price_upgrade_4',
-                title: 'Top-Tier Luxury',
-                description: 'The best of the best in terms of quality and artistry.',
-                recommendations: recsByLevel[4]
-            });
-        }
-    } else if (mainPriceLevel === 3) { // For $$$
-        if (recsByLevel[4].length > 0) {
-            priceCategories.push({
-                type: 'price_upgrade_4',
-                title: 'Top-Tier Luxury',
-                description: 'Experience the pinnacle of perfumery.',
-                recommendations: recsByLevel[4]
-            });
-        }
-    }
-
-    return priceCategories;
+    return {
+        type: 'moment',
+        title: title,
+        description: 'Scents that fit the same lifestyle and occasions.',
+        recommendations: momentRecs
+    };
   }
 }

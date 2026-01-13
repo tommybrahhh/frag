@@ -81,17 +81,22 @@ const generateProfileFromVibes = (vibes: string[]) => {
 
 
 export default async function PerfumePage(
-  props: { params: Promise<{ id: string }> }
+  props: { params: Promise<{ slug: string }> }
 ) {
   const params = await props.params;
-  const id = params.id;
+  const slug = decodeURIComponent(params.slug);
   const supabase = await createClient();
 
-  // 1. Fetch Main Perfume
-  const { data: mainPerfume, error } = await supabase
+  console.log(`[DEBUG] --------------------------------------------------`);
+  console.log(`[DEBUG] PerfumePage loaded. Raw Slug: "${params.slug}" -> Decoded: "${slug}"`);
+
+  // 1. Fetch Main Perfume (Try Slug First, then ID as fallback)
+  let mainPerfume = null;
+  
+  const { data: slugMatches, error: slugError } = await supabase
     .from('perfumes')
     .select(`
-      id, name, image_url, rating, vibe_tags,
+      id, name, slug, image_url, rating, vibe_tags,
       perfumer, price_tier, best_season, gender,
       longevity_rating, sillage_rating,
       scenario, scent_profile,
@@ -100,12 +105,45 @@ export default async function PerfumePage(
       brand:brands(name, tier),
       perfume_notes(type, note:notes(name, color_hex, description, url))
     `)
-    .eq('id', id)
-    .maybeSingle();
+    .eq('slug', slug)
+    .limit(1);
 
-  if (error || !mainPerfume) {
-    console.error('Error fetching perfume:', error);
-    notFound(); // Triggers Next.js 404 page
+  if (slugMatches && slugMatches.length > 0) {
+    mainPerfume = slugMatches[0];
+    console.log(`[DEBUG] Found by SLUG. ID: ${mainPerfume.id}, Name: ${mainPerfume.name}`);
+  } else {
+     console.log(`[DEBUG] Not found by slug. Matches: ${slugMatches?.length}, Error: ${slugError?.message}`);
+  }
+
+  // Fallback to ID if not found by slug
+  if (!mainPerfume && slug.length > 20) { // UUIDs are long
+    console.log(`[DEBUG] Attempting fallback by ID: "${slug}"`);
+    const { data: fallbackPerfume, error: fallbackError } = await supabase
+      .from('perfumes')
+      .select(`
+        id, name, slug, image_url, rating, vibe_tags,
+        perfumer, price_tier, best_season, gender,
+        longevity_rating, sillage_rating,
+        scenario, scent_profile,
+        olfactory_family,
+        release_year,
+        brand:brands(name, tier),
+        perfume_notes(type, note:notes(name, color_hex, description, url))
+      `)
+      .eq('id', slug)
+      .maybeSingle();
+    
+    if (fallbackPerfume) {
+      mainPerfume = fallbackPerfume;
+      console.log(`[DEBUG] Found by ID fallback. Name: ${mainPerfume.name}`);
+    } else {
+      console.log(`[DEBUG] Not found by ID fallback. Error: ${fallbackError?.message}`);
+    }
+  }
+
+  if (!mainPerfume) {
+    console.error(`[DEBUG] FATAL: Perfume not found for slug/id: "${slug}"`);
+    notFound(); 
   }
 
   // Cast and format profile
@@ -120,7 +158,7 @@ export default async function PerfumePage(
       brand:brands(name),
       perfume_notes(type, note:notes(name))
     `)
-    .neq('id', id)
+    .neq('id', mainPerfume.id)
     .limit(100);
 
   if (perfumeData.vibe_tags && perfumeData.vibe_tags.length > 0) {

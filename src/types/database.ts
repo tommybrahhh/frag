@@ -186,6 +186,7 @@ export type Database = {
           scent_profile: Json | null // Changed from Record<string, number> to Json
           sillage_rating: number | null
           vibe_tags: string[] | null
+          slug: string | null
         }
         Insert: {
           best_season?: string[] | null
@@ -209,6 +210,7 @@ export type Database = {
           scent_profile?: Json | null
           sillage_rating?: number | null
           vibe_tags?: string[] | null
+          slug?: string | null
         }
         Update: {
           best_season?: string[] | null
@@ -232,6 +234,7 @@ export type Database = {
           scent_profile?: Json | null
           sillage_rating?: number | null
           vibe_tags?: string[] | null
+          slug?: string | null
         }
       }
       profiles: {
