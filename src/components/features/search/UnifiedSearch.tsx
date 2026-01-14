@@ -33,16 +33,19 @@ const NoteLaboratorySearch: React.FC = () => {
         setLoading(true);
         setError(null);
 
+        // Debug Payload
+        const payload = { 
+          noteIds: selectedNotes.map(n => n.id),
+          page: currentPage,
+          limit: limit
+        };
+        console.log('🔍 Debug: Sending Note Search Payload:', payload);
+
         try {
-          // -- Note Search --
           const response = await fetch('/api/perfumes/by-notes', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-              noteIds: selectedNotes.map(n => n.id),
-              page: currentPage,
-              limit: limit
-            }),
+            body: JSON.stringify(payload),
           });
           
           if (response.ok) {
@@ -52,11 +55,18 @@ const NoteLaboratorySearch: React.FC = () => {
             setResults(prevResults => currentPage === 1 ? newData : [...prevResults, ...newData]);
             setTotalPages(Math.ceil(resJson.count / limit));
           } else {
-            throw new Error('Note search failed');
+            // --- NEW DEBUG LOGIC ---
+            const errorText = await response.text(); // Get raw text in case JSON parse fails
+            console.error('❌ API Error Response:', {
+              status: response.status,
+              statusText: response.statusText,
+              body: errorText
+            });
+            throw new Error(`Server Error (${response.status}): ${errorText.substring(0, 100)}`);
           }
-        } catch (err) {
-          console.error('Search error:', err);
-          setError('An error occurred while searching. Please try again.');
+        } catch (err: any) {
+          console.error('❌ Detailed Search Error:', err);
+          setError(err.message || 'An error occurred while searching.');
         } finally {
           setLoading(false);
         }

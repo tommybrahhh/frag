@@ -53,7 +53,7 @@ export async function POST(request: Request) {
     .select(`
       id, 
       name,
-      slug,  // <--- ADD THIS LINE
+      slug,
       image_url,
       brand:brands(name)
     `)
