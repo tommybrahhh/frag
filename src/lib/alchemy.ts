@@ -1,6 +1,9 @@
 import { createClient } from '@/lib/supabase';
 
-// Define complex interaction rules for perfume mixing
+// ------------------------------------------------------------------
+// CONFIGURATION & RULES
+// ------------------------------------------------------------------
+
 interface AlchemyRules {
   MAJOR_CLASHES: Record<string, string[]>;
   MINOR_CLASHES: Record<string, string[]>;
@@ -9,7 +12,6 @@ interface AlchemyRules {
 }
 
 const PERFUME_ALCHEMY_RULES: AlchemyRules = {
-  // Major clashes - these combinations are generally problematic
   MAJOR_CLASHES: {
     'Marine': ['Gourmand', 'Sweet', 'Vanilla', 'Amber', 'Spicy'],
     'Gourmand': ['Marine', 'Aquatic', 'Green', 'Fresh', 'Citrus'],
@@ -17,16 +19,12 @@ const PERFUME_ALCHEMY_RULES: AlchemyRules = {
     'Leather': ['Fruity', 'Gourmand', 'Sweet', 'Vanilla'],
     'Tobacco': ['Fresh', 'Marine', 'Aquatic', 'Green'],
   },
-  
-  // Minor clashes - these might work but require careful balancing
   MINOR_CLASHES: {
     'Spicy': ['Fresh', 'Marine', 'Green'],
     'Woody': ['Gourmand', 'Sweet', 'Fruity'],
     'Oriental': ['Fresh', 'Marine', 'Green'],
     'Floral': ['Animalic', 'Leather', 'Smoky'],
   },
-  
-  // Harmonious combinations - these generally work well together
   HARMONIOUS_PAIRS: {
     'Floral': ['Woody', 'Oriental', 'Spicy', 'Vanilla'],
     'Woody': ['Floral', 'Oriental', 'Spicy', 'Amber'],
@@ -35,8 +33,6 @@ const PERFUME_ALCHEMY_RULES: AlchemyRules = {
     'Fresh': ['Citrus', 'Green', 'Aquatic'],
     'Citrus': ['Fresh', 'Green', 'Woody'],
   },
-  
-  // Synergistic families - perfumes from these categories enhance each other
   SYNERGISTIC_FAMILIES: [
     ['Floral', 'Oriental'],
     ['Woody', 'Amber'],
@@ -46,518 +42,223 @@ const PERFUME_ALCHEMY_RULES: AlchemyRules = {
   ]
 };
 
-// Volatility classification for notes
-const VOLATILITY_CLASSIFICATION: Record<string, string[]> = {
-  Top: [
-    'bergamot', 'lemon', 'orange', 'grapefruit', 'mandarin', 'lime', 'neroli',
-    'petitgrain', 'lavender', 'rosemary', 'basil', 'mint', 'eucalyptus',
-    'black pepper', 'anise', 'aldehydes', 'green notes', 'light fruits'
+// ------------------------------------------------------------------
+// NARRATIVE ENGINE (Template Functions)
+// ------------------------------------------------------------------
+
+type NarrativeType = 'FIXER' | 'BRIDGE' | 'CONTRAST' | 'BOOSTER' | 'CLASH' | 'BALANCE';
+
+interface NarrativeContext {
+  strong: string; // Name of strong perfume
+  weak: string;   // Name of weak perfume
+  p1: string;     // Name of perfume 1
+  p2: string;     // Name of perfume 2
+  note: string;   // Shared note
+  vibe: string;   // Dominant vibe
+  vibe1: string;  // Vibe of p1
+  vibe2: string;  // Vibe of p2
+}
+
+// Using functions instead of bracket strings for better type safety and cleaner output
+const NARRATIVE_GENERATORS: Record<NarrativeType, ((ctx: NarrativeContext) => string)[]> = {
+  FIXER: [
+    ctx => `You love ${ctx.weak}, but it vanishes. ${ctx.strong} fixes that problem without ruining the scent profile.`,
+    ctx => `Functionally, ${ctx.strong} acts as the canvas here. It grabs onto ${ctx.weak} and forces it to last hours longer.`,
+    ctx => `Think of ${ctx.strong} as a primer. It gives the volatile notes in ${ctx.weak} something substantial to stick to.`,
+    ctx => `This is a performance hack. You get the delicate vibe of ${ctx.weak} with the engine of ${ctx.strong} underneath it.`
   ],
-  Heart: [
-    'rose', 'jasmine', 'ylang ylang', 'tuberose', 'lily', 'carnation', 'iris',
-    'geranium', 'chamomile', 'clove', 'cinnamon', 'cardamom', 'nutmeg',
-    'cumin', 'sage', 'thyme', 'tea', 'fruity notes', 'spicy notes'
+  BRIDGE: [
+    ctx => `These two lock together because they share a ${ctx.note} note. It feels like one cohesive scent rather than a mix.`,
+    ctx => `The shared ${ctx.note} acts as the glue here. It prevents them from smelling disjointed.`,
+    ctx => `Seamless blend. The ${ctx.note} in both creates a bridge, so you can't tell where one ends and the other begins.`,
+    ctx => `They are practically cousins because of that common ${ctx.note} base. Layering them just creates a 3D version of it.`
   ],
-  Base: [
-    'sandalwood', 'cedar', 'patchouli', 'oakmoss', 'vetiver', 'amber', 'vanilla',
-    'tonka', 'benzoin', 'labdanum', 'musk', 'leather', 'tobacco', 'incense',
-    'myrrh', 'frankincense', 'oud', 'gourmand notes', 'woody notes'
+  CONTRAST: [
+    ctx => `The Salt & Caramel effect. The ${ctx.vibe1} cuts through the ${ctx.vibe2}, making both sides pop.`,
+    ctx => `Opposites attract here. The ${ctx.vibe1} prevents the ${ctx.vibe2} from becoming too boring or linear.`,
+    ctx => `This adds a ${ctx.vibe2} edge to your typical ${ctx.vibe1} profile. Unexpected, but it works.`,
+    ctx => `It stops ${ctx.p1} from being too linear. The ${ctx.vibe2} facet adds a whole new dimension.`
+  ],
+  BOOSTER: [
+    ctx => `Doubling down. If you want maximum ${ctx.vibe}, this combination is nuclear.`,
+    ctx => `This just turns the volume up on the ${ctx.vibe} aspects of the profile.`,
+    ctx => `For when you really want to project ${ctx.vibe}. It is intense, but clean.`,
+    ctx => `Basically a flanker of the original. Same DNA, just louder and more ${ctx.vibe}.`
+  ],
+  CLASH: [
+    ctx => `Risky. The ${ctx.vibe1} really fights with the ${ctx.vibe2}. Proceed with caution.`,
+    ctx => `It is chaotic. You might get moments of brilliance, but mostly it is a battle for dominance.`,
+    ctx => `A bit dissonant. The ${ctx.vibe1} notes make the ${ctx.vibe2} smell slightly off.`
+  ],
+  BALANCE: [
+    ctx => `A solid daily driver. Neither scent overpowers the other.`,
+    ctx => `Clean and functional. They occupy different frequencies so they don't muddy up.`,
+    ctx => `Just a good, safe mix. ${ctx.strong} adds weight while ${ctx.weak} adds air.`
   ]
 };
 
-// Function to classify note by volatility
-export function classifyNoteVolatility(noteName: string): string {
-  const name = noteName.toLowerCase();
-  
-  for (const [volatility, notes] of Object.entries(VOLATILITY_CLASSIFICATION)) {
-    if (notes.some(note => name.includes(note) || note.includes(name))) {
-      return volatility;
-    }
-  }
-  
-  // Default to Heart for unknown notes
-  return 'Heart';
-}
-
-// Weighted scoring system
-const SCORE_WEIGHTS = {
-  MAJOR_CLASH: 40,
-  MINOR_CLASH: 20,
-  HARMONIOUS_PAIR: -25,
-  SYNERGY_BONUS: -15,
-  SAME_BRAND_BONUS: -10,
-  SAME_FAMILY_BONUS: -8,
-  DIVERSITY_PENALTY: 15, // Penalty for too many different vibe categories
-  BASE_RISK: 10 // Base risk for any combination
+const VERDICTS: Record<NarrativeType, string[]> = {
+  FIXER: ["Performance Hack", "The Extender", "Longevity Fix", "Anchor Layer"],
+  BRIDGE: ["Seamless Blend", "Perfect Harmony", "The 3D Effect", "Cohesive Mix"],
+  CONTRAST: ["Complex Twist", "The Edge", "Bold Choice", "Statement Scent"],
+  BOOSTER: ["Beast Mode", "Intense Edition", "Volume Up", "Double Down"],
+  CLASH: ["High Risk", "Chaotic", "Dissonant", "Experimental"],
+  BALANCE: ["Solid Mix", "Daily Driver", "Safe Bet", "Balanced"]
 };
 
-// Function to get compatible perfumes based on the selected base
-export async function getCompatiblePerfumes(basePerfume: any): Promise<any[]> {
-  const supabase = createClient();
-  
-  // Get all perfumes from the database
-  const { data: allPerfumes } = await supabase
-    .from('perfumes')
-    .select('*')
-    .limit(100); // Limit for performance
-
-  if (!allPerfumes) return [];
-
-  // Score perfumes based on compatibility with base
-  const scoredPerfumes = allPerfumes
-    .filter((p: any) => p.id !== basePerfume.id) // Exclude the base perfume itself
-    .map((perfume: any) => {
-      const tempResult = mixPerfumes(basePerfume, perfume, 0.5);
-      return {
-        ...perfume,
-        compatibilityScore: tempResult.safety,
-        compatibilityTips: tempResult.tips,
-        compatibilityWarnings: tempResult.warnings
-      };
-    })
-    .sort((a: any, b: any) => b.compatibilityScore - a.compatibilityScore); // Sort by best compatibility
-
-  return scoredPerfumes.slice(0, 10); // Return top 10 most compatible
-}
-
-// New function to find layering matches for smart suggestions
-export function findLayeringMatches(basePerfume: any, allPerfumes: any[]): any[] {
-  if (!basePerfume || !allPerfumes.length) return [];
-
-  // Filter out the base perfume
-  const otherPerfumes = allPerfumes.filter(p => p.id !== basePerfume.id);
-
-  // Filter out clashing families
-  const baseVibes = basePerfume.vibe_tags || [];
-  const clashingVibes = new Set<string>();
-  
-  // Find all clashing vibes for the base perfume
-  baseVibes.forEach((vibe: string) => {
-    if (PERFUME_ALCHEMY_RULES.MAJOR_CLASHES[vibe]) {
-      PERFUME_ALCHEMY_RULES.MAJOR_CLASHES[vibe].forEach(clash => clashingVibes.add(clash));
-    }
-  });
-
-  // Filter perfumes that don't have clashing vibes
-  const nonClashingPerfumes = otherPerfumes.filter(p => {
-    const perfumeVibes = p.vibe_tags || [];
-    return !perfumeVibes.some((vibe: string) => clashingVibes.has(vibe));
-  });
-
-  // Score each perfume based on compatibility factors
-  const scoredPerfumes = nonClashingPerfumes.map(perfume => {
-    let score = 0;
-    const perfumeVibes = perfume.vibe_tags || [];
-
-    // Boost: Perfumes with simple profiles (Musk, Vanilla, Iso E Super)
-    const simpleProfiles = ['Musk', 'Vanilla', 'Iso E Super'];
-    const hasSimpleProfile = perfumeVibes.some((vibe: string) =>
-      simpleProfiles.some(simple => vibe.toLowerCase().includes(simple.toLowerCase()))
-    );
-    if (hasSimpleProfile) score += 10; // Reduced from 20
-
-    // Boost: Perfumes from the same brand
-    if (basePerfume.brand_name === perfume.brand_name) score += 10; // Reduced from 15
-
-    // Boost: Shared harmonious vibes
-    baseVibes.forEach((baseVibe: string) => {
-      perfumeVibes.forEach((perfumeVibe: string) => {
-        if (PERFUME_ALCHEMY_RULES.HARMONIOUS_PAIRS[baseVibe]?.includes(perfumeVibe)) {
-          score += 10;
-        }
-      });
-    });
-
-    // Boost: Synergistic families
-    PERFUME_ALCHEMY_RULES.SYNERGISTIC_FAMILIES.forEach(([family1, family2]) => {
-      if ((baseVibes.includes(family1) && perfumeVibes.includes(family2)) ||
-          (baseVibes.includes(family2) && perfumeVibes.includes(family1))) {
-        score += 12;
-      }
-    });
-
-    // NEW: Scent Profile Compatibility (Complementary Scoring)
-    const baseProfile = basePerfume.scent_profile || {};
-    const perfumeProfile = perfume.scent_profile || {};
-    const traits = ['fresh', 'sweet', 'spicy', 'depth'];
-    let complementaryProfileScore = 0;
-
-    if (Object.keys(baseProfile).length > 0 && Object.keys(perfumeProfile).length > 0) {
-      traits.forEach(trait => {
-        const baseVal = baseProfile[trait] || 0;
-        const perfumeVal = perfumeProfile[trait] || 0;
-
-        if (baseVal < 4 && perfumeVal > 6) {
-          complementaryProfileScore += 20; // Strong complement: Fills a gap (increased from 10)
-        } else if (baseVal >= 4 && baseVal <= 6 && perfumeVal > 6) {
-          complementaryProfileScore += 10; // Enhancement: Boosts a moderate aspect (increased from 5)
-        } else if (baseVal > 6 && perfumeVal < 4) {
-          complementaryProfileScore -= 10; // Potential dilution: Weakens a strong aspect (increased from -5)
-        } else {
-          complementaryProfileScore += 2; // Neutral or slight boost for presence (increased from 1)
-        }
-      });
-      score += Math.max(0, complementaryProfileScore * 2); // Ensure non-negative and add to score (multiplied by 2)
-    }
-
-    return { ...perfume, compatibilityScore: score };
-  });
-
-  // Sort by score and return top 4
-  return scoredPerfumes
-    .sort((a, b) => b.compatibilityScore - a.compatibilityScore)
-    .slice(0, 4);
-}
-
-// Function to analyze ingredient combinations for clashes and harmonies
-export function analyzeIngredientCombination(ingredients: any[]): {
-  warnings: string[];
-  tips: string[];
-  hasClash: boolean;
-  hasHarmony: boolean;
-} {
-  const warnings: string[] = [];
-  const tips: string[] = [];
-  
-  const families = ingredients.map(ing => ing.family).filter(Boolean);
-  const uniqueFamilies = Array.from(new Set(families));
-
-  // Check for major clashes
-  uniqueFamilies.forEach(family1 => {
-    uniqueFamilies.forEach(family2 => {
-      if (family1 !== family2) {
-        if (PERFUME_ALCHEMY_RULES.MAJOR_CLASHES[family1]?.includes(family2)) {
-          warnings.push(`🚫 Warning: ${family1} and ${family2} notes often clash`);
-        }
-        if (PERFUME_ALCHEMY_RULES.MINOR_CLASHES[family1]?.includes(family2)) {
-          warnings.push(`⚠️ Note: ${family1} and ${family2} can be challenging to balance`);
-        }
-        if (PERFUME_ALCHEMY_RULES.HARMONIOUS_PAIRS[family1]?.includes(family2)) {
-          tips.push(`✨ Classic: ${family1} and ${family2} create beautiful harmony`);
-        }
-      }
-    });
-  });
-
-  // Check for classic accords
-  const ingredientNames = ingredients.map(ing => ing.name.toLowerCase());
-  
-  // Classic Chypre: Oakmoss + Bergamot + Patchouli/Labdanum
-  const hasChypre = (
-    ingredientNames.includes('oakmoss') && 
-    ingredientNames.includes('bergamot') &&
-    (ingredientNames.includes('patchouli') || ingredientNames.includes('labdanum'))
-  );
-
-  // Classic Fougère: Lavender + Oakmoss + Coumarin
-  const hasFougere = (
-    ingredientNames.includes('lavender') && 
-    ingredientNames.includes('oakmoss') &&
-    ingredientNames.includes('coumarin')
-  );
-
-  // Oriental Accord: Vanilla + Amber + Spices
-  const hasOriental = (
-    ingredientNames.includes('vanilla') && 
-    ingredientNames.includes('amber') &&
-    (ingredientNames.includes('cinnamon') || ingredientNames.includes('clove') || ingredientNames.includes('cardamom'))
-  );
-
-  // Citrus Aromatic: Citrus + Herbal notes
-  const hasCitrusAromatic = (
-    (ingredientNames.includes('bergamot') || ingredientNames.includes('lemon') || ingredientNames.includes('orange')) &&
-    (ingredientNames.includes('lavender') || ingredientNames.includes('rosemary') || ingredientNames.includes('thyme'))
-  );
-
-  if (hasChypre) {
-    tips.push('🏛️ Classic Chypre Accord Detected: Timeless elegance with mossy depth');
-  }
-  if (hasFougere) {
-    tips.push('🌿 Classic Fougère Accord Detected: Aromatic fougère structure');
-  }
-  if (hasOriental) {
-    tips.push('🌅 Classic Oriental Accord Detected: Warm, spicy, and sensual');
-  }
-  if (hasCitrusAromatic) {
-    tips.push('🍋 Citrus Aromatic Accord Detected: Fresh and invigorating');
-  }
-
-  // Check for synergistic families
-  PERFUME_ALCHEMY_RULES.SYNERGISTIC_FAMILIES.forEach(([family1, family2]) => {
-    if (families.includes(family1) && families.includes(family2)) {
-      tips.push(`🌟 Synergy: ${family1} and ${family2} families complement each other perfectly`);
-    }
-  });
-
-  return {
-    warnings: Array.from(new Set(warnings)), // Remove duplicates
-    tips: Array.from(new Set(tips)), // Remove duplicates
-    hasClash: warnings.length > 0,
-    hasHarmony: tips.length > 0
-  };
-}
-
-// Helper to generate profile from vibes if missing
-export const generateProfileFromVibes = (vibes: string[]) => {
-  const profile = { fresh: 3, sweet: 3, spicy: 3, woody: 3, floral: 3, depth: 3 };
-  if (!vibes || vibes.length === 0) return profile;
-
-  const lowerVibes = vibes.map(v => v.toLowerCase());
-
-  if (lowerVibes.some(v => v.includes('citrus') || v.includes('fresh') || v.includes('aquatic') || v.includes('blue'))) profile.fresh += 6;
-  if (lowerVibes.some(v => v.includes('gourmand') || v.includes('vanilla') || v.includes('sweet') || v.includes('fruity'))) profile.sweet += 6;
-  if (lowerVibes.some(v => v.includes('spicy') || v.includes('warm') || v.includes('oriental') || v.includes('amber'))) profile.spicy += 6;
-  if (lowerVibes.some(v => v.includes('woody') || v.includes('earthy') || v.includes('mossy') || v.includes('leather'))) profile.woody += 6;
-  if (lowerVibes.some(v => v.includes('floral') || v.includes('rose') || v.includes('white flower'))) profile.floral += 6;
-  if (lowerVibes.some(v => v.includes('dark') || v.includes('intense') || v.includes('night') || v.includes('musk') || v.includes('oud'))) profile.depth += 6;
-
-  Object.keys(profile).forEach(k => {
-    // @ts-ignore
-    if (profile[k] > 10) profile[k] = 10;
-  });
-
-  return profile;
-};
+// ------------------------------------------------------------------
+// CORE LOGIC
+// ------------------------------------------------------------------
 
 export function mixPerfumes(p1: any, p2: any, ratio: number = 0.5) {
-  // Helper to extract and deduplicate notes by type
-  const getNotes = (pos: string) => {
-    const n1 = p1.perfume_notes?.filter((n:any) => n.type === pos).map((n:any) => n.note.name) || [];
-    const n2 = p2.perfume_notes?.filter((n:any) => n.type === pos).map((n:any) => n.note.name) || [];
-    return Array.from(new Set([...n1, ...n2])); // Deduplicate
+  // 1. EXTRACT DATA & SEED
+  const notes1 = p1.perfume_notes || [];
+  const notes2 = p2.perfume_notes || [];
+  const vibes1 = p1.vibe_tags || [];
+  const vibes2 = p2.vibe_tags || [];
+  
+  // Use name length as a pseudo-random seed so the same pair always gets the same text
+  const seed = (p1.name.length + p2.name.length);
+
+  // 2. ANALYZE RELATIONSHIPS
+  const n1Names = notes1.map((n: any) => n.note?.name || '');
+  const n2Names = notes2.map((n: any) => n.note?.name || '');
+  
+  // Find Bridge Notes (Shared ingredients)
+  const bridgeNotes = n1Names.filter((n: string) => n2Names.includes(n) && n !== '');
+
+  // Analyze Performance
+  const p1Longevity = p1.longevity_rating || 5;
+  const p2Longevity = p2.longevity_rating || 5;
+  const longevityDiff = Math.abs(p1Longevity - p2Longevity);
+  
+  // Analyze Clashes
+  let clashCount = 0;
+  vibes1.forEach((v1: string) => {
+    if (PERFUME_ALCHEMY_RULES.MAJOR_CLASHES[v1]?.some((c: string) => vibes2.includes(c))) clashCount += 2;
+    if (PERFUME_ALCHEMY_RULES.MINOR_CLASHES[v1]?.some((c: string) => vibes2.includes(c))) clashCount += 1;
+  });
+
+  // Analyze Synergy
+  let synergyCount = 0;
+  const combinedVibes = Array.from(new Set([...vibes1, ...vibes2]));
+  PERFUME_ALCHEMY_RULES.SYNERGISTIC_FAMILIES.forEach(([f1, f2]) => {
+    if (combinedVibes.includes(f1) && combinedVibes.includes(f2)) synergyCount++;
+  });
+
+  // 3. SELECT DOMINANT NARRATIVE
+  // Logic: Clash > Bridge > Performance > Booster > Contrast > Balance
+  let narrative: NarrativeType = 'BALANCE'; 
+  
+  // Context variables
+  const mainNote = (bridgeNotes[0] || 'base').toLowerCase();
+  const mainVibe = (vibes1[0] || 'scent').toLowerCase();
+  const v1 = (vibes1[0] || 'base').toLowerCase();
+  const v2 = (vibes2[0] || 'accent').toLowerCase();
+
+  if (clashCount >= 3) {
+    narrative = 'CLASH';
+  } else if (bridgeNotes.length >= 2) {
+    narrative = 'BRIDGE';
+  } else if (longevityDiff >= 3) {
+    narrative = 'FIXER';
+  } else if (synergyCount > 0 && vibes1[0] === vibes2[0]) {
+    narrative = 'BOOSTER';
+  } else if (vibes1[0] !== vibes2[0]) {
+    narrative = 'CONTRAST';
+  }
+
+  // 4. GENERATE DESCRIPTION
+  const generatorList = NARRATIVE_GENERATORS[narrative];
+  const generateText = generatorList[seed % generatorList.length];
+  
+  const verdictList = VERDICTS[narrative];
+  const verdict = verdictList[seed % verdictList.length];
+  
+  const strongP = p1Longevity > p2Longevity ? p1 : p2;
+  const weakP = p1Longevity > p2Longevity ? p2 : p1;
+
+  // Create clean context object for the generator
+  const context: NarrativeContext = {
+    strong: strongP.name,
+    weak: weakP.name,
+    p1: p1.name,
+    p2: p2.name,
+    note: mainNote,
+    vibe: mainVibe,
+    vibe1: v1,
+    vibe2: v2
   };
 
-  const pyramid = {
-    top: getNotes('Top'),
-    heart: getNotes('Heart'),
-    base: getNotes('Base')
-  };
+  const description = generateText(context);
 
-  // 1. GENERATE CREATIVE NAME
-  const b1 = p1.brand?.name || p1.brand_name || 'Unknown';
-  const b2 = p2.brand?.name || p2.brand_name || 'Unknown';
-  const n1 = p1.name || 'Scent A';
-  const n2 = p2.name || 'Scent B';
-
-  const mixName = "Custom Blend";
-
-  // 2. ANALYZE VIBES
-  const combinedVibes = Array.from(new Set([...(p1.vibe_tags || []), ...(p2.vibe_tags || [])]));
+  // 5. GENERATE TIPS (Context Aware)
+  const mixingTips: string[] = [];
   
-  // 3. COMPREHENSIVE SAFETY ANALYSIS
-  let riskScore = SCORE_WEIGHTS.BASE_RISK;
-  let warnings: string[] = [];
-  let tips: string[] = [];
-
-  // Check for major clashes
-  p1.vibe_tags?.forEach((v1: string) => {
-    p2.vibe_tags?.forEach((v2: string) => {
-      if (v1 in PERFUME_ALCHEMY_RULES.MAJOR_CLASHES &&
-          PERFUME_ALCHEMY_RULES.MAJOR_CLASHES[v1].includes(v2)) {
-        riskScore += SCORE_WEIGHTS.MAJOR_CLASH;
-        warnings.push(`🚫 Major clash: ${v1} + ${v2} creates discordant notes`);
-      }
-    });
-  });
-
-  // Check for minor clashes
-  p1.vibe_tags?.forEach((v1: string) => {
-    p2.vibe_tags?.forEach((v2: string) => {
-      if (v1 in PERFUME_ALCHEMY_RULES.MINOR_CLASHES &&
-          PERFUME_ALCHEMY_RULES.MINOR_CLASHES[v1].includes(v2)) {
-        riskScore += SCORE_WEIGHTS.MINOR_CLASH;
-        warnings.push(`⚠️ Challenging: ${v1} + ${v2} requires careful balance`);
-      }
-    });
-  });
-
-  // Check for harmonious pairs
-  p1.vibe_tags?.forEach((v1: string) => {
-    p2.vibe_tags?.forEach((v2: string) => {
-      if (v1 in PERFUME_ALCHEMY_RULES.HARMONIOUS_PAIRS &&
-          PERFUME_ALCHEMY_RULES.HARMONIOUS_PAIRS[v1].includes(v2)) {
-        riskScore += SCORE_WEIGHTS.HARMONIOUS_PAIR;
-        tips.push(`✨ Harmony: ${v1} + ${v2} creates beautiful accords`);
-      }
-    });
-  });
-
-  // Check for synergistic families
-  PERFUME_ALCHEMY_RULES.SYNERGISTIC_FAMILIES.forEach(([family1, family2]) => {
-    if (p1.vibe_tags?.includes(family1) && p2.vibe_tags?.includes(family2) ||
-        p1.vibe_tags?.includes(family2) && p2.vibe_tags?.includes(family1)) {
-      riskScore += SCORE_WEIGHTS.SYNERGY_BONUS;
-      tips.push(`🌟 Synergy: ${family1} and ${family2} families complement each other`);
-    }
-  });
-
-  // Brand compatibility bonus
-  if (p1.brand_name === p2.brand_name) {
-    riskScore += SCORE_WEIGHTS.SAME_BRAND_BONUS;
-    tips.push(`🏠 House DNA: Same brand perfumes often blend well`);
-  }
-
-  // Diversity penalty - too many different categories can be chaotic
-  const uniqueVibeCount = combinedVibes.length;
-  if (uniqueVibeCount > 4) {
-    riskScore += SCORE_WEIGHTS.DIVERSITY_PENALTY * (uniqueVibeCount - 4);
-    warnings.push(`🌀 Complex: ${uniqueVibeCount} different vibe categories may create chaos`);
-  }
-
-  // Safety adjustments for extreme ratios
-  let safetyAdjustment = 0;
-  if (ratio >= 0.9 || ratio <= 0.1) {
-    // Extreme ratios (90/10 or 10/90) reduce clash risk significantly
-    safetyAdjustment = 20;
-  } else if (ratio >= 0.8 || ratio <= 0.2) {
-    // High ratios (80/20 or 20/80) reduce clash risk moderately
-    safetyAdjustment = 10;
-  }
-
-  // Apply safety adjustment to risk score
-  riskScore = Math.max(0, riskScore - safetyAdjustment);
-
-  // Normalize score and determine verdict
-  const safety = Math.max(0, Math.min(100, 100 - riskScore));
-
-  let verdict = "A Perfect Union";
-  let description = "A stunning combination that feels like it was always meant to be. Creates a new, signature-worthy scent.";
-  
-  if (safety >= 85) {
-    verdict = "A Perfect Union";
-    description = "A stunning combination that feels like it was always meant to be. Creates a new, signature-worthy scent.";
-  } else if (safety >= 70) {
-    verdict = "Beautifully Balanced";
-    description = "These scents complement each other beautifully, creating a balanced and cohesive new aroma.";
-  } else if (safety >= 50) {
-    verdict = "Creative & Unique";
-    description = "An intriguing mix that plays on contrast. The result is unique, though some notes may compete for attention.";
-  } else if (safety >= 30) {
-    verdict = "An Unconventional Twist";
-    description = "A daring and avant-garde pairing. This creates a statement scent that won't go unnoticed.";
+  if (narrative === 'FIXER') {
+    mixingTips.push(`Apply ${strongP.name} first (2 sprays), let it dry for 30s, then apply ${weakP.name}.`);
+  } else if (narrative === 'CLASH') {
+    mixingTips.push("Do not spray on the same spot. Spray one on neck, one on wrists to let them mix in the air.");
+  } else if (narrative === 'BOOSTER') {
+    mixingTips.push("Go easy on the trigger. This mix projects heavily.");
   } else {
-    verdict = "Clashing Notes";
-    description = "These two profiles may not harmonize well. The resulting mix could be sharp or dissonant. Layer with care!";
+    // Standard advice based on power
+    const s1 = p1.sillage_rating || 5;
+    const s2 = p2.sillage_rating || 5;
+    
+    if (s1 > s2 + 2) {
+      mixingTips.push(`Use less of ${p1.name} so it doesn't overpower the mix.`);
+    } else if (s2 > s1 + 2) {
+      mixingTips.push(`Use less of ${p2.name} so it doesn't overpower the mix.`);
+    } else {
+      mixingTips.push("Safe to apply in a 1:1 ratio.");
+    }
   }
 
-  // NEW: Calculate Weighted Profile using ratio
-  // Ensure profile exists or generate from vibes
-  const profile1 = p1.scent_profile || generateProfileFromVibes(p1.vibe_tags || []);
-  const profile2 = p2.scent_profile || generateProfileFromVibes(p2.vibe_tags || []);
+  // 6. CALCULATE METRICS
+  let safety = 85;
+  if (narrative === 'CLASH') safety = 45;
+  if (narrative === 'BRIDGE' || narrative === 'BOOSTER') safety = 95;
+  if (narrative === 'CONTRAST') safety = 75;
+  if (narrative === 'FIXER') safety = 90;
+  if (narrative === 'BALANCE') safety = 80;
 
-  const getVal = (p: any, key: string) => p[key] || 0;
-
+  // New Profile Visuals (Radar Chart Data)
+  const getVal = (p: any, key: string) => (p.scent_profile?.[key] || 0);
   const newProfile = {
-    fresh: (getVal(profile1, 'fresh') * ratio) + (getVal(profile2, 'fresh') * (1 - ratio)),
-    sweet: (getVal(profile1, 'sweet') * ratio) + (getVal(profile2, 'sweet') * (1 - ratio)),
-    spicy: (getVal(profile1, 'spicy') * ratio) + (getVal(profile2, 'spicy') * (1 - ratio)),
-    woody: (getVal(profile1, 'woody') * ratio) + (getVal(profile2, 'woody') * (1 - ratio)),
-    floral: (getVal(profile1, 'floral') * ratio) + (getVal(profile2, 'floral') * (1 - ratio)),
-    depth: (getVal(profile1, 'depth') * ratio) + (getVal(profile2, 'depth') * (1 - ratio)),
+    fresh: (getVal(p1, 'fresh') + getVal(p2, 'fresh')) / 2,
+    sweet: (getVal(p1, 'sweet') + getVal(p2, 'sweet')) / 2,
+    spicy: (getVal(p1, 'spicy') + getVal(p2, 'spicy')) / 2,
+    woody: (getVal(p1, 'woody') + getVal(p2, 'woody')) / 2,
+    floral: (getVal(p1, 'floral') + getVal(p2, 'floral')) / 2,
+    depth: (getVal(p1, 'depth') + getVal(p2, 'depth')) / 2,
   };
-
-  // Calculate performance metrics
-  const calculatePerformance = () => {
-    // Helper: Get rating or default
-    const getLong = (p: any) => p.longevity_rating || 6; // Default 6 hours
-    const getSill = (p: any) => p.sillage_rating || 5; // Default 5/10
-
-    const baseLongevity = getLong(p1);
-    const baseSillage = getSill(p1);
-
-    // Weighted average based on ratio
-    let mixLongevity = (baseLongevity * ratio) + (getLong(p2) * (1 - ratio));
-    let mixSillage = (baseSillage * ratio) + (getSill(p2) * (1 - ratio));
-
-    // Synergy Bonus: Layering usually increases longevity due to density
-    mixLongevity *= 1.1; 
-    
-    // Adjust based on perfume characteristics (Vibe bonuses)
-    if (p1.vibe_tags?.includes('Oriental') || p2.vibe_tags?.includes('Oriental')) {
-      mixLongevity += 1;
-      mixSillage += 1;
-    }
-    if (p1.vibe_tags?.includes('Woody') || p2.vibe_tags?.includes('Woody')) {
-      mixLongevity += 0.5;
-    }
-    if (p1.vibe_tags?.includes('Fresh') && p2.vibe_tags?.includes('Fresh')) {
-      // Two freshies might not last super long
-      mixLongevity *= 0.95;
-    }
-    
-    return {
-      base: {
-        longevity: Math.round(baseLongevity * 10) / 10,
-        sillage: Math.round(baseSillage * 10) / 10
-      },
-      result: {
-        longevity: Math.min(12, Math.round(mixLongevity * 10) / 10),
-        sillage: Math.min(10, Math.round(mixSillage * 10) / 10)
-      }
-    };
-  };
-
-  const performance = calculatePerformance();
-
-  // Dominant notes ordering: If ratio > 0.7, base perfume's notes appear first
-  let orderedCombinedVibes = combinedVibes;
-  if (ratio > 0.7) {
-    // Sort vibes: p1's vibes first, then p2's, then others
-    const p1Vibes = p1.vibe_tags || [];
-    const p2Vibes = p2.vibe_tags || [];
-    orderedCombinedVibes = [
-      ...p1Vibes.filter((v: string) => combinedVibes.includes(v)),
-      ...p2Vibes.filter((v: string) => combinedVibes.includes(v) && !p1Vibes.includes(v)),
-      ...combinedVibes.filter((v: string) => !p1Vibes.includes(v) && !p2Vibes.includes(v))
-    ];
-  }
-
-  // Generate visual representation
-  const generateVisualization = () => {
-    const dominantVibes = orderedCombinedVibes.slice(0, 3);
-    const colors: Record<string, string> = {
-      'Floral': '#FF9FF3',
-      'Woody': '#A55EEA',
-      'Oriental': '#FD7272',
-      'Fresh': '#2ECC71',
-      'Gourmand': '#FEA47F',
-      'Spicy': '#EAB543',
-      'Citrus': '#F97F51',
-      'Aquatic': '#25CCF7',
-      'Green': '#55E6C1',
-      'Amber': '#D6A2E8'
-    };
-
-    return dominantVibes.map(vibe => ({
-      vibe,
-      color: colors[vibe] || '#BDC581',
-      intensity: Math.random() * 0.5 + 0.5 // Random intensity between 0.5-1
-    }));
-  };
-
-  const visualization = generateVisualization();
 
   return {
-    mixName,
-    safety: Math.round(safety),
+    mixName: `${p1.name} + ${p2.name}`, // Cleanest possible name
+    safety,
     verdict,
     description,
-    warnings,
-    tips,
-    combinedVibes: orderedCombinedVibes.slice(0, 6),
-    newProfile, // <--- The new Visual Data
-    riskFactors: {
-      totalVibes: uniqueVibeCount,
-      clashCount: warnings.length,
-      harmonyCount: tips.length
-    },
-    performance,
-    visualization,
-    pyramid,
-    mixingTips: [
-      safety >= 70 ? "Apply base first, wait 2 minutes, then layer top" : "Test on skin first before full application",
-      safety >= 50 ? "70/30 ratio recommended" : "50/50 ratio with caution",
-      uniqueVibeCount > 4 ? "Consider simplifying - focus on 2-3 dominant notes" : "Good complexity level"
-    ]
+    mixingTips,
+    newProfile,
+    bridgeNotes,
+    warnings: narrative === 'CLASH' ? ["High risk of dissonance."] : []
   };
+}
+
+// ------------------------------------------------------------------
+// HELPER FOR LEGACY COMPATIBILITY
+// ------------------------------------------------------------------
+const VOLATILITY_CLASSIFICATION: Record<string, string[]> = {
+  Top: ['bergamot', 'lemon', 'orange', 'grapefruit', 'mandarin', 'lime', 'neroli', 'petitgrain', 'lavender', 'rosemary', 'basil', 'mint'],
+  Heart: ['rose', 'jasmine', 'ylang ylang', 'tuberose', 'lily', 'carnation', 'iris', 'geranium', 'cinnamon', 'cardamom', 'nutmeg'],
+  Base: ['sandalwood', 'cedar', 'patchouli', 'oakmoss', 'vetiver', 'amber', 'vanilla', 'tonka', 'musk', 'leather', 'tobacco', 'oud']
+};
+
+export function classifyNoteVolatility(noteName: string): string {
+  const name = noteName.toLowerCase();
+  for (const [volatility, notes] of Object.entries(VOLATILITY_CLASSIFICATION)) {
+    if (notes.some(note => name.includes(note) || note.includes(name))) return volatility;
+  }
+  return 'Heart';
 }
