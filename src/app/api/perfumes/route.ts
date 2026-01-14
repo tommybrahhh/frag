@@ -7,9 +7,13 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     
+    // Proactive Fix: Validation to prevent NaN crashing the DB query
+    const pageParam = parseInt(searchParams.get('page') || '1');
+    const limitParam = parseInt(searchParams.get('limit') || '20');
+
     const params = {
-      page: parseInt(searchParams.get('page') || '1'),
-      limit: parseInt(searchParams.get('limit') || '20'),
+      page: isNaN(pageParam) || pageParam < 1 ? 1 : pageParam,
+      limit: isNaN(limitParam) || limitParam < 1 ? 20 : limitParam,
       price: searchParams.get('price'),
       gender: searchParams.get('gender'),
       longevity: searchParams.get('longevity'),

@@ -24,8 +24,9 @@ export default function DiscoveryCard({ recommendation }: DiscoveryCardProps) {
         <p className="text-sm uppercase tracking-widest text-stone-500 mb-4">A New Direction</p>
         <p 
           className="font-serif text-2xl md:text-3xl leading-snug text-stone-800"
-          dangerouslySetInnerHTML={{ __html: reason }}
-        />
+        >
+          {reason}
+        </p>
       </div>
 
       {/* Right Side: The "What" */}

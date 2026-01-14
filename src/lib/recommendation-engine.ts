@@ -1039,6 +1039,9 @@ export class RecommendationEngine {
 
     if (momentRecs.length === 0) return null;
 
+    // FIX: Declare 'title' with a default value before assignment
+    let title = 'Similar Moments'; 
+
     // Dynamic Title
     if (occasions.length > 0) {
         title = `Perfect for ${occasions[0]} & More`;

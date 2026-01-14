@@ -64,7 +64,8 @@ const SearchResults: React.FC<SearchResultsProps> = ({ loading, error, results, 
                   </div>
                   <div className="text-center">
                     <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 truncate mb-1">
-                      {perfume.brand}
+                      {/* Proactive Fix: Handle case where brand is an object to prevent React crash */}
+                      {typeof perfume.brand === 'object' ? (perfume.brand as any).name : perfume.brand}
                     </div>
                     <div className="font-serif text-lg text-stone-900 leading-tight truncate">
                       {perfume.name}
