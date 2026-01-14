@@ -444,8 +444,8 @@ export class RecommendationEngine {
         priceComparison: 'premium' // Usually more expensive
       }),
       [
-        `The ${match.tier} upgrade. Higher quality ingredients.`,
-        `Graduate to true ${match.tier} perfumery.`,
+        `The {tier} upgrade. Higher quality ingredients.`,
+        `Graduate to true {tier} perfumery.`,
         `A more complex, luxurious take on this profile.`
       ]
     );

@@ -3,6 +3,7 @@ import PerfumeClientView from '@/components/features/perfume/PerfumeClientView';
 import { Database } from '@/types/database';
 import { notFound } from 'next/navigation';
 import { RecommendationEngine } from '@/lib/recommendation-engine';
+import { Metadata } from 'next';
 
 // --- Types ---
 
@@ -33,31 +34,11 @@ type Perfume = Database['public']['Tables']['perfumes']['Row'] & {
   longevity_rating?: number;
   sillage_rating?: number;
   sharedNotes?: string[];
-  matchScore?: number; // Added matchScore
-  matchReason?: string; // Added matchReason
+  matchScore?: number;
+  matchReason?: string;
 };
 
 // --- Helper Functions (Server-Side) ---
-
-const SCENT_FAMILIES: Record<string, string[]> = {
-  citrus: ['lemon', 'bergamot', 'orange', 'grapefruit', 'mandarin', 'lime', 'yuzu'],
-  floral: ['rose', 'jasmine', 'lily', 'orchid', 'peony', 'lavender', 'tuberose'],
-  woody: ['sandalwood', 'cedar', 'oak', 'patchouli', 'vetiver', 'oud', 'guaiac', 'pine'],
-  spicy: ['pepper', 'cinnamon', 'clove', 'nutmeg', 'cardamom', 'ginger', 'saffron'],
-  gourmand: ['vanilla', 'chocolate', 'caramel', 'coffee', 'honey', 'tonka', 'praline'],
-  fresh: ['mint', 'green', 'aquatic', 'ozonic', 'marine', 'herbal', 'tea', 'sage'],
-  oriental: ['amber', 'resin', 'incense', 'myrrh', 'labdanum', 'benzoin'],
-  leather: ['leather', 'suede', 'tobacco', 'smoke', 'birch']
-};
-
-const categorizeScentFamily = (notes: string[], vibes: string[]): string | null => {
-  if (notes.includes('oud') || vibes.includes('oriental')) return 'oriental';
-  if (notes.includes('rose') || notes.includes('jasmine') || vibes.includes('floral')) return 'floral';
-  if (notes.some(n => ['citrus', 'bergamot', 'lemon'].includes(n)) || vibes.includes('fresh')) return 'fresh';
-  if (notes.some(n => ['vanilla', 'amber'].includes(n)) || vibes.includes('gourmand')) return 'gourmand';
-  if (notes.some(n => ['cedar', 'sandalwood', 'oakmoss'].includes(n)) || vibes.includes('woody')) return 'woody';
-  return null;
-};
 
 const generateProfileFromVibes = (vibes: string[]) => {
   const profile = { fresh: 3, sweet: 3, spicy: 3, woody: 3, floral: 3 };
@@ -79,7 +60,46 @@ const generateProfileFromVibes = (vibes: string[]) => {
   return profile;
 };
 
+// --- SEO: Dynamic Metadata Generator ---
+export async function generateMetadata(
+  props: { params: Promise<{ slug: string }> }
+): Promise<Metadata> {
+  const params = await props.params;
+  const slug = decodeURIComponent(params.slug);
+  const supabase = await createClient();
 
+  const { data: perfume } = await supabase
+    .from('perfumes')
+    .select(`
+      name, 
+      image_url, 
+      vibe_tags, 
+      rating,
+      brand:brands(name)
+    `)
+    .or(`slug.eq.${slug},id.eq.${slug}`)
+    .maybeSingle();
+
+  if (!perfume) {
+    return { title: 'Perfume Not Found | Scentia' };
+  }
+
+  // @ts-ignore
+  const brandName = perfume.brand?.name || 'Unknown Brand';
+  const vibes = perfume.vibe_tags?.slice(0, 3).join(', ') || 'Fragrance';
+  
+  return {
+    title: `${perfume.name} by ${brandName} - Reviews & Matches`,
+    description: `Discover ${perfume.name} by ${brandName}. A ${vibes} scent rated ${perfume.rating || 'N/A'}/5. See notes, longevity, and layering combinations.`,
+    openGraph: {
+      title: `${perfume.name} by ${brandName}`,
+      description: `Read reviews and find matches for ${perfume.name}.`,
+      images: perfume.image_url ? [perfume.image_url] : [],
+    },
+  };
+}
+
+// --- Main Page Component ---
 
 export default async function PerfumePage(
   props: { params: Promise<{ slug: string }> }
@@ -88,13 +108,11 @@ export default async function PerfumePage(
   const slug = decodeURIComponent(params.slug);
   const supabase = await createClient();
 
-  console.log(`[DEBUG] --------------------------------------------------`);
-  console.log(`[DEBUG] PerfumePage loaded. Raw Slug: "${params.slug}" -> Decoded: "${slug}"`);
-
-  // 1. Fetch Main Perfume (Try Slug First, then ID as fallback)
+  // 1. Fetch Main Perfume
   let mainPerfume = null;
   
-  const { data: slugMatches, error: slugError } = await supabase
+  // Try finding by slug first
+  const { data: slugMatches } = await supabase
     .from('perfumes')
     .select(`
       id, name, slug, image_url, rating, vibe_tags,
@@ -111,15 +129,11 @@ export default async function PerfumePage(
 
   if (slugMatches && slugMatches.length > 0) {
     mainPerfume = slugMatches[0];
-    console.log(`[DEBUG] Found by SLUG. ID: ${mainPerfume.id}, Name: ${mainPerfume.name}`);
-  } else {
-     console.log(`[DEBUG] Not found by slug. Matches: ${slugMatches?.length}, Error: ${slugError?.message}`);
   }
 
   // Fallback to ID if not found by slug
-  if (!mainPerfume && slug.length > 20) { // UUIDs are long
-    console.log(`[DEBUG] Attempting fallback by ID: "${slug}"`);
-    const { data: fallbackPerfume, error: fallbackError } = await supabase
+  if (!mainPerfume) {
+    const { data: fallbackPerfume } = await supabase
       .from('perfumes')
       .select(`
         id, name, slug, image_url, rating, vibe_tags,
@@ -134,16 +148,10 @@ export default async function PerfumePage(
       .eq('id', slug)
       .maybeSingle();
     
-    if (fallbackPerfume) {
-      mainPerfume = fallbackPerfume;
-      console.log(`[DEBUG] Found by ID fallback. Name: ${mainPerfume.name}`);
-    } else {
-      console.log(`[DEBUG] Not found by ID fallback. Error: ${fallbackError?.message}`);
-    }
+    if (fallbackPerfume) mainPerfume = fallbackPerfume;
   }
 
   if (!mainPerfume) {
-    console.error(`[DEBUG] FATAL: Perfume not found for slug/id: "${slug}"`);
     notFound(); 
   }
 
@@ -153,17 +161,50 @@ export default async function PerfumePage(
     scent_profile: mainPerfume.scent_profile || generateProfileFromVibes(mainPerfume.vibe_tags || [])
   } as unknown as Perfume;
 
-  // 2. Fetch Related Perfumes (Candidates)
+  // 2. Fetch Recommendations
   const allPerfumes = await RecommendationEngine.getAllPerfumes(supabase);
-
-  // 4. Process Recommendations using RecommendationEngine
   const recommendationCategories = RecommendationEngine.getEnhancedRecommendations(perfumeData, allPerfumes || []);
 
-  // 5. Render Client View
+  // --- SEO: JSON-LD Structure ---
+  const priceMap: Record<string, string> = { '$': '50.00', '$$': '100.00', '$$$': '200.00', '$$$$': '350.00' };
+  const estimatedPrice = perfumeData.price_tier ? priceMap[perfumeData.price_tier] || '120.00' : '100.00';
+  
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: perfumeData.name,
+    image: perfumeData.image_url ? [perfumeData.image_url] : [],
+    description: `Discover ${perfumeData.name} by ${perfumeData.brand?.name}. Profile: ${perfumeData.vibe_tags?.slice(0,3).join(', ')}.`,
+    brand: {
+      '@type': 'Brand',
+      name: perfumeData.brand?.name || 'Unknown'
+    },
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: perfumeData.rating || 4.5,
+      reviewCount: 24, // Static fallback since we aren't fetching count yet
+      bestRating: "5",
+      worstRating: "1"
+    },
+    offers: {
+      '@type': 'Offer',
+      priceCurrency: 'USD',
+      price: estimatedPrice,
+      availability: 'https://schema.org/InStock'
+    }
+  };
+
+  // 3. Render
   return (
-    <PerfumeClientView 
-      perfume={perfumeData} 
-      recommendationCategories={recommendationCategories}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <PerfumeClientView 
+        perfume={perfumeData} 
+        recommendationCategories={recommendationCategories}
+      />
+    </>
   );
 }

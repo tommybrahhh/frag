@@ -11,29 +11,23 @@ import { createClient } from '@/utils/supabase/client';
 // ------------------------------------------------------------------
 
 type EnrichedComment = Database['public']['Tables']['comments']['Row'] & {
-  upvote_count: number;
-  user_has_upvoted: boolean;
-  is_owner: boolean;
+  is_owner: boolean; // Calculated from user_collections
   profile: {
     avatar_url: string | null;
-    is_verified: boolean | null;
+    is_verified: boolean | null; // For the Blue Tick
   } | null;
 };
 
 // ------------------------------------------------------------------
-// HELPER: TEXT FORMATTER (RENDERER)
+// HELPER: TEXT FORMATTER
 // ------------------------------------------------------------------
-// Parses simple markdown syntax into React elements
 const FormattedText = ({ text }: { text: string }) => {
   if (!text) return null;
-
-  // Split by newlines to handle paragraphs/quotes
   const lines = text.split('\n');
 
   return (
     <div className="space-y-2">
       {lines.map((line, i) => {
-        // Handle Blockquotes (lines starting with "> ")
         if (line.trim().startsWith('>')) {
           return (
             <blockquote key={i} className="border-l-2 border-stone-300 pl-4 italic text-stone-600 my-2">
@@ -41,11 +35,8 @@ const FormattedText = ({ text }: { text: string }) => {
             </blockquote>
           );
         }
-
-        // Handle Bold (**text**) and Italic (*text*)
-        // Note: Simple regex parser. For full markdown, use a library.
+        // Simple parser for **Bold** and *Italic*
         const parts = line.split(/(\*\*.*?\*\*|\*.*?\*)/g);
-        
         return (
           <p key={i} className="min-h-[1.5em]">
             {parts.map((part, j) => {
@@ -65,7 +56,7 @@ const FormattedText = ({ text }: { text: string }) => {
 };
 
 // ------------------------------------------------------------------
-// HELPER: KEYWORD EXTRACTOR (TAGS)
+// HELPER: SMART TAGS (Auto-detected from text)
 // ------------------------------------------------------------------
 const extractContext = (content: string) => {
   const text = content.toLowerCase();
@@ -77,6 +68,7 @@ const extractContext = (content: string) => {
   if (text.includes('date') || text.includes('night') || text.includes('sexy')) badges.push({ label: 'Date Night', color: 'rose' });
   if (text.includes('summer') || text.includes('heat') || text.includes('fresh')) badges.push({ label: 'Summer', color: 'amber' });
   if (text.includes('winter') || text.includes('cold') || text.includes('cozy')) badges.push({ label: 'Winter', color: 'indigo' });
+  if (text.includes('blind buy') || text.includes('safe buy')) badges.push({ label: 'Safe Blind Buy', color: 'emerald' });
   
   return badges.slice(0, 3);
 };
@@ -89,9 +81,7 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
   const [newComment, setNewComment] = useState('');
   const [isFeedLoading, setIsFeedLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [sortOrder, setSortOrder] = useState<'created_at' | 'upvote_count'>('created_at');
   
-  // Ref for the textarea to handle cursor position
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const fetchComments = useCallback(async () => {
@@ -112,13 +102,13 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
 
       const userIds = Array.from(new Set(commentsData.map((c: any) => c.user_id)));
 
-      // 2. Fetch Profiles
+      // 2. Fetch Profiles (for Avatar and Verified User status)
       const { data: profilesData } = await supabase
         .from('profiles')
         .select('id, avatar_url, is_verified')
         .in('id', userIds);
       
-      // 3. Check Ownership
+      // 3. Check Ownership (for Verified Owner status)
       const { data: ownershipData } = await supabase
         .from('user_collections')
         .select('user_id')
@@ -127,38 +117,18 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
         .in('user_id', userIds);
 
       const ownersSet = new Set(ownershipData?.map(o => o.user_id));
+      
       const profilesMap = (profilesData || []).reduce((acc: any, profile: any) => {
         acc[profile.id] = profile;
         return acc;
       }, {});
 
-      // 4. Fetch Upvotes
-      const commentIds = commentsData.map(c => c.id);
-      const { data: allUpvotes } = await supabase
-        .from('comment_upvotes')
-        .select('comment_id, user_id')
-        .in('comment_id', commentIds);
-
-      const upvoteCounts: Record<string, number> = {};
-      const userUpvoted: Record<string, boolean> = {};
-
-      allUpvotes?.forEach((u: any) => {
-        upvoteCounts[u.comment_id] = (upvoteCounts[u.comment_id] || 0) + 1;
-        if (user && u.user_id === user.id) userUpvoted[u.comment_id] = true;
-      });
-
-      // 5. Merge
+      // 4. Merge Data
       let enriched = commentsData.map((c: any) => ({
         ...c,
         profile: profilesMap[c.user_id] || null,
-        upvote_count: upvoteCounts[c.id] || 0,
-        user_has_upvoted: !!userUpvoted[c.id],
         is_owner: ownersSet.has(c.user_id)
       }));
-
-      if (sortOrder === 'upvote_count') {
-        enriched.sort((a, b) => b.upvote_count - a.upvote_count);
-      }
 
       setComments(enriched);
     } catch (err) {
@@ -166,27 +136,21 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
     } finally {
       setIsFeedLoading(false);
     }
-  }, [perfumeId, sortOrder, user, supabase]);
+  }, [perfumeId, supabase]);
 
   useEffect(() => { fetchComments(); }, [fetchComments]);
 
-  // --- EDITOR HANDLERS ---
+  // --- EDITOR LOGIC ---
   const insertFormat = (prefix: string, suffix: string) => {
     const el = textareaRef.current;
     if (!el) return;
-
     const start = el.selectionStart;
     const end = el.selectionEnd;
     const text = el.value;
-    
     const before = text.substring(0, start);
     const selection = text.substring(start, end);
     const after = text.substring(end);
-
-    const newText = before + prefix + selection + suffix + after;
-    setNewComment(newText);
-    
-    // Restore focus and selection
+    setNewComment(before + prefix + selection + suffix + after);
     setTimeout(() => {
       el.focus();
       el.setSelectionRange(start + prefix.length, end + prefix.length);
@@ -198,33 +162,21 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
     if (!user || !newComment.trim()) return;
     setIsSubmitting(true);
     
-    await supabase.from('comments').insert({
+    const { error } = await supabase.from('comments').insert({
         user_id: user.id,
         perfume_id: perfumeId,
         content: newComment,
-        user_name: user.display_name || 'Member',
+        user_name: user.display_name || 'Member', 
     });
-    
-    setNewComment('');
-    setIsSubmitting(false);
-    fetchComments();
-  };
 
-  const handleUpvote = async (comment: EnrichedComment) => {
-    if (!user) return;
-    const hasUpvoted = comment.user_has_upvoted;
-    
-    setComments(prev => prev.map(c => 
-      c.id === comment.id 
-        ? { ...c, user_has_upvoted: !hasUpvoted, upvote_count: hasUpvoted ? c.upvote_count - 1 : c.upvote_count + 1 } 
-        : c
-    ));
-
-    if (hasUpvoted) {
-      await supabase.from('comment_upvotes').delete().match({ comment_id: comment.id, user_id: user.id });
+    if (error) {
+        console.error('Error posting comment:', error);
+        alert('Failed to post comment. Please try again.');
     } else {
-      await supabase.from('comment_upvotes').insert({ comment_id: comment.id, user_id: user.id });
+        setNewComment('');
+        fetchComments();
     }
+    setIsSubmitting(false);
   };
 
   return (
@@ -237,23 +189,17 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
             Real experiences from the collector community.
           </p>
         </div>
-        
-        <div className="flex items-center gap-1 bg-stone-100 p-1 rounded-lg mt-4 md:mt-0">
-          <button onClick={() => setSortOrder('created_at')} className={`px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-md transition ${sortOrder === 'created_at' ? 'bg-white shadow-sm text-stone-900' : 'text-stone-400 hover:text-stone-600'}`}>Newest</button>
-          <button onClick={() => setSortOrder('upvote_count')} className={`px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-md transition ${sortOrder === 'upvote_count' ? 'bg-white shadow-sm text-stone-900' : 'text-stone-400 hover:text-stone-600'}`}>Top Rated</button>
-        </div>
       </div>
 
       <div className="grid lg:grid-cols-12 gap-10">
         
-        {/* INPUT FORM */}
+        {/* INPUT FORM (Sticky) */}
         <div className="lg:col-span-4 order-2 lg:order-1">
           <div className="bg-stone-50 p-6 rounded-2xl border border-stone-100 sticky top-24">
             <h4 className="font-serif text-lg text-stone-800 mb-4">Add your note</h4>
             {user ? (
               <form onSubmit={handleSubmit} className="space-y-3">
-                
-                {/* EDITOR TOOLBAR */}
+                {/* TOOLBAR */}
                 <div className="flex items-center gap-1 mb-2 border-b border-stone-200 pb-2">
                   <button type="button" onClick={() => insertFormat('**', '**')} className="w-8 h-8 flex items-center justify-center rounded hover:bg-stone-200 text-stone-600 font-bold" title="Bold">B</button>
                   <button type="button" onClick={() => insertFormat('*', '*')} className="w-8 h-8 flex items-center justify-center rounded hover:bg-stone-200 text-stone-600 italic font-serif" title="Italic">I</button>
@@ -276,7 +222,7 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
                   {isSubmitting ? 'Publishing...' : 'Publish Note'}
                 </button>
                 <p className="text-[10px] text-stone-400 text-center">
-                  Marked as "Verified" if in your collection.
+                  Review marked as "Verified" if in your collection.
                 </p>
               </form>
             ) : (
@@ -307,6 +253,7 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
                   {/* USER HEADER */}
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
+                      {/* Avatar */}
                       <div className="w-10 h-10 rounded-full bg-stone-100 overflow-hidden border border-stone-100 flex items-center justify-center">
                         {comment.profile?.avatar_url ? (
                           <img src={comment.profile.avatar_url} alt="User" className="w-full h-full object-cover" />
@@ -314,12 +261,25 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
                           <span className="text-stone-400 font-bold text-xs">{comment.user_name?.[0]}</span>
                         )}
                       </div>
+                      
+                      {/* User Info */}
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="font-bold text-stone-900 text-sm">{comment.user_name}</span>
+                          
+                          {/* BADGE 1: PROFILE VERIFIED (Blue Tick) */}
+                          {comment.profile?.is_verified && (
+                            <span title="Verified User" className="text-blue-500">
+                              <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 20 20">
+                                 <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" fillRule="evenodd"/>
+                              </svg>
+                            </span>
+                          )}
+
+                          {/* BADGE 2: VERIFIED OWNER (Amber Tag) */}
                           {comment.is_owner && (
-                             <span className="bg-amber-50 text-amber-700 border border-amber-100 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide flex items-center gap-1">
-                               <span className="w-1 h-1 bg-amber-500 rounded-full"/> Verified Owner
+                             <span className="bg-amber-50 text-amber-700 border border-amber-100 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide flex items-center gap-1 ml-1">
+                               <span className="w-1.5 h-1.5 bg-amber-500 rounded-full"/> Verified Owner
                              </span>
                           )}
                         </div>
@@ -330,7 +290,7 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
                     </div>
                   </div>
 
-                  {/* CONTENT (FORMATTED) */}
+                  {/* CONTENT */}
                   <div className="prose prose-stone prose-sm max-w-none mb-6 font-serif text-stone-700 leading-relaxed text-[15px]">
                     <FormattedText text={comment.content} />
                   </div>
@@ -346,21 +306,12 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
                     </div>
                   )}
 
-                  {/* FOOTER */}
-                  <div className="flex items-center justify-between pt-4 border-t border-stone-50">
-                    <button 
-                      onClick={() => handleUpvote(comment)}
-                      disabled={!user}
-                      className="flex items-center gap-2 text-stone-400 hover:text-stone-900 transition group/btn"
-                    >
-                      <span className="text-xs font-bold uppercase tracking-wider group-hover/btn:underline">Helpful?</span>
-                      <div className={`flex items-center justify-center w-6 h-6 rounded-full border transition-all ${comment.user_has_upvoted ? 'bg-stone-900 border-stone-900 text-white' : 'border-stone-200'}`}>
-                        <span className="text-[10px] font-bold">{comment.upvote_count}</span>
-                      </div>
-                    </button>
-                    
+                  {/* FOOTER - ONLY EDIT (No Upvote to avoid 404) */}
+                  <div className="flex items-center justify-end pt-4 border-t border-stone-50">
                     {user?.id === comment.user_id && (
-                       <button className="text-[10px] font-bold uppercase text-stone-300 hover:text-stone-900">Edit</button>
+                       <button className="text-[10px] font-bold uppercase text-stone-300 hover:text-stone-900 transition">
+                         Edit Note
+                       </button>
                     )}
                   </div>
                 </div>

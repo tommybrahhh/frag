@@ -25,14 +25,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let perfumeRoutes: any[] = [];
   try {
     const supabase = await createClient();
+    // CHANGED: Fetch 'slug' as well
     const { data: perfumes } = await supabase
       .from('perfumes')
-      .select('id, created_at')
-      .limit(1000); // Index up to 1000 perfumes for now
+      .select('id, slug, created_at') 
+      .limit(2000); 
 
     if (perfumes) {
       perfumeRoutes = perfumes.map((p) => ({
-        url: `${baseUrl}/perfume/${p.id}`,
+        // CHANGED: Prefer Slug, fallback to ID if slug is missing
+        url: `${baseUrl}/perfume/${p.slug || p.id}`,
         lastModified: p.created_at ? new Date(p.created_at) : new Date(),
         changeFrequency: 'monthly' as const,
         priority: 0.6,

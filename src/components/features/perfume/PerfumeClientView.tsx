@@ -49,6 +49,25 @@ interface PerfumeClientViewProps {
 }
 
 export default function PerfumeClientView({ perfume, recommendationCategories }: PerfumeClientViewProps) {
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `Check out ${perfume.name}`,
+          text: `I found this scent on Scentia: ${perfume.name} by ${perfume.brand?.name}. It fits the ${perfume.vibe_tags?.[0]} vibe!`,
+          url: window.location.href,
+        });
+      } catch (error) {
+        console.log('Error sharing', error);
+      }
+    } else {
+      // Fallback: Copy to clipboard
+      navigator.clipboard.writeText(window.location.href);
+      alert('Link copied to clipboard!');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#FAFAF9] text-[#1C1917] pb-20 font-sans selection:bg-[#1C1917] selection:text-[#FAFAF9]">
       {/* Sticky Header */}
@@ -58,7 +77,7 @@ export default function PerfumeClientView({ perfume, recommendationCategories }:
       </div>
 
       {/* Hero Section */}
-      <PerfumeHero perfume={perfume} />
+      <PerfumeHero perfume={perfume} onShare={handleShare} />
 
       <div className="max-w-6xl mx-auto px-6 mb-20">
         {/* Dashboard Container */}
