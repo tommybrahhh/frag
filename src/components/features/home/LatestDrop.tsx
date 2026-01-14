@@ -5,7 +5,7 @@ import Image from 'next/image';
 
 interface Perfume {
   id: string;
-  slug: string;
+  slug?: string | null; // Fix: Allow null/undefined to match HomeClient and DB types
   name: string;
   brand: { name: string };
   image_url: string;
