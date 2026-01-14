@@ -17,6 +17,15 @@ interface SearchResultsProps {
 const SearchResults: React.FC<SearchResultsProps> = ({ loading, error, results, currentPage, totalPages, onLoadMore }) => {
   const hasMore = currentPage < totalPages;
 
+  // ADD THIS DEBUG LINE:
+  if (results.length > 0) {
+    console.log('Debug Search Result Item:', {
+      name: results[0].name,
+      slug: results[0].slug,
+      id: results[0].id
+    });
+  }
+
   // Initial loading state (page 1)
   if (loading && currentPage === 1) {
     return (

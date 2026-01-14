@@ -154,19 +154,7 @@ export default async function PerfumePage(
   } as unknown as Perfume;
 
   // 2. Fetch Related Perfumes (Candidates)
-  let query = supabase.from('perfumes').select(`
-      id, name, image_url, price_tier, best_season, vibe_tags, gender,
-      brand:brands(name),
-      perfume_notes(type, note:notes(name))
-    `)
-    .neq('id', mainPerfume.id)
-    .limit(100);
-
-  if (perfumeData.vibe_tags && perfumeData.vibe_tags.length > 0) {
-      query = query.overlaps('vibe_tags', perfumeData.vibe_tags);
-  }
-
-  const { data: allPerfumes } = await query;
+  const allPerfumes = await RecommendationEngine.getAllPerfumes(supabase);
 
   // 4. Process Recommendations using RecommendationEngine
   const recommendationCategories = RecommendationEngine.getEnhancedRecommendations(perfumeData, allPerfumes || []);

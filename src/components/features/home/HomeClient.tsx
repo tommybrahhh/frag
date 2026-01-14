@@ -21,6 +21,7 @@ interface HomeClientProps {
 interface Perfume {
   id: string;
   name: string;
+  slug?: string | null; // <--- ADD THIS LINE
   brand: { name: string };
   image_url: string;
   rating?: number;
