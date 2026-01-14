@@ -61,7 +61,7 @@ export default async function ProfilePage() {
       perfume:perfumes (
         id,
         name,
-        slug,  // <--- ADD THIS
+        slug,
         image_url,
         brand:brands (name),
         olfactory_family,
@@ -81,18 +81,19 @@ export default async function ProfilePage() {
     const { data: fallbackData, error: fallbackError } = await supabase
         .from('user_collections')
         .select(`
-        id,
-        perfume:perfumes (
+          id,
+          perfume:perfumes (
             id,
-                    name,
-                    slug, // <--- ADD THIS
-                    image_url,            brand:brands (name),
+            name,
+            slug,
+            image_url,
+            brand:brands (name),
             olfactory_family,
             best_season,
             vibe_tags,
             rating,
             perfume_notes(type, note:notes(name))
-        )
+          )
         `)
         .eq('user_id', user.id);
         
