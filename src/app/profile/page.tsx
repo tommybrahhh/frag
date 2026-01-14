@@ -61,6 +61,7 @@ export default async function ProfilePage() {
       perfume:perfumes (
         id,
         name,
+        slug,  // <--- ADD THIS
         image_url,
         brand:brands (name),
         olfactory_family,
@@ -83,9 +84,9 @@ export default async function ProfilePage() {
         id,
         perfume:perfumes (
             id,
-            name,
-            image_url,
-            brand:brands (name),
+                    name,
+                    slug, // <--- ADD THIS
+                    image_url,            brand:brands (name),
             olfactory_family,
             best_season,
             vibe_tags,

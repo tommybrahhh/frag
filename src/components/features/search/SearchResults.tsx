@@ -41,7 +41,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({ loading, error, results, 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {results.map(perfume => (
               <div key={perfume.id} className="group bg-white rounded-xl border border-stone-100 p-4 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                <Link href={`/perfume/${perfume.id}`}>
+                <Link href={`/perfume/${perfume.slug || perfume.id}`}>
                   <div className="h-48 flex items-center justify-center p-4 mb-4 bg-stone-50 rounded-lg group-hover:bg-white transition-colors">
                     {perfume.image_url ? (
                       <img 

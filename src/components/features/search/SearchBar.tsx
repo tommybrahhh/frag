@@ -121,13 +121,20 @@ export default function SearchBar() {
                    Trending
                  </div>
               )}
-              {displayList.map((perfume) => (
-                <Link 
-                  key={perfume.id} 
-                  href={`/perfume/${perfume.id}`}
-                  onClick={() => setIsOpen(false)}
-                  className="flex items-center gap-4 p-3 hover:bg-stone-50 transition border-b border-stone-50 last:border-0 group"
-                >
+              {displayList.map((perfume) => {
+                if (!perfume.slug && !perfume.id) {
+                  console.error("Perfume object missing both slug and id:", perfume);
+                  // Optionally, you might want to return null or a placeholder here
+                  // if a perfume without identifier shouldn't be displayed.
+                  return null; 
+                }
+                return (
+                  <Link 
+                    key={perfume.id} 
+                    href={`/perfume/${perfume.slug || perfume.id}`}
+                    onClick={() => setIsOpen(false)}
+                    className="flex items-center gap-4 p-3 hover:bg-stone-50 transition border-b border-stone-50 last:border-0 group"
+                  >
                   {/* Tiny Image */}
                   <div className="w-10 h-10 bg-white rounded-md border border-stone-100 flex items-center justify-center overflow-hidden">
                     {perfume.image_url ? (
@@ -155,7 +162,8 @@ export default function SearchBar() {
                     </button>
                   </div>
                 </Link>
-              ))}
+                );
+              })}
             </>
           )}
         </div>

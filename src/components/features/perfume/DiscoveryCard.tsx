@@ -17,7 +17,7 @@ export default function DiscoveryCard({ recommendation }: DiscoveryCardProps) {
   return (
     <div 
       className="bg-stone-100 text-stone-800 rounded-2xl p-8 md:p-12 w-full grid md:grid-cols-2 gap-8 items-center cursor-pointer hover:bg-stone-200/60 transition-colors col-span-1 sm:col-span-2 lg:col-span-3"
-      onClick={() => router.push(`/perfume/${perfume.id}`)}
+      onClick={() => router.push(`/perfume/${perfume.slug || perfume.id}`)}
     >
       {/* Left Side: The "Why" */}
       <div className="md:pr-8">

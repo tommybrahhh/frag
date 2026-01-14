@@ -10,6 +10,7 @@ type Perfume = {
   id: string;
   name: string;
   brands: { name: string } | null;
+  slug: string | null;
   price_tier: string;
   image_url: string | null;
   vibe_tags: string[] | null;
@@ -232,7 +233,7 @@ export default function AllRecommendationsPage() {
 
                 <div className="mt-4 flex items-center justify-between">
                   <span className="font-bold text-gray-900 text-sm">{perfume.price_tier || 'N/A'}</span>
-                  <Link href={`/recommendations/${perfume.id}`}>
+                  <Link href={`/perfume/${perfume.slug || perfume.id}`}>
                     <button className="text-xs bg-black text-white px-3 py-1.5 rounded-lg hover:bg-gray-800 transition-colors">
                         View Details
                     </button>

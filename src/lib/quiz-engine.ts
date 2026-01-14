@@ -4,6 +4,7 @@ export interface Perfume {
   id: string;
   name: string;
   image_url: string | null;
+  slug: string | null;
   brand_name: string;
   gender: string;
   sillage_rating: number;

@@ -91,7 +91,7 @@ export default function LayeringCard({ mainPerfume, recommendation }: LayeringCa
                 </div>
 
                 {/* Candidate Perfume */}
-                <Link href={`/perfume/${candidatePerfume.slug}`} className="flex flex-col items-center text-center group">
+                <Link href={`/perfume/${candidatePerfume.slug || candidatePerfume.id}`} className="flex flex-col items-center text-center group">
                   <div className="relative h-32 w-32 bg-stone-50 rounded-2xl flex items-center justify-center p-4 mb-4 group-hover:bg-stone-100 transition-colors">
                     {candidatePerfume.image_url ? (
                       <img src={candidatePerfume.image_url} alt={candidatePerfume.name} className="h-full w-full object-contain mix-blend-multiply" />

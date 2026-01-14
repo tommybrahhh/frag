@@ -197,7 +197,7 @@ export class RecommendationEngine {
     const { data: perfumes, error } = await supabase
       .from('perfumes')
       .select(`
-        id, name, image_url, rating, vibe_tags, price_tier, best_season,
+        id, name, slug, image_url, rating, vibe_tags, price_tier, best_season,
         longevity_rating, sillage_rating, olfactory_family,
         brand:brands(name, tier),
         perfume_notes(type, note:notes(name, color_hex))

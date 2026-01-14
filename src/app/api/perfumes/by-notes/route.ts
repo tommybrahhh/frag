@@ -52,7 +52,8 @@ export async function POST(request: Request) {
     .from('perfumes')
     .select(`
       id, 
-      name, 
+      name,
+      slug,  // <--- ADD THIS LINE
       image_url,
       brand:brands(name)
     `)

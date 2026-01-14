@@ -42,7 +42,7 @@ function PerfumeCard({ recommendation, category }: { recommendation: any; catego
   const style = categoryStyles[category as keyof typeof categoryStyles];
 
   return (
-    <Link href={`/perfume/${recommendation.perfume.id}`} className={`group block bg-white rounded-2xl p-6 border-2 ${style.border} hover:shadow-xl transition duration-500`}>
+    <Link href={`/perfume/${recommendation.perfume.slug || recommendation.perfume.id}`} className={`group block bg-white rounded-2xl p-6 border-2 ${style.border} hover:shadow-xl transition duration-500`}>
       
       {/* Image Area */}
       <div className="h-48 flex items-center justify-center mb-6 p-4">

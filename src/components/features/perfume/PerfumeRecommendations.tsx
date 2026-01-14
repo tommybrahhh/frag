@@ -39,7 +39,7 @@ const RecommendationSection = ({ category, mainPerfume }: { category: Recommenda
               category.type === 'layering' ? (
                 <LayeringCard key={rec.perfume.id} mainPerfume={mainPerfume} recommendation={rec} />
               ) : (
-                <div key={rec.perfume.id} className="group cursor-pointer" onClick={() => handleRecommendationClick(rec.perfume.slug)}>
+                <div key={rec.perfume.id} className="group cursor-pointer" onClick={() => handleRecommendationClick(rec.perfume.slug || rec.perfume.id)}>
                   <div className="relative h-[320px] bg-stone-50 rounded-2xl mb-4 flex items-center justify-center p-6 transition-colors group-hover:bg-[#F0F0F0] overflow-hidden">
                     <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-2 py-1 rounded-full border border-stone-100 shadow-sm z-10">
                       <span className="text-[10px] font-bold text-stone-900 tabular-nums">{rec.score}% Match</span>

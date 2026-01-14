@@ -150,7 +150,7 @@ export default function WardrobeAnalytics({
           <div className="mt-8">
              <div className="text-[10px] uppercase tracking-widest text-stone-500 mb-2">Recommended Wear</div>
              {matchedPerfume ? (
-               <Link href={`/perfume/${matchedPerfume.id}`}>
+               <Link href={`/perfume/${matchedPerfume.slug || matchedPerfume.id}`}>
                  <div className="bg-white/5 border border-white/10 backdrop-blur-md p-4 rounded-xl flex items-center gap-4 hover:bg-white/10 transition-colors cursor-pointer">
                     <div className="h-12 w-12 bg-white rounded-full p-1 flex-shrink-0 flex items-center justify-center overflow-hidden">
                        {currentRotation.image ? (

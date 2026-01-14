@@ -76,7 +76,7 @@ export default function DiscoverMatches({ topMatches }: DiscoverMatchesProps) {
                   {recommendations.map((rec) => (
                       <Link 
                       key={rec.perfume.id} 
-                      href={`/perfume/${rec.perfume.id}`}
+                      href={`/perfume/${rec.perfume.slug || rec.perfume.id}`}
                       className="group relative bg-white rounded-xl border border-stone-100 p-3 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full flex flex-col"
                       >
                       <div className="h-40 flex items-center justify-center p-4 mb-3 bg-stone-50 rounded-lg group-hover:bg-white transition-colors relative overflow-hidden">

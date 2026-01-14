@@ -23,6 +23,7 @@ type Brand = {
 };
 
 type Perfume = Database['public']['Tables']['perfumes']['Row'] & {
+  slug?: string;
   brand?: Brand;
   perfume_notes?: PerfumeNote[];
   scent_profile?: Record<string, number>;

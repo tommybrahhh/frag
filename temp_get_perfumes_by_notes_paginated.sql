@@ -6,7 +6,8 @@ create or replace function get_perfumes_by_notes_paginated(
 returns table (
     id uuid,
     name text,
-    slug text,
+    slug text,        -- <--- ADDED THIS
+    image_url text,   -- <--- ADDED THIS (Highly recommended)
     brand text
 )
 as $$
@@ -15,7 +16,8 @@ begin
     select
         p.id,
         p.name,
-        p.slug,
+        p.slug,       -- <--- ADDED THIS
+        p.image_url,  -- <--- ADDED THIS
         b.name as brand
     from
         perfumes p
