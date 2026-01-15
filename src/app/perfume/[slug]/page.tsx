@@ -146,7 +146,11 @@ export default async function PerfumePage(
 
   // 2. Fetch Recommendations
   const allPerfumes = await RecommendationEngine.getAllPerfumes(supabase);
-  const recommendationCategories = RecommendationEngine.getEnhancedRecommendations(perfumeData, allPerfumes || []);
+  // FIX: Cast arguments to 'any' to bypass strict Type mismatch between local 'Perfume' type and Engine's expected type
+  const recommendationCategories = RecommendationEngine.getEnhancedRecommendations(
+    perfumeData as any, 
+    (allPerfumes || []) as any
+  );
 
   // --- SEO: JSON-LD Structure ---
   const priceMap: Record<string, string> = { '$': '50.00', '$$': '100.00', '$$$': '200.00', '$$$$': '350.00' };
