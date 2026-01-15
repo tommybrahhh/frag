@@ -258,6 +258,72 @@ export function findLayeringMatches(basePerfume: any, candidates: any[], limit: 
 }
 
 // ------------------------------------------------------------------
+// INGREDIENT ANALYSIS (Restored for Ingredient Combiner Page)
+// ------------------------------------------------------------------
+
+/**
+ * Analyzes a list of raw ingredient notes for potential clashes or harmonies.
+ * Used by the Ingredient Combiner page.
+ */
+export function analyzeIngredientCombination(ingredients: any[]) {
+  const warnings: string[] = [];
+  const tips: string[] = [];
+  let hasClash = false;
+  let hasHarmony = false;
+
+  // Safety check
+  if (!ingredients || ingredients.length === 0) {
+    return { warnings, tips, hasClash, hasHarmony };
+  }
+
+  // Extract families and normalize to Title Case (e.g. 'floral' -> 'Floral')
+  // This matches the keys in PERFUME_ALCHEMY_RULES
+  const families = [...new Set(ingredients.map(i => {
+    const f = i.family || '';
+    return f.charAt(0).toUpperCase() + f.slice(1).toLowerCase();
+  }).filter(Boolean))];
+
+  // 1. Check for Clashes
+  families.forEach(f1 => {
+    if (PERFUME_ALCHEMY_RULES.MAJOR_CLASHES[f1]) {
+      const clashes = PERFUME_ALCHEMY_RULES.MAJOR_CLASHES[f1].filter(c => families.includes(c));
+      if (clashes.length > 0) {
+        hasClash = true;
+        clashes.forEach(c => {
+          const msg = `The ${f1} notes might clash with the ${c} notes.`;
+          if (!warnings.includes(msg)) warnings.push(msg);
+        });
+      }
+    }
+  });
+
+  // 2. Check for Harmonies
+  families.forEach(f1 => {
+    if (PERFUME_ALCHEMY_RULES.HARMONIOUS_PAIRS[f1]) {
+      const matches = PERFUME_ALCHEMY_RULES.HARMONIOUS_PAIRS[f1].filter(h => families.includes(h));
+      if (matches.length > 0) {
+        hasHarmony = true;
+        matches.forEach(m => {
+          const msg = `${f1} + ${m} is a classic pairing.`;
+          if (!tips.includes(msg)) tips.push(msg);
+        });
+      }
+    }
+  });
+
+  // 3. Check for Synergy
+  PERFUME_ALCHEMY_RULES.SYNERGISTIC_FAMILIES.forEach(pair => {
+    if (families.includes(pair[0]) && families.includes(pair[1])) {
+      hasHarmony = true;
+      const msg = `${pair[0]} and ${pair[1]} enhance each other perfectly.`;
+      if (!tips.includes(msg)) tips.push(msg);
+    }
+  });
+
+  return { warnings, tips, hasClash, hasHarmony };
+}
+
+// ------------------------------------------------------------------
 // HELPER FOR LEGACY COMPATIBILITY
 // ------------------------------------------------------------------
 const VOLATILITY_CLASSIFICATION: Record<string, string[]> = {
