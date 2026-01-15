@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase';
 import { mixPerfumes } from '@/lib/alchemy';
+import { generateProfileFromVibes } from '@/lib/perfume-utils';
 import { Database } from '@/types/database';
 
 // ------------------------------------------------------------------
@@ -76,7 +77,12 @@ export class RecommendationEngine {
       .limit(limit);
 
     if (error) console.error('Error fetching perfumes:', error);
-    return (perfumes as PerfumeWithRelations[]) || [];
+
+    // FIX: Backfill missing scent_profiles on the fly
+    return (perfumes || []).map((p: any) => ({
+        ...p,
+        scent_profile: p.scent_profile || generateProfileFromVibes(p.vibe_tags)
+    }));
   }
 
   // ------------------------------------------------------------------

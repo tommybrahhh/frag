@@ -4,6 +4,7 @@ import { Database } from '@/types/database';
 import { notFound } from 'next/navigation';
 import { RecommendationEngine } from '@/lib/recommendation-engine';
 import { Metadata } from 'next';
+import { generateProfileFromVibes } from '@/lib/perfume-utils';
 
 // --- Types ---
 
@@ -40,25 +41,7 @@ type Perfume = Database['public']['Tables']['perfumes']['Row'] & {
 
 // --- Helper Functions (Server-Side) ---
 
-const generateProfileFromVibes = (vibes: string[]) => {
-  const profile = { fresh: 3, sweet: 3, spicy: 3, woody: 3, floral: 3 };
-  if (!vibes || vibes.length === 0) return profile;
 
-  const lowerVibes = vibes.map(v => v.toLowerCase());
-
-  if (lowerVibes.some(v => v.includes('citrus') || v.includes('fresh') || v.includes('aquatic') || v.includes('blue'))) profile.fresh += 6;
-  if (lowerVibes.some(v => v.includes('gourmand') || v.includes('vanilla') || v.includes('sweet') || v.includes('fruity'))) profile.sweet += 6;
-  if (lowerVibes.some(v => v.includes('spicy') || v.includes('warm') || v.includes('oriental') || v.includes('amber'))) profile.spicy += 6;
-  if (lowerVibes.some(v => v.includes('woody') || v.includes('earthy') || v.includes('mossy') || v.includes('leather'))) profile.woody += 6;
-  if (lowerVibes.some(v => v.includes('floral') || v.includes('rose') || v.includes('white flower'))) profile.floral += 6;
-
-  Object.keys(profile).forEach(k => {
-    // @ts-ignore
-    if (profile[k] > 10) profile[k] = 10;
-  });
-
-  return profile;
-};
 
 // --- SEO: Dynamic Metadata Generator ---
 export async function generateMetadata(

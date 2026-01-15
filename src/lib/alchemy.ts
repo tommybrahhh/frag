@@ -49,17 +49,16 @@ const PERFUME_ALCHEMY_RULES: AlchemyRules = {
 type NarrativeType = 'FIXER' | 'BRIDGE' | 'CONTRAST' | 'BOOSTER' | 'CLASH' | 'BALANCE';
 
 interface NarrativeContext {
-  strong: string; // Name of strong perfume
-  weak: string;   // Name of weak perfume
-  p1: string;     // Name of perfume 1
-  p2: string;     // Name of perfume 2
-  note: string;   // Shared note
-  vibe: string;   // Dominant vibe
-  vibe1: string;  // Vibe of p1
-  vibe2: string;  // Vibe of p2
+  strong: string; 
+  weak: string;   
+  p1: string;     
+  p2: string;     
+  note: string;   
+  vibe: string;   
+  vibe1: string;  
+  vibe2: string;  
 }
 
-// Using functions instead of bracket strings for better type safety and cleaner output
 const NARRATIVE_GENERATORS: Record<NarrativeType, ((ctx: NarrativeContext) => string)[]> = {
   FIXER: [
     ctx => `You love ${ctx.weak}, but it vanishes. ${ctx.strong} fixes that problem without ruining the scent profile.`,
@@ -111,46 +110,36 @@ const VERDICTS: Record<NarrativeType, string[]> = {
 // ------------------------------------------------------------------
 
 export function mixPerfumes(p1: any, p2: any, ratio: number = 0.5) {
-  // 1. EXTRACT DATA & SEED
   const notes1 = p1.perfume_notes || [];
   const notes2 = p2.perfume_notes || [];
   const vibes1 = p1.vibe_tags || [];
   const vibes2 = p2.vibe_tags || [];
   
-  // Use name length as a pseudo-random seed so the same pair always gets the same text
   const seed = (p1.name.length + p2.name.length);
 
-  // 2. ANALYZE RELATIONSHIPS
   const n1Names = notes1.map((n: any) => n.note?.name || '');
   const n2Names = notes2.map((n: any) => n.note?.name || '');
   
-  // Find Bridge Notes (Shared ingredients)
   const bridgeNotes = n1Names.filter((n: string) => n2Names.includes(n) && n !== '');
 
-  // Analyze Performance
   const p1Longevity = p1.longevity_rating || 5;
   const p2Longevity = p2.longevity_rating || 5;
   const longevityDiff = Math.abs(p1Longevity - p2Longevity);
   
-  // Analyze Clashes
   let clashCount = 0;
   vibes1.forEach((v1: string) => {
     if (PERFUME_ALCHEMY_RULES.MAJOR_CLASHES[v1]?.some((c: string) => vibes2.includes(c))) clashCount += 2;
     if (PERFUME_ALCHEMY_RULES.MINOR_CLASHES[v1]?.some((c: string) => vibes2.includes(c))) clashCount += 1;
   });
 
-  // Analyze Synergy
   let synergyCount = 0;
   const combinedVibes = Array.from(new Set([...vibes1, ...vibes2]));
   PERFUME_ALCHEMY_RULES.SYNERGISTIC_FAMILIES.forEach(([f1, f2]) => {
     if (combinedVibes.includes(f1) && combinedVibes.includes(f2)) synergyCount++;
   });
 
-  // 3. SELECT DOMINANT NARRATIVE
-  // Logic: Clash > Bridge > Performance > Booster > Contrast > Balance
   let narrative: NarrativeType = 'BALANCE'; 
   
-  // Context variables
   const mainNote = (bridgeNotes[0] || 'base').toLowerCase();
   const mainVibe = (vibes1[0] || 'scent').toLowerCase();
   const v1 = (vibes1[0] || 'base').toLowerCase();
@@ -168,7 +157,6 @@ export function mixPerfumes(p1: any, p2: any, ratio: number = 0.5) {
     narrative = 'CONTRAST';
   }
 
-  // 4. GENERATE DESCRIPTION
   const generatorList = NARRATIVE_GENERATORS[narrative];
   const generateText = generatorList[seed % generatorList.length];
   
@@ -178,7 +166,6 @@ export function mixPerfumes(p1: any, p2: any, ratio: number = 0.5) {
   const strongP = p1Longevity > p2Longevity ? p1 : p2;
   const weakP = p1Longevity > p2Longevity ? p2 : p1;
 
-  // Create clean context object for the generator
   const context: NarrativeContext = {
     strong: strongP.name,
     weak: weakP.name,
@@ -192,7 +179,6 @@ export function mixPerfumes(p1: any, p2: any, ratio: number = 0.5) {
 
   const description = generateText(context);
 
-  // 5. GENERATE TIPS (Context Aware)
   const mixingTips: string[] = [];
   
   if (narrative === 'FIXER') {
@@ -202,7 +188,6 @@ export function mixPerfumes(p1: any, p2: any, ratio: number = 0.5) {
   } else if (narrative === 'BOOSTER') {
     mixingTips.push("Go easy on the trigger. This mix projects heavily.");
   } else {
-    // Standard advice based on power
     const s1 = p1.sillage_rating || 5;
     const s2 = p2.sillage_rating || 5;
     
@@ -215,7 +200,6 @@ export function mixPerfumes(p1: any, p2: any, ratio: number = 0.5) {
     }
   }
 
-  // 6. CALCULATE METRICS
   let safety = 85;
   if (narrative === 'CLASH') safety = 45;
   if (narrative === 'BRIDGE' || narrative === 'BOOSTER') safety = 95;
@@ -223,7 +207,6 @@ export function mixPerfumes(p1: any, p2: any, ratio: number = 0.5) {
   if (narrative === 'FIXER') safety = 90;
   if (narrative === 'BALANCE') safety = 80;
 
-  // New Profile Visuals (Radar Chart Data)
   const getVal = (p: any, key: string) => (p.scent_profile?.[key] || 0);
   const newProfile = {
     fresh: (getVal(p1, 'fresh') + getVal(p2, 'fresh')) / 2,
@@ -235,7 +218,7 @@ export function mixPerfumes(p1: any, p2: any, ratio: number = 0.5) {
   };
 
   return {
-    mixName: `${p1.name} + ${p2.name}`, // Cleanest possible name
+    mixName: `${p1.name} + ${p2.name}`,
     safety,
     verdict,
     description,
@@ -244,6 +227,34 @@ export function mixPerfumes(p1: any, p2: any, ratio: number = 0.5) {
     bridgeNotes,
     warnings: narrative === 'CLASH' ? ["High risk of dissonance."] : []
   };
+}
+
+// ------------------------------------------------------------------
+// BATCH PROCESSOR (Restored for Action Compatibility)
+// ------------------------------------------------------------------
+
+/**
+ * Finds the best layering matches for a base perfume from a list of candidates.
+ * Uses the new mixPerfumes logic to evaluate each pair.
+ */
+export function findLayeringMatches(basePerfume: any, candidates: any[], limit: number = 6) {
+  const results = candidates
+    .filter(c => c.id !== basePerfume.id)
+    .map(candidate => {
+      // Generate the mix using the new engine
+      const mix = mixPerfumes(basePerfume, candidate);
+      
+      return {
+        perfume: candidate,
+        ...mix // Spread the safety, description, verdict, etc.
+      };
+    })
+    // Filter out low safety matches to ensure quality recommendations
+    .filter(match => match.safety >= 60) 
+    .sort((a, b) => b.safety - a.safety)
+    .slice(0, limit);
+
+  return results;
 }
 
 // ------------------------------------------------------------------
