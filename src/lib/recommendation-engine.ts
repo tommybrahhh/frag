@@ -468,7 +468,7 @@ export class RecommendationEngine {
     // Manual process for "Similar" as it has unique scoring logic
     return all
       .filter(p => p.id !== main.id)
-      .map(candidate => {
+      .flatMap(candidate => {
         const cProfile = this.analyzeScentProfile(candidate);
         const sharedNotes = profile.allNoteNames.filter(n => cProfile.allNoteNames.includes(n));
         const sharedFamilies = profile.families.filter(f => cProfile.families.includes(f));
@@ -476,15 +476,14 @@ export class RecommendationEngine {
         let score = (sharedNotes.length * 15) + (sharedFamilies.length * 20);
         if (profile.dominantVibe === cProfile.dominantVibe) score += 10;
         
-        if (score < 30) return null;
+        if (score < 30) return [];
 
-        return {
+        return [{
           perfume: candidate, type: 'similar' as const, score: Math.min(99, score),
           reason: `Matches your taste in ${sharedFamilies[0] || 'scents'} with notes of ${sharedNotes.slice(0, 2).join(' & ')}.`,
           sharedNotes: sharedNotes.slice(0, 3)
-        };
+        }];
       })
-      .filter((r): r is Recommendation => r !== null)
       .sort((a, b) => b.score - a.score)
       .slice(0, count);
   }

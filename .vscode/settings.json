@@ -1,2 +1,6 @@
 {
+    "editor.fontLigatures": false,
+    "editor.formatOnPaste": true,
+    "editor.formatOnSave": true,
+    "diffEditor.experimental.showMoves": false
 }
