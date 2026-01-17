@@ -165,6 +165,7 @@ export class RecommendationEngine {
     return {
         id: 'user-composite',
         name: 'Your Taste Profile',
+        brand_id: null,
         olfactory_family: getTop(counts.family, 3),
         vibe_tags: getTop(counts.vibe, 1),
         perfume_notes: getTop(counts.note, 5).map(name => ({
@@ -505,7 +506,7 @@ export class RecommendationEngine {
     };
 
     // 1. The "Artist" (High value for enthusiasts)
-    addCategory('discovery', 'The Masterpiece Connection', `More creations by ${mainPerfume.perfumer}.`,
+    addCategory('discovery', 'The Masterpiece Connection', `More creations by ${mainPerfume.perfumer}.`, 
       this.getPerfumerPortfolioRecommendations(mainPerfume, allPerfumes));
 
     // 2. The "Niche Upgrade" (High value for upsell/discovery)

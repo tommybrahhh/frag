@@ -87,6 +87,10 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
   const fetchComments = useCallback(async () => {
     setIsFeedLoading(true);
     try {
+      type CommentRow = Database['public']['Tables']['comments']['Row'];
+      type ProfileInfo = { id: string; avatar_url: string | null; is_verified: boolean | null; };
+      type OwnershipInfo = { user_id: string };
+
       // 1. Fetch Comments
       const { data: commentsData, error } = await supabase
         .from('comments')
@@ -100,7 +104,7 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
         return;
       }
 
-      const userIds = Array.from(new Set(commentsData.map((c: any) => c.user_id)));
+      const userIds = Array.from(new Set((commentsData as CommentRow[]).map(c => c.user_id)));
 
       // 2. Fetch Profiles (for Avatar and Verified User status)
       const { data: profilesData } = await supabase
@@ -116,15 +120,15 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
         .eq('list_type', 'owned')
         .in('user_id', userIds);
 
-      const ownersSet = new Set(ownershipData?.map(o => o.user_id));
+      const ownersSet = new Set((ownershipData as OwnershipInfo[] | null)?.map(o => o.user_id));
       
-      const profilesMap = (profilesData || []).reduce((acc: any, profile: any) => {
+      const profilesMap = (profilesData as ProfileInfo[] | null || []).reduce((acc, profile) => {
         acc[profile.id] = profile;
         return acc;
-      }, {});
+      }, {} as Record<string, ProfileInfo>);
 
       // 4. Merge Data
-      let enriched = commentsData.map((c: any) => ({
+      const enriched = (commentsData as CommentRow[]).map(c => ({
         ...c,
         profile: profilesMap[c.user_id] || null,
         is_owner: ownersSet.has(c.user_id)
@@ -167,7 +171,7 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
         perfume_id: perfumeId,
         content: newComment,
         user_name: user.display_name || 'Member', 
-    });
+    } as any);
 
     if (error) {
         console.error('Error posting comment:', error);
