@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import { createClient } from '@/utils/supabase/server';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://scentia.app'; // Replace with your actual domain
+  const baseUrl = 'https://scentia.fit'; // Replace with your actual domain
   
   // 1. Static Routes
   const staticRoutes = [

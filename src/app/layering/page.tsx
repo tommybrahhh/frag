@@ -13,11 +13,11 @@ import MixingControls from '@/components/features/layering/MixingControls';
 import LayeringAnalysis from '@/components/features/layering/LayeringAnalysis';
 import Spinner from '@/components/ui/Spinner';
 
-// Mock "Chef's Specials" to solve the blank canvas problem
-const CHEF_SPECIALS = [
-  { id: 'special-1', name: 'The Winter Warmer', desc: 'Tobacco + Vanilla', ids: ['45e31a93-5910-4246-8684-25b33bf18c1c', '7fbe126c-e44d-41f5-985a-9295947a5066'] }, // Tobacco Oud Intense + Vanilla Sex
-  { id: 'special-2', name: 'The Fresh Cut', desc: 'Citrus + Green', ids: ['57d9fed2-9d89-4ee4-82ab-71f9d6674e1f', 'c9a5eae1-625b-4c4e-b686-177b04a4af2e'] }, // Mandarine Basilic Harvest + Imperial Tea
-  { id: 'special-3', name: 'Midnight Rose', desc: 'Oud + Rose', ids: ['190d87e6-7959-48a1-abe6-79cc8cc387a5', 'd4ade9d3-9ce6-46c1-80f5-df33334fb403'] }, // Dhaneloudh Al Nafees + Atomic Rose
+// Mock "Curated Blends" to solve the blank canvas problem
+const CURATED_BLENDS = [
+  { id: 'special-1', name: 'Cozy Cabin', desc: 'Tobacco + Vanilla', ids: ['45e31a93-5910-4246-8684-25b33bf18c1c', '7fbe126c-e44d-41f5-985a-9295947a5066'] }, // Tobacco Oud Intense + Vanilla Sex
+  { id: 'special-2', name: 'Sunday Morning', desc: 'Citrus + Green', ids: ['57d9fed2-9d89-4ee4-82ab-71f9d6674e1f', 'c9a5eae1-625b-4c4e-b686-177b04a4af2e'] }, // Mandarine Basilic Harvest + Imperial Tea
+  { id: 'special-3', name: 'Dark Romance', desc: 'Oud + Rose', ids: ['190d87e6-7959-48a1-abe6-79cc8cc387a5', 'd4ade9d3-9ce6-46c1-80f5-df33334fb403'] }, // Dhaneloudh Al Nafees + Atomic Rose
 ];
 
 function LayeringLabContent() {
@@ -119,7 +119,7 @@ function LayeringLabContent() {
 
       <div className="max-w-6xl mx-auto px-6 py-12 md:py-16">
         
-        {/* --- EQUATION SECTION --- */}
+        {/* --- SELECTION AREA --- */}
         <div className="bg-white rounded-2xl shadow-lg border border-stone-100 p-6 md:p-8">
             <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
                 <div className="w-full flex-1">
@@ -161,7 +161,7 @@ function LayeringLabContent() {
                     slot1={slot1}
                     slot2={slot2}
                     ratio={ratio}
-                    chefSpecials={CHEF_SPECIALS}
+                    chefSpecials={CURATED_BLENDS}
                     onQuickStart={handleQuickStart}
                  />
             </div>
@@ -170,9 +170,9 @@ function LayeringLabContent() {
         {/* --- EMPTY STATE / QUICK START --- */}
         {!slot1 && !slot2 && (
             <div className="mt-12 text-center animate-in fade-in">
-                 <p className="text-sm text-stone-400 mb-4">Select fragrances above, or try one of our starter recipes.</p>
+                 <p className="text-sm text-stone-400 mb-4">Choose two scents to see how they interact, or start with a proven combo below.</p>
                  <div className="flex flex-wrap justify-center gap-3">
-                    {CHEF_SPECIALS.map(special => (
+                    {CURATED_BLENDS.map(special => (
                         <button 
                             key={special.id} 
                             onClick={() => handleQuickStart(special.ids[0], special.ids[1])}

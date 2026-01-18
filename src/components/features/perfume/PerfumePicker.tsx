@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { createClient } from '@/lib/supabase';
+import { useState, useRef, useCallback, useEffect } from 'react';
+import { usePerfumeSearch } from '@/hooks/usePerfumeSearch';
 
 interface PerfumePickerProps {
   label: string;
@@ -13,31 +13,19 @@ interface PerfumePickerProps {
 }
 
 export default function PerfumePicker({ label, onSelect, selected, placeholder, showFilters, compact = false }: PerfumePickerProps) {
-  const [query, setQuery] = useState('');
-  const [results, setResults] = useState<any[]>([]);
-  const [suggestions, setSuggestions] = useState<any[]>([]); // New state for default suggestions
+  // Use the Custom Hook for all logic
+  const { 
+    query, 
+    setQuery, 
+    displayList, 
+    listLabel, 
+    isLoading 
+  } = usePerfumeSearch();
+
   const [isOpen, setIsOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
-  const [isLoading, setIsLoading] = useState(false);
   const pickerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  // Memoize the client
-  const supabase = useMemo(() => createClient(), []);
-
-  // Fetch initial suggestions on mount
-  useEffect(() => {
-    const fetchSuggestions = async () => {
-      const { data } = await supabase
-        .from('perfumes')
-        .select('id, name, image_url, brand:brands(name)')
-        .order('rating', { ascending: false }) // Assuming 'rating' exists, otherwise order by name or random
-        .limit(5);
-      
-      if (data) setSuggestions(data);
-    };
-    fetchSuggestions();
-  }, [supabase]);
 
   // Close dropdown if clicking outside
   useEffect(() => {
@@ -50,63 +38,6 @@ export default function PerfumePicker({ label, onSelect, selected, placeholder, 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
-  // Server-Side Search Logic
-  useEffect(() => {
-    const controller = new AbortController();
-    const signal = controller.signal;
-
-    const fetchResults = async () => {
-      if (query.length < 2) {
-        setResults([]); // Clear search results, will fall back to suggestions
-        setIsLoading(false);
-        return;
-      }
-
-      setIsLoading(true);
-      try {
-        // Use the debug RPC function to bypass RLS for this test
-        const { data, error } = await (supabase as any)
-          .rpc('debug_search_perfumes', { p_query: query })
-          .limit(10)
-          .abortSignal(signal);
-
-        if (error) {
-          // Ignore abort errors which are expected during rapid typing
-          if (!error.message?.includes('AbortError') && !error.message?.includes('aborted')) {
-             console.error("Supabase RPC error message:", error.message, error);
-          }
-        }
-
-        if (!error && data) {
-          // Manually add a null 'brand' property to match the previous data structure
-          const dataWithBrand = data.map((p: any) => ({...p, brand: null}));
-          setResults(dataWithBrand);
-          setIsOpen(true);
-          setSelectedIndex(-1);
-        }
-      } catch (error: any) {
-        if (error.name !== 'AbortError') {
-          console.error("Search error:", error);
-        }
-      } finally {
-        // Only turn off loading if this request wasn't aborted (i.e., it was the final one)
-        if (!signal.aborted) {
-           setIsLoading(false);
-        }
-      }
-    };
-
-    const timer = setTimeout(fetchResults, 250); // 250ms debounce
-    return () => {
-      clearTimeout(timer);
-      controller.abort();
-    };
-  }, [query, supabase]);
-
-  // Determine what list to show
-  const displayList = query.length >= 2 ? results : suggestions;
-  const listLabel = query.length >= 2 ? (results.length === 0 ? "No matches" : "Results") : "Popular Now";
 
   // Keyboard navigation
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -231,7 +162,6 @@ export default function PerfumePicker({ label, onSelect, selected, placeholder, 
                <button 
                 onClick={() => {
                     setQuery('');
-                    setResults([]);
                     if (inputRef.current) inputRef.current.focus();
                 }}
                 className="hover:text-stone-600 transition-colors"
@@ -255,9 +185,7 @@ export default function PerfumePicker({ label, onSelect, selected, placeholder, 
               <div key={p.id}
                 className={`flex items-center gap-3 p-3 hover:bg-stone-50 cursor-pointer border-b border-stone-50 last:border-0 transition ${index === selectedIndex ? 'bg-stone-50' : ''}`}
                 onClick={() => {
-                  onSelect(p); // Pass the full perfume object back
-                  setQuery('');
-                  setIsOpen(false);
+                  handleSelect(p);
                 }}
               >
                  <div className="w-10 h-12 bg-stone-50 rounded flex items-center justify-center shrink-0">
@@ -265,7 +193,7 @@ export default function PerfumePicker({ label, onSelect, selected, placeholder, 
                  </div>
                  <div>
                    <div className="text-sm font-serif text-stone-900 leading-tight">{highlightMatch(p.name, query)}</div>
-                   <div className="text-[9px] uppercase tracking-wider text-stone-400 mt-0.5">{p.brand?.name || p.brand_name}</div>
+                   <div className="text-[9px] uppercase tracking-wider text-stone-400 mt-0.5">{p.brand?.name}</div>
                  </div>
               </div>
             ))}

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Image from 'next/image';
 import Link from 'next/link';
 import BlogHero from '@/components/features/blog/BlogHero';
 import LatestDrop from '@/components/features/home/LatestDrop';
@@ -137,7 +138,7 @@ export default function HomeClient({ initialBlogPosts }: HomeClientProps) {
         </div>
       </div>
       
-              <SectionHeader title="Just Arrived" linkText="View All" linkHref="/search?sort=newest" />      <HorizontalScrollRow items={newArrivals.slice(1, 8)} />
+              <SectionHeader title="Latest Arrivals" linkText="View All" linkHref="/search?sort=newest" />      <HorizontalScrollRow items={newArrivals.slice(1, 8)} />
 
       <div className="sticky top-20 z-40 bg-white/95 backdrop-blur-sm border-y border-stone-100 py-4 mb-12 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)]">
          <FilterBar onFilterChange={handleFilterChange} />
@@ -145,18 +146,18 @@ export default function HomeClient({ initialBlogPosts }: HomeClientProps) {
 
       <div className="max-w-[1400px] mx-auto px-6">
         <div className="flex items-end justify-between mb-8">
-           <h3 className="font-serif text-3xl text-stone-900">The Collection</h3>
+           <h3 className="font-serif text-3xl text-stone-900">Explore the Library</h3>
            <span className="text-[10px] font-bold tracking-widest text-stone-400 uppercase">{perfumes.length} Scents</span>
         </div>
         
         {perfumes.length === 0 && !loading && (
           <div className="text-center py-24 text-stone-400 bg-stone-50 rounded-2xl border border-dashed border-stone-200">
-            <p className="mb-2">No perfumes found matching your criteria.</p>
+            <p className="mb-2">We couldn't find a scent that matches those exact filters.</p>
             <button 
               onClick={() => window.location.reload()} 
               className="text-stone-900 text-xs font-bold uppercase tracking-widest underline underline-offset-4 hover:text-stone-600"
             >
-              Clear Filters
+              Reset & Explore All
             </button>
           </div>
         )}
@@ -169,10 +170,12 @@ export default function HomeClient({ initialBlogPosts }: HomeClientProps) {
                 <Link href={`/perfume/${p.slug || p.id}`} className="group block h-full bg-white rounded-2xl border border-stone-100 p-4 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
                   <div className="h-64 flex items-center justify-center mb-4 bg-stone-50 rounded-xl group-hover:bg-white transition-colors relative overflow-hidden">
                     {p.image_url ? (
-                      <img 
+                      <Image 
                         src={p.image_url} 
                         alt={p.name} 
-                        className="h-full w-full object-contain mix-blend-multiply brightness-[1.05] group-hover:scale-105 transition duration-700 ease-in-out" 
+                        fill
+                        className="object-contain mix-blend-multiply brightness-[1.05] group-hover:scale-105 transition duration-700 ease-in-out"
+                        sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 20vw"
                       />
                     ) : (
                       <div className="text-stone-300 text-xs font-bold uppercase tracking-widest">No Image</div>
@@ -190,7 +193,7 @@ export default function HomeClient({ initialBlogPosts }: HomeClientProps) {
                       {/* Main Accords Chart */}
                       {p.scent_profile && (
                         <div>
-                          <div className="text-[9px] font-bold uppercase tracking-widest text-stone-400 mb-2">Main Accords</div>
+                          <div className="text-[9px] font-bold uppercase tracking-widest text-stone-400 mb-2">Scent Profile</div>
                           <div className="space-y-2">
                             {Object.entries(p.scent_profile)
                               .sort(([,a], [,b]): number => (b as number) - (a as number))
@@ -215,7 +218,7 @@ export default function HomeClient({ initialBlogPosts }: HomeClientProps) {
                       {/* Vibe Tags */}
                       {p.vibe_tags && p.vibe_tags.length > 0 && (
                         <div>
-                          <div className="text-[9px] font-bold uppercase tracking-widest text-stone-400 mb-2">The Vibe</div>
+                          <div className="text-[9px] font-bold uppercase tracking-widest text-stone-400 mb-2">Vibe Check</div>
                           <div className="flex flex-wrap gap-1.5">
                             {p.vibe_tags.slice(0, 3).map((tag: string) => (
                               <span key={tag} className="text-[10px] px-2 py-1 bg-stone-100 text-stone-600 rounded border border-stone-200 uppercase tracking-wide">

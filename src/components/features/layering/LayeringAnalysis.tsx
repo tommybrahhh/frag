@@ -31,12 +31,12 @@ export default function LayeringAnalysis({
           <div className="w-16 h-16 mx-auto mb-4 bg-stone-50 rounded-full border-2 border-dashed border-stone-200 flex items-center justify-center">
             <span className="text-2xl text-stone-300">⚗️</span>
           </div>
-          <h3 className="font-serif text-xl text-stone-400 mb-1">The Beaker is Empty</h3>
-          <p className="text-xs text-stone-400 max-w-xs mx-auto">Select two fragrances to begin.</p>
+          <h3 className="font-serif text-xl text-stone-400 mb-1">Your canvas is blank</h3>
+          <p className="text-xs text-stone-400 max-w-xs mx-auto">Select two fragrances to reveal their hidden harmonies.</p>
           
           {/* Quick Start */}
           <div className="mt-8">
-            <p className="text-[9px] font-bold uppercase tracking-widest text-stone-300 mb-3">Quick Start Recipes</p>
+            <p className="text-[9px] font-bold uppercase tracking-widest text-stone-300 mb-3">Staff Picks</p>
             <div className="flex flex-wrap justify-center gap-2">
               {chefSpecials.map(special => (
                 <button 
@@ -70,7 +70,7 @@ export default function LayeringAnalysis({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Column 1: Structure */}
             <div className="bg-stone-50/50 rounded-xl p-4 border border-stone-100">
-              <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-3 text-center">Structure</h4>
+              <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-3 text-center">Volatility Structure</h4>
               <MixPyramid perfumeA={slot1} perfumeB={slot2} ratio={ratio} />
             </div>
 
@@ -110,7 +110,7 @@ export default function LayeringAnalysis({
             
             {/* Column 3: Profile */}
             <div className="bg-stone-50/50 rounded-xl p-4 border border-stone-100">
-              <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-2 text-center">Scent Profile</h4>
+              <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-2 text-center">Projected Vibe</h4>
               <div className="h-40 flex items-center justify-center">
                 <ScentRadar profile={result.newProfile} />
               </div>

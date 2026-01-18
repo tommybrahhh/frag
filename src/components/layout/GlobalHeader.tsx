@@ -30,19 +30,19 @@ export default function GlobalHeader() {
 
           <nav className="hidden lg:flex items-center gap-6">
             <Link href="/profile" className="text-[11px] font-bold uppercase tracking-[0.15em] text-stone-500 hover:text-stone-900 transition-colors">
-              Shelf
+              My Shelf
             </Link>
             <Link href="/layering" className="text-[11px] font-bold uppercase tracking-[0.15em] text-stone-500 hover:text-stone-900 transition-colors">
               Layering
             </Link>
             <Link href="/search" className="text-[11px] font-bold uppercase tracking-[0.15em] text-stone-500 hover:text-stone-900 transition-colors">
-              Notes
+              Search
             </Link>
             <Link href="/compare" className="text-[11px] font-bold uppercase tracking-[0.15em] text-stone-500 hover:text-stone-900 transition-colors">
-              Compare
+              Versus
             </Link>
             <Link href="/quiz" className="text-[11px] font-bold uppercase tracking-[0.15em] text-stone-500 hover:text-stone-900 transition-colors">
-              Quiz
+              Concierge
             </Link>
           </nav>
         </div>

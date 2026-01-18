@@ -103,16 +103,16 @@ const NoteLaboratorySearch: React.FC = () => {
   return (
     <div className="max-w-6xl mx-auto px-6 py-12 min-h-screen bg-[#FDFBF7]">
       <div className="mb-12 text-center">
-        <h1 className="text-4xl md:text-5xl font-serif text-stone-900 mb-4">Note Laboratory</h1>
+        <h1 className="text-4xl md:text-5xl font-serif text-stone-900 mb-4">Fragrance Finder</h1>
         <p className="text-stone-500 max-w-2xl mx-auto italic">
-          Discover fragrances by their building blocks. Select the notes you love (or curious about) to find your perfect match.
+          Don't know the name? Search by the notes you love (or hate) to find your perfect match.
         </p>
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-stone-100 p-6 md:p-8 mb-10 max-w-2xl mx-auto">
         <div className="w-full">
           <label className="block text-xs font-bold uppercase tracking-widest text-stone-400 mb-4 text-center">
-            Add Notes to your filter
+            What does it smell like?
           </label>
           <NoteSearchBar onNoteSelected={handleNoteSelected} />
         </div>
@@ -121,7 +121,7 @@ const NoteLaboratorySearch: React.FC = () => {
         {selectedNotes.length > 0 && (
           <div className="mt-8 pt-6 border-t border-stone-100 animate-in fade-in slide-in-from-top-2 duration-300">
             <div className="flex justify-between items-center mb-4">
-              <span className="text-sm font-medium text-stone-600 uppercase tracking-wider">Composition:</span>
+              <span className="text-sm font-medium text-stone-600 uppercase tracking-wider">Your Selection:</span>
               <button
                 onClick={handleClearAllNotes}
                 className="text-xs text-red-500 hover:text-red-700 font-bold transition-colors uppercase tracking-widest"
@@ -171,7 +171,7 @@ const NoteLaboratorySearch: React.FC = () => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.628.283a2 2 0 01-1.186.127l-2.903-.581a2 2 0 00-2.136 1.847l-.145 1.45a2 2 0 01-1.393 1.706l-1.096.365a2 2 0 01-1.782-.23L4 18.232m12.428-2.804l2.804-2.804a2 2 0 00.586-1.414V5.572a2 2 0 00-.586-1.414L16.428 1.354A2 2 0 0015.014.768H8.986a2 2 0 00-1.414.586L4.768 4.158A2 2 0 004.182 5.572v7.442a2 2 0 00.586 1.414l2.804 2.804m8.442 0L13 20.354A2 2 0 0111.586 21H5.414A2 2 0 014 19.586v-1.172a2 2 0 01.586-1.414l2.804-2.804" />
                     </svg>
                 </div>
-                <h3 className="text-stone-400 font-serif text-xl italic">Select notes to begin your discovery</h3>
+                <h3 className="text-stone-400 font-serif text-xl italic">Add notes like 'Vanilla', 'Oud', or 'Rose' to start hunting.</h3>
             </div>
         ) : (
              <SearchResults

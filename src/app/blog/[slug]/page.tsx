@@ -2,6 +2,38 @@ import { createClient } from '@/utils/supabase/server';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
+import { Metadata } from 'next';
+
+export async function generateMetadata(
+  props: { params: Promise<{ slug: string }> }
+): Promise<Metadata> {
+  const params = await props.params;
+  const slug = params.slug;
+  const supabase = await createClient();
+
+  const { data: post } = await supabase
+    .from('blog_posts')
+    .select('title, excerpt, image_url, created_at, updated_at')
+    .eq('slug', slug)
+    .maybeSingle();
+
+  if (!post) {
+    return { title: 'Post Not Found | Scentia' };
+  }
+
+  return {
+    title: post.title,
+    description: post.excerpt || `Read ${post.title} on Scentia.`,
+    openGraph: {
+      title: post.title,
+      description: post.excerpt || `Read ${post.title} on Scentia.`,
+      type: 'article',
+      publishedTime: post.created_at,
+      modifiedTime: post.updated_at,
+      images: post.image_url ? [post.image_url] : [],
+    },
+  };
+}
 
 export default async function BlogPostPage(
   props: { params: Promise<{ slug: string }> }
@@ -22,8 +54,26 @@ export default async function BlogPostPage(
     notFound();
   }
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    image: post.image_url ? [post.image_url] : [],
+    datePublished: post.created_at,
+    dateModified: post.updated_at || post.created_at,
+    author: {
+      '@type': 'Person',
+      name: 'Scentia Team', // Dynamic author if available
+    },
+    description: post.excerpt || `Read ${post.title} on Scentia.`,
+  };
+
   return (
     <article className="min-h-screen bg-white text-stone-800 pb-24">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Hero Image Section */}
       <div className="relative w-full h-[60vh] md:h-[70vh] flex items-end">
         {post.image_url ? (

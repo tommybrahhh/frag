@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/profile', '/login', '/api/'], // Private/internal paths
     },
-    sitemap: 'https://scentia.app/sitemap.xml',
+    sitemap: 'https://scentia.fit/sitemap.xml',
   }
 }

@@ -255,9 +255,9 @@ export class RecommendationEngine {
       }),
       // Templates
       [
-        `Pure {note}. No noise.`,
-        `A minimalist study in {note}.`,
-        `The definitive {note} reference.`
+        `If you're just chasing that {note} hit, this is the purest way to get it.`,
+        `Strips away the noise and focuses entirely on the {note}.`,
+        `A reference-class {note}. Minimalist, clean, and direct.`
       ]
     );
   }
@@ -287,9 +287,9 @@ export class RecommendationEngine {
       }),
       // Templates
       [
-        `Basically the same vibe, just 10x stronger.`,
-        `A powerhouse. Expect all-day performance.`,
-        `Sacrifices nothing, but gains massive longevity.`
+        `Fixes the longevity issue. Same scent profile, but actually lasts all day.`,
+        `The "Beast Mode" alternative. Expect 10+ hours of performance.`,
+        `Wear this when you want to be smelled from across the room.`
       ]
     );
   }
@@ -314,9 +314,9 @@ export class RecommendationEngine {
       }),
       // Templates
       [
-        `Skips the opening. Straight to the {note}.`,
-        `All {note}, right from the first spray.`,
-        `Immediate gratification for {note} lovers.`
+        `Fast-forwards straight to the {note} dry-down you love.`,
+        `Skip the opening—this is all about that {note} base right from the start.`,
+        `If you wait for the {note} in the original, this gives it to you immediately.`
       ]
     );
   }
@@ -338,9 +338,9 @@ export class RecommendationEngine {
       }),
       // Templates
       [
-        `Keeps the {note}, but makes it {vibe}.`,
-        `Your signature {note} dressed up in {vibe} clothing.`,
-        `A {vibe} twist on the DNA you already love.`
+        `Takes that {note} you love, but dresses it up for a {vibe} setting.`,
+        `Imagine the original, but rewritten for a {vibe} mood.`,
+        `Same {note} DNA, totally different {vibe} energy.`
       ]
     );
   }
@@ -377,9 +377,9 @@ export class RecommendationEngine {
         sharedNotes: [] // Not about notes, about the creator
       }),
       [
-        `Another masterpiece by {artist}.`,
-        `From the same nose behind ${main.name}.`,
-        `Explore {artist}'s other works.`
+        `Crafted by {artist}, the same nose behind your selection.`,
+        `If you trust {artist}'s taste, you'll vibe with this.`,
+        `You can feel {artist}'s signature style here.`
       ]
     );
   }
@@ -414,9 +414,9 @@ export class RecommendationEngine {
         sharedNotes: match.sharedNotes.slice(0, 3)
       }),
       [
-        `Your favorite profile, adapted for {season} heat.`,
-        `A {season}-ready interpretation of this DNA.`,
-        `Don't put this scent profile away for {season}.`
+        `How to wear this style in the {season} without choking everyone out.`,
+        `The {season} version of this DNA. Lighter, fresher, but familiar.`,
+        `Keeps the vibe alive, even in the {season} weather.`
       ]
     );
   }
@@ -451,9 +451,9 @@ export class RecommendationEngine {
         priceComparison: 'premium' // Usually more expensive
       }),
       [
-        `The {tier} upgrade. Higher quality ingredients.`,
-        `Graduate to true {tier} perfumery.`,
-        `A more complex, luxurious take on this profile.`
+        `A massive step up in quality. You can actually smell the difference in ingredients.`,
+        `This is the high-end, {tier} interpretation of that profile.`,
+        `Deeper, richer, and more complex. A true {tier} experience.`
       ]
     );
   }
@@ -480,7 +480,7 @@ export class RecommendationEngine {
 
         return [{
           perfume: candidate, type: 'similar' as const, score: Math.min(99, score),
-          reason: `Matches your taste in ${sharedFamilies[0] || 'scents'} with notes of ${sharedNotes.slice(0, 2).join(' & ')}.`,
+          reason: `Shares that ${sharedFamilies[0] || 'vibe'} DNA, but leans harder into ${sharedNotes.slice(0, 2).join(' & ')}.`,
           sharedNotes: sharedNotes.slice(0, 3)
         }];
       })
@@ -505,33 +505,33 @@ export class RecommendationEngine {
     };
 
     // 1. The "Artist" (High value for enthusiasts)
-    addCategory('discovery', 'The Masterpiece Connection', `More creations by ${mainPerfume.perfumer}.`, 
+    addCategory('artist_portfolio', 'The Masterpiece Connection', `Trust the nose behind the scent.`, 
       this.getPerfumerPortfolioRecommendations(mainPerfume, allPerfumes));
 
     // 2. The "Niche Upgrade" (High value for upsell/discovery)
-    addCategory('upgrade', 'The Connoisseur\'s Choice', 'Graduate to Niche quality.',
+    addCategory('niche_upgrade', 'The Niche Upgrade', 'Higher quality ingredients, deeper complexity.',
       this.getNicheGatewayRecommendations(mainPerfume, allPerfumes, mainProfile));
 
     // 3. The "Seasonal Pivot" (High utility)
     const season = mainPerfume.best_season?.[0] === 'Winter' ? 'Summer' : 'Winter';
-    addCategory('evolution', 'Weather Proof', `Don't stop wearing this DNA just because it's ${season}.`,
+    addCategory('seasonal_pivot', 'Seasonal Switch', `Wear this DNA year-round, even in ${season}.`,
       this.getSeasonalPivotRecommendations(mainPerfume, allPerfumes, mainProfile));
 
     // ... (Keep your existing categories below: Isolator, Structure, etc.) ...
     
-    addCategory('isolator', `Pure ${mainProfile.signatureNote}`, `Less noise, more ${mainProfile.signatureNote}.`, 
+    addCategory('isolator', `Pure ${mainProfile.signatureNote}`, `For the true ${mainProfile.signatureNote} lovers.`, 
       this.getNoteIsolatorRecommendations(mainPerfume, allPerfumes, mainProfile));
 
-    addCategory('evolution', `${mainProfile.signatureNote} Twisted`, `Same key ingredient, totally different mood.`, 
+    addCategory('vibe_remix', `${mainProfile.signatureNote} Remix`, `Same key ingredient, totally different vibe.`, 
       this.getVibeEvolutionRecommendations(mainPerfume, allPerfumes, mainProfile));
 
-    addCategory('upgrade', 'Powerhouse Versions', 'For when you need it to last all day.', 
+    addCategory('performance_beast', 'Performance Beasts', 'For when you need it to last 12+ hours.', 
       this.getPerformanceUpgradeRecommendations(mainPerfume, allPerfumes, mainProfile));
 
-    addCategory('structure', 'Instant Gratification', 'Get to the good part faster.', 
+    addCategory('structure', 'Fast Forward', 'Skip the opening and get straight to the good stuff.', 
       this.getStructuralShiftRecommendations(mainPerfume, allPerfumes, mainProfile));
 
-    addCategory('layering', 'Mix It Up', 'Create a custom signature.', 
+    addCategory('layering', 'Layering Combos', 'Create a custom signature scent.', 
       this.getLayeringRecommendations(mainPerfume, allPerfumes));
 
     return categories;

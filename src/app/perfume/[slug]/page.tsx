@@ -74,10 +74,14 @@ export async function generateMetadata(
   return {
     title: `${perfume.name} by ${brandName} - Reviews & Matches`,
     description: `Discover ${perfume.name} by ${brandName}. A ${vibes} scent rated ${perfume.rating || 'N/A'}/5. See notes, longevity, and layering combinations.`,
+    alternates: {
+      canonical: `/perfume/${slug}`,
+    },
     openGraph: {
       title: `${perfume.name} by ${brandName}`,
       description: `Read reviews and find matches for ${perfume.name}.`,
       images: perfume.image_url ? [perfume.image_url] : [],
+      url: `/perfume/${slug}`,
     },
   };
 }
@@ -162,17 +166,18 @@ export default async function PerfumePage(
     name: perfumeData.name,
     image: perfumeData.image_url ? [perfumeData.image_url] : [],
     description: `Discover ${perfumeData.name} by ${perfumeData.brand?.name}. Profile: ${perfumeData.vibe_tags?.slice(0,3).join(', ')}.`,
+    url: `https://scentia.fit/perfume/${slug}`,
     brand: {
       '@type': 'Brand',
       name: perfumeData.brand?.name || 'Unknown'
     },
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: perfumeData.rating || 4.5,
-      reviewCount: 24, // Static fallback since we aren't fetching count yet
-      bestRating: "5",
-      worstRating: "1"
-    },
+    // aggregateRating: {
+    //   '@type': 'AggregateRating',
+    //   ratingValue: perfumeData.rating || 4.5,
+    //   reviewCount: 24, // Static fallback since we aren't fetching count yet
+    //   bestRating: "5",
+    //   worstRating: "1"
+    // },
     offers: {
       '@type': 'Offer',
       priceCurrency: 'USD',

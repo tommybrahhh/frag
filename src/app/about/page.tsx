@@ -7,9 +7,9 @@ export default function AboutPage() {
       {/* Hero Section */}
       <div className="bg-stone-900 text-[#FDFBF7] py-20 px-6">
         <div className="max-w-3xl mx-auto text-center">
-          <h1 className="font-serif text-4xl md:text-5xl mb-6">The Science of Scent</h1>
+          <h1 className="font-serif text-4xl md:text-5xl mb-6">The Art of Scent, Decoded.</h1>
           <p className="text-stone-400 text-lg leading-relaxed max-w-2xl mx-auto">
-            Scentia is not just a database. It is an algorithmic approach to understanding olfactory harmony, volatility, and personal taste.
+            Scentia helps you understand <em>why</em> you love what you love. It’s not just a database; it’s a tool to map your olfactory taste.
           </p>
         </div>
       </div>
@@ -19,29 +19,29 @@ export default function AboutPage() {
         {/* Methodology Content */}
         <div className="prose prose-stone max-w-none prose-headings:font-serif prose-headings:font-normal prose-p:text-sm prose-p:leading-relaxed">
           
-          <h3>Our Methodology</h3>
+          <h3>Beyond "You Might Also Like"</h3>
           <p>
-            Unlike traditional recommendations that simply match "People who bought X also bought Y," Scentia analyzes the <strong>molecular architecture</strong> of a fragrance.
+            Most recommendations suggest perfumes because other people bought them. We don't care what other people bought. We care about the <strong>Scent DNA</strong>. Scentia breaks down every fragrance into its constituent notes, accords, and vibes to understand its true character.
           </p>
 
           <div className="grid md:grid-cols-2 gap-8 my-12 not-prose">
             <div className="bg-white p-6 rounded-2xl border border-stone-100 shadow-sm">
-              <h4 className="font-serif text-xl mb-2">Volatility Profiling</h4>
+              <h4 className="font-serif text-xl mb-2">The Dry Down</h4>
               <p className="text-xs text-stone-500 leading-relaxed">
-                We categorize ingredients by their evaporation rate (Top, Heart, Base). This allows our "Layering Lab" to predict how two scents will interact over time—preventing muddy, clashing mixes.
+                Perfume is alive. It changes from the first spray to the final skin scent. Our "Layering Lab" doesn't just smash two scents together; it predicts how their top, heart, and base notes will dance with each other over time.
               </p>
             </div>
             <div className="bg-white p-6 rounded-2xl border border-stone-100 shadow-sm">
-              <h4 className="font-serif text-xl mb-2">Olfactory DNA</h4>
+              <h4 className="font-serif text-xl mb-2">Your Taste Profile</h4>
               <p className="text-xs text-stone-500 leading-relaxed">
-                Your "Shelf" isn't just a list. It's a dataset. We extract the dominant traits (e.g., Woody, Gourmand, Fresh) from your collection to visualize your unique "Taste Profile" radar chart.
+                Your collection tells a story. Whether you lean towards dark, resinous Ouds or crisp, green Chypres, we visualize your unique preferences so you can find hidden gems that fit your vibe perfectly.
               </p>
             </div>
           </div>
 
           <h3>The Mission</h3>
           <p>
-            Perfume is invisible art. Our goal is to make it visible, understandable, and accessible. Whether you are a novice looking for your signature scent or a collector organizing a vast library, Scentia provides the tools to deepen your connection with your sense of smell.
+            Perfume is invisible art, but it shouldn't be a mystery. Whether you're hunting for a new signature scent or trying to understand why a certain note gives you a headache, Scentia gives you the vocabulary and the tools to navigate the world of fragrance with confidence.
           </p>
 
         </div>

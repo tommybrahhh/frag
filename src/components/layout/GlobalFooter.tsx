@@ -38,7 +38,7 @@ export default function GlobalFooter() {
             <li><Link href="/about" className="text-xs text-stone-500 hover:text-stone-900 transition">Methodology</Link></li>
             <li><Link href="/privacy" className="text-xs text-stone-500 hover:text-stone-900 transition">Privacy Policy</Link></li>
             <li><Link href="/terms" className="text-xs text-stone-500 hover:text-stone-900 transition">Terms of Service</Link></li>
-            <li><a href="mailto:support@scentia.app" className="text-xs text-stone-500 hover:text-stone-900 transition">Contact Support</a></li>
+            <li><a href="mailto:support@scentia.fit" className="text-xs text-stone-500 hover:text-stone-900 transition">Contact Support</a></li>
           </ul>
         </div>
 
