@@ -9,6 +9,7 @@ import ScentRadar from '@/components/ui/ScentRadar';
 interface LayeringCardProps {
   mainPerfume: Perfume;
   recommendation: Recommendation;
+  onRefresh?: () => void;
 }
 
 const PerfBar = ({ label, original, result }: { label: string, original: number, result: number }) => {
@@ -39,7 +40,7 @@ const PerfBar = ({ label, original, result }: { label: string, original: number,
   );
 };
 
-export default function LayeringCard({ mainPerfume, recommendation }: LayeringCardProps) {
+export default function LayeringCard({ mainPerfume, recommendation, onRefresh }: LayeringCardProps) {
   const { perfume: candidatePerfume, resultingScent, score, reason, guidance } = recommendation;
 
   if (!resultingScent) return null;
@@ -91,20 +92,40 @@ export default function LayeringCard({ mainPerfume, recommendation }: LayeringCa
                 </div>
 
                 {/* Candidate Perfume */}
-                <Link href={`/perfume/${candidatePerfume.slug || candidatePerfume.id}`} className="flex flex-col items-center text-center group">
-                  <div className="relative h-32 w-32 bg-stone-50 rounded-2xl flex items-center justify-center p-4 mb-4 group-hover:bg-stone-100 transition-colors">
-                    {candidatePerfume.image_url ? (
-                      <img src={candidatePerfume.image_url} alt={candidatePerfume.name} className="h-full w-full object-contain mix-blend-multiply" />
-                    ) : (
-                      <span className="text-stone-300 text-xs">No Image</span>
+                <div className="relative group">
+                    {onRefresh && (
+                        <button 
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                onRefresh();
+                            }}
+                            className="absolute -top-2 -right-2 z-30 w-8 h-8 bg-white border border-stone-200 rounded-full flex items-center justify-center text-stone-500 hover:text-stone-900 hover:border-stone-900 shadow-sm transition-all hover:scale-110"
+                            title="Discover new pairing"
+                        >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                                <path d="M3 3v5h5" />
+                                <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
+                                <path d="M16 21h5v-5" />
+                            </svg>
+                        </button>
                     )}
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 rounded-2xl transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
-                      <span className="text-[10px] font-bold text-stone-900 bg-white px-3 py-1.5 rounded-full shadow-lg">View Profile</span>
+                    <Link href={`/perfume/${candidatePerfume.slug || candidatePerfume.id}`} className="flex flex-col items-center text-center group">
+                    <div className="relative h-32 w-32 bg-stone-50 rounded-2xl flex items-center justify-center p-4 mb-4 group-hover:bg-stone-100 transition-colors">
+                        {candidatePerfume.image_url ? (
+                        <img src={candidatePerfume.image_url} alt={candidatePerfume.name} className="h-full w-full object-contain mix-blend-multiply" />
+                        ) : (
+                        <span className="text-stone-300 text-xs">No Image</span>
+                        )}
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 rounded-2xl transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100 pointer-events-none">
+                            <span className="text-[10px] font-bold text-stone-900 bg-white px-3 py-1.5 rounded-full shadow-lg">View Profile</span>
+                        </div>
                     </div>
-                  </div>
-                  <div className="text-[10px] font-bold tracking-widest text-stone-400 uppercase mb-1 truncate w-full">{candidatePerfume.brand?.name}</div>
-                  <div className="text-sm font-medium text-stone-900 truncate w-full px-2 group-hover:text-stone-600 transition-colors">{candidatePerfume.name}</div>
-                </Link>
+                    <div className="text-[10px] font-bold tracking-widest text-stone-400 uppercase mb-1 truncate w-full">{candidatePerfume.brand?.name}</div>
+                    <div className="text-sm font-medium text-stone-900 truncate w-full px-2 group-hover:text-stone-600 transition-colors">{candidatePerfume.name}</div>
+                    </Link>
+                </div>
               </div>
             </div>
 

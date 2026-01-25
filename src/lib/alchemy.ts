@@ -219,6 +219,7 @@ export function mixPerfumes(p1: any, p2: any, ratio: number = 0.5) {
 
   return {
     mixName: `${p1.name} + ${p2.name}`,
+    narrative,
     safety,
     verdict,
     description,

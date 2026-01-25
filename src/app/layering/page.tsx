@@ -35,49 +35,53 @@ function LayeringLabContent() {
   // Pre-load from query params
   useEffect(() => {
     if (baseId) {
-      hydrateAndSet({ id: baseId }, setSlot1);
+      hydrateAndSet(baseId, setSlot1);
     }
     if (topId) {
-      hydrateAndSet({ id: topId }, setSlot2);
+      hydrateAndSet(topId, setSlot2);
     }
   }, [baseId, topId]);
 
-  // 1. Generate Suggestions for Slot 2
-  useEffect(() => {
-    async function loadSuggestions() {
-        if (slot1) {
-            setSuggestions([]); // Clear previous
-            try {
-                const matches = await getLayeringSuggestions(slot1.id);
-                setSuggestions(matches);
-            } catch (err) {
-                console.error("Error fetching suggestions:", err);
-            }
-        } else {
-            setSuggestions([]);
-        }
-        setResult(null); // Clear result when base changes
-    }
-    loadSuggestions();
-  }, [slot1]);
-
   // Helper to hydrate perfume data
-  const hydrateAndSet = async (perfume: any, setSlot: (p: any) => void) => {
-    if (!perfume) {
+  const hydrateAndSet = async (identifier: string | any, setSlot: (p: any) => void) => {
+    if (!identifier) {
       setSlot(null);
       return;
     }
-    if (perfume.perfume_notes && perfume.perfume_notes.length > 0) {
-      setSlot(perfume);
+    
+    // If it's already an object with notes, just set it
+    if (typeof identifier === 'object' && identifier.perfume_notes && identifier.perfume_notes.length > 0) {
+      setSlot(identifier);
       return;
     }
+
+    const searchTerm = typeof identifier === 'string' ? identifier : identifier.id || identifier.slug;
+    if (!searchTerm) return;
+
     const supabase = createClient();
-    const { data } = await supabase
+    
+    // First try by ID (UUID format check could be added for optimization but simple query is fine)
+    const { data: byId } = await supabase
       .from('perfumes')
       .select('id, name, image_url, vibe_tags, price_tier, scent_profile, longevity_rating, sillage_rating, brand:brands!perfumes_brand_id_fkey(name), perfume_notes(type, note:notes(name, color_hex))')
-      .eq('id', perfume.id)
-      .single();
-    if (data) setSlot(data);
+      .eq('id', searchTerm)
+      .maybeSingle();
+
+    if (byId) {
+        setSlot(byId);
+        return;
+    }
+
+    // Fallback to Slug
+    const { data: bySlug } = await supabase
+      .from('perfumes')
+      .select('id, name, image_url, vibe_tags, price_tier, scent_profile, longevity_rating, sillage_rating, brand:brands!perfumes_brand_id_fkey(name), perfume_notes(type, note:notes(name, color_hex))')
+      .eq('slug', searchTerm)
+      .maybeSingle();
+      
+    if (bySlug) {
+        setSlot(bySlug);
+    }
   };
 
   // 2. Auto-Mix when inputs change

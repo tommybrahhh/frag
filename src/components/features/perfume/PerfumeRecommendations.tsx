@@ -14,15 +14,22 @@ interface PerfumeRecommendationsProps {
 const RecommendationSection = ({ category, mainPerfume }: { category: RecommendationCategory, mainPerfume: Perfume }) => {
   const router = useRouter();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [layeringIndex, setLayeringIndex] = useState(0);
 
-  const visibleRecommendations = isExpanded 
-    ? category.recommendations 
-    : category.recommendations.slice(0, 6);
+  const isLayering = category.type === 'layering';
+
+  const visibleRecommendations = isLayering
+    ? [category.recommendations[layeringIndex]].filter(Boolean)
+    : (isExpanded ? category.recommendations : category.recommendations.slice(0, 6));
     
-  const hasHiddenItems = category.recommendations.length > 6;
+  const hasHiddenItems = !isLayering && category.recommendations.length > 6;
 
   const handleRecommendationClick = (slug: string) => {
     router.push(`/perfume/${slug}`);
+  };
+
+  const handleRefreshLayering = () => {
+    setLayeringIndex((prev) => (prev + 1) % category.recommendations.length);
   };
 
   return (
@@ -36,8 +43,13 @@ const RecommendationSection = ({ category, mainPerfume }: { category: Recommenda
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {visibleRecommendations.map((rec) => (
-              category.type === 'layering' ? (
-                <LayeringCard key={rec.perfume.id} mainPerfume={mainPerfume} recommendation={rec} />
+              isLayering ? (
+                <LayeringCard 
+                    key={rec.perfume.id} 
+                    mainPerfume={mainPerfume} 
+                    recommendation={rec} 
+                    onRefresh={handleRefreshLayering}
+                />
               ) : (
                 <div key={rec.perfume.id} className="group cursor-pointer" onClick={() => handleRecommendationClick(rec.perfume.slug || rec.perfume.id)}>
                   <div className="relative h-[320px] bg-stone-50 rounded-2xl mb-4 flex items-center justify-center p-6 transition-colors group-hover:bg-[#F0F0F0] overflow-hidden">

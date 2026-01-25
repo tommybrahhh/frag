@@ -538,19 +538,45 @@ export class RecommendationEngine {
   }
 
   private static getLayeringRecommendations(main: PerfumeWithRelations, all: PerfumeWithRelations[]): Recommendation[] {
-    return all
-      .filter(p => p.id !== main.id && (p.perfume_notes?.length || 0) < 5)
-      .slice(0, 2)
+    // 1. Process all candidates to find the best alchemical matches
+    const results = all
+      .filter(p => p.id !== main.id)
       .map(candidate => {
         const mix = mixPerfumes(main, candidate);
         return {
-          perfume: candidate, type: 'layering', score: mix.safety,
-          reason: mix.description, guidance: mix.mixingTips.join(' | '),
-          resultingScent: {
-            name: `${main.olfactory_family?.[0]} & ${candidate.olfactory_family?.[0]}`,
-            family: 'Mixed', longevity: 7, sillage: 7, occasion: 'Custom', profile: mix.newProfile
-          }
+          candidate,
+          mix
         };
+      })
+      // 2. Filter for "Safe" & "Logical" matches only (User Preference: Safest)
+      // We exclude 'CLASH' (Safety 45) and 'CONTRAST' (Safety 75) to ensure "no mess".
+      // We prioritize: BRIDGE (95), BOOSTER (95), FIXER (90), BALANCE (80).
+      .filter(item => ['BRIDGE', 'BOOSTER', 'FIXER', 'BALANCE'].includes(item.mix.narrative || ''))
+      
+      // 3. Sort by:
+      //  a) Safety (Highest harmony first)
+      //  b) Longevity (If harmony is equal, pick the one that boosts performance)
+      .sort((a, b) => {
+        const safetyDiff = b.mix.safety - a.mix.safety;
+        if (safetyDiff !== 0) return safetyDiff;
+        return (b.candidate.longevity_rating || 0) - (a.candidate.longevity_rating || 0);
       });
+
+    // 4. Map to Recommendation Structure
+    return results.slice(0, 10).map(item => ({
+      perfume: item.candidate,
+      type: 'layering',
+      score: item.mix.safety,
+      reason: item.mix.description,
+      guidance: item.mix.mixingTips.join(' | '),
+      resultingScent: {
+        name: `${main.olfactory_family?.[0] || 'Base'} & ${item.candidate.olfactory_family?.[0] || 'Top'}`,
+        family: 'Mixed',
+        longevity: Math.max(main.longevity_rating || 5, item.candidate.longevity_rating || 5),
+        sillage: Math.max(main.sillage_rating || 5, item.candidate.sillage_rating || 5),
+        occasion: 'Custom',
+        profile: item.mix.newProfile
+      }
+    }));
   }
 }

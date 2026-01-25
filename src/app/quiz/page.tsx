@@ -206,7 +206,7 @@ export default function QuizPage() {
 
   const submitQuiz = async (finalAnswers: QuizAnswers) => {
     console.log("Submitting quiz with answers:", finalAnswers);
-    setState(prev => ({ ...prev, isSubmitting: true }));
+    setState(prev => ({ ...prev, isSubmitting: true, errorMsg: null }));
     
     try {
       const supabase = createClient();
@@ -219,9 +219,17 @@ export default function QuizPage() {
         sillage_rating, price_tier,
         brand:brands(name),
         perfume_notes:perfume_notes(note:notes(name))
-      `).limit(300); // Fetch a good sample size
+      `).limit(250); // Fetch a good sample size
 
-      const { data, error } = await query;
+      // Add a timeout to prevent hanging indefinitely
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Analysis timed out. Please try again.')), 15000)
+      );
+
+      const { data, error } = await Promise.race([
+        query,
+        timeoutPromise
+      ]) as any;
       
       if (error) {
         console.error("Supabase Error:", error);
@@ -252,7 +260,7 @@ export default function QuizPage() {
 
     } catch (err: any) {
       console.error("Quiz Error:", err);
-      setState(prev => ({ ...prev, errorMsg: "Failed to analyze results. " + (err.message || "") }));
+      setState(prev => ({ ...prev, errorMsg: "Failed to analyze results. " + (err.message || "Please check your connection.") }));
     } finally {
       setState(prev => ({ ...prev, isSubmitting: false }));
     }
@@ -363,6 +371,23 @@ export default function QuizPage() {
           <span>Step {state.currentStep + 1} / {questions.length}</span>
           <span>{/* Spacer */}</span>
         </div>
+        
+        {/* Error Message */}
+        {state.errorMsg && (
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-red-50 text-red-600 p-4 rounded-xl mb-8 text-center text-sm border border-red-100 shadow-sm"
+          >
+            <p className="font-medium">{state.errorMsg}</p>
+            <button 
+              onClick={() => submitQuiz(state.answers)}
+              className="mt-2 text-xs uppercase tracking-wide font-bold underline hover:text-red-800"
+            >
+              Try Again
+            </button>
+          </motion.div>
+        )}
 
         {/* Question Card */}
         <AnimatePresence mode="wait">
