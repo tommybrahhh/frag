@@ -43,7 +43,7 @@ export function usePerfumeSearch({ debounceMs = 300 }: UsePerfumeSearchOptions =
 
     const timeoutId = setTimeout(async () => {
       try {
-        const data = await searchPerfumesService(supabase, query, controller.signal);
+        const data = await searchPerfumesService(query, controller.signal);
         setResults(data);
         setError(null);
       } catch (err: any) {

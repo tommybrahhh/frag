@@ -1,4 +1,14 @@
 import Link from 'next/link';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: "About Scentia | The Art of Scent Decoded",
+  description: "Learn how Scentia decodes fragrance DNA to help you discover your perfect scent match based on notes, accords, and vibes.",
+  openGraph: {
+    title: "About Scentia | The Art of Scent Decoded",
+    description: "Scentia helps you understand why you love what you love. It’s not just a database; it’s a tool to map your olfactory taste.",
+  }
+};
 
 export default function AboutPage() {
   return (

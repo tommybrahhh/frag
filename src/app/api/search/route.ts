@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
+import { FragranceService } from '@/services/fragranceService';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,23 +13,13 @@ export async function GET(request: Request) {
   }
 
   const supabase = await createClient();
+  const fragranceService = new FragranceService(supabase);
 
-  // Call the custom SQL function we just created
-  const { data, error } = await supabase
-    .rpc('search_perfumes', { keyword: query })
-    .limit(6);
-
-  if (error) {
+  try {
+    const data = await fragranceService.searchFragrances(query);
+    return NextResponse.json(data);
+  } catch (error: any) {
     console.error('Search RPC Error:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
-
-  // Transform the data to match the frontend expectations
-  // The RPC returns 'brand_name' as a flat string, but our UI might expect an object
-  const formattedData = data.map((item: any) => ({
-    ...item,
-    brand: { name: item.brand_name } // Map flat string back to object structure
-  }));
-
-  return NextResponse.json(formattedData);
 }

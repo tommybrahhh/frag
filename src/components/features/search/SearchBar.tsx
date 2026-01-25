@@ -4,7 +4,11 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-export default function SearchBar() {
+interface SearchBarProps {
+  onSearch?: () => void;
+}
+
+export default function SearchBar({ onSearch }: SearchBarProps) {
   const router = useRouter();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<any[]>([]);
@@ -132,7 +136,10 @@ export default function SearchBar() {
                   <Link 
                     key={perfume.id} 
                     href={`/perfume/${perfume.slug || perfume.id}`}
-                    onClick={() => setIsOpen(false)}
+                    onClick={() => {
+                      setIsOpen(false);
+                      if (onSearch) onSearch();
+                    }}
                     className="flex items-center gap-4 p-3 hover:bg-stone-50 transition border-b border-stone-50 last:border-0 group"
                   >
                   {/* Tiny Image */}
@@ -154,6 +161,7 @@ export default function SearchBar() {
                         e.preventDefault();
                         e.stopPropagation();
                         setIsOpen(false);
+                        if (onSearch) onSearch();
                         router.push(`/brands/${encodeURIComponent(perfume.brand?.name || 'Unknown House')}`);
                       }}
                       className="text-[10px] font-bold tracking-widest text-stone-400 uppercase hover:text-stone-600 transition-colors text-left"

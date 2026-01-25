@@ -68,11 +68,32 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'Scentia',
+    url: 'https://scentia.fit',
+    logo: 'https://scentia.fit/logo.svg', // Ensure you have a logo
+    sameAs: [
+      'https://twitter.com/scentiaapp', // Replace with your actual socials
+      'https://instagram.com/scentiaapp'
+    ],
+    contactPoint: {
+      '@type': 'ContactPoint',
+      email: 'support@scentia.fit',
+      contactType: 'customer support'
+    }
+  };
+
   return (
     <html lang="en" className="scroll-smooth" data-scroll-behavior="smooth">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <AuthProvider>
           <GlobalHeader />
           <main className="pt-16">

@@ -1,13 +1,10 @@
-'use client';
-
-import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
 import Image from 'next/image';
+import MobileMenu from './MobileMenu';
 import SearchBar from '@/components/features/search/SearchBar';
+import AuthStatus from './AuthStatus';
 
 export default function GlobalHeader() {
-  const { user, signOut, loading } = useAuth();
-
   return (
     <header className="sticky top-0 z-[999] w-full border-b border-stone-100 bg-white/80 backdrop-blur-md transition-all duration-300">
       {/* Changed max-w-7xl to max-w-[1400px] to match page content */}
@@ -42,40 +39,24 @@ export default function GlobalHeader() {
               Versus
             </Link>
             <Link href="/quiz" className="text-[11px] font-bold uppercase tracking-[0.15em] text-stone-500 hover:text-stone-900 transition-colors">
-              Concierge
+              Finder
             </Link>
           </nav>
         </div>
 
         {/* Center: Search Bar - Expanded width */}
-        <div className="hidden md:block flex-1 w-[75%] mx-4">
+        <div className="hidden lg:block flex-1 w-[75%] mx-4">
           <SearchBar />
         </div>
 
-        {/* Right: Auth */}
+        {/* Right: Auth & Mobile Menu */}
         <div className="flex items-center gap-6 md:gap-8">
-          {/* Auth Actions */}
-          <div className="flex items-center gap-4">
-            {loading ? (
-                <div className="w-8 h-8 bg-stone-100 rounded-full animate-pulse" />
-            ) : user ? (
-              <div className="flex items-center gap-4">
-              </div>
-            ) : (
-              <Link
-                href="/login"
-                className="bg-stone-900 text-white px-5 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-stone-800 transition shadow-sm"
-              >
-                Sign In
-              </Link>
-            )}
+          {/* Auth Actions for Desktop */}
+          <div className="hidden lg:flex items-center gap-4">
+            <AuthStatus />
           </div>
+          <MobileMenu />
         </div>
-      </div>
-      
-      {/* Mobile Search Bar - Visible only on small screens */}
-      <div className="md:hidden px-6 pb-4">
-        <SearchBar />
       </div>
     </header>
   );

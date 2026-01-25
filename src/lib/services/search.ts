@@ -12,35 +12,20 @@ export interface SearchResult {
  * Currently optimized for Name search to prevent locking, but easily extensible.
  */
 export async function searchPerfumesService(
-  client: SupabaseClient, 
   query: string, 
   signal?: AbortSignal
 ): Promise<SearchResult[]> {
   
   if (!query || query.length < 2) return [];
 
-  // 1. Sanitize query
-  const cleanQuery = query.trim();
-
-  // 2. Perform Query
-  // We strictly select only what's needed for the UI to be lightweight.
-  const { data, error } = await client
-    .from('perfumes')
-    .select('id, name, image_url, brand:brands(name)')
-    .ilike('name', `%${cleanQuery}%`)
-    .limit(10)
-    .abortSignal(signal || new AbortController().signal);
-
-  if (error) {
-    // We allow AbortError to bubble up so the hook can handle it, 
-    // but we log real DB errors.
-    if (!error.message.includes('AbortError')) {
-      console.error('Search Service Error:', error);
-    }
-    throw error;
+  const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`, { signal });
+  
+  if (!res.ok) {
+    throw new Error(`Search failed: ${res.statusText}`);
   }
 
-  return (data as any[]) || [];
+  const data = await res.json();
+  return data;
 }
 
 /**

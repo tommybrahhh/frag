@@ -1,9 +1,9 @@
 'use client';
 
 import { Perfume } from '@/types';
-import Link from 'next/link';
 import React from 'react';
 import Spinner from '@/components/ui/Spinner';
+import FragranceCard from '@/components/features/perfume/FragranceCard';
 
 interface SearchResultsProps {
   loading: boolean;
@@ -49,30 +49,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({ loading, error, results, 
         <>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {results.map(perfume => (
-              <div key={perfume.id} className="group bg-white rounded-xl border border-stone-100 p-4 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                <Link href={`/perfume/${perfume.slug || perfume.id}`}>
-                  <div className="h-48 flex items-center justify-center p-4 mb-4 bg-stone-50 rounded-lg group-hover:bg-white transition-colors">
-                    {perfume.image_url ? (
-                      <img 
-                        src={perfume.image_url} 
-                        alt={perfume.name} 
-                        className="h-full object-contain mix-blend-multiply opacity-80 group-hover:opacity-100 transition-opacity" 
-                      />
-                    ) : (
-                      <span className="text-stone-300 text-xs italic">No Image</span>
-                    )}
-                  </div>
-                  <div className="text-center">
-                    <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 truncate mb-1">
-                      {/* Proactive Fix: Handle case where brand is an object to prevent React crash */}
-                      {typeof perfume.brand === 'object' ? (perfume.brand as any).name : perfume.brand}
-                    </div>
-                    <div className="font-serif text-lg text-stone-900 leading-tight truncate">
-                      {perfume.name}
-                    </div>
-                  </div>
-                </Link>
-              </div>
+              <FragranceCard key={perfume.id} perfume={perfume} />
             ))}
           </div>
 
