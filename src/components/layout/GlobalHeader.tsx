@@ -6,7 +6,7 @@ import AuthStatus from './AuthStatus';
 
 export default function GlobalHeader() {
   return (
-    <header className="sticky top-0 z-[999] w-full border-b border-stone-100 bg-white backdrop-blur-md transition-all duration-300">
+    <header className="sticky top-0 z-[999] w-full border-b border-stone-100 bg-white transition-all duration-300">
       {/* Changed max-w-7xl to max-w-[1400px] to match page content */}
       <div className="max-w-[1400px] mx-auto px-6 h-20 flex items-center justify-between gap-8">
         

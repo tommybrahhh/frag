@@ -212,18 +212,29 @@ export default function QuizPage() {
       const supabase = createClient();
       
       console.log("Fetching perfumes...");
-      // Fetch perfumes based on gender filter (if applicable) to optimize
+      
+      // Optimize: Select only necessary fields and filter by gender
       let query = supabase.from('perfumes').select(`
         id, name, image_url, gender, slug,
-        vibe_tags, occasions, best_season,
-        sillage_rating, price_tier,
+        vibe_tags, sillage_rating,
         brand:brands(name),
         perfume_notes:perfume_notes(note:notes(name))
-      `).limit(250); // Fetch a good sample size
+      `);
+
+      // Apply Gender Filter
+      const userGender = finalAnswers['protagonist'];
+      if (userGender === 'feminine') {
+        query = query.in('gender', ['Female', 'Unisex']);
+      } else if (userGender === 'masculine') {
+        query = query.in('gender', ['Male', 'Unisex']);
+      }
+      // If 'unisex', we fetch all (Male, Female, Unisex) as they might be open to anything
+      
+      query = query.limit(250); // Keep limit but applying filter makes it more relevant
 
       // Add a timeout to prevent hanging indefinitely
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Analysis timed out. Please try again.')), 15000)
+        setTimeout(() => reject(new Error('Analysis timed out. Please try again.')), 30000)
       );
 
       const { data, error } = await Promise.race([

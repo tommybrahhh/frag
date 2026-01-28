@@ -6,11 +6,11 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import VideoHero from '@/components/features/home/VideoHero';
-import LatestDrop from '@/components/features/home/LatestDrop';
 import CommunityBuzz from '@/components/features/community/CommunityBuzz';
 import HorizontalScrollRow from '@/components/ui/HorizontalScrollRow';
 import SectionHeader from '@/components/layout/SectionHeader';
 import FilterBar from '@/components/features/search/FilterBar';
+import VisualCategoryNav from '@/components/features/search/VisualCategoryNav'; // Imported
 import PageTransition from '@/components/layout/PageTransition';
 import { createClient } from '@/utils/supabase/client';
 import { Database } from '@/types/database';
@@ -39,8 +39,9 @@ export default function HomeClient({ }: HomeClientProps) {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [activeCategory, setActiveCategory] = useState<string>('');
   const [filters, setFilters] = useState<any>({
-    price: [], gender: [], longevity: [], season: [], concentration: [], tier: [], moment: [], occasion: []
+    price: [], gender: [], longevity: [], season: [], concentration: [], tier: [], moment: [], occasion: [], vibe: []
   });
 
   const observer = useRef<IntersectionObserver | null>(null);
@@ -77,7 +78,7 @@ export default function HomeClient({ }: HomeClientProps) {
         params.append('limit', '24'); 
 
         Object.keys(filters).forEach(key => {
-          if (filters[key].length > 0) {
+          if (filters[key] && filters[key].length > 0) {
             params.append(key, filters[key].join(','));
           }
         });
@@ -91,7 +92,7 @@ export default function HomeClient({ }: HomeClientProps) {
         if (urlTier) params.set('tier', urlTier);
         if (urlYear) params.append('year', urlYear);
         if (urlFamily) params.append('family', urlFamily);
-        if (urlVibe) params.append('vibe', urlVibe);
+        if (urlVibe && filters.vibe.length === 0) params.append('vibe', urlVibe);
         if (urlGender && filters.gender.length === 0) params.set('gender', urlGender);
 
         const res = await fetch(`/api/perfumes?${params.toString()}`);
@@ -118,24 +119,36 @@ export default function HomeClient({ }: HomeClientProps) {
     setHasMore(true);
   };
 
+  const handleCategorySelect = (slug: string) => {
+    setActiveCategory(slug);
+    if (slug === '') {
+       // Reset vibes but keep other filters potentially? For now let's just reset vibe.
+       setFilters((prev: any) => ({ ...prev, vibe: [] }));
+    } else {
+       setFilters((prev: any) => ({ ...prev, vibe: [slug] }));
+    }
+    setPage(1);
+    setPerfumes([]);
+    setHasMore(true);
+  };
+
   return (
     <PageTransition>
       <main className="min-h-screen bg-white text-stone-800 pb-24">
         <VideoHero />
         
+        {/* Visual Category Navigation */}
+        <VisualCategoryNav onSelectCategory={handleCategorySelect} activeCategory={activeCategory} />
+        
+        {/* Community Buzz Section - Full Width now */}
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
+          viewport={{ once: true, margin: "-50px" }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="max-w-[1400px] mx-auto px-6 mb-20 grid grid-cols-1 lg:grid-cols-3 gap-6"
+          className="max-w-[1400px] mx-auto px-6 mb-20"
         >
-          <div className="lg:col-span-1 h-full">
-            <LatestDrop perfume={newArrivals[0]} />
-          </div>
-          <div className="lg:col-span-2 h-full">
-            <CommunityBuzz />
-          </div>
+          <CommunityBuzz />
         </motion.div>
         
         <SectionHeader title="Latest Arrivals" linkText="View All" linkHref="/search?sort=newest" />
@@ -146,10 +159,10 @@ export default function HomeClient({ }: HomeClientProps) {
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
         >
-           <HorizontalScrollRow items={newArrivals.slice(1, 8)} />
+           <HorizontalScrollRow items={newArrivals.slice(0, 10)} />
         </motion.div>
 
-        <div className="sticky top-20 z-40 bg-white/95 backdrop-blur-sm border-y border-stone-100 py-4 mb-12 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)]">
+        <div className="sticky top-16 z-40 bg-white/95 backdrop-blur-sm border-y border-stone-100 py-4 mb-12 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] transition-all">
            <FilterBar onFilterChange={handleFilterChange} />
         </div>
 

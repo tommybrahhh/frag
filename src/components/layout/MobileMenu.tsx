@@ -63,7 +63,7 @@ export default function MobileMenu() {
 
       {/* Mobile Menu Overlay */}
       {isOpen && (
-        <div className="fixed inset-0 z-[1000] bg-white bg-opacity-95 backdrop-blur-sm flex flex-col p-6">
+        <div className="fixed inset-0 z-[1000] bg-white flex flex-col p-6">
           <div className="flex justify-between items-center mb-6">
             <Link href="/" className="flex-shrink-0 flex items-center gap-3 group" onClick={closeMenu}>
               <div className="bg-stone-900 text-white p-2 rounded-lg group-hover:bg-stone-800 transition">
