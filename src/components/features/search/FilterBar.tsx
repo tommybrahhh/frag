@@ -79,15 +79,15 @@ export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
         id="filter-panel"
         ref={panelRef}
         className={`overflow-hidden transition-all duration-500 ease-in-out ${
-          isFiltersOpen ? 'max-h-[800px] opacity-100 mb-8' : 'max-h-0 opacity-0'
+          isFiltersOpen ? 'max-h-[85vh] opacity-100 mb-12 overflow-y-auto' : 'max-h-0 opacity-0'
         }`}
         role="region"
         aria-labelledby="filter-panel-title"
       >
-        <div className="bg-stone-50 rounded-2xl p-6 sm:p-8 max-w-[1400px] mx-auto border border-stone-100 shadow-sm">
+        <div className="bg-stone-50/80 backdrop-blur-md rounded-3xl p-6 sm:p-10 max-w-[1400px] mx-auto border border-stone-200 shadow-xl">
           <h2 id="filter-panel-title" className="sr-only">Filter Options</h2>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-10">
             <FilterSection 
               title="Price Point"
               options={PRICE_OPTIONS}

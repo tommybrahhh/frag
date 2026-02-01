@@ -38,13 +38,28 @@ export default function PerfumeHero({ perfume, onShare }: PerfumeHeroProps) {
   // Parallax Effect
   useEffect(() => {
     const handleScroll = () => {
-      if (heroRef.current) {
+      if (!heroRef.current) return;
+      
+      // Only apply parallax on large screens (lg breakpoint is 1024px)
+      if (window.innerWidth >= 1024) {
         const scrolled = window.scrollY;
         heroRef.current.style.transform = `translateY(${scrolled * 0.1}px)`;
+      } else {
+        // Reset transform on smaller screens
+        heroRef.current.style.transform = 'translateY(0px)';
       }
     };
+
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleScroll);
+    
+    // Initial check
+    handleScroll();
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
   }, []);
 
   // Check initial collection status
@@ -142,30 +157,25 @@ export default function PerfumeHero({ perfume, onShare }: PerfumeHeroProps) {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-6 pt-12 pb-20">
+    <div className="max-w-7xl mx-auto px-6 pt-6 pb-12">
       {/* HEADER */}
-      <div className="text-center mb-16">
+      <div className="text-center mb-8">
         <Link href={`/brands/${perfume.brand?.name ? encodeURIComponent(perfume.brand.name) : ''}`} className="inline-block">
-          <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-stone-500 hover:text-stone-800 transition-colors mb-3">
+          <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-stone-500 hover:text-stone-800 transition-colors mb-2">
             {perfume.brand?.name}
           </h2>
         </Link>
-        <h1 className="font-serif text-5xl md:text-6xl text-stone-900 leading-tight">
+        <h1 className="font-serif text-4xl md:text-5xl text-stone-900 leading-tight">
           {perfume.name}
         </h1>
       </div>
 
       {/* MAIN GRID */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center lg:items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center lg:items-start">
         
-        {/* COLUMN 1: Spacer (Formerly Data Sheet) */}
-        <div className="hidden lg:block lg:col-span-3 lg:pt-20 lg:order-1">
-           {/* Empty spacer */}
-        </div>
-
-        {/* COLUMN 2: Hero Image */}
-        <div className="lg:col-span-6 flex flex-col items-center justify-center min-h-[500px] order-1 lg:order-2">
-          <div className="relative w-full h-[600px] flex items-center justify-center bg-[#FAFAF9] rounded-2xl" ref={heroRef}>
+        {/* COLUMN 1: Hero Image */}
+        <div className="lg:col-span-5 lg:col-start-2 flex flex-col items-center justify-center order-1">
+          <div className="relative w-full h-[450px] flex items-center justify-center bg-[#FAFAF9] rounded-2xl" ref={heroRef}>
             {perfume.image_url ? (
               <img src={perfume.image_url} alt={perfume.name} className="h-full w-full object-contain mix-blend-multiply" />
             ) : (
@@ -174,18 +184,18 @@ export default function PerfumeHero({ perfume, onShare }: PerfumeHeroProps) {
           </div>
         </div>
 
-        {/* COLUMN 3: Story & Actions & Moved Data */}
-        <div className="lg:col-span-3 space-y-10 lg:pt-20 order-2 lg:order-3">
-           {/* 3a. Character Story */}
-           <div>
-              <h3 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-4">Character</h3>
+        {/* COLUMN 2: Story & Actions & Moved Data */}
+        <div className="lg:col-span-5 space-y-8 lg:pt-8 order-2 relative z-10">
+           {/* 2a. Character Story */}
+           <div className="relative z-20">
+              <h3 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-2">Character</h3>
               <p className="font-serif text-lg text-stone-800 leading-relaxed italic">
                   {perfume.scenario || `${perfume.name} presents a distinctive ${perfume.olfactory_family?.[0]?.toLowerCase() || 'aromatic'} profile.`}
               </p>
            </div>
 
-           {/* 3b. Actions (Buttons) */}
-           <div className="pt-6 border-t border-stone-100">
+           {/* 2b. Actions (Buttons) */}
+           <div className="pt-4 border-t border-stone-100 relative z-10">
                <button onClick={() => handleCollectionAction('owned')} disabled={isSubmitting} className="w-full py-4 bg-stone-900 text-white text-xs font-bold uppercase tracking-[0.2em] hover:bg-stone-800 transition-colors mb-3 disabled:opacity-50 shadow-lg shadow-stone-200">
                   {isSubmitting ? 'Updating...' : (listType === 'owned' ? 'In Wardrobe' : 'Add to Wardrobe')}
                </button>
@@ -203,39 +213,41 @@ export default function PerfumeHero({ perfume, onShare }: PerfumeHeroProps) {
                </div>
            </div>
 
-            {/* 3c. Olfactive, Perfumer, Price */}
-            <div className="space-y-6 pt-8 border-t border-stone-100">
+            {/* 2c. Olfactive, Perfumer, Price */}
+            <div className="space-y-4 pt-6 border-t border-stone-100">
                 {/* Olfactive Family */}
                 <div>
-                   <h3 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-2">Olfactive Family</h3>
-                   <div className="space-y-3">
-                       <div>
-                           <div className="font-serif text-base text-stone-900">{perfume.olfactory_family?.[0] || 'N/A'}</div>
-                           <div className="text-[9px] uppercase tracking-widest text-stone-500">Primary</div>
+                   <h3 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-1">Olfactive Family</h3>
+                   <div className="space-y-1">
+                       <div className="flex items-baseline gap-2">
+                           <span className="font-serif text-base text-stone-900">{perfume.olfactory_family?.[0] || 'N/A'}</span>
+                           <span className="text-[9px] uppercase tracking-widest text-stone-400">(Primary)</span>
                        </div>
                        {perfume.olfactory_family?.[1] && (
-                           <div>
-                               <div className="font-serif text-base text-stone-900">{perfume.olfactory_family[1]}</div>
-                               <div className="text-[9px] uppercase tracking-widest text-stone-500">Secondary</div>
+                           <div className="flex items-baseline gap-2">
+                               <span className="font-serif text-base text-stone-900">{perfume.olfactory_family[1]}</span>
+                               <span className="text-[9px] uppercase tracking-widest text-stone-400">(Secondary)</span>
                            </div>
                        )}
                    </div>
                 </div>
 
-                {/* Perfumer */}
-                <div className="pt-4 border-t border-stone-100">
-                   <h3 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-1">Perfumer</h3>
-                   <div className="font-serif text-base text-stone-900">
-                       {perfume.perfumer ? (
-                           <Link href={`/creators/${encodeURIComponent(perfume.perfumer)}`} className="hover:underline decoration-stone-400 underline-offset-4">{perfume.perfumer}</Link>
-                       ) : 'Unknown Nose'}
-                   </div>
-                </div>
+                <div className="grid grid-cols-2 gap-4">
+                    {/* Perfumer */}
+                    <div className="pt-4 border-t border-stone-100">
+                       <h3 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-1">Perfumer</h3>
+                       <div className="font-serif text-base text-stone-900">
+                           {perfume.perfumer ? (
+                               <Link href={`/creators/${encodeURIComponent(perfume.perfumer)}`} className="hover:underline decoration-stone-400 underline-offset-4">{perfume.perfumer}</Link>
+                           ) : 'Unknown Nose'}
+                       </div>
+                    </div>
 
-                {/* Price Range */}
-                <div className="pt-4 border-t border-stone-100">
-                   <h3 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-1">Price Range</h3>
-                   <span className="font-serif text-base text-stone-900">{perfume.price_tier || 'N/A'}</span>
+                    {/* Price Range */}
+                    <div className="pt-4 border-t border-stone-100">
+                       <h3 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-1">Price Range</h3>
+                       <span className="font-serif text-base text-stone-900">{perfume.price_tier || 'N/A'}</span>
+                    </div>
                 </div>
             </div>
         </div>

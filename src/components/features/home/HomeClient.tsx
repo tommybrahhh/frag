@@ -7,8 +7,6 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import VideoHero from '@/components/features/home/VideoHero';
 import CommunityBuzz from '@/components/features/community/CommunityBuzz';
-import HorizontalScrollRow from '@/components/ui/HorizontalScrollRow';
-import SectionHeader from '@/components/layout/SectionHeader';
 import FilterBar from '@/components/features/search/FilterBar';
 import VisualCategoryNav from '@/components/features/search/VisualCategoryNav'; // Imported
 import PageTransition from '@/components/layout/PageTransition';
@@ -18,7 +16,7 @@ import { Database } from '@/types/database';
 type BlogPost = Database['public']['Tables']['blog_posts']['Row'];
 
 interface HomeClientProps {
-  // initialBlogPosts prop removed
+  initialComments?: any[];
 }
 
 interface Perfume {
@@ -32,10 +30,9 @@ interface Perfume {
   scent_profile?: Record<string, number>;
 }
 
-export default function HomeClient({ }: HomeClientProps) {
+export default function HomeClient({ initialComments = [] }: HomeClientProps) {
   const searchParams = useSearchParams();
   const [perfumes, setPerfumes] = useState<Perfume[]>([]);
-  const [newArrivals, setNewArrivals] = useState<Perfume[]>([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -55,19 +52,6 @@ export default function HomeClient({ }: HomeClientProps) {
     });
     if (node) observer.current.observe(node);
   }, [loading, hasMore]);
-
-  useEffect(() => {
-    const fetchNewArrivals = async () => {
-      try {
-        const res = await fetch('/api/perfumes?limit=8&page=1');
-        const data = await res.json();
-        setNewArrivals(data.perfumes || []);
-      } catch (err) {
-        console.error('Failed to fetch new arrivals', err);
-      }
-    };
-    fetchNewArrivals();
-  }, []);
 
   useEffect(() => {
     const fetchPerfumes = async () => {
@@ -148,18 +132,7 @@ export default function HomeClient({ }: HomeClientProps) {
           transition={{ duration: 0.8, ease: "easeOut" }}
           className="max-w-[1400px] mx-auto px-6 mb-20"
         >
-          <CommunityBuzz />
-        </motion.div>
-        
-        <SectionHeader title="Latest Arrivals" linkText="View All" linkHref="/search?sort=newest" />
-        
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-        >
-           <HorizontalScrollRow items={newArrivals.slice(0, 10)} />
+          <CommunityBuzz initialComments={initialComments} />
         </motion.div>
 
         <div className="sticky top-16 z-40 bg-white/95 backdrop-blur-sm border-y border-stone-100 py-4 mb-12 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] transition-all">

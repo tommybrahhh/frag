@@ -15,6 +15,7 @@ export interface PerfumeFilterParams {
   year?: string | null;
   family?: string | null;
   vibe?: string | null;
+  sort?: string | null;
 }
 
 export async function getPerfumes(params: PerfumeFilterParams) {
@@ -32,6 +33,7 @@ export async function getPerfumes(params: PerfumeFilterParams) {
     year,
     family,
     vibe,
+    sort,
   } = params;
 
   const offset = (page - 1) * limit;
@@ -115,9 +117,13 @@ export async function getPerfumes(params: PerfumeFilterParams) {
     query = query.overlaps('vibe_tags', vibe.split(','));
   }
 
-  query = query
-    .order('created_at', { ascending: false })
-    .range(offset, offset + limit - 1);
+  if (sort === 'newest') {
+    query = query.order('release_year', { ascending: false }).order('created_at', { ascending: false });
+  } else {
+    query = query.order('created_at', { ascending: false });
+  }
+
+  query = query.range(offset, offset + limit - 1);
 
   const { data, error, count } = await query;
 

@@ -25,6 +25,7 @@ export async function GET(request: Request) {
       year: searchParams.get('year'),
       family: searchParams.get('family'),
       vibe: searchParams.get('vibe'),
+      sort: searchParams.get('sort'),
     };
 
     const { data, error, count } = await getPerfumes(params);

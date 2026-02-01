@@ -28,15 +28,15 @@ export interface QuizOption {
 export const questions: QuizQuestion[] = [
   {
     id: 'texture',
-    question: "If your aura was a material, what would it feel like?",
-    subtext: "Texture maps to the 'weight' and character of the scent.",
+    question: "If your signature scent were a fabric, what would it feel like against your skin?",
+    subtext: "Scent has a texture. Which one speaks to you?",
     type: 'single',
     layout: 'cards',
     options: [
       {
-        label: "Cool Silk",
+        label: "Cool, Slipping Silk",
         value: "silk",
-        description: "Fluid, frictionless, and effortlessly elegant.",
+        description: "Effortless, airy, and barely there.",
         color: "from-pink-100 to-rose-200",
         scentFamilies: ['floral', 'fruity', 'musk'],
         vibes: ['elegant', 'romantic', 'soft'],
@@ -44,9 +44,9 @@ export const questions: QuizQuestion[] = [
         complexity: 'safe'
       },
       {
-        label: "Crushed Velvet",
+        label: "Heavy, Crushed Velvet",
         value: "velvet",
-        description: "Deep, dense, and enveloping shadows.",
+        description: "Deep, wrapping, and luxurious.",
         color: "from-amber-700 to-purple-900",
         scentFamilies: ['oriental', 'gourmand', 'amber'],
         vibes: ['seductive', 'comforting', 'mysterious'],
@@ -54,9 +54,9 @@ export const questions: QuizQuestion[] = [
         complexity: 'bold'
       },
       {
-        label: "Raw Linen",
+        label: "Fresh-Pressed Linen",
         value: "linen",
-        description: "Clean, woven, and perfectly imperfect.",
+        description: "Clean, bright, and uncomplicated.",
         color: "from-blue-50 to-slate-200",
         scentFamilies: ['fresh', 'citrus', 'clean'],
         vibes: ['modern', 'minimalist', 'clean'],
@@ -64,9 +64,9 @@ export const questions: QuizQuestion[] = [
         complexity: 'safe'
       },
       {
-        label: "Worn Leather",
+        label: "Worn, Vintage Leather",
         value: "leather",
-        description: "Warm, lived-in, and tough.",
+        description: "Rugged, warm, and full of character.",
         color: "from-stone-600 to-stone-800",
         scentFamilies: ['woody', 'leather', 'chypre'],
         vibes: ['bold', 'confident', 'grounded'],
@@ -77,15 +77,15 @@ export const questions: QuizQuestion[] = [
   },
   {
     id: 'escape',
-    question: "Where do you go to find yourself?",
-    subtext: "The setting defines the atmospheric notes.",
+    question: "It’s a rare day with absolutely zero plans. Where do you go?",
+    subtext: "Let's find the atmosphere that centers you.",
     type: 'single',
     layout: 'cards',
     options: [
       {
-        label: "A Forgotten Garden",
+        label: "A Hidden, Overgrown Garden",
         value: "garden",
-        description: "Overgrown vines, wet earth, and blooming jasmine.",
+        description: "Dewy petals, wet earth, and fresh air.",
         color: "from-green-200 to-emerald-400",
         scentFamilies: ['floral', 'green'],
         vibes: ['romantic', 'natural', 'wild'],
@@ -93,7 +93,7 @@ export const questions: QuizQuestion[] = [
         complexity: 'safe'
       },
       {
-        label: "An Old Library",
+        label: "A Quiet Corner in an Old Library",
         value: "library",
         description: "Dusty pages, polished wood, and silence.",
         color: "from-amber-900 to-brown-950",
@@ -103,9 +103,9 @@ export const questions: QuizQuestion[] = [
         complexity: 'niche'
       },
       {
-        label: "A Stormy Coast",
+        label: "A Cliffside Overlooking a Stormy Sea",
         value: "ocean",
-        description: "Salt spray, grey skies, and driftwood.",
+        description: "Salt spray, grey skies, and raw power.",
         color: "from-cyan-700 to-slate-600",
         scentFamilies: ['aquatic', 'marine', 'woody'],
         vibes: ['melancholic', 'adventurous', 'intense'],
@@ -113,9 +113,9 @@ export const questions: QuizQuestion[] = [
         complexity: 'niche'
       },
       {
-        label: "A Night Market",
+        label: "A Bustling Night Market Abroad",
         value: "market",
-        description: "Incense smoke, exotic spices, and heat.",
+        description: "Exotic spices, incense smoke, and electric energy.",
         color: "from-orange-500 to-red-700",
         scentFamilies: ['oriental', 'spicy'],
         vibes: ['exotic', 'bold', 'sensual'],
@@ -126,31 +126,31 @@ export const questions: QuizQuestion[] = [
   },
   {
     id: 'complexity',
-    question: "How do you want to be challenged?",
-    subtext: "This determines how 'niche' or artistic the recommendations will be.",
+    question: "When you walk out the door, what vibe are you aiming for?",
+    subtext: "How loud should your fragrance speak?",
     type: 'single',
     layout: 'list',
     options: [
       {
-        label: "Pure Pleasure (Safe)",
+        label: "Effortlessly Pleasant",
         value: "safe",
-        description: "I want to smell amazing, clean, and universally appealing.",
+        description: "I want to smell good, but not overpowering. Just a nice aura.",
         color: "border-green-200",
         complexity: 'safe',
         vibes: ['approachable', 'pleasant']
       },
       {
-        label: "Make a Statement (Bold)",
+        label: "Unapologetically Bold",
         value: "bold",
-        description: "I want to be noticed. Give me intensity and character.",
+        description: "I want a scent that announces my arrival and lingers after I leave.",
         color: "border-amber-300",
         complexity: 'bold',
         vibes: ['confident', 'sexy']
       },
       {
-        label: "Olfactory Art (Niche)",
+        label: "Mysteriously Intriguing",
         value: "niche",
-        description: "I want to be transported. I love weird, earthy, or polarizing scents.",
+        description: "I prefer scents that make people ask, 'Wait, what is that?'",
         color: "border-purple-400",
         complexity: 'niche',
         vibes: ['unique', 'artistic', 'challenging']
@@ -159,50 +159,50 @@ export const questions: QuizQuestion[] = [
   },
   {
     id: 'drink',
-    question: "Pick your poison.",
-    subtext: "Taste preferences often mirror olfactory ones.",
+    question: "Pick a drink for the evening. Don't overthink it.",
+    subtext: "Our sense of smell and taste are deeply connected.",
     type: 'single',
     layout: 'grid',
     options: [
       {
         label: "Gin & Tonic",
         value: "citrus",
-        description: "Botanical, crisp, and bitter.",
+        description: "Sharp, botanical, and icy cold.",
         color: "bg-blue-50",
         notes: ['juniper', 'lime', 'gin', 'cucumber']
       },
       {
-        label: "Espresso",
+        label: "Double Espresso",
         value: "bitter",
-        description: "Dark, roasted, and intense.",
+        description: "Rich, bitter, and awakening.",
         color: "bg-stone-800 text-stone-100",
         notes: ['coffee', 'cacao', 'roasted notes']
       },
       {
-        label: "Earl Grey Tea",
+        label: "Hot Earl Grey Tea",
         value: "herbal",
-        description: "Aromatic, comforting, and refined.",
+        description: "Steaming, bergamot-infused, and calming.",
         color: "bg-stone-200",
         notes: ['tea', 'bergamot', 'lavender']
       },
       {
         label: "Aged Whiskey",
         value: "boozy",
-        description: "Smoky, woody, and warm.",
+        description: "Smooth, smoky, and warming.",
         color: "bg-amber-800 text-amber-100",
         notes: ['rum', 'cognac', 'oak', 'peat']
       },
       {
-        label: "Iced Water",
+        label: "Ice Water with Lemon",
         value: "fresh",
-        description: "Minimalist and pure.",
+        description: "Pure, hydrating, and essential.",
         color: "bg-cyan-50",
         notes: ['water notes', 'musk', 'ambroxan']
       },
       {
-        label: "Spiced Chai",
+        label: "Spiced Chai Latte",
         value: "spicy",
-        description: "Milky, sweet, and spicy.",
+        description: "Creamy, sweet, and full of spice.",
         color: "bg-orange-100",
         notes: ['ginger', 'cinnamon', 'cardamom', 'milk']
       }
@@ -210,34 +210,34 @@ export const questions: QuizQuestion[] = [
   },
   {
     id: 'palette',
-    question: "What colors dominates your closet?",
-    subtext: "Visual aesthetics correlate with scent families.",
+    question: "If we opened your wardrobe right now, what color story would we see?",
+    subtext: "Your visual style often mirrors your scent profile.",
     type: 'single',
     layout: 'grid',
     options: [
       {
-        label: "All Black",
+        label: "Monochrome & Black",
         value: "noir",
         color: "bg-stone-900 text-stone-100",
         vibes: ['mysterious', 'modern', 'chic'],
         complexity: 'bold'
       },
       {
-        label: "Neutrals & Beige",
+        label: "Soft Neutrals & Whites",
         value: "neutral",
         color: "bg-[#e5e0d8]",
         vibes: ['clean', 'minimalist', 'soft'],
         complexity: 'safe'
       },
       {
-        label: "Jewel Tones",
+        label: "Deep Jewel Tones",
         value: "jewel",
         color: "bg-emerald-800 text-emerald-100",
         vibes: ['rich', 'luxurious', 'deep'],
         complexity: 'bold'
       },
       {
-        label: "Pastels",
+        label: "Light Pastels",
         value: "pastel",
         color: "bg-pink-100",
         vibes: ['dreamy', 'playful', 'sweet'],
@@ -247,27 +247,27 @@ export const questions: QuizQuestion[] = [
   },
   {
     id: 'protagonist',
-    question: "In the movie of your life, what is the character's energy?",
-    subtext: "A subtle way to find your gender preference.",
+    question: "Finally, what kind of fragrance profile do you generally lean towards?",
+    subtext: "No wrong answers, just a starting point.",
     type: 'single',
     layout: 'list',
     options: [
       {
-        label: "The Ethereal Muse (Feminine)",
+        label: "Traditionally Feminine",
         value: "feminine",
-        description: "Soft, graceful, and intuitive energy.",
+        description: "Florals, fruits, and softer notes.",
         color: "border-pink-200"
       },
       {
-        label: "The Stoic Hero (Masculine)",
+        label: "Traditionally Masculine",
         value: "masculine",
-        description: "Grounded, reliable, and strong energy.",
+        description: "Woods, spices, and aromatic notes.",
         color: "border-slate-300"
       },
       {
-        label: "The Enigmatic Outsider (Unisex)",
+        label: "Modern & Unisex",
         value: "unisex",
-        description: "Fluid, mysterious, and undefined energy.",
+        description: "Anything goes—I wear what smells good.",
         color: "border-purple-200"
       }
     ]

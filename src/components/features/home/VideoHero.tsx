@@ -5,8 +5,8 @@ import Link from 'next/link';
 
 const VideoHero = () => {
   return (
-    <section className="px-6 max-w-[1400px] mx-auto mb-20 pt-8">
-      <div className="relative w-full rounded-[2rem] overflow-hidden shadow-2xl aspect-[16/10] md:aspect-[21/9]">
+    <section className="px-4 md:px-6 max-w-[1400px] mx-auto mb-20 pt-8">
+      <div className="relative w-full rounded-[2rem] overflow-hidden shadow-2xl aspect-[4/5] sm:aspect-[16/10] md:aspect-[21/9]">
         {/* Video Background */}
         <video
           className="absolute inset-0 w-full h-full object-cover scale-105"
@@ -22,7 +22,7 @@ const VideoHero = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
 
         {/* Content Layer */}
-        <div className="absolute inset-0 flex flex-col justify-center px-8 md:px-16 lg:px-24">
+        <div className="absolute inset-0 flex flex-col justify-center px-6 md:px-16 lg:px-24">
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
@@ -38,25 +38,25 @@ const VideoHero = () => {
               The Art of Fragrance
             </motion.span>
             
-            <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl text-white mb-8 leading-[1.1]">
+            <h1 className="font-serif text-3xl sm:text-5xl md:text-7xl lg:text-8xl text-white mb-4 md:mb-8 leading-[1.1]">
               Find Your <br />
               <span className="italic font-light">Signature Scent</span>
             </h1>
             
-            <p className="text-white/70 text-base md:text-lg mb-12 max-w-md font-light leading-relaxed">
+            <p className="text-white/70 text-base md:text-lg mb-8 md:mb-12 max-w-md font-light leading-relaxed">
               Experience a personalized discovery journey powered by our fragrance intelligence engine.
             </p>
 
-            <div className="flex flex-wrap gap-5">
+            <div className="flex flex-wrap gap-3 md:gap-5">
               <Link 
                 href="/quiz"
-                className="px-10 py-4 bg-white text-stone-900 rounded-full font-bold text-xs uppercase tracking-widest hover:bg-stone-100 transition-all hover:scale-105 active:scale-95 shadow-xl"
+                className="px-6 py-3 md:px-10 md:py-4 bg-white text-stone-900 rounded-full font-bold text-xs uppercase tracking-widest hover:bg-stone-100 transition-all hover:scale-105 active:scale-95 shadow-xl"
               >
                 Start Scent Quiz
               </Link>
               <Link 
                 href="/search"
-                className="px-10 py-4 bg-white/10 backdrop-blur-md border border-white/20 text-white rounded-full font-bold text-xs uppercase tracking-widest hover:bg-white/20 transition-all hover:scale-105 active:scale-95"
+                className="px-6 py-3 md:px-10 md:py-4 bg-white/10 backdrop-blur-md border border-white/20 text-white rounded-full font-bold text-xs uppercase tracking-widest hover:bg-white/20 transition-all hover:scale-105 active:scale-95"
               >
                 Explore Library
               </Link>

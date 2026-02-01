@@ -79,7 +79,7 @@ export default function PerfumeClientView({ perfume, recommendationCategories }:
       {/* Hero Section */}
       <PerfumeHero perfume={perfume} onShare={handleShare} />
 
-      <div className="max-w-6xl mx-auto px-6 mb-20">
+      <div className="max-w-6xl mx-auto px-6 mb-12">
         {/* Dashboard Container */}
         <div className="bg-white/80 backdrop-blur-md rounded-[32px] p-6 md:p-12 shadow-[0_30px_60px_rgba(0,0,0,0.05)] border border-white grid lg:grid-cols-[320px_1fr] gap-12 lg:gap-20">
           
