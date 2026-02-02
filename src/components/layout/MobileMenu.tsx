@@ -115,7 +115,7 @@ export default function MobileMenu() {
               Search
             </Link>
             <Link href="/compare" className="text-lg font-semibold text-stone-700 hover:text-stone-900 transition-colors" onClick={closeMenu}>
-              Versus
+              Compare
             </Link>
             <Link href="/quiz" className="text-lg font-semibold text-stone-700 hover:text-stone-900 transition-colors" onClick={closeMenu}>
               Finder

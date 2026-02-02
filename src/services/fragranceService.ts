@@ -138,24 +138,49 @@ export class FragranceService {
   }
 
   /**
-   * General keyword search using RPC or text search.
+   * General keyword search using RPC with fallback to standard text search.
    */
   async searchFragrances(query: string, limit: number = 6) {
     if (!query || query.length < 2) return [];
 
-    const { data, error } = await this.supabase
-      .rpc('search_perfumes', { keyword: query })
-      .limit(limit);
+    try {
+      // 1. Try RPC first (better for full-text search/ranking if configured)
+      const { data, error } = await this.supabase
+        .rpc('search_perfumes', { keyword: query })
+        .limit(limit);
 
-    if (error) {
-      throw new Error(error.message);
+      if (error) throw error;
+
+      return data.map((item: any) => ({
+        ...item,
+        brand: { name: item.brand_name } 
+      }));
+
+    } catch (rpcError) {
+      // 2. Fallback to simple ILIKE if RPC fails or is missing
+      console.warn('RPC search failed, falling back to ILIKE:', rpcError);
+
+      const { data, error } = await this.supabase
+        .from('perfumes')
+        .select(`
+          id, 
+          name, 
+          image_url, 
+          brand:brands!perfumes_brand_id_fkey(name)
+        `)
+        .ilike('name', `%${query}%`)
+        .limit(limit);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      // Map fallback result to standard shape
+      return data.map((item: any) => ({
+        ...item,
+        brand: item.brand // Brand is already an object { name: string } from the relation select
+      }));
     }
-
-    // Map RPC result to standard shape
-    return data.map((item: any) => ({
-      ...item,
-      brand: { name: item.brand_name } 
-    }));
   }
 
   /**

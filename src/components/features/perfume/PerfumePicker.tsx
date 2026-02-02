@@ -147,12 +147,8 @@ export default function PerfumePicker({ label, onSelect, selected, placeholder, 
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
-            onClick={() => {
-                if (displayList.length > 0) setIsOpen(true);
-            }}
-            onFocus={() => {
-              if (displayList.length > 0) setIsOpen(true);
-            }}
+            onClick={() => setIsOpen(true)}
+            onFocus={() => setIsOpen(true)}
             onBlur={() => setTimeout(() => setIsOpen(false), 200)}
           />
           <div className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-300">
@@ -175,13 +171,14 @@ export default function PerfumePicker({ label, onSelect, selected, placeholder, 
       </div>
       
       {/* Dropdown Results */}
-      {isOpen && displayList.length > 0 && (
+      {isOpen && (displayList.length > 0 || query.length >= 2) && (
         <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-xl z-50 border border-stone-100 overflow-hidden">
           <div className="px-4 py-2 bg-stone-50 border-b border-stone-100 text-[9px] font-bold uppercase tracking-widest text-stone-400">
             {listLabel}
           </div>
           <div className="max-h-60 overflow-y-auto">
-            {displayList.map((p, index) => (
+            {displayList.length > 0 ? (
+              displayList.map((p, index) => (
               <div key={p.id}
                 className={`flex items-center gap-3 p-3 hover:bg-stone-50 cursor-pointer border-b border-stone-50 last:border-0 transition ${index === selectedIndex ? 'bg-stone-50' : ''}`}
                 onClick={() => {
@@ -196,7 +193,12 @@ export default function PerfumePicker({ label, onSelect, selected, placeholder, 
                    <div className="text-[9px] uppercase tracking-wider text-stone-400 mt-0.5">{p.brand?.name}</div>
                  </div>
               </div>
-            ))}
+            ))
+            ) : (
+              <div className="p-4 text-center text-stone-400 text-sm italic">
+                No perfumes found matching "{query}"
+              </div>
+            )}
           </div>
         </div>
       )}

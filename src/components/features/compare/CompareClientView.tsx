@@ -206,7 +206,7 @@ export default function CompareClientView({ initialPerfumes }: CompareClientView
         {/* Main Header / Nav */}
         <div className="px-6 py-4 border-b border-stone-200 flex justify-between items-center bg-white/90 backdrop-blur-md sticky top-0 z-40 h-16">
             <Link href="/" className="text-xs font-semibold uppercase tracking-widest hover:opacity-60 transition">← Collection</Link>
-            <span className="text-[10px] font-mono uppercase tracking-widest text-stone-400">Battle Analysis</span>
+            <span className="text-[10px] font-mono uppercase tracking-widest text-stone-400">Compare Analysis</span>
         </div>
 
         {/* STICKY COMPARISON HEADER (Visible on scroll) */}

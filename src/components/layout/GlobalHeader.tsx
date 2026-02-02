@@ -36,7 +36,7 @@ export default function GlobalHeader() {
               Search
             </Link>
             <Link href="/compare" className="text-[11px] font-bold uppercase tracking-[0.15em] text-stone-500 hover:text-stone-900 transition-colors">
-              Versus
+              Compare
             </Link>
             <Link href="/quiz" className="text-[11px] font-bold uppercase tracking-[0.15em] text-stone-500 hover:text-stone-900 transition-colors">
               Finder

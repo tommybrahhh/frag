@@ -13,7 +13,7 @@ export default function GlobalFooter() {
             Scentia
           </Link>
           <p className="text-xs text-stone-500 max-w-xs leading-relaxed mb-6">
-            An algorithmic approach to olfactory discovery. Analyzing molecular harmony, volatility profiles, and personal taste DNA.
+            Your personal guide to the world of fragrance. Discover your signature scent, explore ingredient notes, and master the art of layering with intelligent recommendations.
           </p>
           <div className="text-[10px] text-stone-400 uppercase tracking-widest">
             © 2025 Scentia Labs
@@ -24,10 +24,10 @@ export default function GlobalFooter() {
         <div>
           <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-900 mb-4">Explore</h4>
           <ul className="space-y-3">
-            <li><Link href="/search" className="text-xs text-stone-500 hover:text-stone-900 transition">Note Laboratory</Link></li>
-            <li><Link href="/layering" className="text-xs text-stone-500 hover:text-stone-900 transition">Layering Lab</Link></li>
-            <li><Link href="/compare" className="text-xs text-stone-500 hover:text-stone-900 transition">Battle Analysis</Link></li>
-            <li><Link href="/quiz" className="text-xs text-stone-500 hover:text-stone-900 transition">Scent Quiz</Link></li>
+            <li><Link href="/search" className="text-xs text-stone-500 hover:text-stone-900 transition">Fragrance Search</Link></li>
+            <li><Link href="/layering" className="text-xs text-stone-500 hover:text-stone-900 transition">Scent Layering</Link></li>
+            <li><Link href="/compare" className="text-xs text-stone-500 hover:text-stone-900 transition">Compare Perfumes</Link></li>
+            <li><Link href="/quiz" className="text-xs text-stone-500 hover:text-stone-900 transition">Find Your Fragrance</Link></li>
           </ul>
         </div>
 
