@@ -10,14 +10,14 @@ export default function FragranceCard({ perfume }: FragranceCardProps) {
   const brandName = typeof perfume.brand === 'object' ? (perfume.brand as any).name : perfume.brand;
 
   return (
-    <div className="group bg-white rounded-xl border border-stone-100 p-4 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+    <div className="group rounded-xl p-4 transition-all duration-300 hover:bg-stone-100 hover:shadow-lg hover:-translate-y-1">
       <Link href={`/perfume/${perfume.slug || perfume.id}`}>
-        <div className="h-48 flex items-center justify-center p-4 mb-4 bg-stone-50 rounded-lg group-hover:bg-white transition-colors">
+        <div className="h-48 flex items-center justify-center p-4 mb-4 rounded-lg transition-colors">
           {perfume.image_url ? (
             <img 
               src={perfume.image_url} 
               alt={perfume.name} 
-              className="h-full object-contain mix-blend-multiply opacity-80 group-hover:opacity-100 transition-opacity" 
+              className="h-full object-contain mix-blend-multiply" 
             />
           ) : (
             <span className="text-stone-300 text-xs italic">No Image</span>

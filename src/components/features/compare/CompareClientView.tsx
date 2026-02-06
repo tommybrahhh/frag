@@ -4,8 +4,9 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { X, Plus, Trophy, DollarSign, Clock, Wind, Calendar } from 'lucide-react';
+import { X, Plus, Trophy, DollarSign, Clock, Wind, Calendar, Briefcase, Coffee, Sparkles, Music, Plane, Dumbbell, Moon, Heart, Sun, Snowflake, Leaf, Flower2 } from 'lucide-react';
 import PerfumePicker from '@/components/features/perfume/PerfumePicker';
+import ComparisonScentRadar from './ComparisonScentRadar';
 import { ratingToDescription } from '@/lib/longevity-utils';
 
 interface ComparePerfumeNote {
@@ -13,6 +14,7 @@ interface ComparePerfumeNote {
   note: {
     name: string;
     color_hex?: string;
+    url?: string;
   };
 }
 
@@ -38,6 +40,23 @@ interface CompareClientViewProps {
 }
 
 const OCCASIONS = ['Date Night', 'Office Safe', 'Casual Daily', 'Formal Event', 'Party / Club', 'Summer Vacation', 'Gym / Sport'];
+const OCCASION_ICONS: Record<string, React.ReactNode> = {
+  'Date Night': <Moon className="w-4 h-4" />,
+  'Office Safe': <Briefcase className="w-4 h-4" />,
+  'Casual Daily': <Coffee className="w-4 h-4" />,
+  'Formal Event': <Sparkles className="w-4 h-4" />,
+  'Party / Club': <Music className="w-4 h-4" />,
+  'Summer Vacation': <Plane className="w-4 h-4" />,
+  'Gym / Sport': <Dumbbell className="w-4 h-4" />
+};
+
+const SEASON_ICONS: Record<string, React.ReactNode> = {
+  'Spring': <Flower2 className="w-3.5 h-3.5" />,
+  'Summer': <Sun className="w-3.5 h-3.5" />,
+  'Autumn': <Leaf className="w-3.5 h-3.5" />,
+  'Winter': <Snowflake className="w-3.5 h-3.5" />
+};
+const COLORS = ['#1c1917', '#d97706', '#059669', '#2563eb']; // Stone-900, Amber-600, Emerald-600, Blue-600
 
 // Helper function for Sillage description
 const getSillageDescription = (rating: number | null | undefined): string => {
@@ -138,16 +157,6 @@ export default function CompareClientView({ initialPerfumes }: CompareClientView
     return p.perfume_notes?.filter((n) => n.type === type) || [];
   };
 
-  const getProfileKeys = () => {
-    const allKeys = new Set<string>();
-    slots.forEach(p => {
-        if (p?.scent_profile) {
-            Object.keys(p.scent_profile).forEach(k => allKeys.add(k));
-        }
-    });
-    return Array.from(allKeys);
-  };
-
   // Winner Logic
   const getWinners = () => {
     const activeSlots = slots.filter(s => s !== null) as ComparePerfume[];
@@ -201,28 +210,31 @@ export default function CompareClientView({ initialPerfumes }: CompareClientView
   );
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] text-gray-800 font-sans pb-20 relative">
+    <div className="min-h-screen bg-[#FAFAF9] text-[#1C1917] font-sans pb-20 relative selection:bg-[#1C1917] selection:text-[#FAFAF9]">
         
         {/* Main Header / Nav */}
-        <div className="px-6 py-4 border-b border-stone-200 flex justify-between items-center bg-white/90 backdrop-blur-md sticky top-0 z-40 h-16">
-            <Link href="/" className="text-xs font-semibold uppercase tracking-widest hover:opacity-60 transition">← Collection</Link>
-            <span className="text-[10px] font-mono uppercase tracking-widest text-stone-400">Compare Analysis</span>
+        <div className="px-6 py-4 sticky top-0 bg-[#FAFAF9]/90 backdrop-blur-md z-40 flex justify-between items-center border-b border-[#E7E5E4]">
+            <Link href="/" className="text-xs font-semibold uppercase tracking-widest text-[#57534E] hover:text-[#1C1917] transition-colors">← Collection</Link>
+            <span className="text-[10px] font-mono uppercase tracking-widest text-[#A8A29E]">Compare Analysis</span>
         </div>
 
         {/* STICKY COMPARISON HEADER (Visible on scroll) */}
         <div 
-            className={`fixed top-16 left-0 right-0 bg-white/95 backdrop-blur-sm border-b border-stone-200 z-30 transition-transform duration-300 shadow-sm ${showStickyHeader ? 'translate-y-0' : '-translate-y-full'}`}
+            className={`fixed top-16 left-0 right-0 bg-[#FAFAF9]/95 backdrop-blur-sm border-b border-[#E7E5E4] z-30 transition-transform duration-300 shadow-sm ${showStickyHeader ? 'translate-y-0' : '-translate-y-full'}`}
         >
             <div className="max-w-[1400px] mx-auto px-6">
-                <div className="grid gap-8 min-w-[600px] overflow-x-auto" style={{ gridTemplateColumns: `100px repeat(${slots.length}, 1fr)` }}>
+                <div className={`grid gap-3 md:gap-8 overflow-x-auto ${slots.length > 2 ? 'min-w-[600px]' : 'w-full'}`} style={{ gridTemplateColumns: `100px repeat(${slots.length}, 1fr)` }}>
                     <div className="p-3 flex items-center text-[10px] font-bold uppercase tracking-widest text-stone-400">Perfume</div>
                     {slots.map((p, i) => (
-                        <div key={i} className="p-3 flex items-center gap-3 border-l border-stone-100">
+                        <div key={i} className="p-3 flex items-center gap-3 border-l border-stone-100 relative">
+                             {/* Color Indicator */}
+                            <div className="absolute left-0 top-0 bottom-0 w-0.5" style={{ backgroundColor: p ? COLORS[i % COLORS.length] : 'transparent' }}></div>
+                            
                             {p ? (
                                 <>
-                                    <div className="w-8 h-8 relative shrink-0 bg-stone-50 rounded-md border border-stone-100">
+                                    <div className="w-8 h-8 relative shrink-0 bg-transparent rounded-md">
                                         {p.image_url ? (
-                                            <Image src={p.image_url} alt={p.name} fill className="object-contain mix-blend-multiply p-1" sizes="32px" />
+                                            <Image src={p.image_url} alt={p.name} fill className="object-contain mix-blend-multiply" sizes="32px" />
                                         ) : null}
                                     </div>
                                     <div className="min-w-0">
@@ -231,7 +243,7 @@ export default function CompareClientView({ initialPerfumes }: CompareClientView
                                     </div>
                                 </>
                             ) : (
-                                <span className="text-[10px] text-stone-300 italic">Empty</span>
+                                <span className="text-[10px] text-stone-300 italic pl-3">Empty</span>
                             )}
                         </div>
                     ))}
@@ -252,6 +264,9 @@ export default function CompareClientView({ initialPerfumes }: CompareClientView
                                 selected={slot} 
                                 placeholder="Search perfume..."
                             />
+                            {/* Color Tag */}
+                            <div className="absolute top-0 right-0 mt-1 mr-1 w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
+
                             {/* Remove Button */}
                             {(slots.length > 2 || (slots.length === 2 && slot !== null)) && (
                                 <button 
@@ -289,19 +304,23 @@ export default function CompareClientView({ initialPerfumes }: CompareClientView
             {slots.some(s => s !== null) && (
                 <div className="overflow-x-auto pb-20">
                     {/* HEADER ROW (Images) */}
-                    <div ref={mainImageRowRef} className="grid gap-8 min-w-[600px]" style={{ gridTemplateColumns: `repeat(${slots.length}, minmax(0, 1fr))` }}>
+                    <div ref={mainImageRowRef} className={`grid gap-3 md:gap-8 ${slots.length > 2 ? 'min-w-[600px]' : 'w-full'}`} style={{ gridTemplateColumns: `repeat(${slots.length}, minmax(0, 1fr))` }}>
                         {slots.map((p, i) => (
                             <div key={i} className="text-center">
                                 {p ? (
                                     <>
-                                        <div className="h-48 flex items-center justify-center mb-4 p-4 bg-white rounded-xl border border-stone-100 shadow-sm relative group hover:shadow-md transition-shadow">
+                                        <div 
+                                            className="h-1 w-16 mx-auto rounded-full mb-3" 
+                                            style={{ backgroundColor: COLORS[i % COLORS.length] }}
+                                        />
+                                        <div className="h-48 flex items-center justify-center mb-4 p-4 rounded-xl transition-all duration-300 hover:bg-stone-100 relative group">
                                             {p.image_url ? (
                                                 <div className="relative w-full h-full">
                                                     <Image 
                                                         src={p.image_url} 
                                                         alt={p.name}
                                                         fill
-                                                        className="object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500"
+                                                        className="object-contain mix-blend-multiply transition-transform duration-500"
                                                         sizes="(max-width: 768px) 100vw, 200px"
                                                     />
                                                 </div>
@@ -309,7 +328,7 @@ export default function CompareClientView({ initialPerfumes }: CompareClientView
                                                 <span className="text-stone-300 text-xs">No Image</span>
                                             )}
                                             {p.rating && (
-                                                <div className="absolute top-2 right-2 bg-stone-900 text-white text-[9px] font-bold px-2 py-1 rounded">
+                                                <div className="absolute top-2 right-2 bg-stone-900 text-white text-[9px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
                                                     {p.rating.toFixed(1)}
                                                 </div>
                                             )}
@@ -320,216 +339,211 @@ export default function CompareClientView({ initialPerfumes }: CompareClientView
                                         </Link>
                                     </>
                                 ) : (
-                                    <div className="h-48 bg-stone-50/50 rounded-xl border border-dashed border-stone-200 flex items-center justify-center text-stone-300 text-sm">
-                                        Empty
+                                    <div className="h-full flex flex-col justify-end">
+                                        <div className="h-48 bg-stone-50/50 rounded-xl border border-dashed border-stone-200 flex items-center justify-center text-stone-300 text-sm">
+                                            Empty
+                                        </div>
                                     </div>
                                 )}
                             </div>
                         ))}
                     </div>
 
-                    <div className="mt-12 space-y-12 min-w-[600px]">
+                    <div className={`mt-12 space-y-12 ${slots.length > 2 ? 'min-w-[600px]' : 'w-full'}`}>
                         
                         {/* BASIC SPECS */}
-                        <div className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden">
-                            <div className="bg-stone-50 px-6 py-3 border-b border-stone-200 flex items-center gap-2">
-                                <Trophy className="w-3 h-3 text-stone-400" />
-                                <h3 className="text-xs font-bold uppercase tracking-widest text-stone-500">Specifications</h3>
-                            </div>
-                            
-                            {/* Price */}
-                            <div className="grid border-b border-stone-100 last:border-0 hover:bg-stone-50 transition" style={{ gridTemplateColumns: `100px repeat(${slots.length}, 1fr)` }}>
-                                <div className="p-4 text-[10px] font-bold uppercase tracking-widest text-stone-400 flex items-center gap-2">
-                                    <DollarSign className="w-3 h-3" /> Price
-                                </div>
-                                {slots.map((p, i) => {
-                                    const isWinner = p && winners.price.includes(p.id);
-                                    return (
-                                        <div key={i} className={`p-4 text-center font-mono text-sm border-l border-stone-100 flex items-center justify-center relative ${isWinner ? 'bg-stone-50 font-bold text-stone-900' : 'text-stone-600'}`}>
-                                            {p ? (p.price_tier !== undefined ? (
-                                                <>
-                                                    {p.price_tier}
-                                                    {isWinner && <span className="absolute bottom-1 text-[8px] font-sans font-bold bg-stone-900 text-white px-1.5 py-0.5 rounded-full uppercase tracking-wide">Best Value</span>}
-                                                </>
-                                            ) : <Skeleton className="h-4 w-8" />) : '-'}
-                                        </div>
-                                    );
-                                })}
-                            </div>
+                        <div className="grid gap-3 md:gap-6" style={{ gridTemplateColumns: `repeat(${slots.length}, 1fr)` }}>
+                            {slots.map((p, i) => {
+                                const isPriceWinner = p && winners.price.includes(p.id);
+                                const isLongevityWinner = p && winners.longevity.includes(p.id);
+                                const isSillageWinner = p && winners.sillage.includes(p.id);
 
-                            {/* Longevity */}
-                            <div className="grid border-b border-stone-100 last:border-0 hover:bg-stone-50 transition" style={{ gridTemplateColumns: `100px repeat(${slots.length}, 1fr)` }}>
-                                <div className="p-4 text-[10px] font-bold uppercase tracking-widest text-stone-400 flex items-center gap-2">
-                                    <Clock className="w-3 h-3" /> Longevity
-                                </div>
-                                {slots.map((p, i) => {
-                                    const isWinner = p && winners.longevity.includes(p.id);
-                                    return (
-                                        <div key={i} className={`p-4 text-center text-sm font-medium border-l border-stone-100 flex items-center justify-center relative ${isWinner ? 'bg-stone-50 text-stone-900' : 'text-stone-600'}`}>
-                                            {p ? (p.longevity_rating !== undefined ? (
-                                                <>
-                                                    {ratingToDescription(p.longevity_rating)}
-                                                    {isWinner && <span className="absolute bottom-1 right-2 text-stone-900 text-[10px]">★</span>}
-                                                </>
-                                            ) : <Skeleton className="h-4 w-20" />) : '-'}
-                                        </div>
-                                    );
-                                })}
-                            </div>
-
-                            {/* Sillage */}
-                            <div className="grid border-b border-stone-100 last:border-0 hover:bg-stone-50 transition" style={{ gridTemplateColumns: `100px repeat(${slots.length}, 1fr)` }}>
-                                <div className="p-4 text-[10px] font-bold uppercase tracking-widest text-stone-400 flex items-center gap-2">
-                                    <Wind className="w-3 h-3" /> Sillage
-                                </div>
-                                {slots.map((p, i) => {
-                                    const isWinner = p && winners.sillage.includes(p.id);
-                                    return (
-                                        <div key={i} className={`p-4 text-center border-l border-stone-100 relative ${isWinner ? 'bg-stone-50' : ''}`}>
-                                            {p ? (
-                                                p.sillage_rating !== undefined ? (
-                                                    <div className="flex flex-col items-center justify-center gap-1">
-                                                        <span className={`text-xs font-medium mb-1 ${isWinner ? 'text-stone-900' : 'text-stone-600'}`}>{getSillageDescription(p.sillage_rating)}</span>
-                                                        <div className="flex items-center justify-center gap-1">
-                                                            {[1,2,3,4,5,6,7,8,9,10].map(star => (
-                                                                <div key={star} className={`h-1.5 w-3 rounded-full ${star <= (p.sillage_rating || 0) ? (isWinner ? 'bg-stone-900' : 'bg-stone-400') : 'bg-stone-200'}`}></div>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                ) : <div className="flex flex-col gap-1 items-center"><Skeleton className="h-3 w-16" /><Skeleton className="h-1.5 w-24" /></div>
-                                            ) : '-'}
-                                        </div>
-                                    );
-                                })}
-                            </div>
-
-                            {/* Gender */}
-                            <div className="grid border-b border-stone-100 last:border-0 hover:bg-stone-50 transition" style={{ gridTemplateColumns: `100px repeat(${slots.length}, 1fr)` }}>
-                                <div className="p-4 text-[10px] font-bold uppercase tracking-widest text-stone-400 flex items-center">Gender</div>
-                                {slots.map((p, i) => (
-                                    <div key={i} className="p-4 text-center text-sm text-stone-600 border-l border-stone-100 flex items-center justify-center">
-                                        {p ? (p.gender || <Skeleton className="h-4 w-12" />) : '-'}
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* Seasonality */}
-                            <div className="grid border-b border-stone-100 last:border-0 hover:bg-stone-50 transition" style={{ gridTemplateColumns: `100px repeat(${slots.length}, 1fr)` }}>
-                                <div className="p-4 text-[10px] font-bold uppercase tracking-widest text-stone-400 flex items-center gap-2">
-                                    <Calendar className="w-3 h-3" /> Seasons
-                                </div>
-                                {slots.map((p, i) => (
-                                    <div key={i} className="p-4 text-center border-l border-stone-100 flex flex-wrap gap-1 justify-center content-center">
-                                        {p ? (
-                                            p.best_season && p.best_season.length > 0 ? (
-                                                <>
-                                                    {p.best_season.includes('Spring') && <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-white text-stone-600 border border-stone-200">SPRING</span>}
-                                                    {p.best_season.includes('Summer') && <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-white text-stone-600 border border-stone-200">SUMMER</span>}
-                                                    {p.best_season.includes('Autumn') && <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-white text-stone-600 border border-stone-200">AUTUMN</span>}
-                                                    {p.best_season.includes('Winter') && <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-white text-stone-600 border border-stone-200">WINTER</span>}
-                                                </>
-                                            ) : <span className="text-stone-300 text-xs">-</span>
-                                        ) : '-'}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* SCENT PROFILE RADAR (Updated to Bars) */}
-                        <div className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden p-6">
-                            <h3 className="text-xs font-bold uppercase tracking-widest text-stone-500 mb-6">Olfactory DNA</h3>
-                            {getProfileKeys().length > 0 ? getProfileKeys().map((key) => (
-                                <div key={key} className="mb-6 last:mb-0">
-                                    <div className="flex justify-between mb-2">
-                                        <span className="text-[10px] font-bold uppercase tracking-widest text-stone-900">{key}</span>
-                                    </div>
-                                    {/* Grid Background */}
-                                    <div className="relative h-24 w-full bg-stone-50 rounded-lg border border-stone-100 flex items-end justify-between px-4 pb-0 overflow-hidden">
-                                        {/* Grid Lines */}
-                                        <div className="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-20">
-                                            {[...Array(5)].map((_, i) => <div key={i} className="w-full h-px bg-stone-300"></div>)}
+                                return (
+                                    <div key={i} className="bg-white/80 backdrop-blur-md rounded-[32px] border border-white shadow-[0_30px_60px_rgba(0,0,0,0.05)] p-3 md:p-6 overflow-hidden relative">
+                                        <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-6 pb-2 border-b border-stone-200">
+                                            Specifications
                                         </div>
                                         
-                                        {/* Bars */}
-                                        {slots.map((p, i) => {
-                                            const val = p?.scent_profile?.[key] || 0;
-                                            return (
-                                                <div key={i} className="h-full flex flex-col justify-end items-center flex-1 mx-1 group relative">
-                                                    {p && (
-                                                        <>
-                                                            <div 
-                                                                className={`w-full max-w-[24px] min-w-[8px] rounded-t-sm transition-all duration-500 relative ${['bg-stone-800', 'bg-stone-400', 'bg-stone-600', 'bg-stone-300'][i % 4]}`} 
-                                                                style={{ height: `${val * 10}%` }}
-                                                            >
-                                                                {/* Tooltip */}
-                                                                <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-stone-900 text-white text-[10px] py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
-                                                                    {p.name}: {val}/10
+                                        {p ? (
+                                            <div className="space-y-6">
+                                                {/* Price */}
+                                                <div>
+                                                    <div className="flex justify-between items-center mb-2">
+                                                        <span className="text-[10px] font-bold uppercase tracking-widest text-stone-400 flex items-center gap-2">
+                                                            <DollarSign className="w-3 h-3" /> Price
+                                                        </span>
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="font-mono text-sm font-bold text-stone-900">{p.price_tier || 'N/A'}</span>
+                                                            {isPriceWinner && (
+                                                                <span className="text-[8px] font-bold bg-stone-900 text-white px-1.5 py-0.5 rounded-full uppercase tracking-wide">Best Value</span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Longevity */}
+                                                <div>
+                                                    <div className="flex justify-between items-end mb-2">
+                                                        <span className="text-[10px] font-bold uppercase tracking-widest text-stone-400 flex items-center gap-2">
+                                                            <Clock className="w-3 h-3" /> Longevity
+                                                        </span>
+                                                        <span className="text-[10px] font-serif italic text-stone-900 flex items-center gap-1">
+                                                            {ratingToDescription(p.longevity_rating || 0)}
+                                                            {isLongevityWinner && <Trophy className="w-2.5 h-2.5 text-stone-900" />}
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex gap-1 h-1.5">
+                                                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(step => (
+                                                            <div key={step} className={`flex-1 rounded-full ${(p.longevity_rating || 0) >= step ? 'bg-stone-800' : 'bg-stone-100'}`} />
+                                                        ))}
+                                                    </div>
+                                                </div>
+
+                                                {/* Sillage */}
+                                                <div>
+                                                    <div className="flex justify-between items-end mb-2">
+                                                        <span className="text-[10px] font-bold uppercase tracking-widest text-stone-400 flex items-center gap-2">
+                                                            <Wind className="w-3 h-3" /> Sillage
+                                                        </span>
+                                                        <span className="text-[10px] font-serif italic text-stone-900 flex items-center gap-1">
+                                                            {getSillageDescription(p.sillage_rating)}
+                                                            {isSillageWinner && <Trophy className="w-2.5 h-2.5 text-stone-900" />}
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex gap-1 h-1.5">
+                                                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(step => (
+                                                            <div key={step} className={`flex-1 rounded-full ${(p.sillage_rating || 0) >= step ? 'bg-stone-800' : 'bg-stone-100'}`} />
+                                                        ))}
+                                                    </div>
+                                                </div>
+
+                                                {/* Gender */}
+                                                <div className="pt-4 border-t border-stone-100">
+                                                    <div className="flex justify-between items-center">
+                                                        <span className="text-[10px] font-bold uppercase tracking-widest text-stone-400">Gender</span>
+                                                        <span className="text-xs font-bold text-stone-900">{p.gender || 'Unisex'}</span>
+                                                    </div>
+                                                </div>
+
+                                                {/* Seasons */}
+                                                <div className="pt-4 border-t border-stone-100">
+                                                    <span className="text-[10px] font-bold uppercase tracking-widest text-stone-400 block mb-3">Best Seasons</span>
+                                                    <div className="flex gap-2 flex-wrap justify-center">
+                                                        {['Spring', 'Summer', 'Autumn', 'Winter'].map(season => {
+                                                            const active = p.best_season?.includes(season);
+                                                            return (
+                                                                <div 
+                                                                    key={season} 
+                                                                    title={season}
+                                                                    className={`w-7 h-7 md:w-8 md:h-8 flex items-center justify-center rounded-full border transition-all ${
+                                                                        active ? 'bg-stone-900 border-stone-900 text-white shadow-md' : 'bg-stone-50 border-stone-100 text-stone-300 opacity-40'
+                                                                    }`}
+                                                                >
+                                                                    {SEASON_ICONS[season]}
                                                                 </div>
-                                                            </div>
-                                                            {/* Label at bottom */}
-                                                            {/* <div className="mt-1 text-[8px] uppercase font-bold text-stone-400 truncate w-full text-center">{p.brand?.name}</div> */}
-                                                        </>
-                                                    )}
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="absolute inset-0 bg-white/50 backdrop-blur-[1px] flex items-center justify-center">
+                                                <span className="text-stone-300 text-xs italic">Empty Slot</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        {/* SCENT PROFILE RADAR */}
+                        <div className="bg-white/80 backdrop-blur-md rounded-[32px] border border-white shadow-[0_30px_60px_rgba(0,0,0,0.05)] overflow-hidden p-6">
+                            <h3 className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-6 pb-2 border-b border-stone-200">
+                                Olfactory DNA <span className="flex-1 h-px bg-stone-200"></span>
+                            </h3>
+                            <ComparisonScentRadar slots={slots} colors={COLORS} />
+                        </div>
+
+                        {/* OCCASIONS */}
+                        <div className="grid gap-3 md:gap-6" style={{ gridTemplateColumns: `repeat(${slots.length}, 1fr)` }}>
+                             {slots.map((p, i) => (
+                                <div key={i} className="bg-white/80 backdrop-blur-md rounded-[32px] border border-white shadow-[0_30px_60px_rgba(0,0,0,0.05)] p-3 md:p-6 overflow-hidden relative">
+                                    <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-6 pb-2 border-b border-stone-200">
+                                        Occasions
+                                    </div>
+                                    <div className="space-y-3">
+                                        {OCCASIONS.map((occasion) => {
+                                            const fits = p ? checkOccasion(p, occasion) : false;
+                                            return (
+                                                <div 
+                                                    key={occasion} 
+                                                    className={`flex items-center gap-2 md:gap-3 p-2 md:p-3 rounded-xl border transition-all duration-300 ${
+                                                        fits 
+                                                            ? 'bg-white border-stone-100 shadow-sm text-stone-900' 
+                                                            : 'bg-transparent border-transparent text-stone-300 opacity-50 grayscale'
+                                                    }`}
+                                                >
+                                                    <div className={`p-1.5 md:p-2 rounded-full ${fits ? 'bg-stone-50 text-stone-900' : 'bg-stone-50/50 text-stone-300'}`}>
+                                                        {OCCASION_ICONS[occasion] || <Heart className="w-4 h-4" />}
+                                                    </div>
+                                                    <span className="text-[10px] md:text-xs font-bold uppercase tracking-wide">{occasion}</span>
+                                                    {fits && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-stone-900"></div>}
                                                 </div>
                                             );
                                         })}
                                     </div>
+                                    {!p && (
+                                         <div className="absolute inset-0 bg-white/50 backdrop-blur-[1px] flex items-center justify-center">
+                                            <span className="text-stone-300 text-xs italic">Empty Slot</span>
+                                         </div>
+                                    )}
                                 </div>
-                            )) : (
-                                <div className="text-center text-stone-400 text-sm py-4">
-                                    Select perfumes to compare scent profiles
-                                </div>
-                            )}
-                        </div>
-
-                        {/* OCCASIONS */}
-                        <div className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden">
-                            <div className="bg-stone-50 px-6 py-3 border-b border-stone-200">
-                                <h3 className="text-xs font-bold uppercase tracking-widest text-stone-500">Occasions</h3>
-                            </div>
-                            {OCCASIONS.map((occasion) => (
-                                <div key={occasion} className="grid border-b border-stone-100 last:border-0 hover:bg-stone-50 transition items-center" style={{ gridTemplateColumns: `100px repeat(${slots.length}, 1fr)` }}>
-                                    <div className="p-4 text-[10px] font-bold uppercase tracking-widest text-stone-400 leading-tight">{occasion}</div>
-                                    {slots.map((p, i) => {
-                                        if (!p) return <div key={i} className="p-4 text-center border-l border-stone-100"><span className="text-stone-200">·</span></div>;
-                                        
-                                        // If missing data (vibe_tags is key), show loading
-                                        if (!p.vibe_tags && !p.occasions) return <div key={i} className="p-4 text-center border-l border-stone-100 flex justify-center"><Skeleton className="h-4 w-4 rounded-full" /></div>;
-
-                                        const fits = checkOccasion(p, occasion);
-                                        return (
-                                            <div key={i} className="p-4 text-center border-l border-stone-100">
-                                                {fits ? <span className="text-stone-900 font-bold">✓</span> : <span className="text-stone-200">·</span>}
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            ))}
+                             ))}
                         </div>
 
                         {/* NOTES */}
-                        <div className="grid gap-6" style={{ gridTemplateColumns: `repeat(${slots.length}, 1fr)` }}>
+                        <div className="grid gap-3 md:gap-6" style={{ gridTemplateColumns: `repeat(${slots.length}, 1fr)` }}>
                             {slots.map((p, i) => (
-                                <div key={i} className="bg-white rounded-2xl border border-stone-200 p-6 shadow-sm">
-                                    {p ? (
+                                <div key={i} className="bg-white/80 backdrop-blur-md rounded-[32px] border border-white shadow-[0_30px_60px_rgba(0,0,0,0.05)] p-3 md:p-6 overflow-hidden relative min-h-[300px]">
+                                    {p && (
                                         <div className="space-y-8">
-                                            {['Top', 'Heart', 'Base'].map(type => (
-                                                <div key={type}>
-                                                    <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-3 border-b border-stone-100 pb-2">{type} Notes</div>
-                                                    <div className="flex flex-wrap gap-2">
-                                                        {getNotes(p, type).map((n) => (
-                                                            <span key={n.note.name} className="inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-stone-200 rounded-full text-xs font-medium text-stone-800 shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
-                                                                <span className="w-2 h-2 rounded-full border border-black/10" style={{ backgroundColor: n.note.color_hex }}></span>
-                                                                {n.note.name}
-                                                            </span>
-                                                        ))}
-                                                        {getNotes(p, type).length === 0 && <span className="text-xs text-stone-300 italic">None</span>}
+                                            {['Top', 'Heart', 'Base'].map(type => {
+                                                const notes = getNotes(p, type);
+                                                if (notes.length === 0) return null;
+                                                
+                                                return (
+                                                    <div key={type}>
+                                                        <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-3 border-b border-stone-200 pb-2">{type} Notes</div>
+                                                        <div className="flex flex-wrap gap-2">
+                                                            {notes.map((n) => (
+                                                                <span key={n.note.name} className="inline-flex items-center gap-2 px-2 py-1.5 bg-stone-50/50 border border-stone-100 rounded-lg text-xs font-medium text-stone-700 shadow-sm hover:border-stone-200 transition-colors">
+                                                                    {n.note.url ? (
+                                                                        <div className="w-5 h-5 rounded-full bg-white border border-stone-100 overflow-hidden relative flex-shrink-0">
+                                                                            <img src={n.note.url} alt={n.note.name} className="w-full h-full object-cover" />
+                                                                        </div>
+                                                                    ) : (
+                                                                        <span className="w-2 h-2 rounded-full border border-black/10 flex-shrink-0" style={{ backgroundColor: n.note.color_hex || '#e7e5e4' }}></span>
+                                                                    )}
+                                                                    <span className="pr-1">{n.note.name}</span>
+                                                                </span>
+                                                            ))}
+                                                        </div>
                                                     </div>
+                                                );
+                                            })}
+                                            {/* Show empty state if perfume exists but has absolutely no notes */}
+                                            {!p.perfume_notes?.length && (
+                                                <div className="text-center py-10">
+                                                    <span className="text-stone-300 text-xs italic">No notes data available</span>
                                                 </div>
-                                            ))}
+                                            )}
                                         </div>
-                                    ) : (
-                                        <div className="text-stone-300 text-xs italic text-center pt-10">Empty Slot</div>
+                                    )}
+                                    
+                                    {!p && (
+                                         <div className="absolute inset-0 bg-white/50 backdrop-blur-[1px] flex items-center justify-center">
+                                            <span className="text-stone-300 text-xs italic">Empty Slot</span>
+                                         </div>
                                     )}
                                 </div>
                             ))}

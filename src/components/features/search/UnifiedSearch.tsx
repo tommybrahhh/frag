@@ -102,7 +102,7 @@ const NoteLaboratorySearch: React.FC = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-12 min-h-screen bg-[#FDFBF7]">
+    <div className="max-w-6xl mx-auto px-6 py-12 min-h-screen bg-[#FAFAF9]">
       <div className="mb-12 text-center">
         <h1 className="text-4xl md:text-5xl font-serif text-stone-900 mb-4">Fragrance Finder</h1>
         <p className="text-stone-500 max-w-2xl mx-auto italic">

@@ -33,7 +33,7 @@ export default async function ComparePage(props: { searchParams: Promise<{ a?: s
         brand:brands(name),
         perfume_notes(
           type,
-          note:notes(name, color_hex)
+          note:notes(name, color_hex, url)
         )
       `)
       .in('id', ids);
