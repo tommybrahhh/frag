@@ -82,7 +82,7 @@ export default function DiscoverMatches({ topMatches }: DiscoverMatchesProps) {
                       <div className="h-40 flex items-center justify-center p-4 mb-3 bg-stone-50 rounded-lg group-hover:bg-white transition-colors relative overflow-hidden">
                           {/* Match Badge */}
                           <div className="absolute top-2 right-2 bg-stone-900/90 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm z-10">
-                          {rec.score}%
+                          {Math.round(rec.score)}%
                           </div>
                           
                           {rec.perfume.image_url ? (

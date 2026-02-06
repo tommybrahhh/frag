@@ -86,7 +86,7 @@ export class RecommendationEngine {
   }
 
   // ------------------------------------------------------------------
-  // CORE ANALYSIS
+  // CORE ANALYSIS & SIMILARITY ALGORITHMS
   // ------------------------------------------------------------------
 
   public static analyzeScentProfile(perfume: PerfumeWithRelations) {
@@ -124,6 +124,64 @@ export class RecommendationEngine {
       sillage: perfume.sillage_rating || 5,
       families: perfume.olfactory_family || []
     };
+  }
+
+  /**
+   * Calculates a holistic "Scent DNA" similarity score (0-100).
+   * Considers Accords (Vibe), Ingredients (Notes), and Family structure.
+   */
+  private static calculateSimilarity(p1: PerfumeWithRelations, p2: PerfumeWithRelations): number {
+    // 1. Accord Similarity (Cosine Similarity of Scent Profiles) - Weight: 50%
+    let accordScore = 0;
+    const prof1 = p1.scent_profile as Record<string, number> | null;
+    const prof2 = p2.scent_profile as Record<string, number> | null;
+    
+    if (prof1 && prof2) {
+      const keys = Array.from(new Set([...Object.keys(prof1), ...Object.keys(prof2)]));
+      let dotProduct = 0;
+      let mag1 = 0;
+      let mag2 = 0;
+      
+      keys.forEach(k => {
+        const v1 = prof1[k] || 0;
+        const v2 = prof2[k] || 0;
+        dotProduct += v1 * v2;
+        mag1 += v1 * v1;
+        mag2 += v2 * v2;
+      });
+
+      if (mag1 > 0 && mag2 > 0) {
+        accordScore = dotProduct / (Math.sqrt(mag1) * Math.sqrt(mag2));
+      }
+    } else {
+        // Fallback: Vibe Tag Overlap
+        // PENALTY: Simple tag matching is imprecise. We cap the score.
+        const vibes1 = p1.vibe_tags || [];
+        const vibes2 = p2.vibe_tags || [];
+        const sharedVibes = vibes1.filter(v => vibes2.includes(v));
+        let rawScore = sharedVibes.length / Math.max(1, Math.max(vibes1.length, vibes2.length));
+        
+        // If we only matched on 1 or 2 generic tags, that's not a strong signal.
+        if (sharedVibes.length < 3) rawScore *= 0.7; 
+        
+        accordScore = rawScore;
+    }
+
+    // 2. Ingredient Similarity (Jaccard Index of Notes) - Weight: 30%
+    const notes1 = new Set((p1.perfume_notes || []).map(n => n.note?.name).filter(Boolean));
+    const notes2 = new Set((p2.perfume_notes || []).map(n => n.note?.name).filter(Boolean));
+    const intersection = new Set([...notes1].filter(x => notes2.has(x)));
+    const union = new Set([...notes1, ...notes2]);
+    const noteScore = union.size > 0 ? intersection.size / union.size : 0;
+
+    // 3. Family Similarity - Weight: 20%
+    const fam1 = p1.olfactory_family || [];
+    const fam2 = p2.olfactory_family || [];
+    const sharedFam = fam1.filter(f => fam2.includes(f));
+    const familyScore = sharedFam.length > 0 ? 1 : 0;
+
+    // Weighted Total
+    return (accordScore * 60) + (noteScore * 20) + (familyScore * 20);
   }
 
   // ------------------------------------------------------------------
@@ -207,7 +265,7 @@ export class RecommendationEngine {
   ): Recommendation[] {
     
     // 1. Score & Filter
-    const matches = candidates
+    let matches = candidates
       .filter(p => p.id !== mainPerfume.id)
       .map(candidate => {
         const cProfile = this.analyzeScentProfile(candidate);
@@ -215,11 +273,20 @@ export class RecommendationEngine {
         return result ? { ...result, perfume: candidate } : null;
       })
       .filter((item): item is NonNullable<typeof item> => item !== null)
-      .sort((a, b) => b.score - a.score)
-      .slice(0, limit);
+      .sort((a, b) => b.score - a.score);
 
-    // 2. Map with Template Rotation
-    return matches.map((match, index) => 
+    // 2. Brand Diversity Filter (Max 1 per Brand)
+    const seenBrands = new Set<string>();
+    matches = matches.filter(match => {
+        const brandName = match.perfume.brand?.name;
+        if (!brandName) return true; // Keep if no brand (rare)
+        if (seenBrands.has(brandName)) return false; // Skip if brand already seen (lower score)
+        seenBrands.add(brandName);
+        return true;
+    });
+
+    // 3. Map with Template Rotation
+    return matches.slice(0, limit).map((match, index) => 
       mapper(match, templates[index % templates.length])
     );
   }
@@ -269,14 +336,20 @@ export class RecommendationEngine {
       main, candidates, profile, 'performance_upgrade',
       // Scorer
       (candidate, cProfile) => {
-        const sharedNotes = profile.allNoteNames.filter(n => cProfile.allNoteNames.includes(n));
-        if (sharedNotes.length < 2) return null;
+        // ABSOLUTE REQUIREMENT: Must be a true "Beast" (Rated 8+ out of 10)
+        // If the rating is missing, we assume 5 (Moderate), so it fails this check.
+        if ((candidate.longevity_rating || 5) < 8) return null;
+
+        // Use Holistic Similarity as baseline (must be > 40 to be comparable)
+        const similarity = this.calculateSimilarity(main, candidate);
+        if (similarity < 40) return null;
 
         const longevityBoost = (candidate.longevity_rating || 5) - profile.longevity;
         const sillageBoost = (candidate.sillage_rating || 5) - profile.sillage;
         if ((longevityBoost + sillageBoost) < 1.5) return null;
 
-        return { score: 90 + (sharedNotes.length * 2), longevityBoost, sharedNotes };
+        const sharedNotes = profile.allNoteNames.filter(n => cProfile.allNoteNames.includes(n));
+        return { score: 80 + (similarity / 5), longevityBoost, sharedNotes };
       },
       // Mapper
       (match, template) => ({
@@ -326,9 +399,18 @@ export class RecommendationEngine {
       main, candidates, profile, 'vibe_evolution',
       // Scorer
       (candidate, cProfile) => {
-        if (!cProfile.allNoteNames.includes(profile.signatureNote)) return null;
+        // Must have high Accord Similarity (share the "Vibe")
+        const similarity = this.calculateSimilarity(main, candidate);
+        // We want candidates that feel similar (accords) but have different notes or slightly different family focus
+        if (similarity < 50) return null; 
+
+        // Ensure distinct vibes to justify "Evolution"
         if (cProfile.dominantVibe === profile.dominantVibe) return null;
-        return { score: 75, newVibe: cProfile.dominantVibe, hookNote: profile.signatureNote };
+
+        // Find a hook (shared note)
+        const hookNote = profile.allNoteNames.find(n => cProfile.allNoteNames.includes(n)) || 'the DNA';
+
+        return { score: 75 + (similarity / 4), newVibe: cProfile.dominantVibe, hookNote };
       },
       // Mapper
       (match, template) => ({
@@ -338,9 +420,9 @@ export class RecommendationEngine {
       }),
       // Templates
       [
-        `Takes that {note} you love, but dresses it up for a {vibe} setting.`,
+        `Takes {note} you love, but dresses it up for a {vibe} setting.`,
         `Imagine the original, but rewritten for a {vibe} mood.`,
-        `Same {note} DNA, totally different {vibe} energy.`
+        `Same {note}, totally different {vibe} energy.`
       ]
     );
   }
@@ -463,36 +545,102 @@ export class RecommendationEngine {
   // ------------------------------------------------------------------
 
   public static getSimilarRecommendations(main: PerfumeWithRelations, all: PerfumeWithRelations[], count = 10): Recommendation[] {
-    const profile = this.analyzeScentProfile(main);
-    
-    // Manual process for "Similar" as it has unique scoring logic
-    return all
+    // New Logic: "Scent DNA" Similarity
+    let candidates = all
       .filter(p => p.id !== main.id)
-      .flatMap(candidate => {
-        const cProfile = this.analyzeScentProfile(candidate);
-        const sharedNotes = profile.allNoteNames.filter(n => cProfile.allNoteNames.includes(n));
-        const sharedFamilies = profile.families.filter(f => cProfile.families.includes(f));
-        
-        let score = (sharedNotes.length * 15) + (sharedFamilies.length * 20);
-        if (profile.dominantVibe === cProfile.dominantVibe) score += 10;
-        
-        if (score < 30) return [];
-
-        return [{
-          perfume: candidate, type: 'similar' as const, score: Math.min(99, score),
-          reason: `Shares that ${sharedFamilies[0] || 'vibe'} DNA, but leans harder into ${sharedNotes.slice(0, 2).join(' & ')}.`,
-          sharedNotes: sharedNotes.slice(0, 3)
-        }];
+      .map(candidate => {
+        const score = this.calculateSimilarity(main, candidate);
+        return { candidate, score };
       })
-      .sort((a, b) => b.score - a.score)
-      .slice(0, count);
+      .filter(item => {
+        if (item.score <= 50) return false;
+        
+        // STRICTER FILTER: Must have some note overlap or massive score
+        const cProfile = this.analyzeScentProfile(item.candidate);
+        const mainProfile = this.analyzeScentProfile(main);
+        const sharedNotes = mainProfile.allNoteNames.filter(n => cProfile.allNoteNames.includes(n));
+        
+        // If low note overlap, require higher overall score (implies strong accord/family match)
+        if (sharedNotes.length < 2 && item.score < 60) return false;
+        
+        return true;
+      })
+      .sort((a, b) => b.score - a.score);
+
+    // Brand Diversity
+    const seenBrands = new Set<string>();
+    if (main.brand?.name) seenBrands.add(main.brand.name); // Optional: Exclude main brand from similars? No, let's allow it once but maybe not spam.
+    // Actually user complaint was "3 from same brand". Let's just dedup the RESULTS.
+    
+    // Reset for filtering
+    seenBrands.clear();
+    candidates = candidates.filter(item => {
+        const bName = item.candidate.brand?.name;
+        if (!bName) return true;
+        if (seenBrands.has(bName)) return false;
+        seenBrands.add(bName);
+        return true;
+    });
+
+    return candidates
+      .slice(0, count)
+      .map(item => {
+         const cProfile = this.analyzeScentProfile(item.candidate);
+         // Find shared aspects for the reason
+         const mainProfile = this.analyzeScentProfile(main);
+         const sharedNotes = mainProfile.allNoteNames.filter(n => cProfile.allNoteNames.includes(n));
+         const sharedFam = mainProfile.families.filter(f => cProfile.families.includes(f));
+         
+         return {
+          perfume: item.candidate, 
+          type: 'similar' as const, 
+          score: Math.min(99, Math.round(item.score)),
+          reason: sharedFam.length > 0 
+            ? `Matches the ${sharedFam[0]} profile with ${sharedNotes.length > 0 ? 'shared ' + sharedNotes.slice(0, 2).join(', ') : 'a similar vibe'}.`
+            : `A close ${cProfile.dominantVibe} match with distinct character.`,
+          sharedNotes: sharedNotes.slice(0, 3)
+        };
+      });
   }
 
   public static getDiscoveryRecommendations(main: PerfumeWithRelations, all: PerfumeWithRelations[], count = 6): Recommendation[] {
-    const profile = this.analyzeScentProfile(main);
-    // Reuse Vibe Evolution logic but mapped as 'discovery'
-    const recs = this.getVibeEvolutionRecommendations(main, all, profile);
-    return recs.map(r => ({ ...r, type: 'discovery' as const })).slice(0, count);
+    // New Logic: "Hidden Gems" (Same Family, Lower Overlap)
+    // We want things that feel right (Family/Vibe) but aren't clones.
+    const mainProfile = this.analyzeScentProfile(main);
+
+    let candidates = all
+      .filter(p => p.id !== main.id)
+      .map(candidate => {
+        const score = this.calculateSimilarity(main, candidate);
+        return { candidate, score };
+      })
+      .filter(item => {
+        // "Discovery" Zone: Not a clone (>65), but not random (<40).
+        // Plus, MUST share the family to be a valid discovery.
+        const isFamily = item.candidate.olfactory_family?.some(f => mainProfile.families.includes(f));
+        return item.score >= 40 && item.score <= 75 && isFamily;
+      })
+      .sort((a, b) => b.score - a.score);
+
+    // Brand Diversity
+    const seenBrands = new Set<string>();
+    candidates = candidates.filter(item => {
+        const bName = item.candidate.brand?.name;
+        if (!bName) return true;
+        if (seenBrands.has(bName)) return false;
+        seenBrands.add(bName);
+        return true;
+    });
+
+    return candidates
+      .slice(0, count)
+      .map(item => ({
+          perfume: item.candidate, 
+          type: 'discovery' as const, 
+          score: Math.min(99, Math.round(item.score)),
+          reason: `A unique twist on the ${mainProfile.families[0] || 'style'} you love.`,
+          sharedFamilies: mainProfile.families
+      }));
   }
 
 
@@ -516,6 +664,10 @@ export class RecommendationEngine {
     const season = mainPerfume.best_season?.[0] === 'Winter' ? 'Summer' : 'Winter';
     addCategory('seasonal_pivot', 'Seasonal Switch', `Wear this DNA year-round, even in ${season}.`,
       this.getSeasonalPivotRecommendations(mainPerfume, allPerfumes, mainProfile));
+
+    // 4. The "Similar Vibe" (Core Recommendation)
+    addCategory('similar', 'Similar Vibe', 'Fragrances that share the same DNA and character.',
+      this.getSimilarRecommendations(mainPerfume, allPerfumes));
 
     // ... (Keep your existing categories below: Isolator, Structure, etc.) ...
     

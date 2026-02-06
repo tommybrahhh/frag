@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { createClient } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/client'; // UPDATED PATH based on debug info
 import { searchPerfumesService, getPopularPerfumesService, SearchResult } from '@/lib/services/search';
 
 interface UsePerfumeSearchOptions {
@@ -43,7 +43,8 @@ export function usePerfumeSearch({ debounceMs = 300 }: UsePerfumeSearchOptions =
 
     const timeoutId = setTimeout(async () => {
       try {
-        const data = await searchPerfumesService(query, controller.signal);
+        // UPDATED: Pass supabase client
+        const data = await searchPerfumesService(supabase, query, controller.signal);
         setResults(data);
         setError(null);
       } catch (err: any) {
@@ -51,17 +52,16 @@ export function usePerfumeSearch({ debounceMs = 300 }: UsePerfumeSearchOptions =
         if (err.name !== 'AbortError') {
           console.error('Search hook error:', err);
           setError('Failed to search perfumes');
-          setResults([]); // Clear results on error so user doesn't see stale data
+          setResults([]); 
         }
       } finally {
-        // Only stop loading if we weren't aborted (meaning this was the latest request)
         if (!controller.signal.aborted) {
           setIsLoading(false);
         }
       }
     }, debounceMs);
 
-    // Cleanup: Abort previous request and clear timeout
+    // Cleanup
     return () => {
       clearTimeout(timeoutId);
       controller.abort();

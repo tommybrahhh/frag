@@ -306,6 +306,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      search_perfumes: {
+        Args: {
+          keyword: string
+        }
+        Returns: {
+          id: string
+          name: string
+          slug: string
+          image_url: string | null
+          brand_name: string
+          similarity_score: number
+        }[]
+      }
       debug_search_perfumes: {
         Args: {
           p_query: string

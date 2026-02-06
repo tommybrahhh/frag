@@ -9,23 +9,35 @@ export interface SearchResult {
 
 /**
  * Robust search function that handles the database query details.
- * Currently optimized for Name search to prevent locking, but easily extensible.
+ * DIRECT DATABASE CONNECTION (Fastest)
  */
 export async function searchPerfumesService(
+  client: SupabaseClient,
   query: string, 
   signal?: AbortSignal
 ): Promise<SearchResult[]> {
   
   if (!query || query.length < 2) return [];
 
-  const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`, { signal });
-  
-  if (!res.ok) {
-    throw new Error(`Search failed: ${res.statusText}`);
+  const { data, error } = await client
+    .rpc('search_perfumes', { keyword: query })
+    .abortSignal(signal as any); // Type cast if necessary for older definitions
+
+  if (error) {
+    if (signal?.aborted) return [];
+    console.error("RPC Search Error:", error);
+    throw new Error(error.message);
   }
 
-  const data = await res.json();
-  return data;
+  // Transform result if necessary (rpc returns flat structure, UI expects nested brand object)
+  // The RPC returns: id, name, slug, image_url, brand_name, similarity_score
+  return (data || []).map((item: any) => ({
+    id: item.id,
+    name: item.name,
+    slug: item.slug,
+    image_url: item.image_url,
+    brand: { name: item.brand_name }
+  }));
 }
 
 /**
@@ -35,7 +47,7 @@ export async function getPopularPerfumesService(client: SupabaseClient): Promise
   const { data } = await client
     .from('perfumes')
     .select('id, name, image_url, brand:brands(name)')
-    .order('rating', { ascending: false }) // or order by popularity if you have a view
+    .order('rating', { ascending: false }) 
     .limit(5);
   
   return (data as any[]) || [];

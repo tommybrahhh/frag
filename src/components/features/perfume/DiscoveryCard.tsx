@@ -43,7 +43,7 @@ export default function DiscoveryCard({ recommendation }: DiscoveryCardProps) {
           <h4 className="font-serif text-xl text-stone-900 transition">{perfume.name}</h4>
           {score > 0 && (
             <div className="mt-4 inline-block bg-stone-200 px-3 py-1 rounded-full">
-              <span className="text-xs font-bold text-stone-800">{score}% Match</span>
+              <span className="text-xs font-bold text-stone-800">{Math.round(score)}% Match</span>
             </div>
           )}
         </div>

@@ -53,8 +53,24 @@ const RecommendationSection = ({ category, mainPerfume }: { category: Recommenda
               ) : (
                 <div key={rec.perfume.id} className="group cursor-pointer" onClick={() => handleRecommendationClick(rec.perfume.slug || rec.perfume.id)}>
                   <div className="relative h-[320px] bg-stone-50 rounded-2xl mb-4 flex items-center justify-center p-6 transition-colors group-hover:bg-[#F0F0F0] overflow-hidden">
+                    {/* Compare Button */}
+                    <div 
+                      className="absolute top-4 left-4 z-30"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <a 
+                        href={`/compare?ids=${mainPerfume.id},${rec.perfume.id}`}
+                        className="flex items-center justify-center w-8 h-8 bg-white/90 backdrop-blur rounded-full border border-stone-200 shadow-sm text-stone-500 hover:text-stone-900 hover:border-stone-900 transition-all hover:scale-110"
+                        title="Compare with current perfume"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l5 5M4 4l5 5"/>
+                        </svg>
+                      </a>
+                    </div>
+
                     <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-2 py-1 rounded-full border border-stone-100 shadow-sm z-10">
-                      <span className="text-[10px] font-bold text-stone-900 tabular-nums">{rec.score}% Match</span>
+                      <span className="text-[10px] font-bold text-stone-900 tabular-nums">{Math.round(rec.score)}% Match</span>
                     </div>
                     {rec.perfume.image_url ? (
                       <img src={rec.perfume.image_url} className="h-full w-full object-contain mix-blend-multiply" alt={rec.perfume.name} />
@@ -68,7 +84,7 @@ const RecommendationSection = ({ category, mainPerfume }: { category: Recommenda
                       <div className="flex justify-between items-start mb-6 border-b border-stone-100 pb-3">
                         <div>
                           <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-0.5">Match Score</div>
-                          <div className="text-2xl font-serif text-stone-900">{rec.score}%</div>
+                          <div className="text-2xl font-serif text-stone-900">{Math.round(rec.score)}%</div>
                         </div>
                         <div className="text-right">
                            <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-0.5">Price</div>
