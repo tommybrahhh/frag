@@ -104,8 +104,8 @@ const RecommendationSection = ({ category, mainPerfume }: { category: Recommenda
                           <div>
                             <span className="text-[9px] font-bold uppercase tracking-wider text-stone-400 block mb-2">Shared DNA</span>
                             <div className="flex flex-wrap gap-1.5">
-                              {rec.sharedNotes!.slice(0, 3).map(note => (
-                                <span key={note} className="text-[10px] px-2 py-1 bg-stone-100 rounded-md text-stone-700 capitalize border border-stone-200">
+                              {rec.sharedNotes!.slice(0, 3).map((note, i) => (
+                                <span key={`${note}-${i}`} className="text-[10px] px-2 py-1 bg-stone-100 rounded-md text-stone-700 capitalize border border-stone-200">
                                   {note}
                                 </span>
                               ))}

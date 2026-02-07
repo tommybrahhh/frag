@@ -1,8 +1,9 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { createClient } from '@/utils/supabase/server';
+import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import { Metadata } from 'next';
+
+export const revalidate = 3600; // Revalidate every hour
 
 interface Perfume {
   id: string;
@@ -16,48 +17,56 @@ interface Perfume {
   vibe_tags?: string[];
 }
 
-export default function CreatorPage() {
-  const params = useParams();
-  const router = useRouter();
+async function getCreatorData(slug: string) {
+  const creatorName = decodeURIComponent(slug);
+  const supabase = await createClient();
+
+  // Fetch perfumes by creator name (Case-insensitive match)
+  const { data: perfumes, error: perfumeError } = await supabase
+    .from('perfumes')
+    .select(`
+      id, name, image_url, brand:brands!perfumes_brand_id_fkey(name),
+      perfumer, rating, vibe_tags
+    `)
+    .ilike('perfumer', creatorName)
+    .order('name');
+
+  if (perfumeError) {
+    console.error('Creator Fetch Error:', perfumeError);
+    return null;
+  }
+
+  // If no perfumes found, we might still want to show the page saying "0 Fragrances" 
+  // or 404. For SEO, if it's a valid perfumer but no data, maybe 404 is better?
+  // But let's stick to the previous behavior: display the name and empty list if valid, 
+  // but here we don't have a separate "Creators" table to validate the name against.
+  // So we assume the name from URL is the creator name.
   
-  // State for the creator name and the list of perfumes
-  const [creator, setCreator] = useState<string>('');
-  const [perfumes, setPerfumes] = useState<Perfume[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  return {
+    creator: creatorName,
+    perfumes: (perfumes as any[]) || []
+  };
+}
 
-  useEffect(() => {
-    // Handle the async params safely
-    const slug = params?.creator;
-    if (!slug) return;
+export async function generateMetadata({ params }: { params: Promise<{ creator: string }> }): Promise<Metadata> {
+  const { creator } = await params;
+  const decodedName = decodeURIComponent(creator);
+  
+  return {
+    title: `${decodedName} Perfumes & Profile | Scentia`,
+    description: `Explore fragrances created by ${decodedName}. Discover their signature scents, ratings, and reviews on Scentia.`
+  };
+}
 
-    const fetchData = async () => {
-      try {
-        // Decode the URL (e.g. "John%20Doe" -> "John Doe")
-        const creatorName = decodeURIComponent(slug as string);
-        
-        const res = await fetch(`/api/creators/${creatorName}`);
-        
-        if (!res.ok) throw new Error('Failed to fetch creator data');
-        
-        const data = await res.json();
+export default async function CreatorPage(props: { params: Promise<{ creator: string }> }) {
+  const params = await props.params;
+  const data = await getCreatorData(params.creator);
 
-        setCreator(data.creator);
-        setPerfumes(data.perfumes || []);
+  if (!data) {
+    notFound();
+  }
 
-      } catch (err: any) {
-        console.error(err);
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [params]);
-
-  if (loading) return <div className="min-h-screen bg-[#FDFBF7] flex items-center justify-center text-stone-400">Loading creator...</div>;
-  if (error) return <div className="min-h-screen bg-[#FDFBF7] flex items-center justify-center text-red-400">{error}</div>;
+  const { creator, perfumes } = data;
 
   return (
     <div className="min-h-screen bg-[#FDFBF7] text-gray-800 pb-20 font-sans">
@@ -97,32 +106,32 @@ export default function CreatorPage() {
             <div className="text-stone-400 italic">No perfumes found by this creator yet.</div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {perfumes.map((p) => (
-                <Link key={p.id} href={`/perfume/${p.id}`} className="group block bg-white rounded-xl p-4 hover:shadow-xl transition duration-500 border border-transparent hover:border-stone-100">
-                  <div className="h-48 mb-4 overflow-hidden flex items-center justify-center p-2">
+              {perfumes.map((p: any) => (
+                <div key={p.id} className="group relative bg-white rounded-xl p-4 hover:shadow-xl transition duration-500 border border-transparent hover:border-stone-100">
+                  {/* Full card link */}
+                  <Link href={`/perfume/${p.id}`} className="absolute inset-0 z-10" aria-label={`View ${p.name}`} />
+                  
+                  <div className="h-48 mb-4 overflow-hidden flex items-center justify-center p-2 relative">
                      {p.image_url ? (
                        <img src={p.image_url} className="h-full object-contain group-hover:scale-110 transition duration-700" />
                      ) : (
                        <div className="text-stone-300 text-xs">No Image</div>
                      )}
                   </div>
-                  <div className="text-center">
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        router.push(`/brands/${encodeURIComponent(p.brand?.name || 'Unknown House')}`);
-                      }}
-                      className="text-[10px] font-bold tracking-widest text-stone-400 uppercase mb-1 hover:text-stone-600 transition-colors"
+                  <div className="text-center relative">
+                    {/* Brand Link */}
+                    <Link
+                      href={`/brands/${encodeURIComponent(p.brand?.name || 'Unknown House')}`}
+                      className="inline-block text-[10px] font-bold tracking-widest text-stone-400 uppercase mb-1 hover:text-stone-600 transition-colors relative z-20"
                     >
                       {p.brand?.name}
-                    </button>
+                    </Link>
                     <div className="font-serif text-lg text-stone-900 leading-tight group-hover:text-stone-600 transition">{p.name}</div>
                     {p.rating && (
                       <div className="text-xs text-stone-400 mt-1">⭐ {p.rating}/5</div>
                     )}
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
           )}

@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
     root: process.cwd(),
   },
   images: {
+    formats: ['image/avif', 'image/webp'],
     remotePatterns: [
       { protocol: "https", hostname: "fimgs.net" },                // Fragrantica images
       { protocol: "https", hostname: "fimgs.fragrantica.com" },    // Fragrantica images alternate

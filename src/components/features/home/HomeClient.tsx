@@ -15,24 +15,25 @@ import { Database } from '@/types/database';
 
 type BlogPost = Database['public']['Tables']['blog_posts']['Row'];
 
-interface HomeClientProps {
-  initialComments?: any[];
-}
-
 interface Perfume {
   id: string;
   name: string;
   slug?: string | null;
-  brand: { name: string };
+  brand: { name: string } | string; // Handle both shapes
   image_url: string;
   rating?: number;
   vibe_tags?: string[];
   scent_profile?: Record<string, number>;
 }
 
-export default function HomeClient({ initialComments = [] }: HomeClientProps) {
+interface HomeClientProps {
+  initialComments?: any[];
+  initialPerfumes?: Perfume[];
+}
+
+export default function HomeClient({ initialComments = [], initialPerfumes = [] }: HomeClientProps) {
   const searchParams = useSearchParams();
-  const [perfumes, setPerfumes] = useState<Perfume[]>([]);
+  const [perfumes, setPerfumes] = useState<Perfume[]>(initialPerfumes);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -40,6 +41,9 @@ export default function HomeClient({ initialComments = [] }: HomeClientProps) {
   const [filters, setFilters] = useState<any>({
     price: [], gender: [], longevity: [], season: [], concentration: [], tier: [], moment: [], occasion: [], vibe: []
   });
+
+  // Track initial render to prevent double-fetching data we already have from SSR
+  const isInitialMount = useRef(true);
 
   const observer = useRef<IntersectionObserver | null>(null);
   const lastPerfumeElementRef = useCallback((node: HTMLDivElement) => {
@@ -54,6 +58,18 @@ export default function HomeClient({ initialComments = [] }: HomeClientProps) {
   }, [loading, hasMore]);
 
   useEffect(() => {
+    // If it's the first render AND we have SSR data, skip this client-side fetch.
+    // However, if the user navigated here with search params (e.g. ?gender=female), 
+    // we SHOULD fetch because SSR provided the default list.
+    const hasSearchParams = searchParams.toString().length > 0;
+    
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      if (initialPerfumes.length > 0 && !hasSearchParams) {
+        return; 
+      }
+    }
+
     const fetchPerfumes = async () => {
       setLoading(true);
       try {
@@ -157,6 +173,8 @@ export default function HomeClient({ initialComments = [] }: HomeClientProps) {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {perfumes.map((p, index) => {
               const isLast = index === perfumes.length - 1;
+              const brandName = typeof p.brand === 'object' ? p.brand.name : p.brand;
+              
               return (
                 <div key={`${p.id}-${index}`} ref={isLast ? lastPerfumeElementRef : null}>
                   <Link href={`/perfume/${p.slug || p.id}`} className="group block h-full bg-white rounded-2xl border border-stone-100 p-4 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
@@ -211,7 +229,7 @@ export default function HomeClient({ initialComments = [] }: HomeClientProps) {
                     
                     <div className="text-center">
                       <div className="text-[10px] font-bold tracking-[0.2em] text-stone-400 uppercase mb-1 truncate">
-                        {p.brand?.name || 'Unknown Brand'}
+                        {brandName || 'Unknown Brand'}
                       </div>
                       <h4 className="font-serif text-lg text-stone-900 leading-tight truncate px-2 mb-2 group-hover:text-stone-600 transition-colors">
                         {p.name}

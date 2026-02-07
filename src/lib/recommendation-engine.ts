@@ -93,10 +93,12 @@ export class RecommendationEngine {
     const notesRaw = perfume.perfume_notes || [];
     
     // Extract notes by position
-    const topNotes = notesRaw.filter(n => n.type === 'Top').map(n => n.note?.name || '');
-    const heartNotes = notesRaw.filter(n => n.type === 'Heart').map(n => n.note?.name || '');
-    const baseNotes = notesRaw.filter(n => n.type === 'Base').map(n => n.note?.name || '');
-    const allNoteNames = notesRaw.map(n => n.note?.name || '');
+    const uniqueNotes = (notes: typeof notesRaw) => Array.from(new Set(notes.map(n => n.note?.name || '').filter(Boolean)));
+    
+    const topNotes = uniqueNotes(notesRaw.filter(n => n.type === 'Top'));
+    const heartNotes = uniqueNotes(notesRaw.filter(n => n.type === 'Heart'));
+    const baseNotes = uniqueNotes(notesRaw.filter(n => n.type === 'Base'));
+    const allNoteNames = uniqueNotes(notesRaw);
 
     // Identify Signature Note: Highest prominence score or fallback to first note
     const signatureNoteObj = notesRaw.sort((a, b) => (b.prominence_score || 0) - (a.prominence_score || 0))[0];

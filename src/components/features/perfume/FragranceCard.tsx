@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { Perfume } from '@/types';
 
 interface FragranceCardProps {
@@ -12,12 +13,14 @@ export default function FragranceCard({ perfume }: FragranceCardProps) {
   return (
     <div className="group rounded-xl p-4 transition-all duration-300 hover:bg-stone-100 hover:shadow-lg hover:-translate-y-1">
       <Link href={`/perfume/${perfume.slug || perfume.id}`}>
-        <div className="h-48 flex items-center justify-center p-4 mb-4 rounded-lg transition-colors">
+        <div className="h-48 flex items-center justify-center p-4 mb-4 rounded-lg transition-colors relative">
           {perfume.image_url ? (
-            <img 
+            <Image 
               src={perfume.image_url} 
               alt={perfume.name} 
-              className="h-full object-contain mix-blend-multiply" 
+              fill
+              className="object-contain mix-blend-multiply" 
+              sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 20vw"
             />
           ) : (
             <span className="text-stone-300 text-xs italic">No Image</span>
@@ -35,3 +38,4 @@ export default function FragranceCard({ perfume }: FragranceCardProps) {
     </div>
   );
 }
+

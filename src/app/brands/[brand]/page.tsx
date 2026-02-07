@@ -1,8 +1,9 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { createClient } from '@/utils/supabase/server';
+import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import { Metadata } from 'next';
+
+export const revalidate = 3600; // Revalidate every hour
 
 interface Perfume {
   id: string;
@@ -18,47 +19,71 @@ interface Perfume {
   price_tier?: string;
 }
 
-export default function BrandPage() {
-  const params = useParams();
-  
-  // State for the brand name and the list of perfumes
-  const [brand, setBrand] = useState<string>('');
-  const [perfumes, setPerfumes] = useState<Perfume[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+async function getBrandData(slug: string) {
+  const brandName = decodeURIComponent(slug);
+  const supabase = await createClient();
 
-  useEffect(() => {
-    // Handle the async params safely
-    const slug = params?.brand;
-    if (!slug) return;
+  // 1. Find the Brand ID first (Exact or Case-insensitive match)
+  const { data: brandData, error: brandError } = await supabase
+    .from('brands')
+    .select('id, name')
+    .ilike('name', brandName)
+    .limit(1)
+    .maybeSingle();
 
-    const fetchData = async () => {
-      try {
-        // Decode the URL (e.g. "Chanel%20Paris" -> "Chanel Paris")
-        const brandName = decodeURIComponent(slug as string);
-        
-        const res = await fetch(`/api/brands/${brandName}`);
-        
-        if (!res.ok) throw new Error('Failed to fetch brand data');
-        
-        const data = await res.json();
+  if (brandError || !brandData) {
+    return null;
+  }
 
-        setBrand(data.brand);
-        setPerfumes(data.perfumes || []);
+  // 2. Fetch Perfumes for this Brand ID
+  const { data: perfumes, error: perfumeError } = await supabase
+    .from('perfumes')
+    .select(`
+      id, name, image_url,
+      rating, price_tier, best_season, vibe_tags,
+      brand:brands(name),
+      perfumer
+    `)
+    .eq('brand_id', brandData.id)
+    .order('name');
 
-      } catch (err: any) {
-        console.error(err);
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
+  if (perfumeError) {
+    console.error('Perfume Fetch Error:', perfumeError);
+    return null;
+  }
+
+  return {
+    brand: brandData.name,
+    perfumes: (perfumes as any[]) || []
+  };
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ brand: string }> }): Promise<Metadata> {
+  const { brand } = await params;
+  const data = await getBrandData(brand);
+
+  if (!data) {
+    return {
+      title: 'Brand Not Found | Scentia',
+      description: 'The requested perfume brand could not be found.'
     };
+  }
 
-    fetchData();
-  }, [params]);
+  return {
+    title: `${data.brand} Perfumes & Reviews | Scentia`,
+    description: `Explore fragrances from ${data.brand}. Discover scent profiles, ratings, and reviews for top ${data.brand} perfumes.`
+  };
+}
 
-  if (loading) return <div className="min-h-screen bg-[#FDFBF7] flex items-center justify-center text-stone-400">Loading brand...</div>;
-  if (error) return <div className="min-h-screen bg-[#FDFBF7] flex items-center justify-center text-red-400">{error}</div>;
+export default async function BrandPage(props: { params: Promise<{ brand: string }> }) {
+  const params = await props.params;
+  const data = await getBrandData(params.brand);
+
+  if (!data) {
+    notFound();
+  }
+
+  const { brand, perfumes } = data;
 
   return (
     <div className="min-h-screen bg-[#FDFBF7] text-gray-800 pb-20 font-sans">
@@ -98,11 +123,11 @@ export default function BrandPage() {
             <div className="text-stone-400 italic">No perfumes found from this brand yet.</div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {perfumes.map((p) => (
+              {perfumes.map((p: any) => (
                 <Link key={p.id} href={`/perfume/${p.id}`} className="group block bg-white rounded-xl p-4 hover:shadow-xl transition duration-500 border border-transparent hover:border-stone-100">
                   <div className="h-48 mb-4 overflow-hidden flex items-center justify-center p-2">
                      {p.image_url ? (
-                       <img src={p.image_url} className="h-full object-contain group-hover:scale-110 transition duration-700" />
+                       <img src={p.image_url} alt={p.name} className="h-full object-contain group-hover:scale-110 transition duration-700" />
                      ) : (
                        <div className="text-stone-300 text-xs">No Image</div>
                      )}
