@@ -1,7 +1,6 @@
--- Function to calculate trending perfumes based on community activity
--- Weights: Reviews (3), Comments (2), Collection Adds (1)
+-- Function to calculate trending perfumes based PRIMARILY on COMMENTS (Community Request)
+-- Weights: Comments (10), Reviews (2), Collection Adds (1)
 -- Returns top perfumes with a trend score
--- SECURITY DEFINER is used to allow counting private data (like user_collections) without exposing it
 
 create or replace function get_trending_perfumes(
   period_days int default 30,
@@ -22,23 +21,23 @@ as $$
 begin
   return query
   with activity as (
-    -- Count Reviews (High weight)
-    select perfume_id, count(*) * 3 as score
-    from reviews
-    where created_at > now() - (period_days || ' days')::interval
-    group by perfume_id
-    
-    union all
-    
-    -- Count Comments (Medium weight)
-    select perfume_id, count(*) * 2 as score
+    -- Count Comments (Highest Priority)
+    select perfume_id, count(*) * 10 as score
     from comments
     where created_at > now() - (period_days || ' days')::interval
     group by perfume_id
     
     union all
     
-    -- Count Collection Adds (Base weight)
+    -- Count Reviews (Secondary)
+    select perfume_id, count(*) * 2 as score
+    from reviews
+    where created_at > now() - (period_days || ' days')::interval
+    group by perfume_id
+    
+    union all
+    
+    -- Count Collection Adds (Tertiary)
     select perfume_id, count(*) * 1 as score
     from user_collections
     where created_at > now() - (period_days || ' days')::interval

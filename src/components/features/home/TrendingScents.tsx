@@ -24,41 +24,46 @@ export default function TrendingScents({ perfumes }: TrendingScentsProps) {
   if (!perfumes || perfumes.length === 0) return null;
 
   return (
-    <section className="py-20 bg-stone-50 border-y border-stone-200">
+    <section className="py-24 bg-stone-50 border-y border-stone-200 overflow-hidden">
       <div className="max-w-[1400px] mx-auto px-6">
-        <div className="flex items-end justify-between mb-10">
+        <div className="flex items-end justify-between mb-16">
           <div>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-orange-500 mb-2 block">
-              Trending Now
-            </span>
-            <h2 className="font-serif text-3xl md:text-4xl text-stone-900">
-              Community Favorites
+            <div className="flex items-center gap-3 mb-4">
+               <div className="w-8 h-[1px] bg-stone-300" />
+               <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-stone-400">
+                 The Hot List
+               </span>
+            </div>
+            <h2 className="font-serif text-4xl md:text-5xl text-stone-900 leading-none">
+              Community <span className="italic text-stone-400">Favorites</span>
             </h2>
           </div>
-          <Link href="/search?sort=popular" className="hidden md:block text-xs font-bold uppercase tracking-widest text-stone-500 hover:text-stone-900 underline underline-offset-4">
-            View All Charts
+          <Link href="/search?sort=popular" className="hidden md:flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 transition-colors group">
+            <span>Full Charts</span>
+            <div className="w-4 h-[1px] bg-stone-300 group-hover:w-8 transition-all group-hover:bg-stone-900" />
           </Link>
         </div>
 
         <div className="relative">
           <div 
             ref={scrollContainerRef}
-            className="flex gap-6 overflow-x-auto pb-8 snap-x snap-mandatory hide-scrollbar"
+            className="flex gap-8 overflow-x-auto pb-12 snap-x snap-mandatory hide-scrollbar"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {perfumes.map((perfume, index) => (
               <motion.div 
                 key={perfume.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
+                initial={{ opacity: 0, x: 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.05, duration: 0.8 }}
                 viewport={{ once: true }}
-                className="snap-start shrink-0 w-[280px] md:w-[320px]"
+                className="snap-start shrink-0 w-[280px] md:w-[340px]"
               >
-                <Link href={`/perfume/${perfume.slug || perfume.id}`} className="group block h-full">
-                  <div className="relative aspect-[3/4] bg-white rounded-xl overflow-hidden shadow-sm border border-stone-100 mb-4 transition-all duration-300 group-hover:shadow-xl group-hover:-translate-y-1">
-                    {/* Rank Badge */}
-                    <div className="absolute top-4 left-4 z-10 w-8 h-8 flex items-center justify-center bg-stone-900 text-white font-serif text-lg rounded-full shadow-lg">
+                <Link href={`/perfume/${perfume.slug || perfume.id}`} className="group block">
+                  <div className="relative aspect-[4/5] bg-stone-50 rounded-3xl overflow-hidden border border-stone-100 mb-6 transition-all duration-700 group-hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] group-hover:-translate-y-2">
+                    
+                    {/* Large Rank Watermark */}
+                    <div className="absolute top-6 left-6 z-10 font-serif text-6xl text-stone-200 group-hover:text-stone-300 transition-colors select-none italic pointer-events-none">
                       {index + 1}
                     </div>
 
@@ -67,32 +72,40 @@ export default function TrendingScents({ perfumes }: TrendingScentsProps) {
                         src={perfume.image_url}
                         alt={perfume.name}
                         fill
-                        className="object-contain p-6 mix-blend-multiply transition-transform duration-700 group-hover:scale-105"
-                        sizes="(max-width: 768px) 100vw, 320px"
+                        className="object-contain p-10 mix-blend-multiply transition-transform duration-1000 group-hover:scale-110"
+                        sizes="(max-width: 768px) 100vw, 340px"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-stone-100 text-stone-300 font-bold uppercase tracking-widest text-xs">
+                      <div className="w-full h-full flex items-center justify-center bg-stone-50 text-stone-300 font-bold uppercase tracking-widest text-[10px]">
                         No Image
                       </div>
                     )}
                     
-                    {/* Hover Overlay */}
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300" />
+                    {/* Quick Info Overlay */}
+                    <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-stone-50/80 to-transparent translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+                       <span className="text-[10px] font-bold text-stone-900 uppercase tracking-widest bg-white px-3 py-1.5 rounded-full shadow-sm">
+                          View Details
+                       </span>
+                    </div>
                   </div>
 
                   <div className="px-2">
-                    <div className="text-[10px] font-bold tracking-[0.2em] text-stone-400 uppercase mb-1 truncate">
+                    <div className="text-[10px] font-bold tracking-[0.2em] text-stone-400 uppercase mb-2 truncate">
                       {perfume.brand?.name || 'Unknown Brand'}
                     </div>
-                    <h3 className="font-serif text-xl text-stone-900 leading-tight group-hover:text-stone-600 transition-colors">
+                    <h3 className="font-serif text-2xl text-stone-900 leading-tight mb-2 group-hover:text-stone-600 transition-colors truncate">
                       {perfume.name}
                     </h3>
-                    {perfume.rating && (
-                       <div className="mt-2 flex items-center gap-1">
-                         <span className="text-yellow-500 text-sm">★</span>
-                         <span className="text-xs font-bold text-stone-600 pt-0.5">{perfume.rating.toFixed(1)}</span>
-                       </div>
-                    )}
+                    
+                    <div className="flex items-center justify-between">
+                       {perfume.rating && (
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-stone-300 text-xs">★</span>
+                            <span className="text-[10px] font-bold text-stone-500 pt-0.5 tracking-tighter">{perfume.rating.toFixed(1)}</span>
+                          </div>
+                       )}
+                       <div className="w-12 h-[1px] bg-stone-200 group-hover:w-full group-hover:bg-stone-900 transition-all duration-700" />
+                    </div>
                   </div>
                 </Link>
               </motion.div>

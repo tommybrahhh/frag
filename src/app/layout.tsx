@@ -19,11 +19,11 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL('https://scentia.fit'),
   title: {
-    default: "Scentia | Discover Your Signature Scent",
+    default: "Scentia | Where Every Fragrance Has a Story",
     template: "%s | Scentia"
   },
-  description: "Personalized fragrance recommendations based on your unique taste and preferences. Explore curated perfume selections from top brands.",
-  keywords: ["fragrance", "perfume", "scent", "recommendation", "cologne", "beauty", "style", "signature scent"],
+  description: "Join the ultimate fragrance community. Read real reviews, discover hidden gems, and find your signature scent through the stories behind the notes.",
+  keywords: ["fragrance", "perfume", "scent", "reviews", "community", "cologne", "fragrance database", "storytelling"],
   authors: [{ name: "Scentia Team" }],
   verification: {
     google: "K9QQiRBAdIDvQ_0ivxu9sAy6TwoiymCQdq341zz2otQ",

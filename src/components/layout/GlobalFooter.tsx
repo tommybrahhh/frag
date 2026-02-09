@@ -13,7 +13,7 @@ export default function GlobalFooter() {
             Scentia
           </Link>
           <p className="text-xs text-stone-500 max-w-xs leading-relaxed mb-6">
-            Your personal guide to the world of fragrance. Discover your signature scent, explore ingredient notes, and master the art of layering with intelligent recommendations.
+            Decode the narrative behind every bottle. We help you explore fragrance DNA, master the art of layering, and curate a scent wardrobe that tells your unique story.
           </p>
           <div className="text-[10px] text-stone-400 uppercase tracking-widest">
             © 2025 Scentia Labs

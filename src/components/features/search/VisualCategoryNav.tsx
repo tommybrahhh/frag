@@ -118,11 +118,17 @@ interface VisualCategoryNavProps {
 const VisualCategoryNav = ({ onSelectCategory, activeCategory }: VisualCategoryNavProps) => {
   return (
     <div className="max-w-[1400px] mx-auto px-6 mb-16">
-      <div className="flex items-center justify-between mb-8">
-        <h3 className="font-serif text-2xl text-stone-900">Explore by Vibe</h3>
+      <div className="flex items-center justify-center mb-10">
+        <h3 className="font-serif text-3xl text-stone-900">Explore by Vibe</h3>
       </div>
       
-      <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+      {/* 
+         Changed from horizontal scroll to a responsive grid/flex-wrap layout.
+         - 'flex-wrap' ensures items wrap to the next line instead of scrolling off-screen.
+         - 'justify-center' keeps the layout balanced regardless of screen size.
+         - 'gap-6' gives enough breathing room.
+      */}
+      <div className="flex flex-wrap justify-center gap-4 md:gap-8">
         {VIBE_CATEGORIES.map((cat) => {
           const isActive = activeCategory === cat.slug;
           const Icon = cat.Icon;
@@ -132,22 +138,21 @@ const VisualCategoryNav = ({ onSelectCategory, activeCategory }: VisualCategoryN
               key={cat.id}
               onClick={() => onSelectCategory?.(cat.slug)}
               className={`
-                group min-w-[100px] flex flex-col items-center gap-3 transition-all duration-300
-                ${isActive ? 'opacity-100 scale-105' : 'opacity-70 hover:opacity-100'}
+                group flex flex-col items-center gap-3 transition-all duration-300
+                ${isActive ? 'opacity-100 scale-110' : 'opacity-70 hover:opacity-100 hover:scale-105'}
               `}
             >
               <div className={`
-                w-20 h-20 rounded-full flex items-center justify-center shadow-sm border border-stone-100 transition-all duration-300
-                ${cat.color} group-hover:shadow-md
-                ${isActive ? 'ring-2 ring-stone-900 ring-offset-2' : ''}
+                w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center shadow-sm border border-stone-100 transition-all duration-300
+                ${isActive ? 'bg-stone-900 text-white shadow-lg ring-2 ring-stone-900 ring-offset-2' : 'bg-stone-50 text-stone-600 hover:bg-white hover:shadow-md'}
               `}>
                 <Icon 
-                  className={`w-8 h-8 ${isActive ? 'text-stone-900' : 'text-stone-600 group-hover:text-stone-800'}`} 
+                  className={`w-7 h-7 md:w-8 md:h-8 transition-colors ${isActive ? 'text-white' : 'text-stone-600 group-hover:text-stone-900'}`} 
                   strokeWidth={1.5}
                 />
               </div>
               <span className={`
-                text-xs font-bold uppercase tracking-widest text-center
+                text-[10px] md:text-xs font-bold uppercase tracking-widest text-center
                 ${isActive ? 'text-stone-900' : 'text-stone-500 group-hover:text-stone-700'}
               `}>
                 {cat.label}

@@ -44,22 +44,28 @@ export default function DailyBattle({ battle }: BattleProps) {
   const rightPct = 100 - leftPct;
 
   return (
-    <section className="py-16 bg-white">
-      <div className="max-w-[1000px] mx-auto px-6">
-        <div className="text-center mb-10">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-red-500 mb-2 block">
-            Daily Face-off
-          </span>
-          <h2 className="font-serif text-3xl md:text-4xl text-stone-900">
-            Which one do you prefer?
+    <section className="py-24 bg-white border-y border-stone-100">
+      <div className="max-w-[1200px] mx-auto px-6">
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-3 mb-4">
+             <div className="h-[1px] w-8 bg-stone-300"></div>
+             <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-stone-400">
+               The Daily Face-off
+             </span>
+             <div className="h-[1px] w-8 bg-stone-300"></div>
+          </div>
+          <h2 className="font-serif text-4xl md:text-5xl text-stone-900">
+            Pick Your Favorite
           </h2>
         </div>
 
-        <div className="relative flex flex-col md:flex-row items-center gap-8 md:gap-16">
+        <div className="relative flex flex-col md:flex-row items-stretch gap-6 md:gap-8">
           
           {/* VS Badge */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-16 h-16 bg-white rounded-full flex items-center justify-center font-black text-xl shadow-xl border-4 border-stone-50 text-stone-900 italic">
-            VS
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center justify-center">
+             <div className="w-16 h-16 bg-stone-900 text-white rounded-full flex items-center justify-center font-serif italic text-2xl shadow-xl border-[6px] border-white">
+               vs
+             </div>
           </div>
 
           {/* Left Contender */}
@@ -84,13 +90,14 @@ export default function DailyBattle({ battle }: BattleProps) {
         </div>
         
         {hasVoted && (
-             <motion.p 
-               initial={{ opacity: 0 }} 
-               animate={{ opacity: 1 }}
-               className="text-center mt-8 text-stone-500 text-sm italic"
+             <motion.div 
+               initial={{ opacity: 0, y: 10 }} 
+               animate={{ opacity: 1, y: 0 }}
+               className="text-center mt-12"
              >
-               Thanks for voting! Come back tomorrow for a new battle.
-             </motion.p>
+               <p className="text-stone-400 text-xs font-bold uppercase tracking-widest mb-2">Voting Closed for Today</p>
+               <p className="font-serif text-stone-900 text-lg">Come back tomorrow for a new battle.</p>
+             </motion.div>
         )}
       </div>
     </section>
@@ -100,54 +107,63 @@ export default function DailyBattle({ battle }: BattleProps) {
 function BattleCard({ perfume, side, onClick, disabled, percentage, showResult }: any) {
   return (
     <motion.button 
-      whileHover={!disabled ? { scale: 1.02 } : {}}
-      whileTap={!disabled ? { scale: 0.98 } : {}}
+      whileHover={!disabled ? { scale: 1.005 } : {}}
+      whileTap={!disabled ? { scale: 0.995 } : {}}
       onClick={onClick}
       disabled={disabled}
-      className={`relative flex-1 w-full bg-stone-50 rounded-3xl p-6 md:p-10 border-2 transition-all duration-300 group
-         ${disabled && showResult && percentage >= 50 ? 'border-green-500/20 bg-green-50/50' : 'border-transparent'}
-         ${!disabled ? 'hover:border-stone-200 cursor-pointer' : 'cursor-default'}
+      className={`relative flex-1 w-full bg-stone-50 rounded-[2rem] p-8 md:p-10 transition-all duration-500 group overflow-hidden border border-stone-100 text-left
+         ${disabled && showResult && percentage >= 50 ? 'ring-1 ring-stone-900 bg-stone-100' : ''}
+         ${!disabled ? 'hover:border-stone-300 cursor-pointer' : 'cursor-default'}
       `}
     >
-      <div className="relative aspect-square w-full max-w-[200px] mx-auto mb-6">
-         {perfume.image_url ? (
-            <Image 
-                src={perfume.image_url} 
-                alt={perfume.name} 
-                fill 
-                className="object-contain mix-blend-multiply drop-shadow-lg"
-            />
-         ) : (
-            <div className="w-full h-full bg-stone-200 rounded-full" />
-         )}
-      </div>
-
-      <div className="text-center relative z-10">
-         <div className="text-[10px] font-bold tracking-widest text-stone-400 uppercase mb-2">
-            {perfume.brand?.name}
+      <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-8">
+         {/* Bottle Image - Wrapped in stone-50 to match card, effectively hiding white bg via blend */}
+         <div className="relative w-40 h-40 md:w-48 md:h-48 flex-shrink-0 bg-stone-50 rounded-2xl p-4">
+            {perfume.image_url ? (
+                <Image 
+                    src={perfume.image_url} 
+                    alt={perfume.name} 
+                    fill 
+                    className="object-contain mix-blend-multiply"
+                    sizes="(max-width: 768px) 160px, 192px"
+                />
+            ) : (
+                <div className="w-full h-full bg-stone-200 rounded-xl" />
+            )}
          </div>
-         <h3 className="font-serif text-2xl text-stone-900 mb-4">{perfume.name}</h3>
-         
-         {!showResult ? (
-            <span className={`inline-block px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-colors
-                ${side === 'left' ? 'bg-stone-900 text-white' : 'bg-white text-stone-900 border border-stone-200'}
-                ${!disabled && 'group-hover:bg-stone-800 group-hover:text-white'}
-            `}>
-                Vote This
-            </span>
-         ) : (
-            <div className="space-y-2">
-                <div className="text-4xl font-bold text-stone-900">{percentage}%</div>
-                <div className="w-full h-2 bg-stone-200 rounded-full overflow-hidden">
-                    <motion.div 
-                       initial={{ width: 0 }}
-                       animate={{ width: `${percentage}%` }}
-                       className={`h-full ${percentage >= 50 ? 'bg-green-500' : 'bg-stone-400'}`}
-                    />
+
+         {/* Info & Action */}
+         <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left h-full justify-center pt-2">
+             <div className="text-[10px] font-bold tracking-[0.2em] text-stone-400 uppercase mb-2">
+                {perfume.brand?.name}
+             </div>
+             <h3 className="font-serif text-2xl text-stone-900 mb-6 leading-tight">{perfume.name}</h3>
+             
+             {!showResult ? (
+                <span className={`px-8 py-3 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all duration-300 border
+                    ${side === 'left' 
+                       ? 'bg-stone-900 text-white border-stone-900 group-hover:bg-stone-800' 
+                       : 'bg-white text-stone-900 border-stone-200 group-hover:border-stone-900'}
+                `}>
+                    Vote for This
+                </span>
+             ) : (
+                <div className="w-full">
+                    <div className="flex items-baseline gap-2 mb-2">
+                        <span className="text-4xl font-serif text-stone-900">{percentage}%</span>
+                        <span className="text-xs text-stone-400 font-bold uppercase tracking-wider">of votes</span>
+                    </div>
+                    <div className="w-full h-1.5 bg-stone-200 rounded-full overflow-hidden">
+                        <motion.div 
+                           initial={{ width: 0 }}
+                           animate={{ width: `${percentage}%` }}
+                           transition={{ duration: 1, ease: "circOut" }}
+                           className={`h-full ${percentage >= 50 ? 'bg-stone-900' : 'bg-stone-400'}`}
+                        />
+                    </div>
                 </div>
-                <div className="text-xs text-stone-400 font-bold uppercase tracking-wider">{perfume.votes} Votes</div>
-            </div>
-         )}
+             )}
+         </div>
       </div>
     </motion.button>
   );

@@ -210,10 +210,10 @@ export async function getTrendingPerfumes(limit = 10) {
     }));
   }
 
-  // Fallback: If RPC not exists or returns empty, use simple recent reviews
-  // 1. Get recent perfume IDs from reviews
+  // Fallback: If RPC not exists or returns empty, use simple recent COMMENTS
+  // 1. Get recent perfume IDs from comments
   const { data: recentIds } = await supabase
-    .from('reviews')
+    .from('comments')
     .select('perfume_id')
     .order('created_at', { ascending: false })
     .limit(50);
