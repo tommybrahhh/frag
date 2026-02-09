@@ -1,25 +1,24 @@
 'use client';
 
-import { useEffect, useState, useRef, useCallback } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState, useRef, useCallback, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
-import VideoHero from '@/components/features/home/VideoHero';
-import CommunityBuzz from '@/components/features/community/CommunityBuzz';
+import CommunityHero from '@/components/features/home/CommunityHero';
+import TrendingScents from '@/components/features/home/TrendingScents';
 import FilterBar from '@/components/features/search/FilterBar';
-import VisualCategoryNav from '@/components/features/search/VisualCategoryNav'; // Imported
+import VisualCategoryNav from '@/components/features/search/VisualCategoryNav'; 
 import PageTransition from '@/components/layout/PageTransition';
-import { createClient } from '@/utils/supabase/client';
-import { Database } from '@/types/database';
-
-type BlogPost = Database['public']['Tables']['blog_posts']['Row'];
+import { ActivityItem, CommunityStats } from '@/lib/services/communityService';
+import JoinCommunityCTA from '@/components/features/home/JoinCommunityCTA';
+import DailyBattle from '@/components/features/home/DailyBattle';
+import Spinner from '@/components/ui/Spinner';
 
 interface Perfume {
   id: string;
   name: string;
   slug?: string | null;
-  brand: { name: string } | string; // Handle both shapes
+  brand: { name: string } | string; 
   image_url: string;
   rating?: number;
   vibe_tags?: string[];
@@ -27,11 +26,20 @@ interface Perfume {
 }
 
 interface HomeClientProps {
-  initialComments?: any[];
+  initialActivity?: ActivityItem[];
+  trendingPerfumes?: any[];
   initialPerfumes?: Perfume[];
+  dailyBattle?: any;
+  communityStats?: CommunityStats;
 }
 
-export default function HomeClient({ initialComments = [], initialPerfumes = [] }: HomeClientProps) {
+export default function HomeClient({ 
+  initialActivity = [], 
+  trendingPerfumes = [],
+  initialPerfumes = [],
+  dailyBattle,
+  communityStats
+}: HomeClientProps) {
   const searchParams = useSearchParams();
   const [perfumes, setPerfumes] = useState<Perfume[]>(initialPerfumes);
   const [loading, setLoading] = useState(false);
@@ -42,7 +50,6 @@ export default function HomeClient({ initialComments = [], initialPerfumes = [] 
     price: [], gender: [], longevity: [], season: [], concentration: [], tier: [], moment: [], occasion: [], vibe: []
   });
 
-  // Track initial render to prevent double-fetching data we already have from SSR
   const isInitialMount = useRef(true);
 
   const observer = useRef<IntersectionObserver | null>(null);
@@ -58,9 +65,6 @@ export default function HomeClient({ initialComments = [], initialPerfumes = [] 
   }, [loading, hasMore]);
 
   useEffect(() => {
-    // If it's the first render AND we have SSR data, skip this client-side fetch.
-    // However, if the user navigated here with search params (e.g. ?gender=female), 
-    // we SHOULD fetch because SSR provided the default list.
     const hasSearchParams = searchParams.toString().length > 0;
     
     if (isInitialMount.current) {
@@ -122,7 +126,6 @@ export default function HomeClient({ initialComments = [], initialPerfumes = [] 
   const handleCategorySelect = (slug: string) => {
     setActiveCategory(slug);
     if (slug === '') {
-       // Reset vibes but keep other filters potentially? For now let's just reset vibe.
        setFilters((prev: any) => ({ ...prev, vibe: [] }));
     } else {
        setFilters((prev: any) => ({ ...prev, vibe: [slug] }));
@@ -135,21 +138,13 @@ export default function HomeClient({ initialComments = [], initialPerfumes = [] 
   return (
     <PageTransition>
       <main className="min-h-screen bg-white text-stone-800 pb-24">
-        <VideoHero />
+        <CommunityHero activity={initialActivity} stats={communityStats} />
         
-        {/* Visual Category Navigation */}
+        <TrendingScents perfumes={trendingPerfumes} />
+
+        <DailyBattle battle={dailyBattle} />
+
         <VisualCategoryNav onSelectCategory={handleCategorySelect} activeCategory={activeCategory} />
-        
-        {/* Community Buzz Section - Full Width now */}
-        <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-50px" }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="max-w-[1400px] mx-auto px-6 mb-20"
-        >
-          <CommunityBuzz initialComments={initialComments} />
-        </motion.div>
 
         <div className="sticky top-16 z-40 bg-white/95 backdrop-blur-sm border-y border-stone-100 py-4 mb-12 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] transition-all">
            <FilterBar onFilterChange={handleFilterChange} />
@@ -251,6 +246,8 @@ export default function HomeClient({ initialComments = [], initialPerfumes = [] 
             </div>
           )}
         </div>
+        
+        <JoinCommunityCTA />
       </main>
     </PageTransition>
   );

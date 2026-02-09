@@ -64,7 +64,9 @@ export default async function PerfumePage(
   };
 
   // 2. Fetch Recommendations
-  const allPerfumes = await RecommendationEngine.getAllPerfumes(supabase);
+  // OPTIMIZATION: Pass the current perfume to pre-filter candidates in DB (Family/Vibe overlap)
+  const allPerfumes = await RecommendationEngine.getAllPerfumes(supabase, 1000, perfumeData as any);
+  
   // FIX: Cast arguments to 'any' to bypass strict Type mismatch between local 'Perfume' type and Engine's expected type
   const recommendationCategories = RecommendationEngine.getEnhancedRecommendations(
     perfumeData as any, 

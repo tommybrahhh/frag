@@ -120,3 +120,37 @@ body {
   height: auto;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
+
+@keyframes scroll-vertical {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-50%); }
+}
+
+.animate-scroll-vertical {
+  animation: scroll-vertical 60s linear infinite;
+}
+
+.animate-scroll-vertical-slow {
+  animation: scroll-vertical 120s linear infinite;
+}
+
+.hover\:pause-animation:hover {
+  animation-play-state: paused;
+}
+
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.transform-style-3d {
+  transform-style: preserve-3d;
+}
+
+.rotate-y-\[-12deg\] {
+  transform: rotateY(-12deg) rotateZ(2deg);
+}
+
+.mask-linear-fade {
+  mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
+}
