@@ -15,7 +15,7 @@ import {
 } from './filterTypes';
 import FilterSection from './FilterSection';
 
-export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
+export default function FilterPanel({ onFilterChange, initialFilters }: FilterPanelProps & { initialFilters?: any }) {
   const {
     isModified,
     setIsModified,
@@ -23,7 +23,7 @@ export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
     handleFilterChange,
     clearFilters,
     filters
-  } = useFilters();
+  } = useFilters(initialFilters);
 
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const filterButtonRef = useRef<HTMLButtonElement>(null);

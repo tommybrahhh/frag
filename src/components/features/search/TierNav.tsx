@@ -2,9 +2,10 @@
 
 import { motion } from 'framer-motion';
 import { Gem, Crown, Sparkles } from 'lucide-react';
+import Link from 'next/link';
 
 interface TierNavProps {
-  onSelectTier: (tier: string) => void;
+  onSelectTier?: (tier: string) => void;
   activeTier?: string;
 }
 
@@ -12,6 +13,7 @@ const TIERS = [
   {
     id: 'Designer',
     label: 'Designer',
+    slug: 'designer',
     description: 'Iconic scents from world-renowned fashion houses.',
     icon: Crown,
     gradient: 'from-stone-100 to-white',
@@ -22,6 +24,7 @@ const TIERS = [
   {
     id: 'Niche',
     label: 'Niche',
+    slug: 'niche',
     description: 'Artistic creations for the connoisseur.',
     icon: Gem,
     gradient: 'from-stone-200 to-white',
@@ -32,6 +35,7 @@ const TIERS = [
   {
     id: 'Indie',
     label: 'Indie',
+    slug: 'indie',
     description: 'Handcrafted masterpieces by independent perfumers.',
     icon: Sparkles,
     gradient: 'from-stone-100 to-white',
@@ -53,18 +57,8 @@ export default function TierNav({ onSelectTier, activeTier }: TierNavProps) {
           const Icon = tier.icon;
           const isActive = activeTier === tier.id;
 
-          return (
-            <button
-              key={tier.id}
-              onClick={() => onSelectTier(tier.id)}
-              className={`
-                relative overflow-hidden group text-left p-8 rounded-3xl border transition-all duration-500
-                ${isActive 
-                  ? `ring-2 ring-stone-900 bg-stone-50 border-stone-900` 
-                  : 'bg-white border-stone-100 hover:border-stone-300 hover:shadow-xl hover:-translate-y-1'
-                }
-              `}
-            >
+          const content = (
+            <>
               {/* Subtle background for active/hover */}
               <div className={`absolute inset-0 bg-stone-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
 
@@ -84,7 +78,41 @@ export default function TierNav({ onSelectTier, activeTier }: TierNavProps) {
                   {tier.description}
                 </p>
               </div>
-            </button>
+            </>
+          );
+
+          if (onSelectTier) {
+            return (
+              <button
+                key={tier.id}
+                onClick={() => onSelectTier(tier.id)}
+                className={`
+                  relative overflow-hidden group text-left p-8 rounded-3xl border transition-all duration-500
+                  ${isActive 
+                    ? `ring-2 ring-stone-900 bg-stone-50 border-stone-900` 
+                    : 'bg-white border-stone-100 hover:border-stone-300 hover:shadow-xl hover:-translate-y-1'
+                  }
+                `}
+              >
+                {content}
+              </button>
+            );
+          }
+
+          return (
+            <Link
+              key={tier.id}
+              href={`/tiers/${tier.slug}`}
+              className={`
+                relative overflow-hidden group text-left p-8 rounded-3xl border transition-all duration-500
+                ${isActive 
+                  ? `ring-2 ring-stone-900 bg-stone-50 border-stone-900` 
+                  : 'bg-white border-stone-100 hover:border-stone-300 hover:shadow-xl hover:-translate-y-1'
+                }
+              `}
+            >
+              {content}
+            </Link>
           );
         })}
       </div>

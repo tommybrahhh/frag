@@ -59,7 +59,7 @@ export async function getPerfumes(params: PerfumeFilterParams) {
       olfactory_family,
       release_year,
       brand_id,
-      brand:brands!perfumes_brand_id_fkey(name, tier) 
+      brand:brands!perfumes_brand_id_fkey${tier ? '!inner' : ''}(name, tier) 
     `, { count: 'exact' });
 
   // Apply Filters

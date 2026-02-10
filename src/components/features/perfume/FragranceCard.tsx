@@ -8,7 +8,7 @@ interface FragranceCardProps {
 
 export default function FragranceCard({ perfume }: FragranceCardProps) {
   // Proactive Fix: Handle case where brand is an object to prevent React crash
-  const brandName = typeof perfume.brand === 'object' ? (perfume.brand as any).name : perfume.brand;
+  const brandName = perfume.brand && typeof perfume.brand === 'object' ? (perfume.brand as any).name : (perfume.brand || 'Unknown Brand');
 
   return (
     <div className="group rounded-xl p-4 transition-all duration-300 hover:bg-stone-100 hover:shadow-lg hover:-translate-y-1">

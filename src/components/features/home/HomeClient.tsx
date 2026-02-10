@@ -49,7 +49,6 @@ export default function HomeClient({
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [activeCategory, setActiveCategory] = useState<string>('');
-  const [activeTier, setActiveTier] = useState<string>('');
   const [filters, setFilters] = useState<any>({
     price: [], gender: [], longevity: [], season: [], concentration: [], tier: [], moment: [], occasion: [], vibe: []
   });
@@ -157,28 +156,6 @@ export default function HomeClient({
     }
   };
 
-  const handleTierSelect = (tier: string) => {
-    const newTier = activeTier === tier ? '' : tier;
-    setActiveTier(newTier);
-    
-    if (newTier === '') {
-        setFilters((prev: any) => ({ ...prev, tier: [] }));
-    } else {
-        setFilters((prev: any) => ({ ...prev, tier: [newTier] }));
-    }
-    
-    setPage(1);
-    setPerfumes([]);
-    setHasMore(true);
-
-    if (!showLibrary) {
-      setShowLibrary(true);
-      setTimeout(() => {
-        libraryRef.current?.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
-    }
-  };
-
   const handleShowLibrary = () => {
     setShowLibrary(true);
     setTimeout(() => {
@@ -195,7 +172,9 @@ export default function HomeClient({
 
         <DailyBattle battle={dailyBattle} />
 
-        <TierNav onSelectTier={handleTierSelect} activeTier={activeTier} />
+        <div id="tiers">
+          <TierNav />
+        </div>
 
         <VisualCategoryNav onSelectCategory={handleCategorySelect} activeCategory={activeCategory} />
 
@@ -236,8 +215,9 @@ export default function HomeClient({
 
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
                 {perfumes.map((p, index) => {
+                  if (!p) return null;
                   const isLast = index === perfumes.length - 1;
-                  const brandName = typeof p.brand === 'object' ? p.brand.name : p.brand;
+                  const brandName = p.brand && typeof p.brand === 'object' ? p.brand.name : (p.brand || 'Unknown Brand');
                   
                   return (
                     <div key={`${p.id}-${index}`} ref={isLast ? lastPerfumeElementRef : null}>

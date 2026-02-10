@@ -1,16 +1,16 @@
 import { useState, useCallback, useMemo } from 'react';
 import { FilterCategory, FilterValues } from '@/components/features/search/filterTypes';
 
-export function useFilters() {
+export function useFilters(initialFilters?: Partial<FilterValues>) {
   const [isModified, setIsModified] = useState(false);
-  const [price, setPrice] = useState<string[]>([]);
-  const [gender, setGender] = useState<string[]>([]);
-  const [longevity, setLongevity] = useState<string[]>([]);
-  const [season, setSeason] = useState<string[]>([]);
-  const [concentration, setConcentration] = useState<string[]>([]);
-  const [tier, setTier] = useState<string[]>([]);
-  const [moment, setMoment] = useState<string[]>([]);
-  const [occasion, setOccasion] = useState<string[]>([]);
+  const [price, setPrice] = useState<string[]>(initialFilters?.price || []);
+  const [gender, setGender] = useState<string[]>(initialFilters?.gender || []);
+  const [longevity, setLongevity] = useState<string[]>(initialFilters?.longevity || []);
+  const [season, setSeason] = useState<string[]>(initialFilters?.season || []);
+  const [concentration, setConcentration] = useState<string[]>(initialFilters?.concentration || []);
+  const [tier, setTier] = useState<string[]>(initialFilters?.tier || []);
+  const [moment, setMoment] = useState<string[]>(initialFilters?.moment || []);
+  const [occasion, setOccasion] = useState<string[]>(initialFilters?.occasion || []);
 
   // Create a stable reference for the filters object
   const filters = useMemo(() => ({
