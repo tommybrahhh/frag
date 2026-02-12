@@ -33,17 +33,54 @@ export default function LoginPage() {
       if (!supabase) throw new Error("Supabase client not initialized");
 
       if (isSignUp) {
-        // --- SIGN UP FLOW (Strictly Email) ---
-        if (!identifier.includes('@')) {
-          throw new Error('Please use a valid email address to sign up.');
+        // --- SIGN UP FLOW (Email OR Username) ---
+        let emailToUse = identifier;
+        let isUsername = !identifier.includes('@');
+
+        if (isUsername) {
+          // 1. Validate username format
+          if (identifier.length < 3) {
+            throw new Error('Username must be at least 3 characters long.');
+          }
+          if (/\s/.test(identifier)) {
+            throw new Error('Username cannot contain spaces.');
+          }
+
+          // 2. Check if username is already taken in profiles table
+          const { data: existingProfile, error: checkError } = await supabase
+            .from('profiles')
+            .select('display_name')
+            .ilike('display_name', identifier)
+            .maybeSingle();
+
+          if (checkError) {
+            console.error("Username check error:", checkError);
+          }
+          if (existingProfile) {
+            throw new Error('This username is already taken. Please choose another.');
+          }
+
+          // 3. Generate synthetic email for Supabase Auth
+          emailToUse = `${identifier.toLowerCase()}@temp.fragrance.club`;
         }
 
         const { error } = await supabase.auth.signUp({
-          email: identifier,
+          email: emailToUse,
           password,
+          options: {
+            data: {
+              display_name: isUsername ? identifier : identifier.split('@')[0],
+            }
+          }
         });
         if (error) throw error;
-        setMessage('Account created! Check your email to confirm.');
+        
+        if (isUsername) {
+          setMessage('Account created! You can now sign in.');
+        } else {
+          setMessage('Account created! Check your email to confirm if required.');
+        }
+        
         setIdentifier('');
         setPassword('');
         
@@ -108,7 +145,7 @@ export default function LoginPage() {
         <form onSubmit={handleAuth} className="space-y-4">
           <div>
             <label className="text-[10px] font-bold uppercase tracking-widest text-stone-800 block mb-2">
-              {isSignUp ? 'Email Address' : 'Email or Username'}
+              Email or Username
             </label>
             <input
             type="text" 
@@ -116,7 +153,7 @@ export default function LoginPage() {
             onChange={(e) => setIdentifier(e.target.value)}
             required
             className="w-full p-3 bg-stone-50 border border-stone-200 rounded-xl focus:border-stone-800 outline-none transition text-black"
-            placeholder={isSignUp ? "you@example.com" : "Email or Display Name"}
+            placeholder="Email or Username"
             />
           </div>
 
