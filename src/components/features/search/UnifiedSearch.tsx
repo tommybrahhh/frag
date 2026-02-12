@@ -102,17 +102,17 @@ const NoteLaboratorySearch: React.FC = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-12 min-h-screen bg-[#FAFAF9]">
-      <div className="mb-12 text-center">
-        <h1 className="text-4xl md:text-5xl font-serif text-stone-900 mb-4">Fragrance Finder</h1>
-        <p className="text-stone-500 max-w-2xl mx-auto italic">
-          Don't know the name? Search by the notes you love (or hate) to find your perfect match.
+    <div className="max-w-6xl mx-auto px-6 py-8 md:py-12 min-h-screen bg-[#FAFAF9]">
+      <div className="mb-8 md:mb-12 text-center">
+        <h1 className="text-3xl md:text-5xl font-serif text-stone-900 mb-2 md:mb-4">Fragrance Finder</h1>
+        <p className="text-xs md:text-sm text-stone-500 max-w-lg mx-auto italic px-4">
+          Search by the notes you love (or hate) to find your perfect match.
         </p>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-stone-100 p-6 md:p-8 mb-10 max-w-2xl mx-auto">
+      <div className="bg-white rounded-[2rem] shadow-sm border border-stone-100 p-6 md:p-8 mb-8 md:mb-10 max-w-2xl mx-auto">
         <div className="w-full">
-          <label className="block text-xs font-bold uppercase tracking-widest text-stone-400 mb-4 text-center">
+          <label className="block text-[9px] md:text-xs font-bold uppercase tracking-widest text-stone-400 mb-4 text-center">
             What does it smell like?
           </label>
           <NoteSearchBar onNoteSelected={handleNoteSelected} />

@@ -7,11 +7,21 @@ export async function getDailyBattle() {
   const supabase = await createClient();
   
   try {
-    // Call the RPC function to get/create today's battle
-    const { data: battleRecord, error } = await supabase.rpc('get_or_create_daily_battle');
+    // Add a timeout to the RPC call to prevent blocking the entire page
+    const battlePromise = supabase.rpc('get_or_create_daily_battle');
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Battle fetch timeout')), 5000)
+    );
+
+    // Race the RPC against a 5s timeout
+    const { data: battleRecord, error } = await Promise.race([
+      battlePromise,
+      timeoutPromise as any
+    ]);
     
     if (error || !battleRecord) {
-      console.error('Error fetching battle:', error?.message || 'No battle record returned');
+      // Use warn for expected timeouts or non-critical failures
+      console.warn('Daily battle skipped:', error?.message || 'No record returned');
       return null;
     }
 

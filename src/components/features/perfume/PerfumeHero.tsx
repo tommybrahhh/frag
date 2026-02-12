@@ -175,9 +175,9 @@ export default function PerfumeHero({ perfume, onShare }: PerfumeHeroProps) {
         
         {/* COLUMN 1: Hero Image */}
         <div className="lg:col-span-5 lg:col-start-2 flex flex-col items-center justify-center order-1">
-          <div className="relative w-full h-[450px] flex items-center justify-center bg-[#FAFAF9] rounded-2xl" ref={heroRef}>
+          <div className="relative w-full h-[300px] md:h-[450px] flex items-center justify-center bg-[#FAFAF9] rounded-2xl" ref={heroRef}>
             {perfume.image_url ? (
-              <img src={perfume.image_url} alt={perfume.name} className="h-full w-full object-contain mix-blend-multiply" />
+              <img src={perfume.image_url} alt={perfume.name} className="h-full w-full object-contain mix-blend-multiply p-4 md:p-0" />
             ) : (
               <div className="w-64 h-80 border-2 border-stone-100 flex items-center justify-center text-stone-300 italic">No Bottle Image</div>
             )}
@@ -185,58 +185,52 @@ export default function PerfumeHero({ perfume, onShare }: PerfumeHeroProps) {
         </div>
 
         {/* COLUMN 2: Story & Actions & Moved Data */}
-        <div className="lg:col-span-5 space-y-8 lg:pt-8 order-2 relative z-10">
+        <div className="lg:col-span-5 space-y-6 md:space-y-8 lg:pt-8 order-2 relative z-10">
            {/* 2a. Character Story */}
-           <div className="relative z-20">
-              <h3 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-2">Character</h3>
-              <p className="font-serif text-lg text-stone-800 leading-relaxed italic">
+           <div className="relative z-20 text-center lg:text-left">
+              <h3 className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-2">Character</h3>
+              <p className="font-serif text-base md:text-lg text-stone-800 leading-relaxed italic px-4 md:px-0">
                   {perfume.scenario || `${perfume.name} presents a distinctive ${perfume.olfactory_family?.[0]?.toLowerCase() || 'aromatic'} profile.`}
               </p>
            </div>
 
            {/* 2b. Actions (Buttons) */}
-           <div className="pt-4 border-t border-stone-100 relative z-10">
-               <button onClick={() => handleCollectionAction('owned')} disabled={isSubmitting} className="w-full py-4 bg-stone-900 text-white text-xs font-bold uppercase tracking-[0.2em] hover:bg-stone-800 transition-colors mb-3 disabled:opacity-50 shadow-lg shadow-stone-200">
+           <div className="pt-4 border-t border-stone-100 relative z-10 px-4 md:px-0">
+               <button onClick={() => handleCollectionAction('owned')} disabled={isSubmitting} className="w-full py-4 bg-stone-900 text-white text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] hover:bg-stone-800 transition-all mb-3 disabled:opacity-50 shadow-xl shadow-stone-200 active:scale-95">
                   {isSubmitting ? 'Updating...' : (listType === 'owned' ? 'In Wardrobe' : 'Add to Wardrobe')}
                </button>
-               <div className="grid grid-cols-2 gap-3">
-                  <button onClick={() => handleCollectionAction('wishlist')} disabled={isSubmitting} className={`py-3 border text-xs font-bold uppercase tracking-widest transition-colors ${listType === 'wishlist' ? 'bg-stone-100 border-stone-300 text-stone-900' : 'border-stone-200 text-stone-600 hover:border-stone-900 hover:text-stone-900'}`}>
-                      {listType === 'wishlist' ? 'In Wishlist' : 'Wishlist'}
+               <div className="grid grid-cols-3 gap-2">
+                  <button onClick={() => handleCollectionAction('wishlist')} disabled={isSubmitting} className={`py-3 border text-[9px] md:text-[xs] font-bold uppercase tracking-widest transition-colors rounded-lg ${listType === 'wishlist' ? 'bg-stone-100 border-stone-300 text-stone-900' : 'border-stone-200 text-stone-600'}`}>
+                      {listType === 'wishlist' ? 'Wishlist' : 'Wishlist'}
                   </button>
-                  <button onClick={() => router.push(`/compare?a=${perfume.id}`)} className="py-3 border border-stone-200 text-stone-600 text-xs font-bold uppercase tracking-widest hover:border-stone-900 hover:text-stone-900 transition-colors">
+                  <button onClick={() => router.push(`/compare?a=${perfume.id}`)} className="py-3 border border-stone-200 text-stone-600 text-[9px] md:text-[xs] font-bold uppercase tracking-widest rounded-lg transition-colors active:bg-stone-50">
                       Compare
                   </button>
-                  <button onClick={onShare} className="py-3 border border-stone-200 text-stone-600 text-xs font-bold uppercase tracking-widest hover:border-stone-900 hover:text-stone-900 transition-colors flex items-center justify-center gap-2">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+                  <button onClick={onShare} className="py-3 border border-stone-200 text-stone-600 text-[9px] md:text-[xs] font-bold uppercase tracking-widest rounded-lg transition-colors active:bg-stone-50 flex items-center justify-center gap-1.5">
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
                     Share
                   </button>
                </div>
            </div>
 
             {/* 2c. Olfactive, Perfumer, Price */}
-            <div className="space-y-4 pt-6 border-t border-stone-100">
+            <div className="space-y-4 pt-6 border-t border-stone-100 px-4 md:px-0">
                 {/* Olfactive Family */}
-                <div>
-                   <h3 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-1">Olfactive Family</h3>
+                <div className="text-center lg:text-left">
+                   <h3 className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-1">Olfactive Family</h3>
                    <div className="space-y-1">
-                       <div className="flex items-baseline gap-2">
-                           <span className="font-serif text-base text-stone-900">{perfume.olfactory_family?.[0] || 'N/A'}</span>
-                           <span className="text-[9px] uppercase tracking-widest text-stone-400">(Primary)</span>
+                       <div className="flex items-baseline justify-center lg:justify-start gap-2">
+                           <span className="font-serif text-sm md:text-base text-stone-900">{perfume.olfactory_family?.[0] || 'N/A'}</span>
+                           <span className="text-[8px] uppercase tracking-widest text-stone-400">(Primary)</span>
                        </div>
-                       {perfume.olfactory_family?.[1] && (
-                           <div className="flex items-baseline gap-2">
-                               <span className="font-serif text-base text-stone-900">{perfume.olfactory_family[1]}</span>
-                               <span className="text-[9px] uppercase tracking-widest text-stone-400">(Secondary)</span>
-                           </div>
-                       )}
                    </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4 text-center lg:text-left">
                     {/* Perfumer */}
                     <div className="pt-4 border-t border-stone-100">
-                       <h3 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-1">Perfumer</h3>
-                       <div className="font-serif text-base text-stone-900">
+                       <h3 className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-1">Perfumer</h3>
+                       <div className="font-serif text-sm md:text-base text-stone-900 truncate">
                            {perfume.perfumer ? (
                                <Link href={`/creators/${encodeURIComponent(perfume.perfumer)}`} className="hover:underline decoration-stone-400 underline-offset-4">{perfume.perfumer}</Link>
                            ) : 'Unknown Nose'}
@@ -245,8 +239,8 @@ export default function PerfumeHero({ perfume, onShare }: PerfumeHeroProps) {
 
                     {/* Price Range */}
                     <div className="pt-4 border-t border-stone-100">
-                       <h3 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-1">Price Range</h3>
-                       <span className="font-serif text-base text-stone-900">{perfume.price_tier || 'N/A'}</span>
+                       <h3 className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-1">Price Range</h3>
+                       <span className="font-serif text-sm md:text-base text-stone-900">{perfume.price_tier || 'N/A'}</span>
                     </div>
                 </div>
             </div>

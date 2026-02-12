@@ -42,7 +42,7 @@ export default function ScentRadar({ profile }: ScentRadarProps) {
     }));
 
   return (
-    <div ref={chartRef} className="w-full h-[250px] flex items-center justify-center">
+    <div ref={chartRef} className="w-full h-[200px] md:h-[250px] flex items-center justify-center">
       {dimensions.width > 0 && dimensions.height > 0 && (
         <ResponsiveContainer width="100%" height="100%">
           <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data}>

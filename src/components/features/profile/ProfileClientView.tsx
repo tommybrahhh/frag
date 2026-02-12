@@ -341,43 +341,43 @@ export default function ProfileClientView({
     <div className="min-h-screen bg-[#FDFBF7] text-gray-800 font-sans pb-20">
       
       {/* Header Section */}
-      <div className="bg-white border-b border-stone-200 px-6 py-12">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+      <div className="bg-white border-b border-stone-200 px-6 py-8 md:py-12">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-6 md:gap-8">
           
           {/* Avatar Area */}
-          <div className="relative group">
-            <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-stone-50 bg-stone-100 shadow-sm transition-transform duration-500 group-hover:scale-105">
+          <div className="relative group mx-auto md:mx-0">
+            <div className="w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden border-4 border-stone-50 bg-stone-100 shadow-sm transition-transform duration-500 group-hover:scale-105">
                 {profileData.avatarUrl ? (
                     <img src={profileData.avatarUrl} alt="Profile" className="w-full h-full object-cover" />
                 ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-stone-200 text-stone-400 text-4xl font-bold uppercase">
+                    <div className="w-full h-full flex items-center justify-center bg-stone-200 text-stone-400 text-3xl md:text-4xl font-bold uppercase">
                         {profileData.displayName?.[0] || userEmail?.[0]}
                     </div>
                 )}
             </div>
             <button 
                 onClick={() => setIsEditModalOpen(true)}
-                className="absolute bottom-1 right-1 w-8 h-8 bg-white rounded-full shadow-md border border-stone-100 flex items-center justify-center text-stone-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute bottom-1 right-1 w-7 h-7 md:w-8 md:h-8 bg-white rounded-full shadow-md border border-stone-100 flex items-center justify-center text-stone-400"
             >
                 ✎
             </button>
           </div>
 
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
-                 <span className="text-xs font-bold uppercase tracking-widest text-stone-400">Member Profile</span>
+          <div className="flex-1 text-center md:text-left">
+            <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
+                 <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-stone-400">Member Profile</span>
                  <span className="w-1 h-1 rounded-full bg-stone-300"></span>
-                 <span className="text-xs font-bold text-stone-400">Est. {new Date().getFullYear()}</span>
+                 <span className="text-[10px] md:text-xs font-bold text-stone-400">Est. {new Date().getFullYear()}</span>
             </div>
             
-            <h1 className="text-4xl font-serif text-stone-900 mb-2 flex items-center gap-3">
+            <h1 className="text-3xl md:text-4xl font-serif text-stone-900 mb-2 flex items-center justify-center md:justify-start gap-3">
                 <span>{profileData.displayName || userEmail?.split('@')[0]}</span>
                 {profileData.isVerified && (
                     <svg 
                       xmlns="http://www.w3.org/2000/svg" 
                       viewBox="0 0 20 20" 
                       fill="currentColor" 
-                      className="w-6 h-6 text-sky-500"
+                      className="w-5 h-5 md:w-6 md:h-6 text-sky-500"
                     >
                       <title>Verified User</title>
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" />
@@ -386,40 +386,40 @@ export default function ProfileClientView({
             </h1>
             
             {profileData.bio ? (
-                 <p className="text-stone-500 max-w-lg mb-4">{profileData.bio}</p>
+                 <p className="text-stone-500 max-w-lg mb-4 mx-auto md:mx-0 text-sm md:text-base">{profileData.bio}</p>
             ) : (
-                 <p className="text-stone-400 italic text-sm mb-4">No bio yet. Tell us about your scent journey.</p>
+                 <p className="text-stone-400 italic text-xs md:text-sm mb-4">No bio yet. Tell us about your scent journey.</p>
             )}
 
             {/* Signature Scent Badge */}
             {signatureScent && (
                 <Link href={`/perfume/${signatureScent.slug}`} className="inline-flex items-center gap-3 bg-stone-50 border border-stone-200 pr-4 rounded-full hover:border-stone-400 transition-colors group">
-                    <div className="w-10 h-10 rounded-full bg-white border border-stone-100 flex items-center justify-center overflow-hidden">
+                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white border border-stone-100 flex items-center justify-center overflow-hidden">
                         {signatureScent.image_url ? (
-                            <img src={signatureScent.image_url} className="w-8 h-8 object-contain" alt="" />
+                            <img src={signatureScent.image_url} className="w-6 h-6 md:w-8 md:h-8 object-contain" alt="" />
                         ) : (
                             <span className="text-xs">🧴</span>
                         )}
                     </div>
-                    <div>
-                        <div className="text-[9px] font-bold uppercase tracking-widest text-stone-400">Signature Scent</div>
-                        <div className="text-sm font-serif text-stone-900">{signatureScent.name}</div>
+                    <div className="text-left">
+                        <div className="text-[8px] font-bold uppercase tracking-widest text-stone-400">Signature Scent</div>
+                        <div className="text-xs md:text-sm font-serif text-stone-900">{signatureScent.name}</div>
                     </div>
                 </Link>
             )}
           </div>
           
-          <div className="flex flex-col items-end gap-3">
+          <div className="flex md:flex-col items-center md:items-end gap-3 w-full md:w-auto justify-center md:justify-start">
              <div className="flex gap-2">
                 <button
                     onClick={() => setIsEditModalOpen(true)}
-                    className="px-4 py-2 bg-white border border-stone-200 text-stone-600 text-xs font-bold uppercase tracking-widest rounded-full hover:bg-stone-50 hover:text-stone-900 transition"
+                    className="px-4 py-2 bg-white border border-stone-200 text-stone-600 text-[10px] font-bold uppercase tracking-widest rounded-full hover:bg-stone-50 active:scale-95 transition"
                 >
-                    Edit Profile
+                    Edit
                 </button>
                 <button
                     onClick={signOut}
-                    className="px-4 py-2 bg-stone-900 text-white text-xs font-bold uppercase tracking-widest rounded-full hover:bg-stone-700 transition"
+                    className="px-4 py-2 bg-stone-900 text-white text-[10px] font-bold uppercase tracking-widest rounded-full hover:bg-stone-700 active:scale-95 transition"
                 >
                     Sign Out
                 </button>
@@ -430,23 +430,23 @@ export default function ProfileClientView({
 
       {/* Navigation Tabs */}
       <div className="border-b border-stone-200 bg-white sticky top-0 z-40 shadow-sm">
-        <div className="max-w-6xl mx-auto px-6">
-            <div className="flex gap-8">
+        <div className="max-w-6xl mx-auto px-6 overflow-x-auto hide-scrollbar">
+            <div className="flex gap-6 md:gap-8 min-w-max">
                 <button 
                     onClick={() => setActiveTab('wardrobe')}
-                    className={`py-4 text-xs font-bold uppercase tracking-widest border-b-2 transition-colors ${activeTab === 'wardrobe' ? 'border-stone-900 text-stone-900' : 'border-transparent text-stone-400 hover:text-stone-600'}`}
+                    className={`py-4 text-[10px] md:text-xs font-bold uppercase tracking-widest border-b-2 transition-colors ${activeTab === 'wardrobe' ? 'border-stone-900 text-stone-900' : 'border-transparent text-stone-400 hover:text-stone-600'}`}
                 >
                     Wardrobe ({wardrobeCount})
                 </button>
                 <button 
                     onClick={() => setActiveTab('wishlist')}
-                    className={`py-4 text-xs font-bold uppercase tracking-widest border-b-2 transition-colors ${activeTab === 'wishlist' ? 'border-stone-900 text-stone-900' : 'border-transparent text-stone-400 hover:text-stone-600'}`}
+                    className={`py-4 text-[10px] md:text-xs font-bold uppercase tracking-widest border-b-2 transition-colors ${activeTab === 'wishlist' ? 'border-stone-900 text-stone-900' : 'border-transparent text-stone-400 hover:text-stone-600'}`}
                 >
                     Wishlist ({wishlistCount})
                 </button>
                 <button 
                     onClick={() => setActiveTab('reviews')}
-                    className={`py-4 text-xs font-bold uppercase tracking-widest border-b-2 transition-colors ${activeTab === 'reviews' ? 'border-stone-900 text-stone-900' : 'border-transparent text-stone-400 hover:text-stone-600'}`}
+                    className={`py-4 text-[10px] md:text-xs font-bold uppercase tracking-widest border-b-2 transition-colors ${activeTab === 'reviews' ? 'border-stone-900 text-stone-900' : 'border-transparent text-stone-400 hover:text-stone-600'}`}
                 >
                     Reviews ({reviewsCount})
                 </button>
@@ -471,62 +471,54 @@ export default function ProfileClientView({
                 <div className="bg-[#FDFBF7]/95 pt-4 pb-2 mb-6 border-b border-stone-200">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
                         <div className="flex items-baseline gap-3">
-                            <h2 className="font-serif text-2xl text-stone-900">All Fragrances</h2>
+                            <h2 className="font-serif text-xl md:text-2xl text-stone-900">All Fragrances</h2>
                         </div>
 
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2 md:gap-3">
                             {/* Search Input */}
-                            <div className="relative group">
+                            <div className="relative group flex-1 md:flex-none">
                                 <input
                                     type="text"
-                                    placeholder="Find in wardrobe..."
+                                    placeholder="Find..."
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="bg-white border border-stone-200 text-sm rounded-lg pl-3 pr-8 py-2 w-48 focus:outline-none focus:ring-1 focus:ring-stone-400 transition-all"
+                                    className="bg-white border border-stone-200 text-xs md:text-sm rounded-lg pl-3 pr-8 py-2 w-full md:w-48 focus:outline-none focus:ring-1 focus:ring-stone-400 transition-all"
                                 />
                                 {searchQuery ? (
                                     <button onClick={() => setSearchQuery('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 text-xs">✕</button>
                                 ) : (
-                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 text-xs">🔍</span>
+                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 text-[10px]">🔍</span>
                                 )}
                             </div>
 
-                            {/* Filter Toggle */}
-                            <button
-                                onClick={() => setShowFilters(!showFilters)}
-                                className={`p-2 rounded-lg border transition-colors ${showFilters || (activeFilters.families.length + activeFilters.seasons.length > 0) ? 'bg-stone-900 border-stone-900 text-white' : 'bg-white border-stone-200 text-stone-500 hover:border-stone-400'}`}
-                                title="Filters"
-                            >
-                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                                </svg>
-                            </button>
+                            <div className="flex items-center gap-2">
+                                {/* Filter Toggle */}
+                                <button
+                                    onClick={() => setShowFilters(!showFilters)}
+                                    className={`p-2 rounded-lg border transition-colors ${showFilters || (activeFilters.families.length + activeFilters.seasons.length > 0) ? 'bg-stone-900 border-stone-900 text-white' : 'bg-white border-stone-200 text-stone-500 hover:border-stone-400'}`}
+                                    title="Filters"
+                                >
+                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                                    </svg>
+                                </button>
 
-                            {/* View Toggle */}
-                            <div className="flex bg-stone-200 rounded-lg p-1">
-                                <button 
-                                    onClick={() => setViewMode('grid')}
-                                    className={`px-3 py-1.5 rounded text-[10px] font-bold uppercase tracking-wider transition ${viewMode === 'grid' ? 'bg-white shadow text-stone-900' : 'text-stone-500 hover:text-stone-700'}`}
-                                >
-                                    Grid
-                                </button>
-                                <button 
-                                    onClick={() => setViewMode('season')}
-                                    className={`px-3 py-1.5 rounded text-[10px] font-bold uppercase tracking-wider transition ${viewMode === 'season' ? 'bg-white shadow text-stone-900' : 'text-stone-500 hover:text-stone-700'}`}
-                                >
-                                    Season
-                                </button>
+                                {/* View Toggle */}
+                                <div className="flex bg-stone-200 rounded-lg p-1">
+                                    <button 
+                                        onClick={() => setViewMode('grid')}
+                                        className={`px-2 py-1 md:px-3 md:py-1.5 rounded text-[8px] md:text-[10px] font-bold uppercase tracking-wider transition ${viewMode === 'grid' ? 'bg-white shadow text-stone-900' : 'text-stone-500 hover:text-stone-700'}`}
+                                    >
+                                        Grid
+                                    </button>
+                                    <button 
+                                        onClick={() => setViewMode('season')}
+                                        className={`px-2 py-1 md:px-3 md:py-1.5 rounded text-[8px] md:text-[10px] font-bold uppercase tracking-wider transition ${viewMode === 'season' ? 'bg-white shadow text-stone-900' : 'text-stone-500 hover:text-stone-700'}`}
+                                    >
+                                        Season
+                                    </button>
+                                </div>
                             </div>
-
-                            {/* Sort Dropdown */}
-                            <select 
-                                value={sortBy} 
-                                onChange={(e) => setSortBy(e.target.value as any)}
-                                className="bg-white border border-stone-200 text-stone-600 text-xs rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-stone-400"
-                            >
-                                <option value="recent">Recently Added</option>
-                                <option value="brand">Brand (A-Z)</option>
-                            </select>
                         </div>
                     </div>
                     

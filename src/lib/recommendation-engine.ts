@@ -105,7 +105,9 @@ export class RecommendationEngine {
       .order('id', { ascending: true })
       .limit(limit);
 
-    if (error) console.error('Error fetching perfumes:', error);
+    if (error) {
+      console.warn('Recommendation Engine: Error fetching perfumes candidates:', error.message);
+    }
 
     // FIX: Backfill missing scent_profiles on the fly
     return (perfumes || []).map((p: any) => ({

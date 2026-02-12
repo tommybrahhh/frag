@@ -12,9 +12,16 @@ export default function AuthStatus() {
 
   if (user) {
     return (
-      <div className="flex items-center gap-4">
-        {/* User is logged in. Add user menu/actions here in the future. */}
-      </div>
+      <Link 
+        href="/profile" 
+        className="w-10 h-10 rounded-full bg-stone-100 border border-stone-200 flex items-center justify-center text-xs font-bold text-stone-900 hover:border-stone-400 transition-all overflow-hidden"
+      >
+        {user.user_metadata?.avatar_url ? (
+          <img src={user.user_metadata.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+        ) : (
+          <span>{user.email?.[0].toUpperCase()}</span>
+        )}
+      </Link>
     );
   }
 

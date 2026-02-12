@@ -44,26 +44,22 @@ export default function DailyBattle({ battle }: BattleProps) {
   const rightPct = 100 - leftPct;
 
   return (
-    <section className="py-24 bg-white border-y border-stone-100">
+    <section className="py-16 md:py-24 bg-white">
       <div className="max-w-[1200px] mx-auto px-6">
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-3 mb-4">
-             <div className="h-[1px] w-8 bg-stone-300"></div>
-             <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-stone-400">
-               The Daily Face-off
-             </span>
-             <div className="h-[1px] w-8 bg-stone-300"></div>
-          </div>
-          <h2 className="font-serif text-4xl md:text-5xl text-stone-900">
-            Pick Your Favorite
+        <div className="flex flex-col items-center mb-10">
+          <span className="text-[9px] font-bold uppercase tracking-[0.3em] text-stone-400 mb-2">
+            The Daily Face-off
+          </span>
+          <h2 className="font-serif text-3xl text-stone-900">
+            Pick Your <span className="italic text-stone-400">Favorite</span>
           </h2>
         </div>
 
-        <div className="relative flex flex-col md:flex-row items-stretch gap-6 md:gap-8">
+        <div className="relative flex items-stretch gap-2 md:gap-8 max-w-4xl mx-auto">
           
-          {/* VS Badge */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center justify-center">
-             <div className="w-16 h-16 bg-stone-900 text-white rounded-full flex items-center justify-center font-serif italic text-2xl shadow-xl border-[6px] border-white">
+          {/* VS Badge - Smaller for mobile */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none">
+             <div className="w-10 h-10 md:w-14 md:h-14 bg-stone-900 text-white rounded-full flex items-center justify-center font-serif italic text-sm md:text-xl shadow-xl border-4 border-white">
                vs
              </div>
           </div>
@@ -91,12 +87,13 @@ export default function DailyBattle({ battle }: BattleProps) {
         
         {hasVoted && (
              <motion.div 
-               initial={{ opacity: 0, y: 10 }} 
-               animate={{ opacity: 1, y: 0 }}
-               className="text-center mt-12"
+               initial={{ opacity: 0 }} 
+               animate={{ opacity: 1 }}
+               className="text-center mt-8"
              >
-               <p className="text-stone-400 text-xs font-bold uppercase tracking-widest mb-2">Voting Closed for Today</p>
-               <p className="font-serif text-stone-900 text-lg">Come back tomorrow for a new battle.</p>
+               <p className="text-[10px] text-stone-400 font-bold uppercase tracking-widest">
+                 Thanks for voting! Come back tomorrow.
+               </p>
              </motion.div>
         )}
       </div>
@@ -107,53 +104,51 @@ export default function DailyBattle({ battle }: BattleProps) {
 function BattleCard({ perfume, side, onClick, disabled, percentage, showResult }: any) {
   return (
     <motion.button 
-      whileHover={!disabled ? { scale: 1.005 } : {}}
-      whileTap={!disabled ? { scale: 0.995 } : {}}
+      whileTap={!disabled ? { scale: 0.98 } : {}}
       onClick={onClick}
       disabled={disabled}
-      className={`relative flex-1 w-full bg-stone-50 rounded-[2rem] p-8 md:p-10 transition-all duration-500 group overflow-hidden border border-stone-100 text-left
-         ${disabled && showResult && percentage >= 50 ? 'ring-1 ring-stone-900 bg-stone-100' : ''}
-         ${!disabled ? 'hover:border-stone-300 cursor-pointer' : 'cursor-default'}
+      className={`relative flex-1 bg-stone-50 rounded-3xl p-4 md:p-8 transition-all duration-500 group overflow-hidden border border-stone-100
+         ${disabled && showResult && percentage >= 50 ? 'bg-stone-100 border-stone-200' : ''}
+         ${!disabled ? 'hover:bg-white hover:border-stone-200 cursor-pointer' : 'cursor-default'}
       `}
     >
-      <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-8">
-         {/* Bottle Image - Wrapped in stone-50 to match card, effectively hiding white bg via blend */}
-         <div className="relative w-40 h-40 md:w-48 md:h-48 flex-shrink-0 bg-stone-50 rounded-2xl p-4">
+      <div className="relative z-10 flex flex-col items-center">
+         {/* Bottle Image */}
+         <div className="relative w-24 h-24 md:w-40 md:h-40 mb-4 md:mb-6">
             {perfume.image_url ? (
                 <Image 
                     src={perfume.image_url} 
                     alt={perfume.name} 
                     fill 
-                    className="object-contain mix-blend-multiply"
-                    sizes="(max-width: 768px) 160px, 192px"
+                    className="object-contain mix-blend-multiply opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
+                    sizes="(max-width: 768px) 96px, 160px"
                 />
             ) : (
-                <div className="w-full h-full bg-stone-200 rounded-xl" />
+                <div className="w-full h-full bg-stone-200/50 rounded-2xl flex items-center justify-center text-[10px] text-stone-400">No Image</div>
             )}
          </div>
 
-         {/* Info & Action */}
-         <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left h-full justify-center pt-2">
-             <div className="text-[10px] font-bold tracking-[0.2em] text-stone-400 uppercase mb-2">
+         {/* Info */}
+         <div className="w-full text-center">
+             <div className="text-[8px] md:text-[10px] font-bold tracking-widest text-stone-400 uppercase mb-1 truncate">
                 {perfume.brand?.name}
              </div>
-             <h3 className="font-serif text-2xl text-stone-900 mb-6 leading-tight">{perfume.name}</h3>
+             <h3 className="font-serif text-sm md:text-xl text-stone-900 mb-4 leading-tight line-clamp-2 min-h-[2.5rem] md:min-h-0">
+               {perfume.name}
+             </h3>
              
              {!showResult ? (
-                <span className={`px-8 py-3 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all duration-300 border
+                <div className={`mx-auto w-fit px-4 py-2 md:px-8 md:py-3 rounded-full text-[8px] md:text-[10px] font-bold uppercase tracking-widest transition-all border
                     ${side === 'left' 
-                       ? 'bg-stone-900 text-white border-stone-900 group-hover:bg-stone-800' 
-                       : 'bg-white text-stone-900 border-stone-200 group-hover:border-stone-900'}
+                       ? 'bg-stone-900 text-white border-stone-900' 
+                       : 'bg-white text-stone-900 border-stone-200'}
                 `}>
-                    Vote for This
-                </span>
+                    Vote
+                </div>
              ) : (
-                <div className="w-full">
-                    <div className="flex items-baseline gap-2 mb-2">
-                        <span className="text-4xl font-serif text-stone-900">{percentage}%</span>
-                        <span className="text-xs text-stone-400 font-bold uppercase tracking-wider">of votes</span>
-                    </div>
-                    <div className="w-full h-1.5 bg-stone-200 rounded-full overflow-hidden">
+                <div className="w-full flex flex-col items-center">
+                    <div className="text-2xl md:text-4xl font-serif text-stone-900 mb-1">{percentage}%</div>
+                    <div className="w-full h-1 bg-stone-200 rounded-full overflow-hidden max-w-[60px] md:max-w-full">
                         <motion.div 
                            initial={{ width: 0 }}
                            animate={{ width: `${percentage}%` }}

@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from '@/context/AuthContext';
 import GlobalHeader from '@/components/layout/GlobalHeader';
 import GlobalFooter from '@/components/layout/GlobalFooter';
+import MobileNav from '@/components/layout/MobileNav';
 import CookieConsent from '@/components/ui/CookieConsent';
 
 const geistSans = Geist({
@@ -99,6 +100,7 @@ export default function RootLayout({
           <main className="pt-16">
             {children}
           </main>
+          <MobileNav />
           <GlobalFooter />
           <CookieConsent />
         </AuthProvider>

@@ -119,36 +119,40 @@ export default function PerfumePyramid({ perfume }: PerfumePyramidProps) {
   };
 
   return (
-    <div className="flex flex-col h-full min-h-[600px] lg:min-h-[700px]">
-      {/* Header */}
-      <div className="p-4 border-b border-stone-100 bg-stone-50/50 flex justify-between items-center">
-          <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-900">Scent Architecture</h4>
-          <span className="text-[9px] text-stone-400">Tap notes for info</span>
+    <div className="flex flex-col h-full md:min-h-[600px] lg:min-h-[700px]">
+      {/* Header - Unified with Dashboard Style */}
+      <div className="pb-2 mb-6 border-b border-stone-200 flex justify-between items-center">
+          <h4 className="flex items-center gap-3 text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-stone-400 w-full">
+            Scent Architecture <span className="flex-1 h-px bg-stone-200"></span>
+          </h4>
+          <span className="text-[8px] md:text-[9px] text-stone-400 uppercase font-bold tracking-tighter whitespace-nowrap ml-4">Tap for info</span>
       </div>
 
-      {/* 1. TOP NOTES (Smallest - 20%) */}
-      <TreemapSection 
-         title="Top Notes" 
-         type="Top"
-         notes={perfume.perfume_notes?.filter(n => n.type === 'Top') || []} 
-         heightClass="h-[20%] min-h-[120px]" 
-      />
+      <div className="flex-1 flex flex-col rounded-2xl overflow-hidden border border-stone-100">
+        {/* 1. TOP NOTES (Smallest - 20%) */}
+        <TreemapSection 
+           title="Top" 
+           type="Top"
+           notes={perfume.perfume_notes?.filter(n => n.type === 'Top') || []} 
+           heightClass="h-[120px] md:h-[20%]" 
+        />
 
-      {/* 2. HEART NOTES (Mid - 30%) */}
-      <TreemapSection 
-         title="Heart Notes" 
-         type="Heart"
-         notes={perfume.perfume_notes?.filter(n => n.type === 'Heart') || []} 
-         heightClass="h-[30%] min-h-[180px]" 
-      />
+        {/* 2. HEART NOTES (Mid - 30%) */}
+        <TreemapSection 
+           title="Heart" 
+           type="Heart"
+           notes={perfume.perfume_notes?.filter(n => n.type === 'Heart') || []} 
+           heightClass="h-[180px] md:h-[30%]" 
+        />
 
-      {/* 3. BASE NOTES (Biggest - 50%) */}
-      <TreemapSection 
-         title="Base Notes" 
-         type="Base"
-         notes={perfume.perfume_notes?.filter(n => n.type === 'Base') || []} 
-         heightClass="h-[50%] min-h-[250px]" 
-      />
+        {/* 3. BASE NOTES (Biggest - 50%) */}
+        <TreemapSection 
+           title="Base" 
+           type="Base"
+           notes={perfume.perfume_notes?.filter(n => n.type === 'Base') || []} 
+           heightClass="h-[250px] md:h-[50%]" 
+        />
+      </div>
     </div>
   );
 }

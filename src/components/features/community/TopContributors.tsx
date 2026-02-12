@@ -9,32 +9,40 @@ export default function TopContributors({ contributors }: { contributors: Contri
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {contributors.map((user, index) => (
-        <div key={user.id} className="flex items-center gap-4">
+        <div key={user.id} className="group flex items-center gap-4">
            
            <div className="relative">
-              <div className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center text-stone-600 font-bold text-xs border border-stone-200">
-                  {user.name.slice(0, 2).toUpperCase()}
+              <div className="w-12 h-12 rounded-2xl bg-stone-100 flex items-center justify-center text-stone-400 font-serif text-lg border border-stone-100 overflow-hidden group-hover:border-stone-200 transition-colors">
+                  {user.avatar_url ? (
+                    <img src={user.avatar_url} alt={user.name} className="w-full h-full object-cover" />
+                  ) : (
+                    user.name.charAt(0)
+                  )}
               </div>
-              {index < 3 && (
-                 <div className={`
-                    absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold text-white shadow-sm
-                    ${index === 0 ? 'bg-yellow-400' : index === 1 ? 'bg-stone-400' : 'bg-orange-400'}
-                 `}>
-                    {index + 1}
-                 </div>
-              )}
+              <div className={`
+                absolute -top-2 -right-2 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black text-white shadow-md border-2 border-white
+                ${index === 0 ? 'bg-amber-400' : index === 1 ? 'bg-stone-400' : 'bg-orange-400'}
+              `}>
+                {index + 1}
+              </div>
            </div>
 
            <div className="flex-1 min-w-0">
-              <div className="font-bold text-sm text-stone-900 truncate">{user.name}</div>
-              <div className="text-xs text-stone-400">
-                 {user.total_activity} contributions
+              <div className="flex items-center gap-2 mb-0.5">
+                <div className="font-bold text-sm text-stone-900 truncate">{user.name}</div>
+                <span className="text-[10px]" title={user.level.name}>{user.level.icon}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-stone-400">
+                   {user.total_activity} Activity
+                </div>
+                <div className={`text-[8px] font-bold uppercase px-1.5 py-0.5 rounded ${user.level.bg} ${user.level.color}`}>
+                  {user.level.name}
+                </div>
               </div>
            </div>
-           
-           {index === 0 && <Medal className="w-4 h-4 text-yellow-500" />}
 
         </div>
       ))}

@@ -44,7 +44,7 @@ export default async function CommunityPage() {
         <div className="lg:col-span-2 space-y-8">
            <div className="flex items-center justify-between mb-6">
               <h2 className="font-serif text-2xl text-stone-900 flex items-center gap-3">
-                 <MessageCircle className="w-5 h-5 text-stone-400" />
+                 <MessageCircle className="w-5 h-5 text-orange-400" />
                  Fresh Activity
               </h2>
            </div>
@@ -60,7 +60,7 @@ export default async function CommunityPage() {
            {/* Top Contributors */}
            <div className="bg-white p-6 rounded-2xl border border-stone-100 shadow-sm">
               <div className="flex items-center gap-2 mb-6">
-                 <Trophy className="w-5 h-5 text-yellow-500" />
+                 <Trophy className="w-5 h-5 text-orange-400" />
                  <h3 className="font-serif text-xl text-stone-900">Top Contributors</h3>
               </div>
               <TopContributors contributors={contributors} />
@@ -69,7 +69,7 @@ export default async function CommunityPage() {
            {/* Active Discussions */}
            <div className="bg-white p-6 rounded-2xl border border-stone-100 shadow-sm">
               <div className="flex items-center gap-2 mb-6">
-                 <Users className="w-5 h-5 text-purple-500" />
+                 <Users className="w-5 h-5 text-orange-400" />
                  <h3 className="font-serif text-xl text-stone-900">Top Fragrances</h3>
               </div>
               <ActiveDiscussions discussions={discussions} />
@@ -79,7 +79,7 @@ export default async function CommunityPage() {
            <div className="bg-stone-900 text-white p-8 rounded-2xl text-center">
               <h4 className="font-serif text-xl mb-3">Join the Conversation</h4>
               <p className="text-stone-400 text-sm mb-6">Create your profile to start reviewing and building your collection.</p>
-              <a href="/login?mode=signup" className="block w-full py-3 bg-white text-stone-900 font-bold text-xs uppercase tracking-widest rounded-full hover:bg-stone-200 transition-colors">
+              <a href="/login?mode=signup" className="block w-full py-3 bg-orange-400 text-white font-bold text-xs uppercase tracking-widest rounded-full hover:bg-orange-500 transition-colors">
                  Sign Up Free
               </a>
            </div>

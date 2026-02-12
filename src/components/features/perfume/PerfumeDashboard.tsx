@@ -35,15 +35,15 @@ interface PerfumeDashboardProps {
 export default function PerfumeDashboard({ perfume }: PerfumeDashboardProps) {
   // This now only returns the content for the left column of the grid.
   return (
-    <div className="space-y-12">
+    <div className="space-y-8 md:space-y-12">
       {/* Context */}
       <div>
-        <h4 className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-6 pb-2 border-b border-stone-200">
+        <h4 className="flex items-center gap-3 text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-4 md:mb-6 pb-2 border-b border-stone-200">
           Context <span className="flex-1 h-px bg-stone-200"></span>
         </h4>
-        <div className="space-y-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-6">
           <div>
-            <span className="block text-[9px] font-bold text-stone-400 uppercase mb-3">Best Season</span>
+            <span className="block text-[8px] md:text-[9px] font-bold text-stone-400 uppercase mb-3">Best Season</span>
             <div className="flex gap-2">
               {[
                 { name: 'Spring', icon: '/icons/leaf.svg', active: perfume.best_season?.includes('Spring') },
@@ -51,31 +51,31 @@ export default function PerfumeDashboard({ perfume }: PerfumeDashboardProps) {
                 { name: 'Fall', icon: '/icons/leaf.svg', active: perfume.best_season?.includes('Fall') },
                 { name: 'Winter', icon: '/icons/snowflake.svg', active: perfume.best_season?.includes('Winter') }
               ].map(s => (
-                <div key={s.name} title={s.name} className={`w-10 h-10 flex items-center justify-center rounded-full border transition-all ${s.active ? 'bg-stone-900 border-stone-900 shadow-md' : 'bg-stone-100 border-stone-200'}`}>
+                <div key={s.name} title={s.name} className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-full border transition-all ${s.active ? 'bg-stone-900 border-stone-900 shadow-sm' : 'bg-stone-50 border-stone-200'}`}>
                   <img 
                     src={s.icon} 
                     alt={s.name} 
-                    className={`w-5 h-5 transition-all ${s.active ? 'invert' : 'filter grayscale brightness-150 contrast-50'}`} 
+                    className={`w-4 h-4 md:w-5 md:h-5 transition-all ${s.active ? 'invert' : 'filter grayscale opacity-30'}`} 
                   />
                 </div>
               ))}
             </div>
           </div>
           <div>
-            <span className="block text-[9px] font-bold text-stone-400 uppercase mb-3">Best Time</span>
+            <span className="block text-[8px] md:text-[9px] font-bold text-stone-400 uppercase mb-3">Best Time</span>
             <div className="flex gap-2">
-                <div title="Day" className={`w-10 h-10 flex items-center justify-center rounded-full border transition-all ${!perfume.best_time || perfume.best_time === 'Day' || perfume.best_time === 'All Day' ? 'bg-stone-900 border-stone-900 shadow-md' : 'bg-stone-100 border-stone-200'}`}>
+                <div title="Day" className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-full border transition-all ${!perfume.best_time || perfume.best_time === 'Day' || perfume.best_time === 'All Day' ? 'bg-stone-900 border-stone-900 shadow-sm' : 'bg-stone-50 border-stone-200'}`}>
                   <img 
                     src="/icons/sun.svg" 
                     alt="Day" 
-                    className={`w-5 h-5 transition-all ${!perfume.best_time || perfume.best_time === 'Day' || perfume.best_time === 'All Day' ? 'invert' : 'filter grayscale brightness-150 contrast-50'}`}
+                    className={`w-4 h-4 md:w-5 md:h-5 transition-all ${!perfume.best_time || perfume.best_time === 'Day' || perfume.best_time === 'All Day' ? 'invert' : 'filter grayscale opacity-30'}`}
                   />
                 </div>
-                <div title="Night" className={`w-10 h-10 flex items-center justify-center rounded-full border transition-all ${perfume.best_time === 'Night' || perfume.best_time === 'All Day' ? 'bg-stone-900 border-stone-900 shadow-md' : 'bg-stone-100 border-stone-200'}`}>
+                <div title="Night" className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-full border transition-all ${perfume.best_time === 'Night' || perfume.best_time === 'All Day' ? 'bg-stone-900 border-stone-900 shadow-sm' : 'bg-stone-50 border-stone-200'}`}>
                   <img 
                     src="/icons/moon.svg" 
                     alt="Night" 
-                    className={`w-5 h-5 transition-all ${perfume.best_time === 'Night' || perfume.best_time === 'All Day' ? 'invert' : 'filter grayscale brightness-150 contrast-50'}`}
+                    className={`w-4 h-4 md:w-5 md:h-5 transition-all ${perfume.best_time === 'Night' || perfume.best_time === 'All Day' ? 'invert' : 'filter grayscale opacity-30'}`}
                   />
                 </div>
             </div>
@@ -85,16 +85,16 @@ export default function PerfumeDashboard({ perfume }: PerfumeDashboardProps) {
 
       {/* Performance */}
       <div>
-        <h4 className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-6 pb-2 border-b border-stone-200">
+        <h4 className="flex items-center gap-3 text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-4 md:mb-6 pb-2 border-b border-stone-200">
           Performance <span className="flex-1 h-px bg-stone-200"></span>
         </h4>
-        <div className="space-y-6">
+        <div className="space-y-5 md:space-y-6">
           <div>
             <div className="flex justify-between items-end mb-2">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-stone-500">Longevity</span>
-              <span className="text-xs font-serif italic text-stone-900">{ratingToDescription(perfume.longevity_rating || 0)}</span>
+              <span className="text-[9px] font-bold uppercase tracking-widest text-stone-500">Longevity</span>
+              <span className="text-[10px] font-serif italic text-stone-900">{ratingToDescription(perfume.longevity_rating || 0)}</span>
             </div>
-            <div className="flex gap-1 h-2">
+            <div className="flex gap-0.5 md:gap-1 h-1.5 md:h-2">
               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(step => (
                 <div key={step} className={`flex-1 rounded-full transition-all duration-1000 ${(perfume.longevity_rating || 0) >= step ? 'bg-stone-800' : 'bg-stone-100'}`} />
               ))}
@@ -102,10 +102,10 @@ export default function PerfumeDashboard({ perfume }: PerfumeDashboardProps) {
           </div>
           <div>
             <div className="flex justify-between items-end mb-2">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-stone-500">Sillage</span>
-              <span className="text-xs font-serif italic text-stone-900">{getSillageDescription(perfume.sillage_rating)}</span>
+              <span className="text-[9px] font-bold uppercase tracking-widest text-stone-500">Sillage</span>
+              <span className="text-[10px] font-serif italic text-stone-900">{getSillageDescription(perfume.sillage_rating)}</span>
             </div>
-            <div className="flex gap-1 h-2">
+            <div className="flex gap-0.5 md:gap-1 h-1.5 md:h-2">
               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(step => (
                 <div key={step} className={`flex-1 rounded-full transition-all duration-1000 ${(perfume.sillage_rating || 0) >= step ? 'bg-stone-800' : 'bg-stone-100'}`} />
               ))}
@@ -116,11 +116,13 @@ export default function PerfumeDashboard({ perfume }: PerfumeDashboardProps) {
 
       {/* Radar */}
       <div>
-        <h4 className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-6 pb-2 border-b border-stone-200">
+        <h4 className="flex items-center gap-3 text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-4 md:mb-6 pb-2 border-b border-stone-200">
           Scent DNA <span className="flex-1 h-px bg-stone-200"></span>
         </h4>
-        <div className="-ml-4 -mt-4">
-          <ScentRadar profile={(perfume.scent_profile && Object.keys(perfume.scent_profile).length > 0) ? perfume.scent_profile : { fresh: 5, sweet: 5, spicy: 5, woody: 5, floral: 5 }} />
+        <div className="flex justify-center">
+           <div className="w-full max-w-[280px] md:max-w-full">
+              <ScentRadar profile={(perfume.scent_profile && Object.keys(perfume.scent_profile).length > 0) ? perfume.scent_profile : { fresh: 5, sweet: 5, spicy: 5, woody: 5, floral: 5 }} />
+           </div>
         </div>
       </div>
     </div>

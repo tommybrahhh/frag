@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 export default function GlobalFooter() {
   return (
-    <footer className="w-full bg-[#FDFBF7] border-t border-stone-100 py-12 mt-24">
+    <footer className="hidden lg:block w-full bg-[#FDFBF7] border-t border-stone-100 py-12 mt-24">
       <div className="max-w-[1400px] mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8">
         
         {/* Brand */}

@@ -8,7 +8,7 @@ export default function GlobalHeader() {
   return (
     <header className="sticky top-0 z-[999] w-full border-b border-stone-100 bg-white transition-all duration-300">
       {/* Changed max-w-7xl to max-w-[1400px] to match page content */}
-      <div className="max-w-[1400px] mx-auto px-6 h-20 flex items-center justify-between gap-8">
+      <div className="max-w-[1400px] mx-auto px-6 h-16 md:h-20 flex items-center justify-between gap-8">
         
         {/* Left: Logo and Navigation */}
         <div className="flex items-center gap-8">
@@ -50,12 +50,9 @@ export default function GlobalHeader() {
         </div>
 
         {/* Right: Auth & Mobile Menu */}
-        <div className="flex items-center gap-6 md:gap-8">
-          {/* Auth Actions for Desktop */}
-          <div className="hidden lg:flex items-center gap-4">
-            <AuthStatus />
-          </div>
-          <MobileMenu />
+        <div className="flex items-center gap-6">
+          <AuthStatus />
+          {/* MobileMenu removed to favor Bottom Nav / Simplified Header */}
         </div>
       </div>
     </header>

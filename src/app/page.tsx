@@ -2,8 +2,7 @@ import { createClient } from '@/utils/supabase/server';
 import HomeClient from '@/components/features/home/HomeClient';
 import { Suspense } from 'react';
 import Spinner from '@/components/ui/Spinner';
-import { getPerfumes } from '@/lib/services/perfumeService';
-import { getRecentActivity, getTrendingPerfumes, getCommunityStats } from '@/lib/services/communityService';
+import { getRecentActivity, getTrendingPerfumes, getCommunityStats, getTopContributors, getRandomPerfume } from '@/lib/services/communityService';
 import { getDailyBattle } from '@/lib/actions/battleActions';
 
 export const dynamic = 'force-dynamic';
@@ -12,12 +11,13 @@ export default async function Home() {
   const supabase = await createClient();
 
   // Parallel data fetching for better performance
-  const [activityData, trendingData, perfumesResult, battleData, statsData] = await Promise.all([
+  const [activityData, trendingData, battleData, statsData, contributorsData, randomPerfumeData] = await Promise.all([
     getRecentActivity(10),
     getTrendingPerfumes(10),
-    getPerfumes({ page: 1, limit: 24 }),
     getDailyBattle(),
-    getCommunityStats()
+    getCommunityStats(),
+    getTopContributors(5),
+    getRandomPerfume()
   ]);
 
   return (
@@ -25,9 +25,10 @@ export default async function Home() {
       <HomeClient 
         initialActivity={activityData}
         trendingPerfumes={trendingData}
-        initialPerfumes={(perfumesResult.data as any[]) || []}
         dailyBattle={battleData}
         communityStats={statsData}
+        topContributors={contributorsData}
+        randomPerfume={randomPerfumeData}
       />
     </Suspense>
   );

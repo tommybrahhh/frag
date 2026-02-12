@@ -1,168 +1,35 @@
 'use client';
 
-import { useEffect, useState, useRef, useCallback, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
-import Image from 'next/image';
+import { Suspense } from 'react';
 import Link from 'next/link';
 import CommunityHero from '@/components/features/home/CommunityHero';
 import TrendingScents from '@/components/features/home/TrendingScents';
-import FilterBar from '@/components/features/search/FilterBar';
 import VisualCategoryNav from '@/components/features/search/VisualCategoryNav'; 
 import PageTransition from '@/components/layout/PageTransition';
-import { ActivityItem, CommunityStats } from '@/lib/services/communityService';
+import { ActivityItem, CommunityStats, Contributor } from '@/lib/services/communityService';
 import JoinCommunityCTA from '@/components/features/home/JoinCommunityCTA';
 import DailyBattle from '@/components/features/home/DailyBattle';
-import Spinner from '@/components/ui/Spinner';
-import { Search as SearchIcon, ArrowDown } from 'lucide-react';
+import { Search as SearchIcon, Users, Award } from 'lucide-react';
 
 import TierNav from '@/components/features/search/TierNav';
-
-interface Perfume {
-  id: string;
-  name: string;
-  slug?: string | null;
-  brand: { name: string } | string; 
-  image_url: string;
-  rating?: number;
-  vibe_tags?: string[];
-  scent_profile?: Record<string, number>;
-}
 
 interface HomeClientProps {
   initialActivity?: ActivityItem[];
   trendingPerfumes?: any[];
-  initialPerfumes?: Perfume[];
   dailyBattle?: any;
   communityStats?: CommunityStats;
+  topContributors?: Contributor[];
+  randomPerfume?: any;
 }
 
 export default function HomeClient({ 
   initialActivity = [], 
   trendingPerfumes = [],
-  initialPerfumes = [],
   dailyBattle,
-  communityStats
+  communityStats,
+  topContributors = [],
+  randomPerfume
 }: HomeClientProps) {
-  const searchParams = useSearchParams();
-  const [perfumes, setPerfumes] = useState<Perfume[]>(initialPerfumes);
-  const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const [activeCategory, setActiveCategory] = useState<string>('');
-  const [filters, setFilters] = useState<any>({
-    price: [], gender: [], longevity: [], season: [], concentration: [], tier: [], moment: [], occasion: [], vibe: []
-  });
-
-  const isInitialMount = useRef(true);
-
-  const observer = useRef<IntersectionObserver | null>(null);
-  const lastPerfumeElementRef = useCallback((node: HTMLDivElement) => {
-    if (loading) return;
-    if (observer.current) observer.current.disconnect();
-    observer.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && hasMore) {
-        setPage(prevPage => prevPage + 1);
-      }
-    });
-    if (node) observer.current.observe(node);
-  }, [loading, hasMore]);
-
-  const [showLibrary, setShowLibrary] = useState(false);
-  const libraryRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (isInitialMount.current && searchParams.toString().length > 0) {
-       setShowLibrary(true);
-       setTimeout(() => {
-          libraryRef.current?.scrollIntoView({ behavior: 'smooth' });
-       }, 500);
-    }
-
-    const hasSearchParams = searchParams.toString().length > 0;
-    
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      if (initialPerfumes.length > 0 && !hasSearchParams) {
-        return; 
-      }
-    }
-
-    const fetchPerfumes = async () => {
-      setLoading(true);
-      try {
-        const params = new URLSearchParams();
-        params.append('page', page.toString());
-        params.append('limit', '24'); 
-
-        Object.keys(filters).forEach(key => {
-          if (filters[key] && filters[key].length > 0) {
-            params.append(key, filters[key].join(','));
-          }
-        });
-
-        const urlTier = searchParams.get('tier');
-        const urlYear = searchParams.get('year');
-        const urlFamily = searchParams.get('family');
-        const urlVibe = searchParams.get('vibe');
-        const urlGender = searchParams.get('gender');
-
-        if (urlTier && (!filters.tier || filters.tier.length === 0)) params.set('tier', urlTier);
-        if (urlYear) params.append('year', urlYear);
-        if (urlFamily) params.append('family', urlFamily);
-        if (urlVibe && filters.vibe.length === 0) params.append('vibe', urlVibe);
-        if (urlGender && filters.gender.length === 0) params.set('gender', urlGender);
-
-        const res = await fetch(`/api/perfumes?${params.toString()}`);
-        const data = await res.json();
-        
-        if (data.perfumes) {
-          setPerfumes(prev => page === 1 ? data.perfumes : [...prev, ...data.perfumes]);
-          setHasMore(data.hasMore);
-        }
-      } catch (err) {
-        console.error('Failed to fetch collection', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPerfumes();
-  }, [page, filters, searchParams]);
-
-  const handleFilterChange = (newFilters: any) => {
-    setFilters(newFilters);
-    setPage(1);
-    setPerfumes([]); 
-    setHasMore(true);
-  };
-
-  const handleCategorySelect = (slug: string) => {
-    setActiveCategory(slug);
-    if (slug === '') {
-       setFilters((prev: any) => ({ ...prev, vibe: [] }));
-    } else {
-       setFilters((prev: any) => ({ ...prev, vibe: [slug] }));
-    }
-    setPage(1);
-    setPerfumes([]);
-    setHasMore(true);
-    
-    // Auto-reveal library when category is selected
-    if (!showLibrary) {
-      setShowLibrary(true);
-      setTimeout(() => {
-        libraryRef.current?.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
-    }
-  };
-
-  const handleShowLibrary = () => {
-    setShowLibrary(true);
-    setTimeout(() => {
-      libraryRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, 100);
-  };
-
   return (
     <PageTransition>
       <main className="min-h-screen bg-white text-stone-800 pb-24">
@@ -172,131 +39,124 @@ export default function HomeClient({
 
         <DailyBattle battle={dailyBattle} />
 
-        <div id="tiers">
-          <TierNav />
-        </div>
-
-        <VisualCategoryNav onSelectCategory={handleCategorySelect} activeCategory={activeCategory} />
-
-        {!showLibrary ? (
-          <div className="py-16 text-center">
-             <button 
-                onClick={handleShowLibrary}
-                className="group inline-flex items-center gap-3 px-8 py-4 bg-stone-900 text-white rounded-full font-bold text-xs uppercase tracking-widest hover:bg-stone-800 transition-all hover:scale-105 active:scale-95 shadow-xl"
-             >
-                <SearchIcon className="w-4 h-4" />
-                <span>Open Fragrance Library</span>
-                <ArrowDown className="w-4 h-4 group-hover:translate-y-1 transition-transform" />
-             </button>
-             <p className="mt-4 text-stone-400 text-sm font-light">
-                Browse {perfumes.length > 0 ? perfumes.length + '+' : ''} perfumes by notes, brands, and vibes.
-             </p>
-          </div>
-        ) : (
-          <div ref={libraryRef} className="animate-in fade-in slide-in-from-bottom-8 duration-700">
-            <div className="sticky top-16 z-40 bg-white/95 backdrop-blur-sm border-y border-stone-100 py-4 mb-12 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] transition-all">
-               <FilterBar onFilterChange={handleFilterChange} />
-            </div>
-
-            <div className="max-w-[1400px] mx-auto px-6">
-              <div className="flex items-end justify-between mb-8">
-                 <h3 className="font-serif text-3xl text-stone-900">Explore the Library</h3>
-                 <span className="text-[10px] font-bold tracking-widest text-stone-400 uppercase">{perfumes.length} Scents</span>
-              </div>
-              
-              {perfumes.length === 0 && !loading && (
-                <div className="text-center py-24 text-stone-400 bg-stone-50 rounded-2xl border border-dashed border-stone-200">
-                  <p className="mb-2">We couldn't find a scent that matches those exact filters.</p>
-                  <button onClick={() => window.location.reload()} className="text-stone-900 text-xs font-bold uppercase tracking-widest underline underline-offset-4 hover:text-stone-600">
-                    Reset & Explore All
-                  </button>
-                </div>
-              )}
-
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                {perfumes.map((p, index) => {
-                  if (!p) return null;
-                  const isLast = index === perfumes.length - 1;
-                  const brandName = p.brand && typeof p.brand === 'object' ? p.brand.name : (p.brand || 'Unknown Brand');
-                  
-                  return (
-                    <div key={`${p.id}-${index}`} ref={isLast ? lastPerfumeElementRef : null}>
-                      <Link href={`/perfume/${p.slug || p.id}`} className="group block h-full bg-white rounded-2xl border border-stone-100 p-4 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                        <div className="h-64 flex items-center justify-center mb-4 bg-stone-50 rounded-xl group-hover:bg-white transition-colors relative overflow-hidden">
-                          {p.image_url ? (
-                            <Image src={p.image_url} alt={p.name} fill className="object-contain mix-blend-multiply brightness-[1.05] group-hover:scale-105 transition duration-700 ease-in-out" sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 20vw" />
-                          ) : (
-                            <div className="text-stone-300 text-xs font-bold uppercase tracking-widest">No Image</div>
-                          )}
-                          
-                          {p.rating && (
-                            <div className="absolute top-3 right-3 bg-white px-2 py-1 rounded-full text-[10px] font-bold text-stone-900 shadow-sm z-10">
-                              ★ {p.rating.toFixed(1)}
-                            </div>
-                          )}
-
-                          <div className="absolute inset-0 bg-white/95 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-6 flex flex-col justify-center gap-4 z-20">
-                            {p.scent_profile && (
-                              <div>
-                                <div className="text-[9px] font-bold uppercase tracking-widest text-stone-400 mb-2">Scent Profile</div>
-                                <div className="space-y-2">
-                                  {Object.entries(p.scent_profile).sort(([,a], [,b]): number => (b as number) - (a as number)).slice(0, 3).map(([accord, score], i, arr) => {
-                                    const total = arr.reduce((sum, [,val]) => sum + (val as number), 0);
-                                    const pct = Math.round(((score as number) / total) * 100);
-                                    return (
-                                      <div key={accord} className="flex items-center gap-2 text-[10px]">
-                                        <span className="w-12 font-medium text-stone-600 capitalize truncate">{accord}</span>
-                                        <div className="flex-1 h-1.5 bg-stone-100 rounded-full overflow-hidden">
-                                          <div className="h-full bg-stone-800 rounded-full" style={{ width: `${pct}%` }}></div>
-                                        </div>
-                                        <span className="text-stone-400 w-6 text-right">{pct}%</span>
+                                {/* Top Contributors Section */}
+                                {topContributors.length > 0 && (
+                                  <section className="py-12 md:py-24 bg-white">
+                                    <div className="max-w-[1400px] mx-auto px-6">
+                                      <div className="flex items-center justify-between mb-8 md:mb-16 gap-4">
+                                        <h2 className="font-serif text-2xl md:text-4xl text-stone-900">
+                                          Top <span className="italic text-stone-400">Contributors</span>
+                                        </h2>
+                                        <Link href="/community" className="text-[9px] md:text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 transition-colors">
+                                          View All →
+                                        </Link>
                                       </div>
-                                    );
-                                  })}
-                                </div>
-                              </div>
-                            )}
-                            {p.vibe_tags && p.vibe_tags.length > 0 && (
-                              <div>
-                                <div className="text-[9px] font-bold uppercase tracking-widest text-stone-400 mb-2">Vibe Check</div>
-                                <div className="flex flex-wrap gap-1.5">
-                                  {p.vibe_tags.slice(0, 3).map((tag: string) => (
-                                    <span key={tag} className="text-[10px] px-2 py-1 bg-stone-100 text-stone-600 rounded border border-stone-200 uppercase tracking-wide">
-                                      {tag}
-                                    </span>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </div>
                         
-                        <div className="text-center">
-                          <div className="text-[10px] font-bold tracking-[0.2em] text-stone-400 uppercase mb-1 truncate">
-                            {brandName || 'Unknown Brand'}
-                          </div>
-                          <h4 className="font-serif text-lg text-stone-900 leading-tight truncate px-2 mb-2 group-hover:text-stone-600 transition-colors">
-                            {p.name}
-                          </h4>
-                        </div>
-                      </Link>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {loading && (
-                <div className="py-20 flex justify-center">
-                  <div className="flex gap-2">
-                    <div className="w-2 h-2 bg-stone-300 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <div className="w-2 h-2 bg-stone-300 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <div className="w-2 h-2 bg-stone-300 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                  </div>
+                                      <div className="relative -mx-6 px-6">
+                                        <div className="flex gap-3 md:gap-6 overflow-x-auto pb-6 snap-x snap-mandatory hide-scrollbar">
+                                          {topContributors.map((user) => (
+                                            <Link 
+                                              href={`/profile/${user.id}`} 
+                                              key={user.id} 
+                                              className="snap-start shrink-0 w-[140px] md:w-[240px] bg-stone-50 border border-stone-100 p-5 md:p-8 rounded-[2rem] text-center hover:bg-white hover:border-stone-200 hover:shadow-sm transition-all duration-300"
+                                            >
+                                              <div className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-3 md:mb-4 rounded-full overflow-hidden bg-white border border-stone-100">
+                                                {user.avatar_url ? (
+                                                  <img src={user.avatar_url} alt={user.name} className="w-full h-full object-cover" />
+                                                ) : (
+                                                  <div className="w-full h-full flex items-center justify-center text-lg md:text-xl font-serif text-stone-300 bg-white">
+                                                    {user.name.charAt(0)}
+                                                  </div>
+                                                )}
+                                              </div>
+                                              
+                                              <div className={`inline-block px-1.5 py-0.5 rounded text-[7px] md:text-[8px] font-bold uppercase tracking-widest mb-1.5 ${user.level.bg} ${user.level.color} border ${user.level.border}`}>
+                                                {user.level.name}
+                                              </div>
+                        
+                                              <h4 className="font-serif text-sm md:text-lg text-stone-900 mb-0.5 truncate">{user.name}</h4>
+                                              <p className="text-[8px] md:text-[10px] font-bold uppercase tracking-widest text-stone-400">
+                                                {user.total_activity} Posts
+                                              </p>
+                                            </Link>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </section>
+                                )}
+        <div className="py-12 md:py-24 space-y-16 md:space-y-32 bg-stone-50/50">
+          <div id="discovery" className="max-w-[1400px] mx-auto px-6">
+             <div className="mb-8 md:mb-16">
+                <div className="flex items-center gap-2 mb-2 md:mb-4">
+                   <div className="h-px w-4 md:w-8 bg-stone-200" />
+                   <span className="text-[8px] md:text-[10px] font-bold uppercase tracking-[0.3em] text-stone-400">Discovery Hub</span>
                 </div>
-              )}
+                <h2 className="font-serif text-2xl md:text-5xl text-stone-900">
+                  Find Your Next <span className="italic text-stone-400">Signature</span>
+                </h2>
+             </div>
+             
+             <div className="space-y-12 md:space-y-24">
+               <TierNav />
+               <VisualCategoryNav />
+             </div>
+          </div>
+
+          <div className="max-w-[1400px] mx-auto px-6">
+            <div className="bg-white rounded-[2rem] md:rounded-[3rem] p-8 md:p-16 text-center md:text-left border border-stone-100 relative overflow-hidden shadow-sm flex flex-col md:flex-row items-center gap-12">
+               {/* Decorative background */}
+               <div className="absolute top-0 left-0 w-full h-full opacity-[0.03] pointer-events-none">
+                  <div className="absolute top-[-10%] right-[-5%] w-[40%] h-[60%] bg-stone-900 rounded-full blur-[120px]" />
+               </div>
+
+               <div className="relative z-10 flex-1">
+                 <h3 className="font-serif text-3xl md:text-5xl text-stone-900 mb-6 text-balance">Can&apos;t find <br className="hidden md:block" /> your scent?</h3>
+                 <p className="text-base md:text-lg text-stone-500 mb-8 max-w-md font-light leading-relaxed">
+                    Explore our full library of thousands of fragrances, or try our lucky pick.
+                 </p>
+                 <Link 
+                    href="/search"
+                    className="inline-flex items-center gap-3 px-8 py-4 bg-stone-900 text-white rounded-full font-bold text-[10px] md:text-xs uppercase tracking-widest hover:bg-stone-800 transition-all shadow-xl"
+                 >
+                    <SearchIcon className="w-4 h-4" />
+                    <span>Open Library</span>
+                 </Link>
+               </div>
+
+               {randomPerfume && (
+                 <div className="relative z-10 w-full md:w-72">
+                    <div className="absolute -top-3 -left-3 z-20 bg-amber-400 text-stone-900 text-[8px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full shadow-lg -rotate-12">
+                       Lucky Pick
+                    </div>
+                    <Link href={`/perfume/${randomPerfume.slug}`} className="block group bg-stone-50 border border-stone-100 p-6 rounded-[2rem] hover:bg-white hover:border-stone-200 hover:shadow-xl transition-all duration-500">
+                       <div className="aspect-square relative mb-4 bg-white rounded-2xl p-4 overflow-hidden">
+                          {randomPerfume.image_url ? (
+                            <img 
+                              src={randomPerfume.image_url} 
+                              alt={randomPerfume.name} 
+                              className="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-700" 
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-stone-50 flex items-center justify-center text-[10px] text-stone-300">No Image</div>
+                          )}
+                       </div>
+                       <div className="text-center">
+                          <div className="text-[8px] font-bold text-stone-400 uppercase tracking-widest mb-1 truncate">
+                             {randomPerfume.brand?.name}
+                          </div>
+                          <h4 className="font-serif text-base text-stone-900 truncate mb-1">{randomPerfume.name}</h4>
+                          <div className="flex items-center justify-center gap-1">
+                             <span className="text-amber-400 text-[10px]">★</span>
+                             <span className="text-[9px] font-bold text-stone-500 pt-0.5">{randomPerfume.rating?.toFixed(1) || 'N/A'}</span>
+                          </div>
+                       </div>
+                    </Link>
+                 </div>
+               )}
             </div>
           </div>
-        )}
+        </div>
         
         <JoinCommunityCTA />
       </main>

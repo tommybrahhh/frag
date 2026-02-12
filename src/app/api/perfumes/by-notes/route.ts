@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     const { data, count } = await fragranceService.getFragrancesByNotes(noteIds, page, limit);
     return NextResponse.json({ data, count });
   } catch (error: any) {
-    console.error('Error fetching perfumes by notes:', error);
+    console.error('Error fetching perfumes by notes:', error.message || error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
