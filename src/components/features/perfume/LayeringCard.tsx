@@ -168,7 +168,7 @@ export default function LayeringCard({ mainPerfume, recommendation, onRefresh }:
           <div className="mt-6 md:mt-8 pt-6 md:pt-8 border-t border-stone-200/50 flex flex-col gap-4">
              <div className="grid grid-cols-3 gap-2">
                 {Object.entries(resultingScent.profile)
-                  .sort((a, b) => (b[1] as number) - (a as number))
+                  .sort((a, b) => (b[1] as number) - (a[1] as number))
                   .slice(0, 3)
                   .map(([trait, value]) => (
                     <div key={trait} className="text-center min-w-0">
