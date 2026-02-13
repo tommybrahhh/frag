@@ -20,6 +20,57 @@ interface CommentWithPerfume {
   };
 }
 
+const CommunityBuzz = () => {
+  const [comments, setComments] = useState<CommentWithPerfume[]>([]);
+  const [loading, setLoading] = useState(true);
+  const supabase = createClient();
+
+  useEffect(() => {
+    const fetchComments = async () => {
+      const { data, error } = await supabase
+        .from('comments')
+        .select(`
+          id,
+          user_name,
+          content,
+          created_at,
+          perfume_id,
+          perfume:perfumes (
+            name,
+            image_url,
+            slug,
+            brand:brands ( name )
+          )
+        `)
+        .order('created_at', { ascending: false })
+        .limit(3);
+
+      if (!error && data) {
+        setComments(data as any);
+      }
+      setLoading(false);
+    };
+
+    fetchComments();
+  }, []);
+
+  if (loading) {
+    return <div className="animate-pulse space-y-4">
+      {[1, 2, 3].map(i => <div key={i} className="h-32 bg-stone-100 rounded-2xl" />)}
+    </div>;
+  }
+
+  if (comments.length === 0) return null;
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {comments.map((c) => {
+          const perfumeName = c.perfume?.name || 'Unknown';
+          const perfumeLink = `/perfume/${c.perfume?.slug || c.perfume_id}`;
+          const initials = c.user_name.slice(0, 2).toUpperCase();
+
+          return (
             <Link key={c.id} href={perfumeLink} className="group flex flex-col justify-between bg-white border border-stone-100 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full">
               
               {/* Header: User & Time */}
@@ -62,7 +113,7 @@ interface CommentWithPerfume {
               </div>
 
             </Link>
-           );
+          );
         })}
       </div>
     </div>
