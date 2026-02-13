@@ -7,7 +7,7 @@ interface RandomPerfumeType {
   slug: string;
   image_url?: string;
   name: string;
-  brand?: { name: string };
+  brand?: { name: string }[]; // Changed to array
   rating?: number;
 }
 
@@ -36,10 +36,9 @@ export default function RandomPerfumeClient({ randomPerfume }: RandomPerfumeClie
           )}
         </div>
         <div className="text-center">
-          <div className="text-[8px] font-bold text-stone-400 uppercase tracking-widest mb-1 truncate">
-            {randomPerfume.brand?.name}
-          </div>
-          <h4 className="font-serif text-base text-stone-900 truncate mb-1">{randomPerfume.name}</h4>
+                                    <div className="text-[8px] font-bold text-stone-400 uppercase tracking-widest mb-1 truncate">
+                                       {randomPerfume.brand?.[0]?.name}
+                                    </div>          <h4 className="font-serif text-base text-stone-900 truncate mb-1">{randomPerfume.name}</h4>
           <div className="flex items-center justify-center gap-1">
             <span className="text-amber-400 text-[10px]">★</span>
             <span className="text-[9px] font-bold text-stone-500 pt-0.5">{randomPerfume.rating?.toFixed(1) || 'N/A'}</span>
