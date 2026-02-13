@@ -1,52 +1,39 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getPerfumes } from '@/lib/services/perfumeService';
 
-export const dynamic = 'force-dynamic';
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
 
-export async function GET(request: Request) {
+  const params = {
+    page: parseInt(searchParams.get('page') || '1', 10),
+    limit: parseInt(searchParams.get('limit') || '12', 10),
+    sort: searchParams.get('sort'),
+    q: searchParams.get('q'), // for general search query if implemented later
+    // Add other filter parameters as needed from PerfumeFilterParams
+    price: searchParams.get('price'),
+    gender: searchParams.get('gender'),
+    longevity: searchParams.get('longevity'),
+    season: searchParams.get('season'),
+    concentration: searchParams.get('concentration'),
+    tier: searchParams.get('tier'),
+    moment: searchParams.get('moment'),
+    occasion: searchParams.get('occasion'),
+    year: searchParams.get('year'),
+    family: searchParams.get('family'),
+    vibe: searchParams.get('vibe'),
+  };
+
   try {
-    const { searchParams } = new URL(request.url);
-    
-    // Proactive Fix: Validation to prevent NaN crashing the DB query
-    const pageParam = parseInt(searchParams.get('page') || '1');
-    const limitParam = parseInt(searchParams.get('limit') || '20');
-
-    const params = {
-      page: isNaN(pageParam) || pageParam < 1 ? 1 : pageParam,
-      limit: isNaN(limitParam) || limitParam < 1 ? 20 : limitParam,
-      price: searchParams.get('price'),
-      gender: searchParams.get('gender'),
-      longevity: searchParams.get('longevity'),
-      season: searchParams.get('season'),
-      concentration: searchParams.get('concentration'),
-      tier: searchParams.get('tier'),
-      moment: searchParams.get('moment'),
-      occasion: searchParams.get('occasion'),
-      year: searchParams.get('year'),
-      family: searchParams.get('family'),
-      vibe: searchParams.get('vibe'),
-      sort: searchParams.get('sort'),
-    };
-
-    const { data, error, count } = await getPerfumes(params);
+    const { data, count, error } = await getPerfumes(params);
 
     if (error) {
-      console.error('Query Error:', error);
+      console.error('Error fetching perfumes:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    const offset = (params.page - 1) * params.limit;
-
-    return NextResponse.json({ 
-      perfumes: data, 
-      total: count,
-      page: params.page,
-      limit: params.limit,
-      hasMore: count ? (offset + params.limit < count) : false
-    });
-
-  } catch (err) {
-    console.error('Server Error:', err);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json({ data, count });
+  } catch (error: any) {
+    console.error('Unexpected error fetching perfumes:', error);
+    return NextResponse.json({ error: error.message || 'An unexpected error occurred' }, { status: 500 });
   }
 }

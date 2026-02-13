@@ -65,7 +65,7 @@ export default function CommunityHero({ activity, stats }: CommunityHeroProps) {
 
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-12">
               <Link 
-                href="/search"
+                href="/search?sort=newest"
                 className="w-full sm:w-auto px-10 py-4 bg-stone-900 text-stone-50 rounded-full font-bold text-[10px] uppercase tracking-widest hover:bg-stone-800 transition-all shadow-lg"
               >
                 Explore library

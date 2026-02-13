@@ -1,6 +1,6 @@
 
 import React, { Suspense } from 'react';
-import UnifiedSearch from '@/components/features/search/UnifiedSearch';
+import UnifiedSearchClient from '@/components/features/search/UnifiedSearchClient';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function SearchPage() {
   return (
     <Suspense fallback={<div className="min-h-screen bg-[#FDFBF7] flex items-center justify-center text-stone-400">Loading...</div>}>
-      <UnifiedSearch />
+      <UnifiedSearchClient />
     </Suspense>
   );
 }
