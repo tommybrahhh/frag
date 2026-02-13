@@ -12,7 +12,7 @@ interface RandomPerfumeType {
 }
 
 interface RandomPerfumeClientProps {
-  randomPerfume: RandomPerfumeType;
+  randomPerfume: RandomPerfumeType | null;
 }
 
 export default function RandomPerfumeClient({ randomPerfume }: RandomPerfumeClientProps) {
