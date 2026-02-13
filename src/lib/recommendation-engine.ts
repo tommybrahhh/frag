@@ -60,7 +60,7 @@ export class RecommendationEngine {
    * Optimized to select only fields necessary for analysis to reduce payload.
    * Now supports 'contextPerfume' to pre-filter candidates in DB for relevance.
    */
-  public static async getAllPerfumes(supabaseClient?: any, limit: number = 1000, contextPerfume?: PerfumeWithRelations) {
+  public static async getAllPerfumes(supabaseClient?: any, limit: number = 300, contextPerfume?: PerfumeWithRelations) {
     const supabase = supabaseClient || createClient();
     
     let query = supabase
@@ -77,11 +77,10 @@ export class RecommendationEngine {
         )
       `);
 
-    // SMART FILTER: If we have a context, only fetch "plausible" candidates.
-    // This reduces the load from 2000+ random items to ~1000 relevant ones.
+    // SMART FILTER: Significantly reduced limit (1000 -> 300) and tighter pre-filtering
     if (contextPerfume) {
        const families = contextPerfume.olfactory_family || [];
-       const vibes = contextPerfume.vibe_tags || [];
+       const vibes = (contextPerfume.vibe_tags || []).slice(0, 2); // Use only top 2 vibes for filtering
        const brandName = contextPerfume.brand?.name;
 
        // Helper to format Postgres Array String: ["A", "B"] -> {"A","B"}

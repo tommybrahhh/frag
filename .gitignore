@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# data and logs
+data/*.html
+scrapers/logs/*.log
+scrapers/logs/*.txt
+*.csv
+!data/
+!db/
