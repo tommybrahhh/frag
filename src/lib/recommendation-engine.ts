@@ -684,20 +684,11 @@ export class RecommendationEngine {
       if (recs.length > 0) categories.push({ type, title, description: desc, recommendations: recs });
     };
 
-    // 1. The "Artist" (High value for enthusiasts)
-    addCategory('artist_portfolio', 'The Masterpiece Connection', `Trust the nose behind the scent.`, 
-      this.getPerfumerPortfolioRecommendations(mainPerfume, allPerfumes));
-
-    // 2. The "Niche Upgrade" (High value for upsell/discovery)
+    // 1. The "Niche Upgrade" (High value for upsell/discovery)
     addCategory('niche_upgrade', 'The Niche Upgrade', 'Higher quality ingredients, deeper complexity.',
       this.getNicheGatewayRecommendations(mainPerfume, allPerfumes, mainProfile));
 
-    // 3. The "Seasonal Pivot" (High utility)
-    const season = mainPerfume.best_season?.[0] === 'Winter' ? 'Summer' : 'Winter';
-    addCategory('seasonal_pivot', 'Seasonal Switch', `Wear this DNA year-round, even in ${season}.`,
-      this.getSeasonalPivotRecommendations(mainPerfume, allPerfumes, mainProfile));
-
-    // 4. The "Similar Vibe" (Core Recommendation)
+    // 2. The "Similar Vibe" (Core Recommendation)
     addCategory('similar', 'Similar Vibe', 'Fragrances that share the same DNA and character.',
       this.getSimilarRecommendations(mainPerfume, allPerfumes));
 
@@ -706,17 +697,8 @@ export class RecommendationEngine {
     addCategory('isolator', `Pure ${mainProfile.signatureNote}`, `For the true ${mainProfile.signatureNote} lovers.`, 
       this.getNoteIsolatorRecommendations(mainPerfume, allPerfumes, mainProfile));
 
-    addCategory('vibe_remix', `${mainProfile.signatureNote} Remix`, `Same key ingredient, totally different vibe.`, 
-      this.getVibeEvolutionRecommendations(mainPerfume, allPerfumes, mainProfile));
-
     addCategory('performance_beast', 'Performance Beasts', 'For when you need it to last 12+ hours.', 
       this.getPerformanceUpgradeRecommendations(mainPerfume, allPerfumes, mainProfile));
-
-    addCategory('structure', 'Fast Forward', 'Skip the opening and get straight to the good stuff.', 
-      this.getStructuralShiftRecommendations(mainPerfume, allPerfumes, mainProfile));
-
-    addCategory('layering', 'Layering Combos', 'Create a custom signature scent.', 
-      this.getLayeringRecommendations(mainPerfume, allPerfumes));
 
     return categories;
   }

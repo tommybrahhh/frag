@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
 import { Database } from '@/types/database';
 import { createClient } from '@/utils/supabase/client';
+import { formatRelativeTime } from '@/utils/timeUtils';
 
 // ------------------------------------------------------------------
 // TYPES
@@ -288,7 +289,7 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
                           )}
                         </div>
                         <span className="text-[10px] text-stone-400 font-medium">
-                          {new Date(comment.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                          {formatRelativeTime(comment.created_at)}
                         </span>
                       </div>
                     </div>

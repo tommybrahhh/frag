@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { formatRelativeTime } from '@/utils/timeUtils';
 
 // Simplified type for the comment data passed from the server
 type UserComment = {
@@ -56,8 +57,8 @@ export default function UserCommentsList({ initialData = [] }: UserCommentsListP
                   {comment.brand_name || 'Unknown Brand'}
                 </p>
               </Link>
-              <div className="text-xs text-stone-400 mt-1">
-                {new Date(comment.created_at).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
+              <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mt-2">
+                {formatRelativeTime(comment.created_at)}
               </div>
             </div>
           </div>

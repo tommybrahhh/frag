@@ -31,7 +31,7 @@ export default function ActiveDiscussions({ discussions }: { discussions: any[] 
              
              <div className="flex-1 min-w-0">
                 <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 truncate">{p.brands?.name}</div>
-                <div className="font-serif text-stone-900 truncate group-hover:text-purple-700 transition-colors">{p.name}</div>
+                <div className="font-serif text-stone-900 truncate group-hover:text-stone-600 transition-colors">{p.name}</div>
              </div>
 
              <div className="flex items-center gap-1 text-stone-400 text-xs font-bold">

@@ -20,9 +20,9 @@ const RecommendationSection = ({ category, mainPerfume }: { category: Recommenda
 
   const visibleRecommendations = isLayering
     ? [category.recommendations[layeringIndex]].filter(Boolean)
-    : (isExpanded ? category.recommendations : category.recommendations.slice(0, 6));
+    : (isExpanded ? category.recommendations : category.recommendations.slice(0, 3));
     
-  const hasHiddenItems = !isLayering && category.recommendations.length > 6;
+  const hasHiddenItems = !isLayering && category.recommendations.length > 3;
 
   const handleRecommendationClick = (slug: string) => {
     router.push(`/perfume/${slug}`);

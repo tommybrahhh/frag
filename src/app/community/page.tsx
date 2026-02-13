@@ -21,32 +21,32 @@ export default async function CommunityPage() {
   ]);
 
   return (
-    <main className="min-h-screen bg-stone-50 pb-20">
+    <main className="min-h-screen bg-stone-50 pb-20 selection:bg-stone-900 selection:text-stone-50">
       {/* Header */}
-      <div className="bg-stone-900 text-white py-16 px-6">
+      <div className="bg-stone-900 text-stone-50 py-16 md:py-20 px-6 border-b border-stone-800">
         <div className="max-w-[1200px] mx-auto">
-          <div className="flex items-center gap-3 mb-4">
-            <Users className="w-6 h-6 text-orange-400" />
-            <span className="text-xs font-bold uppercase tracking-widest text-orange-400">Community Hub</span>
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-1 h-1 rounded-full bg-stone-500" />
+            <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-stone-500">The Circle</span>
           </div>
-          <h1 className="font-serif text-4xl md:text-6xl mb-6">
-            The Scent Circle
+          <h1 className="font-serif text-4xl md:text-6xl mb-6 tracking-tight">
+            The Scent <span className="italic text-stone-400">Circle</span>
           </h1>
-          <p className="text-lg text-stone-300 max-w-2xl font-light leading-relaxed">
-            See what's happening right now. Real reviews, fresh debates, and the people making this community smell amazing.
+          <p className="text-base md:text-lg text-stone-400 max-w-xl font-light leading-relaxed">
+            A collective record of personal journeys, honest reviews, and olfactory discoveries.
           </p>
         </div>
       </div>
 
-      <div className="max-w-[1200px] mx-auto px-6 py-12 grid grid-cols-1 lg:grid-cols-3 gap-12">
+      <div className="max-w-[1200px] mx-auto px-6 py-16 grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-16">
         
         {/* Left Column: The Feed (Main Content) */}
-        <div className="lg:col-span-2 space-y-8">
-           <div className="flex items-center justify-between mb-6">
-              <h2 className="font-serif text-2xl text-stone-900 flex items-center gap-3">
-                 <MessageCircle className="w-5 h-5 text-orange-400" />
-                 Fresh Activity
+        <div className="space-y-12">
+           <div className="flex items-center justify-between border-b border-stone-200 pb-6">
+              <h2 className="font-serif text-3xl text-stone-900">
+                 Latest Comments
               </h2>
+              <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400">Live Feed</div>
            </div>
            
            <Suspense fallback={<div className="py-20 flex justify-center"><Spinner /></div>}>
@@ -55,32 +55,32 @@ export default async function CommunityPage() {
         </div>
 
         {/* Right Column: Sidebar */}
-        <div className="space-y-12">
+        <div className="space-y-16">
            
            {/* Top Contributors */}
-           <div className="bg-white p-6 rounded-2xl border border-stone-100 shadow-sm">
-              <div className="flex items-center gap-2 mb-6">
-                 <Trophy className="w-5 h-5 text-orange-400" />
-                 <h3 className="font-serif text-xl text-stone-900">Top Contributors</h3>
+           <div className="bg-white p-8 rounded-[32px] border border-stone-200 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
+              <div className="flex items-center justify-between mb-8">
+                 <h3 className="font-serif text-2xl text-stone-900">Contributors</h3>
+                 <Trophy className="w-4 h-4 text-stone-400" />
               </div>
               <TopContributors contributors={contributors} />
            </div>
 
            {/* Active Discussions */}
-           <div className="bg-white p-6 rounded-2xl border border-stone-100 shadow-sm">
-              <div className="flex items-center gap-2 mb-6">
-                 <Users className="w-5 h-5 text-orange-400" />
-                 <h3 className="font-serif text-xl text-stone-900">Top Fragrances</h3>
+           <div className="bg-white p-8 rounded-[32px] border border-stone-200 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
+              <div className="flex items-center justify-between mb-8">
+                 <h3 className="font-serif text-2xl text-stone-900">Trending</h3>
+                 <MessageCircle className="w-4 h-4 text-stone-400" />
               </div>
               <ActiveDiscussions discussions={discussions} />
            </div>
            
            {/* Join CTA for Sidebar */}
-           <div className="bg-stone-900 text-white p-8 rounded-2xl text-center">
-              <h4 className="font-serif text-xl mb-3">Join the Conversation</h4>
-              <p className="text-stone-400 text-sm mb-6">Create your profile to start reviewing and building your collection.</p>
-              <a href="/login?mode=signup" className="block w-full py-3 bg-orange-400 text-white font-bold text-xs uppercase tracking-widest rounded-full hover:bg-orange-500 transition-colors">
-                 Sign Up Free
+           <div className="bg-stone-900 text-stone-50 p-10 rounded-[40px] text-center shadow-xl">
+              <h4 className="font-serif text-2xl mb-4 italic">Join Scentia</h4>
+              <p className="text-stone-400 text-sm mb-8 leading-relaxed">Build your collection, share your thoughts, and level up your profile.</p>
+              <a href="/login?mode=signup" className="block w-full py-4 bg-stone-50 text-stone-900 font-bold text-[10px] uppercase tracking-[0.2em] rounded-full hover:bg-stone-200 transition-all duration-300">
+                 Create Account
               </a>
            </div>
 

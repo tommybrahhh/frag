@@ -4,19 +4,7 @@ import { ActivityItem } from '@/lib/services/communityService';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-
-const getTimeAgo = (dateString: string) => {
-  const date = new Date(dateString);
-  const now = new Date();
-  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-  
-  if (seconds < 60) return 'Just now';
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes}m ago`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
-  return `${Math.floor(hours / 24)}d ago`;
-};
+import { formatRelativeTime } from '@/utils/timeUtils';
 
 export default function CommunityFeed({ initialActivity }: { initialActivity: ActivityItem[] }) {
   if (!initialActivity || initialActivity.length === 0) {
@@ -55,7 +43,7 @@ export default function CommunityFeed({ initialActivity }: { initialActivity: Ac
                        {item.type === 'review' ? 'reviewed' : 'commented on'}
                     </span>
                   </div>
-                  <span className="text-stone-400 text-xs whitespace-nowrap">{getTimeAgo(item.created_at)}</span>
+                  <span className="text-stone-400 text-xs whitespace-nowrap">{formatRelativeTime(item.created_at)}</span>
                </div>
 
                {/* Perfume Context */}
@@ -74,7 +62,7 @@ export default function CommunityFeed({ initialActivity }: { initialActivity: Ac
                      <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 group-hover:text-stone-600 transition-colors">
                         {item.brand_name}
                      </div>
-                     <div className="font-serif text-stone-900 group-hover:text-orange-600 transition-colors">
+                     <div className="font-serif text-stone-900 group-hover:text-stone-600 transition-colors">
                         {item.perfume_name}
                      </div>
                   </div>
@@ -82,15 +70,15 @@ export default function CommunityFeed({ initialActivity }: { initialActivity: Ac
 
                {/* Content */}
                {item.content && (
-                  <div className="prose prose-stone prose-sm text-stone-600 leading-relaxed mb-2">
+                  <div className="prose prose-stone prose-sm text-stone-600 italic leading-relaxed mb-4">
                      <p>"{item.content}"</p>
                   </div>
                )}
                
                {/* Rating Badge */}
                {item.rating && (
-                  <div className="inline-flex items-center gap-1 bg-yellow-50 px-2 py-1 rounded text-xs font-bold text-yellow-700 border border-yellow-100">
-                     <span>★</span>
+                  <div className="inline-flex items-center gap-2 bg-stone-900 px-3 py-1 rounded-full text-[10px] font-bold text-stone-50 tracking-tighter">
+                     <span className="text-stone-400">★</span>
                      <span>{item.rating.toFixed(1)}</span>
                   </div>
                )}

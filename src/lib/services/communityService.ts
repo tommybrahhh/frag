@@ -62,19 +62,19 @@ export interface Contributor {
 export function getContributorLevel(activityCount: number) {
   if (activityCount >= 100) return { 
     name: 'Legendary', 
-    color: 'text-purple-700', 
-    bg: 'bg-purple-50', 
-    border: 'border-purple-200',
-    icon: '👑',
+    color: 'text-stone-900', 
+    bg: 'bg-stone-100', 
+    border: 'border-stone-300',
+    icon: 'Elite',
     perk: 'Early Access + Custom Badge',
     nextLevel: null 
   };
   if (activityCount >= 50) return { 
     name: 'Master', 
-    color: 'text-amber-700', 
-    bg: 'bg-amber-50', 
-    border: 'border-amber-200',
-    icon: '⭐',
+    color: 'text-stone-800', 
+    bg: 'bg-stone-100', 
+    border: 'border-stone-200',
+    icon: 'Gold',
     perk: 'Featured Reviews',
     nextLevel: 100 
   };
@@ -83,7 +83,7 @@ export function getContributorLevel(activityCount: number) {
     color: 'text-stone-700', 
     bg: 'bg-stone-50', 
     border: 'border-stone-200',
-    icon: '💎',
+    icon: 'Pro',
     perk: 'Profile Customization',
     nextLevel: 50 
   };
@@ -92,7 +92,7 @@ export function getContributorLevel(activityCount: number) {
     color: 'text-stone-600', 
     bg: 'bg-stone-50', 
     border: 'border-stone-100',
-    icon: '✨',
+    icon: 'Plus',
     perk: 'Community Badge',
     nextLevel: 20 
   };
@@ -101,7 +101,7 @@ export function getContributorLevel(activityCount: number) {
     color: 'text-stone-400', 
     bg: 'bg-stone-50', 
     border: 'border-stone-50',
-    icon: '🌱',
+    icon: 'New',
     perk: 'Start contributing to level up',
     nextLevel: 10 
   };

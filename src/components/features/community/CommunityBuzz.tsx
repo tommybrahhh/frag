@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import Link from 'next/link';
 import Image from 'next/image';
+import { formatRelativeTime } from '@/utils/timeUtils';
 
 interface CommentWithPerfume {
   id: string;
@@ -19,64 +20,6 @@ interface CommentWithPerfume {
   };
 }
 
-const getTimeAgo = (dateString: string) => {
-  if (!dateString) return '';
-  const date = new Date(dateString);
-  if (isNaN(date.getTime())) return '';
-  
-  const now = new Date();
-  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-  
-  let interval = seconds / 31536000;
-  if (interval > 1) return Math.floor(interval) + "y ago";
-  interval = seconds / 2592000;
-  if (interval > 1) return Math.floor(interval) + "mo ago";
-  interval = seconds / 86400;
-  if (interval > 1) return Math.floor(interval) + "d ago";
-  interval = seconds / 3600;
-  if (interval > 1) return Math.floor(interval) + "h ago";
-  interval = seconds / 60;
-  if (interval > 1) return Math.floor(interval) + "m ago";
-  return "Just now";
-};
-
-interface CommunityBuzzProps {
-  initialComments?: CommentWithPerfume[];
-}
-
-const CommunityBuzz = ({ initialComments = [] }: CommunityBuzzProps) => {
-  const comments = initialComments;
-
-  if (comments.length === 0) {
-    return (
-      <div className="w-full">
-        <div className="flex items-center justify-between mb-8 px-2">
-          <h3 className="font-serif text-3xl text-stone-900">Latest Reviews</h3>
-        </div>
-        <div className="text-center py-12 bg-stone-50 rounded-2xl border border-dashed border-stone-200">
-          <p className="text-stone-500 font-medium">No reviews found.</p>
-          <p className="text-stone-400 text-sm mt-1">Be the first to leave a review!</p>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="w-full">
-      <div className="flex items-center justify-between mb-8 px-2">
-        <h3 className="font-serif text-3xl text-stone-900">Latest Reviews</h3>
-        <Link href="/community" className="text-[10px] font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 transition-colors border-b border-transparent hover:border-stone-900 pb-0.5">
-          View All
-        </Link>
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {comments.map((c) => {
-           const perfumeName = c.perfume?.name || 'Unknown Scent';
-           const perfumeLink = c.perfume?.slug ? `/perfume/${c.perfume.slug}` : `/perfume/${c.perfume_id}`;
-           const initials = c.user_name ? c.user_name.slice(0, 2).toUpperCase() : '??';
-
-           return (
             <Link key={c.id} href={perfumeLink} className="group flex flex-col justify-between bg-white border border-stone-100 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full">
               
               {/* Header: User & Time */}
@@ -87,7 +30,7 @@ const CommunityBuzz = ({ initialComments = [] }: CommunityBuzzProps) => {
                   </div>
                   <span className="text-xs font-bold text-stone-900">{c.user_name}</span>
                 </div>
-                <span className="text-[10px] font-medium text-stone-400">{getTimeAgo(c.created_at)}</span>
+                <span className="text-[10px] font-medium text-stone-400">{formatRelativeTime(c.created_at)}</span>
               </div>
               
               {/* Content */}

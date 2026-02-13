@@ -70,8 +70,8 @@ export default function HomeClient({
                                                 )}
                                               </div>
                                               
-                                              <div className={`inline-block px-1.5 py-0.5 rounded text-[7px] md:text-[8px] font-bold uppercase tracking-widest mb-1.5 ${user.level.bg} ${user.level.color} border ${user.level.border}`}>
-                                                {user.level.name}
+                                              <div className={`inline-block px-1.5 py-0.5 rounded-full text-[7px] md:text-[8px] font-bold uppercase tracking-widest mb-1.5 bg-stone-100 text-stone-500 border border-stone-200`}>
+                                                {user.level.icon}
                                               </div>
                         
                                               <h4 className="font-serif text-sm md:text-lg text-stone-900 mb-0.5 truncate">{user.name}</h4>

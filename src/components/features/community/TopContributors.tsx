@@ -22,23 +22,24 @@ export default function TopContributors({ contributors }: { contributors: Contri
                   )}
               </div>
               <div className={`
-                absolute -top-2 -right-2 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black text-white shadow-md border-2 border-white
-                ${index === 0 ? 'bg-amber-400' : index === 1 ? 'bg-stone-400' : 'bg-orange-400'}
+                absolute -top-2 -right-2 w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-black text-stone-900 shadow-sm border border-stone-200 bg-white
               `}>
                 {index + 1}
               </div>
            </div>
 
            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-0.5">
+              <div className="flex items-center justify-between mb-1">
                 <div className="font-bold text-sm text-stone-900 truncate">{user.name}</div>
-                <span className="text-[10px]" title={user.level.name}>{user.level.icon}</span>
+                <div className={`text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border border-stone-200 bg-stone-50 text-stone-500`}>
+                  {user.level.icon}
+                </div>
               </div>
               <div className="flex items-center justify-between">
-                <div className="text-[10px] font-bold uppercase tracking-wider text-stone-400">
-                   {user.total_activity} Activity
+                <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-stone-400">
+                   {user.total_activity} Posts
                 </div>
-                <div className={`text-[8px] font-bold uppercase px-1.5 py-0.5 rounded ${user.level.bg} ${user.level.color}`}>
+                <div className={`text-[9px] font-medium text-stone-500 italic`}>
                   {user.level.name}
                 </div>
               </div>
