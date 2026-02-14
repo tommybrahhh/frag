@@ -4,23 +4,7 @@ import Link from 'next/link';
 import { Metadata } from 'next';
 import PageTransition from '@/components/layout/PageTransition'; // Added PageTransition
 import FragranceCard from '@/components/features/perfume/FragranceCard'; // Added FragranceCard
-
-export const revalidate = 3600; // Revalidate every hour
-
-interface Perfume {
-  id: string;
-  name: string;
-  image_url: string;
-  brand: {
-    name: string;
-  };
-  perfumer: string;
-  rating?: number;
-  vibe_tags?: string[];
-  best_season?: string[];
-  price_tier?: string;
-  slug?: string; // Add slug as FragranceCard expects it
-}
+import { Perfume } from '@/types';
 
 async function getBrandData(slug: string) {
   const brandName = decodeURIComponent(slug);
@@ -127,8 +111,14 @@ export default async function BrandPage(props: { params: Promise<{ brand: string
               <div className="text-stone-400 italic">No perfumes found from this brand yet.</div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {perfumes.map((p: Perfume) => ( // Cast p to Perfume type
-                  <FragranceCard key={p.id} perfume={p} /> // Use FragranceCard
+                {perfumes.map((p) => (
+                  <FragranceCard
+                    key={p.id}
+                    perfume={{
+                      ...p,
+                      brand: (p.brand as { name: string }).name,
+                    }}
+                  />
                 ))}
               </div>
             )}
