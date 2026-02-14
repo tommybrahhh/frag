@@ -33,6 +33,7 @@ async function generate() {
     '/quiz',
   ];
 
+  // Initialize XML string
   let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`;
 
@@ -119,7 +120,10 @@ async function generate() {
 </urlset>`;
 
   const publicPath = path.join(process.cwd(), 'public', 'sitemap.xml');
-  fs.writeFileSync(publicPath, xml);
+
+  // FIXED: Added .trim() to remove any accidental leading whitespace/newlines
+  fs.writeFileSync(publicPath, xml.trim());
+
   console.log(`Sitemap generated successfully at ${publicPath}`);
 }
 
