@@ -1,10 +1,13 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  reactCompiler: true,
-  turbopack: {
-    root: process.cwd(),
+  // ✅ 1. Move reactCompiler to experimental
+  experimental: {
+    reactCompiler: true,
   },
+
+  // ❌ 2. Removed 'turbopack' key (it is not a valid NextConfig option)
+
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [
@@ -19,6 +22,8 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "www.perfumemaster.com" },    // PerfumeMaster images
     ],
   },
+
+  // ✅ 3. Correct headers for Sitemap (Matches my requirements)
   async headers() {
     return [
       {
@@ -27,6 +32,11 @@ const nextConfig: NextConfig = {
           {
             key: 'Content-Type',
             value: 'application/xml',
+          },
+          // Optional: Add Cache-Control to prevent stale sitemaps
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=3600, must-revalidate',
           },
         ],
       },
