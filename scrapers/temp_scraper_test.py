@@ -1,10 +1,3 @@
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service as ChromeService
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.common.exceptions import TimeoutException, WebDriverException, NoSuchElementException
 
 import requests
 from bs4 import BeautifulSoup
@@ -13,9 +6,8 @@ import random
 import cloudscraper
 import re
 import csv
-from urllib.parse import urlparse, urlunparse, parse_qs, urlencode
+from urllib.parse import urlparse
 import logging
-import os 
 from fake_useragent import UserAgent
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
@@ -40,7 +32,6 @@ class EnhancedFragranticaScraperV2:
         self.blocked_count = 0
         self.session = self._create_session_with_retry()
         self.last_block_time = None
-        self.driver = None # Initialize Selenium driver as None
         
     def _create_session_with_retry(self):
         """Create a session with retry logic"""
@@ -132,11 +123,12 @@ class EnhancedFragranticaScraperV2:
         return headers
     
     def _bypass_cloudflare_enhanced(self, url, max_retries=2):
-        """Enhanced Cloudflare bypass with better strategies using cloudscraper."""
+        """Enhanced Cloudflare bypass with better strategies"""
         for attempt in range(max_retries):
             try:
                 self._throttle_requests()
                 
+                # Use cloudscraper with more varied browser profiles
                 browser_profiles = [
                     {'browser': 'chrome', 'platform': 'windows', 'mobile': False},
                     {'browser': 'firefox', 'platform': 'windows', 'mobile': False},
@@ -152,7 +144,7 @@ class EnhancedFragranticaScraperV2:
                 
                 headers = self._get_realistic_headers(url)
                 
-                logging.info(f"Attempt {attempt + 1}: Making request to {url} with cloudscraper.")
+                logging.info(f"Attempt {attempt + 1}: Making request to {url}")
                 
                 response = scraper.get(
                     url, 
@@ -164,82 +156,47 @@ class EnhancedFragranticaScraperV2:
                 logging.info(f"Status Code: {response.status_code}")
                 
                 if response.status_code == 200:
-                    logging.info("Successfully bypassed Cloudflare protection with cloudscraper!")
+                    logging.info("Successfully bypassed Cloudflare protection!")
                     self.blocked_count = max(0, self.blocked_count - 1)  # Reduce block counter on success
-                    return response
+                    return response, scraper
                 
+                # If blocked, wait much longer and reset strategy
                 if response.status_code in [403, 429, 503]:
                     self.blocked_count += 1
                     self.last_block_time = time.time()
                     logging.warning(f"Blocked with status {response.status_code}. Block count: {self.blocked_count}")
                     
+                    # Progressive waiting based on block count
                     if self.blocked_count > 2:
-                        wait_time = random.uniform(300, 600)
+                        wait_time = random.uniform(300, 600)  # 5-10 minutes for multiple blocks
                     else:
-                        wait_time = random.uniform(120, 240)
+                        wait_time = random.uniform(120, 240)  # 2-4 minutes
                     
                     logging.warning(f"Waiting {wait_time:.2f} seconds before retry...")
                     time.sleep(wait_time)
                     
+                    # Try with completely different setup
                     headers = self._get_realistic_headers(url)
                     response = scraper.get(url, headers=headers, timeout=45)
                     
                     if response.status_code == 200:
-                        return response
+                        return response, scraper
                 
                 time.sleep(random.uniform(20, 40))
                 
             except Exception as e:
-                logging.error(f"Attempt {attempt + 1} failed with cloudscraper: {e}")
+                logging.error(f"Attempt {attempt + 1} failed: {e}")
                 time.sleep(random.uniform(30, 60))
         
-        return None
+        return None, None
     
-    def _initialize_selenium_driver(self):
-        """Initializes a headless Chrome WebDriver."""
-        if self.driver is None:
-            options = webdriver.ChromeOptions()
-            options.add_argument("--headless")
-            options.add_argument("--no-sandbox")
-            options.add_argument("--disable-dev-shm-usage")
-            options.add_argument(f"user-agent={self._get_random_user_agent()}")
-            
-            service = ChromeService(ChromeDriverManager().install())
-            self.driver = webdriver.Chrome(service=service, options=options)
-            logging.info("Selenium WebDriver initialized.")
-
-    def _get_page_source_selenium(self, url, wait_for_selector=None, timeout=30):
-        """
-        Navigates to a URL using Selenium and returns the page source.
-        Waits for a specific selector to be present if provided.
-        """
-        self._initialize_selenium_driver()
-        try:
-            self.driver.get(url)
-            if wait_for_selector:
-                WebDriverWait(self.driver, timeout).until(
-                    EC.presence_of_element_located((By.CSS_SELECTOR, wait_for_selector))
-                )
-            logging.info(f"Successfully retrieved page with Selenium: {url}")
-            return self.driver.page_source
-        except TimeoutException:
-            logging.error(f"Timeout while loading page or waiting for selector '{wait_for_selector}' on {url}")
-            return None
-        except WebDriverException as e:
-            logging.error(f"WebDriver error while getting page {url}: {e}")
-            return None
-        except Exception as e:
-            logging.error(f"An unexpected error occurred with Selenium for {url}: {e}")
-            return None
-
     def scrape_fragrantica(self, url):
         """Scraping function with enhanced bot detection avoidance"""
         try:
-            # Use cloudscraper for single perfume pages from CSV unless Selenium is explicitly needed
-            response = self._bypass_cloudflare_enhanced(url)
+            response, scraper = self._bypass_cloudflare_enhanced(url)
             
             if not response or response.status_code != 200:
-                logging.error("Failed to bypass Cloudflare after multiple attempts for single page.")
+                logging.error("Failed to bypass Cloudflare after multiple attempts")
                 return None, None
             
             soup = BeautifulSoup(response.content, 'html.parser')
@@ -280,129 +237,6 @@ class EnhancedFragranticaScraperV2:
             traceback.print_exc()
             return None, None
     
-    def scrape_search_results(self, initial_url):
-        """Scrapes fragrance names from a Fragrantica search results page, handling pagination using Selenium."""
-        all_fragrance_names = []
-        current_url = initial_url
-        page_num = 1
-        
-        self._initialize_selenium_driver() # Ensure driver is initialized
-
-        try:
-            self.driver.get(current_url)
-            # Wait for the page to fully load
-            WebDriverWait(self.driver, 60).until(lambda driver: driver.execute_script("return document.readyState") == "complete")
-            logging.info(f"Document ready state is complete for {current_url}")
-            time.sleep(5) # Add a small sleep to allow initial rendering
-
-            # Attempt to dismiss a cookie consent pop-up if present
-            try:
-                # Using XPath for text matching
-                cookie_accept_xpaths = [
-                    "//button[@id='onetrust-accept-btn-handler']",  # OneTrust
-                    "//button[@id='cookie_action_close_header']", # Cookie Law Info
-                    "//button[contains(@class, 'cookie-button') and (contains(., 'Accept') or contains(., 'OK') or contains(., 'Consent'))]",
-                    "//a[contains(@class, 'cc-btn') and (contains(., 'Accept') or contains(., 'OK') or contains(., 'Consent'))]",
-                    "//button[contains(@class, 'cky-btn-accept')]",
-                    "//button[contains(@class, 'qc-cmp2-summary-tap')]", # Another common consent button
-                    "//button[text()='Accept cookies']", # Fallback for direct text match
-                    "//button[text()='Accept all cookies']", # Fallback
-                    "//button[text()='Continue browsing']", # Fallback
-                    "//div[@id='registration-nudge-modal']//button[contains(@onclick, 'registrationNudgeDismiss()')]" # Specific to Fragrantica's registration nudge
-                ]
-                
-                for xpath_selector in cookie_accept_xpaths:
-                    try:
-                        accept_button = WebDriverWait(self.driver, 10).until(
-                            EC.element_to_be_clickable((By.XPATH, xpath_selector))
-                        )
-                        accept_button.click()
-                        logging.info(f"Clicked cookie consent button with XPath selector: {xpath_selector}")
-                        time.sleep(2) # Wait for the pop-up to disappear
-                        # After clicking, wait for the DOM to settle and potentially for results to appear
-                        WebDriverWait(self.driver, 10).until(
-                            EC.invisibility_of_element_located((By.XPATH, xpath_selector)) # Wait for the button to disappear
-                        )
-                        break
-                    except TimeoutException:
-                        continue # Button not found, try next selector
-                    except Exception as e:
-                        logging.warning(f"Error clicking cookie button with XPath {xpath_selector}: {e}")
-
-            except Exception as e:
-                logging.warning(f"No cookie consent pop-up or error handling it: {e}")
-
-            # Scroll down to load lazy-loaded content
-            last_height = self.driver.execute_script("return document.body.scrollHeight")
-            for i in range(3): # Scroll down a few times
-                self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-                time.sleep(random.uniform(3, 7))
-                new_height = self.driver.execute_script("return document.body.scrollHeight")
-                if new_height == last_height:
-                    logging.info("No more content loaded after scrolling.")
-                    break
-                last_height = new_height
-            logging.info("Finished scrolling to load content.")
-
-            # Wait for the first set of fragrance results to load
-            WebDriverWait(self.driver, 60).until( # Increased timeout to 60 seconds
-                EC.presence_of_element_located((By.CSS_SELECTOR, "h3.text-teal-600"))
-            )
-            logging.info(f"Successfully loaded initial page with Selenium: {current_url}")
-
-            while True:
-                logging.info(f"Processing page {page_num}: {self.driver.current_url}")
-                self.driver.save_screenshot(f"debug_screenshot_page_{page_num}.png") # Capture screenshot for debugging
-                soup = BeautifulSoup(self.driver.page_source, 'html.parser')
-                
-                # Extract fragrance names from the current page
-                name_tags = soup.find_all('h3', class_=lambda x: x and 'text-teal-600' in x.split())
-                current_page_fragrances = [tag.get_text(strip=True) for tag in name_tags]
-                
-                if not current_page_fragrances and page_num == 1: # If no fragrances on first page, something is wrong
-                    logging.error("No fragrances found on the initial page. Check selectors or page content.")
-                    break
-                elif not current_page_fragrances: # If no fragrances on subsequent pages, it's the end of results
-                    logging.info(f"No new fragrances found on page {page_num}. Ending pagination.")
-                    break
-                    
-                all_fragrance_names.extend(current_page_fragrances)
-                logging.info(f"Found {len(current_page_fragrances)} fragrances on page {page_num}. Total: {len(all_fragrance_names)}")
-                
-                # Look for the "Next Page" link
-                try:
-                    next_page_element = WebDriverWait(self.driver, 10).until(
-                        EC.element_to_be_clickable((By.CSS_SELECTOR, 'nav[aria-label="Pagination Navigation"] a[aria-label="Next Page"]'))
-                    )
-                    next_page_element.click()
-                    page_num += 1
-                    # Wait for the new content to load after clicking next
-                    WebDriverWait(self.driver, 60).until(
-                        EC.presence_of_element_located((By.CSS_SELECTOR, "h3.text-teal-600"))
-                    )
-                    # Add a small random delay to mimic human behavior and avoid detection
-                    time.sleep(random.uniform(2, 5))
-                except TimeoutException:
-                    logging.info("No 'Next Page' link or it is not clickable. Ending pagination.")
-                    break
-                except Exception as e:
-                    logging.error(f"Error navigating to next page: {e}")
-                    break
-                    
-        except TimeoutException:
-            logging.error(f"Timeout while loading page or waiting for elements on {self.driver.current_url}")
-            self.driver.save_screenshot("debug_timeout_screenshot.png") # Capture screenshot on timeout
-        except WebDriverException as e:
-            logging.error(f"WebDriver error during search results scraping: {e}")
-            self.driver.save_screenshot("debug_webdriver_error_screenshot.png") # Capture screenshot on WebDriver error
-        except Exception as e:
-            logging.error(f"An unexpected error occurred during search results scraping: {e}")
-            self.driver.save_screenshot("debug_unexpected_error_screenshot.png") # Capture screenshot on unexpected error
-        finally:
-            self.quit_driver()
-                
-        return all_fragrance_names
-
     def process_csv(self, input_filename="perfumes.csv", output_filename="output_perfumes_v2.csv"):
         """Process the CSV file with enhanced scraping"""
         all_perfume_data_rows = []
@@ -432,7 +266,7 @@ class EnhancedFragranticaScraperV2:
                     fragrantica_name = "Not Found"
                     image_url = "Not Found"
                     
-                    logging.info(f"--- Processing {row_index + 1}/{total_rows}: {original_perfume_name} ---") 
+                    logging.info(f"--- Processing {row_index + 1}/{total_rows}: {original_perfume_name} ---")
                     
                     if fragrantica_page_url:
                         logging.info(f"Using Fragrantica URL: {fragrantica_page_url}")
@@ -489,37 +323,20 @@ class EnhancedFragranticaScraperV2:
             writer = csv.writer(outfile, delimiter=';')
             writer.writerows(data)
 
-    def quit_driver(self):
-        """Quits the Selenium WebDriver if it's running."""
-        if self.driver:
-            logging.info("Quitting Selenium WebDriver.")
-            self.driver.quit()
-            self.driver = None
-
-    def __del__(self):
-        self.quit_driver()
-
 if __name__ == "__main__":
     # Initialize the enhanced scraper
     scraper = EnhancedFragranticaScraperV2()
     
-    # URL to scrape
-    search_url = "https://www.fragrantica.com/search/?godina=2026%3A2026"
-    
-    # Scrape fragrance names from the search results page
-    fragrance_names = scraper.scrape_search_results(search_url)
-    
-    if fragrance_names:
-        print(f"\nTotal Scraped Fragrance Names (Full List): {len(fragrance_names)}")
-        for name in fragrance_names:
-            print(f"- {name}")
-    else:
-        print("No fragrance names found or an error occurred during full scrape.")
+    # Process the CSV
+    # scraper.process_csv()
 
-    # Clean up temporary debug file if it exists from previous runs
-    if os.path.exists('debug_search_results.html'):
-        os.remove('debug_search_results.html')
-        print("Removed temporary file: debug_search_results.html")
-    if os.path.exists('debug_soup_scrape_search_results.html'):
-        os.remove('debug_soup_scrape_search_results.html')
-        print("Removed temporary file: debug_soup_scrape_search_results.html")
+    # Test scraping a search results page
+    url = "https://www.fragrantica.com/search/?godina=2026%3A2026"
+    scraped_data, soup_object = scraper.scrape_fragrantica(url)
+    
+    if soup_object:
+        with open('debug_search_results.html', 'w', encoding='utf-8') as f:
+            f.write(soup_object.prettify())
+        print("HTML content saved to debug_search_results.html")
+    else:
+        print("Failed to get soup object.")

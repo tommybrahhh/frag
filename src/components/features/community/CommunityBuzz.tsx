@@ -23,9 +23,11 @@ interface CommentWithPerfume {
 const CommunityBuzz = () => {
   const [comments, setComments] = useState<CommentWithPerfume[]>([]);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
   const supabase = createClient();
 
   useEffect(() => {
+    setMounted(true);
     const fetchComments = async () => {
       const { data, error } = await supabase
         .from('comments')
@@ -81,7 +83,9 @@ const CommunityBuzz = () => {
                   </div>
                   <span className="text-xs font-bold text-stone-900">{c.user_name}</span>
                 </div>
-                <span className="text-[10px] font-medium text-stone-400">{formatRelativeTime(c.created_at)}</span>
+                <span className="text-[10px] font-medium text-stone-400">
+                  {mounted ? formatRelativeTime(c.created_at) : ''}
+                </span>
               </div>
               
               {/* Content */}

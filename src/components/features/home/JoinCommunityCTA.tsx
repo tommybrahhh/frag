@@ -20,16 +20,16 @@ export default function JoinCommunityCTA() {
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full mb-8 shadow-sm border border-stone-100">
             <Users className="w-3.5 h-3.5 text-stone-400" />
-            <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-stone-500">The Scent Community</span>
+            <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-stone-500">Join The Circle</span>
           </div>
 
           <h2 className="font-serif text-3xl md:text-7xl mb-6 md:mb-8 text-stone-900 leading-tight">
-            Your Scent Journey <br className="hidden md:block" />
-            <span className="text-stone-400 italic">Starts Here</span>
+            Your next obsession <br className="hidden md:block" />
+            <span className="text-stone-400 italic">is waiting for you.</span>
           </h2>
 
           <p className="text-base md:text-xl text-stone-600 mb-10 md:mb-12 max-w-2xl mx-auto font-light leading-relaxed">
-            Build your collection, rate fragrances, and find your signature scent.
+            Start your virtual shelf, rate what you've tried, and find that perfect bottle.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6">

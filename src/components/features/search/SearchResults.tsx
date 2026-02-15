@@ -17,15 +17,6 @@ interface SearchResultsProps {
 const SearchResults: React.FC<SearchResultsProps> = ({ loading, error, results, currentPage, totalPages, onLoadMore }) => {
   const hasMore = currentPage < totalPages;
 
-  // ADD THIS DEBUG LINE:
-  if (results.length > 0) {
-    console.log('Debug Search Result Item:', {
-      name: results[0].name,
-      slug: results[0].slug,
-      id: results[0].id
-    });
-  }
-
   // Initial loading state (page 1)
   if (loading && currentPage === 1) {
     return (
@@ -48,8 +39,8 @@ const SearchResults: React.FC<SearchResultsProps> = ({ loading, error, results, 
       {results.length > 0 ? (
         <>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {results.map(perfume => (
-              <FragranceCard key={perfume.id} perfume={perfume} />
+            {results.map((perfume, index) => (
+              <FragranceCard key={`${perfume.id}-${index}`} perfume={perfume} />
             ))}
           </div>
 

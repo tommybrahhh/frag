@@ -6,7 +6,6 @@ import { Search as SearchIcon } from 'lucide-react';
 import CommunityHeroServer from '@/components/features/home/server-components/CommunityHeroServer';
 import TrendingScentsServer from '@/components/features/home/server-components/TrendingScentsServer';
 import DailyBattleServer from '@/components/features/home/server-components/DailyBattleServer';
-import TopContributorsServer from '@/components/features/home/server-components/TopContributorsServer';
 import RandomPerfumeServer from '@/components/features/home/server-components/RandomPerfumeServer';
 import TierNav from '@/components/features/search/TierNav';
 import VisualCategoryNav from '@/components/features/search/VisualCategoryNav'; 
@@ -30,21 +29,16 @@ export default async function Home() {
         <Suspense fallback={<div className="py-16 md:py-24 flex items-center justify-center"><Spinner /></div>}>
           <DailyBattleServer />
         </Suspense>
-        
-        {/* Top Contributors Section */}
-        <Suspense fallback={<div className="py-12 md:py-24 flex items-center justify-center"><Spinner /></div>}>
-          <TopContributorsServer />
-        </Suspense>
 
         <div className="py-12 md:py-24 space-y-16 md:space-y-32 bg-stone-50/50">
           <div id="discovery" className="max-w-[1400px] mx-auto px-6">
              <div className="mb-8 md:mb-16">
                 <div className="flex items-center gap-2 mb-2 md:mb-4">
                    <div className="h-px w-4 md:w-8 bg-stone-200" />
-                   <span className="text-[8px] md:text-[10px] font-bold uppercase tracking-[0.3em] text-stone-400">Discovery Hub</span>
+                   <span className="text-[8px] md:text-[10px] font-bold uppercase tracking-[0.3em] text-stone-400">Explore</span>
                 </div>
                 <h2 className="font-serif text-2xl md:text-5xl text-stone-900">
-                  Find Your Next <span className="italic text-stone-400">Signature</span>
+                  Find something that <span className="italic text-stone-400">feels like you.</span>
                 </h2>
              </div>
              
@@ -62,9 +56,9 @@ export default async function Home() {
                </div>
 
                <div className="relative z-10 flex-1">
-                 <h3 className="font-serif text-3xl md:text-5xl text-stone-900 mb-6 text-balance">Can&apos;t find <br className="hidden md:block" /> your scent?</h3>
+                 <h3 className="font-serif text-3xl md:text-5xl text-stone-900 mb-6 text-balance">Looking for <br className="hidden md:block" /> something specific?</h3>
                  <p className="text-base md:text-lg text-stone-500 mb-8 max-w-md font-light leading-relaxed">
-                    Explore our full library of thousands of fragrances, or try our lucky pick.
+                    Dive into our entire collection of thousands of fragrances, or let fate decide.
                  </p>
                  <Link 
                     href="/search?sort=newest"

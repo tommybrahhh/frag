@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { formatRelativeTime } from '@/utils/timeUtils';
 
@@ -19,6 +20,12 @@ interface UserCommentsListProps {
 }
 
 export default function UserCommentsList({ initialData = [] }: UserCommentsListProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // The component is now "dumb" and just receives data to render.
   // All data fetching is done on the server.
 
@@ -58,7 +65,7 @@ export default function UserCommentsList({ initialData = [] }: UserCommentsListP
                 </p>
               </Link>
               <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mt-2">
-                {formatRelativeTime(comment.created_at)}
+                {mounted ? formatRelativeTime(comment.created_at) : ''}
               </div>
             </div>
           </div>

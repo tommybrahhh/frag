@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -18,6 +19,12 @@ const formatNumber = (num: number) => {
 };
 
 export default function CommunityHero({ activity, stats }: CommunityHeroProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return (
     <section className="relative w-full min-h-[500px] lg:min-h-[600px] bg-white text-stone-900 overflow-hidden flex items-center border-b border-stone-100">
       
@@ -41,12 +48,12 @@ export default function CommunityHero({ activity, stats }: CommunityHeroProps) {
             </div>
 
             <h1 className="font-serif text-5xl md:text-6xl lg:text-7xl leading-[1.1] mb-8 text-stone-900 tracking-tight">
-              Curate your <br className="hidden md:block" />
-              <span className="italic text-stone-400">olfactory identity.</span>
+              Find the scent that <br className="hidden md:block" />
+              <span className="italic text-stone-400">tells your story.</span>
             </h1>
             
             <p className="text-base md:text-lg text-stone-500 mb-10 max-w-md mx-auto lg:mx-0 font-light leading-relaxed">
-              A digital library for collectors. Log your journey, find your next signature, and connect with the community.
+              Track what you wear, discover what you love, and share it with people who get it.
             </p>
 
             <div className="relative max-w-md mx-auto lg:mx-0 mb-8 group">
@@ -102,7 +109,7 @@ export default function CommunityHero({ activity, stats }: CommunityHeroProps) {
             
             <div className="flex flex-col gap-4 animate-scroll-vertical-slow hover:pause-animation">
               {[...activity, ...activity].map((item, i) => (
-                <ActivityCard key={`${item.id}-${i}`} item={item} />
+                <ActivityCard key={`${item.id}-${i}`} item={item} mounted={mounted} />
               ))}
             </div>
         </div>
@@ -112,7 +119,7 @@ export default function CommunityHero({ activity, stats }: CommunityHeroProps) {
   );
 }
 
-function ActivityCard({ item }: { item: ActivityItem }) {
+function ActivityCard({ item, mounted }: { item: ActivityItem; mounted: boolean }) {
   return (
     <div className="bg-white border border-stone-100 p-5 rounded-[2rem] hover:border-stone-300 hover:shadow-sm transition-all duration-500 group">
       <div className="flex items-center gap-5">
@@ -135,7 +142,9 @@ function ActivityCard({ item }: { item: ActivityItem }) {
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between mb-1">
             <h4 className="text-[9px] font-bold text-stone-400 uppercase tracking-[0.2em]">{item.user_name}</h4>
-            <span className="text-[9px] text-stone-300 font-medium">{formatRelativeTime(item.created_at)}</span>
+            <span className="text-[9px] text-stone-300 font-medium">
+              {mounted ? formatRelativeTime(item.created_at) : ''}
+            </span>
           </div>
           
           <div className="font-serif text-sm text-stone-900 truncate group-hover:text-stone-600 transition-colors">

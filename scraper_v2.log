@@ -1,0 +1,152 @@
+2026-02-14 12:12:49,587 - INFO - Attempt 1: Making request to https://www.fragrantica.com/search/?godina=2026%3A2026
+2026-02-14 12:12:50,311 - INFO - Status Code: 200
+2026-02-14 12:12:50,312 - INFO - Successfully bypassed Cloudflare protection!
+2026-02-14 12:12:50,426 - WARNING - Not a perfume detail page or structure changed
+2026-02-14 12:15:04,779 - INFO - Attempt 1: Making request to https://www.fragrantica.com/search/?godina=2026%3A2026
+2026-02-14 12:15:05,461 - INFO - Status Code: 200
+2026-02-14 12:15:05,461 - INFO - Successfully bypassed Cloudflare protection!
+2026-02-14 12:15:05,570 - INFO - Found 150 fragrances on the search results page.
+2026-02-14 12:16:09,584 - INFO - Attempt 1: Making request to https://www.fragrantica.com/search/?godina=2026%3A2026
+2026-02-14 12:16:10,548 - INFO - Status Code: 200
+2026-02-14 12:16:10,549 - INFO - Successfully bypassed Cloudflare protection!
+2026-02-14 12:22:17,357 - INFO - Scraping page 1: https://www.fragrantica.com/search/?godina=2026%3A2026
+2026-02-14 12:22:17,387 - INFO - Attempt 1: Making request to https://www.fragrantica.com/search/?godina=2026%3A2026
+2026-02-14 12:22:18,117 - INFO - Status Code: 200
+2026-02-14 12:22:18,117 - INFO - Successfully bypassed Cloudflare protection!
+2026-02-14 12:22:18,244 - INFO - Found 150 fragrances on page 1. Total: 150
+2026-02-14 12:22:18,248 - INFO - No pagination navigation found. Ending pagination.
+2026-02-14 12:23:35,702 - INFO - Scraping page 1: https://www.fragrantica.com/search/?godina=2026%3A2026
+2026-02-14 12:23:35,730 - INFO - Attempt 1: Making request to https://www.fragrantica.com/search/?godina=2026%3A2026
+2026-02-14 12:23:36,404 - INFO - Status Code: 200
+2026-02-14 12:23:36,405 - INFO - Successfully bypassed Cloudflare protection!
+2026-02-14 12:23:36,606 - INFO - Saved soup object to debug_soup_scrape_search_results.html for inspection.
+2026-02-14 12:23:36,610 - INFO - Found 150 fragrances on page 1. Total: 150
+2026-02-14 12:23:36,613 - INFO - Pagination Nav found: False
+2026-02-14 12:23:36,613 - INFO - No pagination navigation found. Ending pagination.
+2026-02-14 12:29:06,763 - INFO - ====== WebDriver manager ======
+2026-02-14 12:29:07,794 - INFO - Get LATEST chromedriver version for google-chrome
+2026-02-14 12:29:08,137 - INFO - Get LATEST chromedriver version for google-chrome
+2026-02-14 12:29:08,422 - INFO - There is no [win64] chromedriver "144.0.7559.133" for browser google-chrome "144.0.7559" in cache
+2026-02-14 12:29:08,423 - INFO - Get LATEST chromedriver version for google-chrome
+2026-02-14 12:29:09,197 - INFO - WebDriver version 144.0.7559.133 selected
+2026-02-14 12:29:09,201 - INFO - Modern chrome version https://storage.googleapis.com/chrome-for-testing-public/144.0.7559.133/win32/chromedriver-win32.zip
+2026-02-14 12:29:09,202 - INFO - About to download new driver from https://storage.googleapis.com/chrome-for-testing-public/144.0.7559.133/win32/chromedriver-win32.zip
+2026-02-14 12:29:09,527 - INFO - Driver downloading response is 200
+2026-02-14 12:29:09,871 - INFO - Get LATEST chromedriver version for google-chrome
+2026-02-14 12:29:10,283 - INFO - Driver has been saved in cache [C:\Users\roman\.wdm\drivers\chromedriver\win64\144.0.7559.133]
+2026-02-14 12:29:13,297 - INFO - Selenium WebDriver initialized.
+2026-02-14 12:29:45,047 - ERROR - Timeout while loading page or waiting for elements on https://www.fragrantica.com/search/?godina=2026%3A2026
+2026-02-14 12:29:45,047 - INFO - Quitting Selenium WebDriver.
+2026-02-14 12:30:30,695 - INFO - ====== WebDriver manager ======
+2026-02-14 12:30:31,618 - INFO - Get LATEST chromedriver version for google-chrome
+2026-02-14 12:30:31,909 - INFO - Get LATEST chromedriver version for google-chrome
+2026-02-14 12:30:32,202 - INFO - Driver [C:\Users\roman\.wdm\drivers\chromedriver\win64\144.0.7559.133\chromedriver-win32/chromedriver.exe] found in cache
+2026-02-14 12:30:33,287 - INFO - Selenium WebDriver initialized.
+2026-02-14 12:31:05,524 - ERROR - Timeout while loading page or waiting for elements on https://www.fragrantica.com/search/?godina=2026%3A2026
+2026-02-14 12:31:05,525 - INFO - Quitting Selenium WebDriver.
+2026-02-14 12:32:15,584 - INFO - ====== WebDriver manager ======
+2026-02-14 12:32:16,674 - INFO - Get LATEST chromedriver version for google-chrome
+2026-02-14 12:32:16,967 - INFO - Get LATEST chromedriver version for google-chrome
+2026-02-14 12:32:17,242 - INFO - Driver [C:\Users\roman\.wdm\drivers\chromedriver\win64\144.0.7559.133\chromedriver-win32/chromedriver.exe] found in cache
+2026-02-14 12:32:18,336 - INFO - Selenium WebDriver initialized.
+2026-02-14 12:33:26,597 - WARNING - Error clicking cookie button with selector button:contains("Accept all cookies"): Message: invalid selector: An invalid or illegal selector was specified
+  (Session info: chrome=144.0.7559.133); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#invalidselectorexception
+Stacktrace:
+Symbols not available. Dumping unresolved backtrace:
+	0x12c5093
+	0x12c50d4
+	0x10bb490
+	0x10c20b1
+	0x10c439f
+	0x10c4438
+	0x1105350
+	0x1105b7b
+	0x1147b42
+	0x1128204
+	0x1145341
+	0x1127f56
+	0x10f96c9
+	0x10fa484
+	0x1517e34
+	0x15130c9
+	0x1530add
+	0x12ddb38
+	0x12e58ad
+	0x12cd848
+	0x12cda12
+	0x12b75fa
+	0x773a5d49
+	0x77e9d83b
+	0x77e9d7c1
+
+2026-02-14 12:33:26,612 - WARNING - Error clicking cookie button with selector button:contains("Continue browsing"): Message: invalid selector: An invalid or illegal selector was specified
+  (Session info: chrome=144.0.7559.133); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#invalidselectorexception
+Stacktrace:
+Symbols not available. Dumping unresolved backtrace:
+	0x12c5093
+	0x12c50d4
+	0x10bb490
+	0x10c20b1
+	0x10c439f
+	0x10c4438
+	0x1105350
+	0x1105b7b
+	0x1147b42
+	0x1128204
+	0x1145341
+	0x1127f56
+	0x10f96c9
+	0x10fa484
+	0x1517e34
+	0x15130c9
+	0x1530add
+	0x12ddb38
+	0x12e58ad
+	0x12cd848
+	0x12cda12
+	0x12b75fa
+	0x773a5d49
+	0x77e9d83b
+	0x77e9d7c1
+
+2026-02-14 12:34:37,546 - ERROR - Timeout while loading page or waiting for elements on https://www.fragrantica.com/search/?godina=2026%3A2026
+2026-02-14 12:34:37,546 - INFO - Quitting Selenium WebDriver.
+2026-02-15 10:34:34,254 - INFO - ====== WebDriver manager ======
+2026-02-15 10:34:36,348 - INFO - Get LATEST chromedriver version for google-chrome
+2026-02-15 10:34:37,239 - INFO - Get LATEST chromedriver version for google-chrome
+2026-02-15 10:34:38,125 - INFO - Get LATEST chromedriver version for google-chrome
+2026-02-15 10:34:40,136 - INFO - WebDriver version 144.0.7559.133 selected
+2026-02-15 10:34:40,146 - INFO - Modern chrome version https://storage.googleapis.com/chrome-for-testing-public/144.0.7559.133/win32/chromedriver-win32.zip
+2026-02-15 10:34:40,147 - INFO - About to download new driver from https://storage.googleapis.com/chrome-for-testing-public/144.0.7559.133/win32/chromedriver-win32.zip
+2026-02-15 10:34:41,075 - INFO - Driver downloading response is 200
+2026-02-15 10:34:41,262 - INFO - Get LATEST chromedriver version for google-chrome
+2026-02-15 10:34:42,421 - INFO - Driver has been saved in cache [C:\Users\roman\.wdm\drivers\chromedriver\win64\144.0.7559.133]
+2026-02-15 10:34:45,836 - INFO - Selenium WebDriver initialized.
+2026-02-15 10:37:25,193 - ERROR - Timeout while loading page or waiting for elements on https://www.fragrantica.com/search/?godina=2026%3A2026
+2026-02-15 10:37:25,194 - INFO - Quitting Selenium WebDriver.
+2026-02-15 11:07:58,342 - INFO - ====== WebDriver manager ======
+2026-02-15 11:08:00,970 - INFO - Get LATEST chromedriver version for google-chrome
+2026-02-15 11:08:02,440 - INFO - Get LATEST chromedriver version for google-chrome
+2026-02-15 11:08:03,684 - INFO - Driver [C:\Users\roman\.wdm\drivers\chromedriver\win64\144.0.7559.133\chromedriver-win32/chromedriver.exe] found in cache
+2026-02-15 11:08:08,912 - INFO - Selenium WebDriver initialized.
+2026-02-15 11:08:10,977 - INFO - Document ready state is complete for https://www.fragrantica.com/search/?godina=2026%3A2026
+2026-02-15 11:10:47,479 - ERROR - Timeout while loading page or waiting for elements on https://www.fragrantica.com/search/?godina=2026%3A2026
+2026-02-15 11:10:47,480 - INFO - Quitting Selenium WebDriver.
+2026-02-15 11:19:46,685 - INFO - ====== WebDriver manager ======
+2026-02-15 11:19:47,893 - INFO - Get LATEST chromedriver version for google-chrome
+2026-02-15 11:19:48,199 - INFO - Get LATEST chromedriver version for google-chrome
+2026-02-15 11:19:48,486 - INFO - Driver [C:\Users\roman\.wdm\drivers\chromedriver\win64\144.0.7559.133\chromedriver-win32/chromedriver.exe] found in cache
+2026-02-15 11:19:49,557 - INFO - Selenium WebDriver initialized.
+2026-02-15 11:19:51,352 - INFO - Document ready state is complete for https://www.fragrantica.com/search/?godina=2026%3A2026
+2026-02-15 11:21:45,664 - INFO - No more content loaded after scrolling.
+2026-02-15 11:21:45,664 - INFO - Finished scrolling to load content.
+2026-02-15 11:22:46,101 - ERROR - Timeout while loading page or waiting for elements on https://www.fragrantica.com/search/?godina=2026%3A2026
+2026-02-15 11:22:46,102 - INFO - Quitting Selenium WebDriver.
+2026-02-15 11:44:13,883 - INFO - ====== WebDriver manager ======
+2026-02-15 11:44:14,902 - INFO - Get LATEST chromedriver version for google-chrome
+2026-02-15 11:44:15,205 - INFO - Get LATEST chromedriver version for google-chrome
+2026-02-15 11:44:15,518 - INFO - Driver [C:\Users\roman\.wdm\drivers\chromedriver\win64\144.0.7559.133\chromedriver-win32/chromedriver.exe] found in cache
+2026-02-15 11:44:16,621 - INFO - Selenium WebDriver initialized.
+2026-02-15 11:44:18,179 - INFO - Document ready state is complete for https://www.fragrantica.com/search/?godina=2026%3A2026
+2026-02-15 11:46:11,893 - INFO - No more content loaded after scrolling.
+2026-02-15 11:46:11,894 - INFO - Finished scrolling to load content.

@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { ActivityItem } from '@/lib/services/communityService';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -7,6 +8,12 @@ import { motion } from 'framer-motion';
 import { formatRelativeTime } from '@/utils/timeUtils';
 
 export default function CommunityFeed({ initialActivity }: { initialActivity: ActivityItem[] }) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   if (!initialActivity || initialActivity.length === 0) {
     return (
       <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-stone-200">
@@ -43,7 +50,9 @@ export default function CommunityFeed({ initialActivity }: { initialActivity: Ac
                        {item.type === 'review' ? 'reviewed' : 'commented on'}
                     </span>
                   </div>
-                  <span className="text-stone-400 text-xs whitespace-nowrap">{formatRelativeTime(item.created_at)}</span>
+                  <span className="text-stone-400 text-xs whitespace-nowrap">
+                    {mounted ? formatRelativeTime(item.created_at) : ''}
+                  </span>
                </div>
 
                {/* Perfume Context */}

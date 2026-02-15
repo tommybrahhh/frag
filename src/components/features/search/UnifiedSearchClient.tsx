@@ -36,26 +36,37 @@ const UnifiedSearchClient: React.FC = () => {
 
   // Effect to handle initial load or URL changes
   useEffect(() => {
+    // Sync state with URL parameters
+    const newMode = initialSort === 'newest' ? 'newest' : (initialQuery ? 'general' : 'notes');
+    setSearchMode(newMode);
+    if (initialQuery !== null) {
+      setGeneralSearchQuery(initialQuery);
+    }
+
     // Reset pagination and results when search mode or parameters change
     setCurrentPage(1);
     setResults([]);
-    // The actual data fetching will be triggered by other useEffects based on searchMode
-  }, [searchMode, initialSort, initialQuery]);
+  }, [initialSort, initialQuery]);
 
-  // Effect for fetching perfumes when in 'newest' mode
+  // Effect for fetching perfumes when in 'newest' or 'general' mode
   useEffect(() => {
-    const fetchNewestPerfumes = async () => {
-      if (searchMode !== 'newest') return; // Only run if in 'newest' mode
+    const fetchPerfumes = async () => {
+      if (searchMode !== 'newest' && searchMode !== 'general') return;
 
       setLoading(true);
       setError(null);
 
       try {
-        // Construct URL for the new API route
+        // Construct URL for the API route
         const url = new URL('/api/perfumes', window.location.origin);
         url.searchParams.set('page', currentPage.toString());
         url.searchParams.set('limit', limit.toString());
-        url.searchParams.set('sort', 'newest');
+        
+        if (searchMode === 'newest') {
+          url.searchParams.set('sort', 'newest');
+        } else if (searchMode === 'general' && generalSearchQuery) {
+          url.searchParams.set('q', generalSearchQuery);
+        }
 
         const response = await fetch(url.toString());
         if (!response.ok) {
@@ -64,19 +75,28 @@ const UnifiedSearchClient: React.FC = () => {
         }
         const { data, count } = await response.json();
 
-        setResults(prevResults => currentPage === 1 ? data || [] : [...prevResults, ...(data || [])]);
+        setResults(prevResults => {
+          const newData = data || [];
+          if (currentPage === 1) return newData;
+          
+          // Deduplicate by ID
+          const combined = [...prevResults, ...newData];
+          return combined.filter((perfume, index, self) => 
+            index === self.findIndex((p) => p.id === perfume.id)
+          );
+        });
         setTotalPages(Math.ceil((count || 0) / limit));
 
       } catch (err: any) {
-        console.error('❌ Detailed Newest Perfumes Fetch Error:', err);
-        setError(err.message || 'An error occurred while fetching newest perfumes.');
+        console.error('❌ Detailed Perfumes Fetch Error:', err);
+        setError(err.message || 'An error occurred while fetching perfumes.');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchNewestPerfumes();
-  }, [searchMode, currentPage, limit]); // Dependencies
+    fetchPerfumes();
+  }, [searchMode, currentPage, limit, generalSearchQuery]); // Dependencies
 
   // Search Logic (for notes search mode)
   useEffect(() => {
@@ -113,7 +133,13 @@ const UnifiedSearchClient: React.FC = () => {
             const resJson = await response.json();
             const newData = resJson.data || [];
             
-            setResults(prevResults => currentPage === 1 ? newData : [...prevResults, ...newData]);
+            setResults(prevResults => {
+              if (currentPage === 1) return newData;
+              const combined = [...prevResults, ...newData];
+              return combined.filter((perfume, index, self) => 
+                index === self.findIndex((p) => p.id === perfume.id)
+              );
+            });
             setTotalPages(Math.ceil(resJson.count / limit));
           } else {
             // --- NEW DEBUG LOGIC ---

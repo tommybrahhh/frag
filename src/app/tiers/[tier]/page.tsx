@@ -41,12 +41,7 @@ export default async function TierPage({ params }: Props) {
   });
 
   if (error) {
-    console.error(`Error fetching ${tierName} perfumes:`, {
-      message: error.message,
-      details: error.details,
-      hint: error.hint,
-      code: error.code
-    });
+    console.error(`Error fetching ${tierName} perfumes:`, error?.message || 'Unknown error during data fetching.', error);
   }
 
   return (

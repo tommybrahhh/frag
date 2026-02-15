@@ -82,8 +82,13 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
   const [newComment, setNewComment] = useState('');
   const [isFeedLoading, setIsFeedLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [mounted, setMounted] = useState(false);
   
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const fetchComments = useCallback(async () => {
     setIsFeedLoading(true);
@@ -289,7 +294,7 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
                           )}
                         </div>
                         <span className="text-[10px] text-stone-400 font-medium">
-                          {formatRelativeTime(comment.created_at)}
+                          {mounted ? formatRelativeTime(comment.created_at) : ''}
                         </span>
                       </div>
                     </div>
