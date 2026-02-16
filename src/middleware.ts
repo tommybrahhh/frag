@@ -18,7 +18,7 @@ export async function middleware(request: NextRequest) {
     "default-src 'self'",
     "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://vercel.live https://*.supabase.co",
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob: https://fimgs.net https://upload.wikimedia.org https://images.sephora.com https://www.sephora.com https://static.zara.net https://*.supabase.co https://media.neimanmarcus.com https://tomford.com https://louisvuitton.com https://armaf.com https://xerjoff.com https://target.scene7.com https://vercel.live",
+    "img-src 'self' data: blob: https://fimgs.net https://upload.wikimedia.org https://images.sephora.com https://www.sephora.com https://static.zara.net https://*.supabase.co https://media.neimanmarcus.com https://tomford.com https://louisvuitton.com https://armaf.com https://xerjoff.com https://target.scene7.com https://vercel.live https://raw.githubusercontent.com https://i.imgur.com https://imgur.com",
     "font-src 'self' data:",
     `connect-src 'self' https://${cspHost} https://*.supabase.co wss://${cspHost} https://vercel.live`,
     "frame-src 'self' https://vercel.live",

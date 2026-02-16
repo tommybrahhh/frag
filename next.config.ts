@@ -17,6 +17,9 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "s6.imgcdn.dev", pathname: "**" },            // ImgCDN
       { protocol: "https", hostname: "imgur.com", pathname: "**" },                // Imgur
       { protocol: "https", hostname: "i.imgur.com", pathname: "**" },              // Imgur alternate
+      { protocol: "https", hostname: "raw.githubusercontent.com", pathname: "/**" }, // GitHub Raw with leading slash
+      { protocol: "https", hostname: "user-images.githubusercontent.com", pathname: "/**" },
+      { protocol: "https", hostname: "avatars.githubusercontent.com", pathname: "/**" },
       { protocol: "https", hostname: "www.perfumemaster.com", pathname: "**" },    // PerfumeMaster images
     ],
   },
