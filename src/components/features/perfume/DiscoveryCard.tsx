@@ -3,6 +3,7 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import type { Recommendation } from '@/lib/recommendation-engine';
+import { getPerfumeImage } from '@/lib/perfume-utils';
 
 interface DiscoveryCardProps {
   recommendation: Recommendation;
@@ -33,7 +34,7 @@ export default function DiscoveryCard({ recommendation }: DiscoveryCardProps) {
       <div className="bg-white/50 rounded-xl p-6 flex flex-col sm:flex-row items-center gap-6">
         <div className="relative h-40 w-40 flex-shrink-0 flex items-center justify-center">
           {perfume.image_url ? (
-            <img src={perfume.image_url} alt={perfume.name} className="h-full w-full object-contain mix-blend-multiply" />
+            <img src={getPerfumeImage(perfume.image_url)} alt={perfume.name} className="h-full w-full object-contain mix-blend-multiply" />
           ) : (
              <span className="text-stone-300 text-xs italic">No Image</span>
           )}

@@ -124,8 +124,13 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
         data: enriched,
         timestamp: Date.now()
       };
-    } catch (err) {
-      console.error('Error fetching comments:', err);
+    } catch (err: any) {
+      console.error('Error fetching comments:', {
+        message: err.message,
+        details: err.details,
+        hint: err.hint,
+        code: err.code
+      });
     } finally {
       setIsFeedLoading(false);
     }

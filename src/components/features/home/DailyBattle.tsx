@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { voteInBattle } from '@/lib/actions/battleActions';
+import { getPerfumeImage } from '@/lib/perfume-utils';
 
 interface BattleProps {
   battle: {
@@ -120,7 +121,7 @@ function BattleCard({ perfume, side, onClick, disabled, percentage, showResult }
          <div className="relative w-16 h-16 md:w-24 md:h-24 mb-3 md:mb-5">
             {perfume.image_url ? (
                 <Image 
-                    src={perfume.image_url} 
+                    src={getPerfumeImage(perfume.image_url)} 
                     alt={perfume.name} 
                     fill 
                     className="object-contain mix-blend-multiply opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700"

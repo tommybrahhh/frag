@@ -8,6 +8,7 @@ import { X, Plus, Trophy, DollarSign, Clock, Wind, Calendar, Briefcase, Coffee, 
 import PerfumePicker from '@/components/features/perfume/PerfumePicker';
 import ComparisonScentRadar from './ComparisonScentRadar';
 import { ratingToDescription } from '@/lib/longevity-utils';
+import { getPerfumeImage } from '@/lib/perfume-utils';
 
 interface ComparePerfumeNote {
   type: string;
@@ -234,7 +235,7 @@ export default function CompareClientView({ initialPerfumes }: CompareClientView
                                 <>
                                     <div className="w-8 h-8 relative shrink-0 bg-transparent rounded-md">
                                         {p.image_url ? (
-                                            <Image src={p.image_url} alt={p.name} fill className="object-contain mix-blend-multiply" sizes="32px" />
+                                            <Image src={getPerfumeImage(p.image_url)} alt={p.name} fill className="object-contain mix-blend-multiply" sizes="32px" />
                                         ) : null}
                                     </div>
                                     <div className="min-w-0">
@@ -317,7 +318,7 @@ export default function CompareClientView({ initialPerfumes }: CompareClientView
                                             {p.image_url ? (
                                                 <div className="relative w-full h-full">
                                                     <Image 
-                                                        src={p.image_url} 
+                                                        src={getPerfumeImage(p.image_url)} 
                                                         alt={p.name}
                                                         fill
                                                         className="object-contain mix-blend-multiply transition-transform duration-500"

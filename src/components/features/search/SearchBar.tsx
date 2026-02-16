@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { getPerfumeImage } from '@/lib/perfume-utils';
 
 interface SearchBarProps {
   onSearch?: () => void;
@@ -145,7 +146,7 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
                   {/* Tiny Image */}
                   <div className="w-10 h-10 bg-white rounded-md border border-stone-100 flex items-center justify-center overflow-hidden">
                     {perfume.image_url ? (
-                      <img src={perfume.image_url} className="h-full object-contain" />
+                      <img src={getPerfumeImage(perfume.image_url)} className="h-full object-contain" />
                     ) : (
                       <div className="w-2 h-2 bg-stone-200 rounded-full"></div>
                     )}

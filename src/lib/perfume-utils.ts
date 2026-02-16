@@ -43,10 +43,68 @@ export const generateProfileFromVibes = (vibes: string[] | null) => {
     profile.depth = 2; // Keep it light
   }
 
-  // 8. Cap values at 10
-  (Object.keys(profile) as (keyof typeof profile)[]).forEach(k => {
-    if (profile[k] > 10) profile[k] = 10;
-  });
+    // 8. Cap values at 10
 
-  return profile;
-};
+    (Object.keys(profile) as (keyof typeof profile)[]).forEach(k => {
+
+      if (profile[k] > 10) profile[k] = 10;
+
+    });
+
+  
+
+    return profile;
+
+  };
+
+  
+
+  /**
+
+   * Normalizes a perfume image URL.
+
+   * Handles:
+
+   * 1. Full external URLs (starting with http/https)
+
+   * 2. Already prefixed local paths (starting with /)
+
+   * 3. Just filenames (should be in /Img/)
+
+   * 4. Fallback for null/missing images
+
+   */
+
+  export const getPerfumeImage = (imageUrl: string | null | undefined): string => {
+
+    if (!imageUrl) return '/next.svg'; // Or a placeholder if available
+
+  
+
+    // 1. External URL
+
+    if (imageUrl.startsWith('http') || imageUrl.startsWith('//')) {
+
+      return imageUrl;
+
+    }
+
+  
+
+    // 2. Already prefixed local path
+
+    if (imageUrl.startsWith('/')) {
+
+      return imageUrl;
+
+    }
+
+  
+
+    // 3. Just a filename - assume it's in /Img/
+
+    return `/Img/${imageUrl}`;
+
+  };
+
+  

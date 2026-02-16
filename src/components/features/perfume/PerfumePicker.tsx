@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { usePerfumeSearch } from '@/hooks/usePerfumeSearch';
+import { getPerfumeImage } from '@/lib/perfume-utils';
 
 interface PerfumePickerProps {
   label: string;
@@ -116,7 +117,7 @@ export default function PerfumePicker({ label, onSelect, selected, placeholder, 
         <div className={`bg-white rounded-2xl flex items-center gap-4 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_16px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all duration-300 cursor-pointer border border-stone-50 ${compact ? 'p-2' : 'p-4 gap-5'}`}>
           <div className={`${compact ? 'w-10 h-12' : 'w-16 h-20'} flex-shrink-0 flex items-center justify-center bg-stone-50 rounded-lg`}>
              {selected.image_url ? (
-               <img src={selected.image_url} className="h-full w-full object-contain mix-blend-multiply opacity-90" /> 
+               <img src={getPerfumeImage(selected.image_url)} className="h-full w-full object-contain mix-blend-multiply opacity-90" /> 
              ) : (
                <div className="w-8 h-8 rounded-full border border-stone-200"></div>
              )}
@@ -186,7 +187,7 @@ export default function PerfumePicker({ label, onSelect, selected, placeholder, 
                 }}
               >
                  <div className="w-10 h-12 bg-stone-50 rounded flex items-center justify-center shrink-0">
-                   {p.image_url ? <img src={p.image_url} className="h-full object-contain mix-blend-multiply" /> : <div className="w-full h-full bg-stone-100 rounded"></div>}
+                   {p.image_url ? <img src={getPerfumeImage(p.image_url)} className="h-full object-contain mix-blend-multiply" /> : <div className="w-full h-full bg-stone-100 rounded"></div>}
                  </div>
                  <div>
                    <div className="text-sm font-serif text-stone-900 leading-tight">{highlightMatch(p.name, query)}</div>

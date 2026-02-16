@@ -12,6 +12,7 @@ import DailyBattle from '@/components/features/home/DailyBattle';
 import { Search as SearchIcon } from 'lucide-react';
 
 import TierNav from '@/components/features/search/TierNav';
+import { getPerfumeImage } from '@/lib/perfume-utils';
 
 interface HomeClientProps {
   initialActivity?: ActivityItem[];
@@ -85,7 +86,7 @@ export default function HomeClient({
                        <div className="aspect-square relative mb-4 bg-white rounded-2xl p-4 overflow-hidden">
                           {randomPerfume.image_url ? (
                             <img 
-                              src={randomPerfume.image_url} 
+                              src={getPerfumeImage(randomPerfume.image_url)} 
                               alt={randomPerfume.name} 
                               className="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-700" 
                             />

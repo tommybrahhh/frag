@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Perfume } from '@/types';
+import { getPerfumeImage } from '@/lib/perfume-utils';
 
 interface FragranceCardProps {
   perfume: Perfume;
@@ -16,7 +17,7 @@ export default function FragranceCard({ perfume }: FragranceCardProps) {
         <div className="h-48 flex items-center justify-center p-4 mb-4 rounded-lg transition-colors relative">
           {perfume.image_url ? (
             <Image 
-              src={perfume.image_url} 
+              src={getPerfumeImage(perfume.image_url)} 
               alt={perfume.name} 
               fill
               className="object-contain mix-blend-multiply" 

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { Database } from '@/types/database';
+import { getPerfumeImage } from '@/lib/perfume-utils';
 
 // Type definitions moved from the original parent component
 type Brand = {
@@ -177,7 +178,7 @@ export default function PerfumeHero({ perfume, onShare }: PerfumeHeroProps) {
         <div className="lg:col-span-5 lg:col-start-2 flex flex-col items-center justify-center order-1">
           <div className="relative w-full h-[300px] md:h-[450px] flex items-center justify-center bg-[#FAFAF9] rounded-2xl" ref={heroRef}>
             {perfume.image_url ? (
-              <img src={perfume.image_url} alt={perfume.name} className="h-full w-full object-contain mix-blend-multiply p-4 md:p-0" />
+              <img src={getPerfumeImage(perfume.image_url)} alt={perfume.name} className="h-full w-full object-contain mix-blend-multiply p-4 md:p-0" />
             ) : (
               <div className="w-64 h-80 border-2 border-stone-100 flex items-center justify-center text-stone-300 italic">No Bottle Image</div>
             )}
