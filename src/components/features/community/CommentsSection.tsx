@@ -11,13 +11,21 @@ import { formatRelativeTime } from '@/utils/timeUtils';
 // TYPES
 // ------------------------------------------------------------------
 
-type EnrichedComment = Database['public']['Tables']['comments']['Row'] & {
-  is_owner: boolean; // Calculated from user_collections
-  profile: {
-    avatar_url: string | null;
-    is_verified: boolean | null; // For the Blue Tick
-  } | null;
+type EnrichedComment = {
+  id: string;
+  user_id: string;
+  perfume_id: string;
+  content: string;
+  user_name: string;
+  created_at: string;
+  avatar_url: string | null;
+  is_verified: boolean | null;
+  is_owner: boolean;
 };
+
+// Global cache to keep comments instant when navigating back/forth
+const commentsCache: Record<string, { data: EnrichedComment[], timestamp: number }> = {};
+const CACHE_TTL = 1000 * 60 * 5; // 5 minutes
 
 // ------------------------------------------------------------------
 // HELPER: TEXT FORMATTER
@@ -78,11 +86,20 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
   const { user } = useAuth();
   const supabase = createClient();
   
-  const [comments, setComments] = useState<EnrichedComment[]>([]);
+  // Initialize from cache if available for instant load
+  const [comments, setComments] = useState<EnrichedComment[]>(() => {
+    if (typeof window !== 'undefined' && commentsCache[perfumeId]) {
+      const cached = commentsCache[perfumeId];
+      if (Date.now() - cached.timestamp < CACHE_TTL) return cached.data;
+    }
+    return [];
+  });
+  
   const [newComment, setNewComment] = useState('');
-  const [isFeedLoading, setIsFeedLoading] = useState(true);
+  const [isFeedLoading, setIsFeedLoading] = useState(!comments.length);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
   
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -90,67 +107,34 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
     setMounted(true);
   }, []);
 
-  const fetchComments = useCallback(async () => {
-    setIsFeedLoading(true);
+  const fetchComments = useCallback(async (showLoading = true) => {
+    if (showLoading) setIsFeedLoading(true);
+    
     try {
-      type CommentRow = Database['public']['Tables']['comments']['Row'];
-      type ProfileInfo = { id: string; avatar_url: string | null; is_verified: boolean | null; };
-      type OwnershipInfo = { user_id: string };
-
-      // 1. Fetch Comments
-      const { data: commentsData, error } = await supabase
-        .from('comments')
-        .select('*')
-        .eq('perfume_id', perfumeId)
-        .order('created_at', { ascending: false });
+      const { data, error } = await supabase.rpc('get_perfume_comments', { 
+        p_perfume_id: perfumeId 
+      });
 
       if (error) throw error;
-      if (!commentsData || commentsData.length === 0) {
-        setComments([]);
-        return;
-      }
-
-      const userIds = Array.from(new Set((commentsData as CommentRow[]).map(c => c.user_id)));
-
-      // 2. Fetch Profiles (for Avatar and Verified User status)
-      const { data: profilesData } = await supabase
-        .from('profiles')
-        .select('id, avatar_url, is_verified')
-        .in('id', userIds);
       
-      // 3. Check Ownership (for Verified Owner status)
-      const { data: ownershipData } = await supabase
-        .from('user_collections')
-        .select('user_id')
-        .eq('perfume_id', perfumeId)
-        .eq('list_type', 'owned')
-        .in('user_id', userIds);
-
-      const ownersSet = new Set((ownershipData as OwnershipInfo[] | null)?.map(o => o.user_id));
-      
-      const profilesMap = (profilesData as ProfileInfo[] | null || []).reduce((acc, profile) => {
-        acc[profile.id] = profile;
-        return acc;
-      }, {} as Record<string, ProfileInfo>);
-
-      // 4. Merge Data
-      const enriched = (commentsData as CommentRow[]).map(c => ({
-        ...c,
-        profile: profilesMap[c.user_id] || null,
-        is_owner: ownersSet.has(c.user_id)
-      }));
-
+      const enriched = data || [];
       setComments(enriched);
+      
+      commentsCache[perfumeId] = {
+        data: enriched,
+        timestamp: Date.now()
+      };
     } catch (err) {
-      console.error(err);
+      console.error('Error fetching comments:', err);
     } finally {
       setIsFeedLoading(false);
     }
   }, [perfumeId, supabase]);
 
-  useEffect(() => { fetchComments(); }, [fetchComments]);
+  useEffect(() => { 
+    fetchComments(!comments.length); 
+  }, [fetchComments]);
 
-  // --- EDITOR LOGIC ---
   const insertFormat = (prefix: string, suffix: string) => {
     const el = textareaRef.current;
     if (!el) return;
@@ -170,165 +154,195 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !newComment.trim()) return;
+    
+    const contentToPost = newComment;
+    setNewComment('');
     setIsSubmitting(true);
+
+    const tempId = crypto.randomUUID();
+    const optimisticComment: EnrichedComment = {
+      id: tempId,
+      user_id: user.id,
+      perfume_id: perfumeId,
+      content: contentToPost,
+      user_name: user.display_name || 'Member',
+      created_at: new Date().toISOString(),
+      avatar_url: user.user_metadata?.avatar_url || null,
+      is_verified: false,
+      is_owner: false,
+    };
+
+    setComments(prev => [optimisticComment, ...prev]);
     
     const { error } = await supabase.from('comments').insert({
         user_id: user.id,
         perfume_id: perfumeId,
-        content: newComment,
+        content: contentToPost,
         user_name: user.display_name || 'Member', 
     } as any);
 
     if (error) {
-        console.error('Error posting comment:', error);
-        alert('Failed to post comment. Please try again.');
+        setComments(prev => prev.filter(c => c.id !== tempId));
+        setNewComment(contentToPost);
     } else {
-        setNewComment('');
-        fetchComments();
+        fetchComments(false);
     }
     setIsSubmitting(false);
   };
 
   return (
-    <section className="max-w-5xl mx-auto px-4 md:px-6 mt-16 mb-24">
+    <section className="max-w-4xl mx-auto px-6 mt-24 mb-32">
       {/* HEADER */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 border-b border-stone-200 pb-6">
-        <div>
-          <h3 className="font-serif text-3xl text-stone-900 mb-2">Community Notes</h3>
-          <p className="text-stone-500 text-sm max-w-md">
-            Real experiences from the collector community.
-          </p>
+      <div className="flex flex-col items-center text-center mb-16">
+        <div className="flex items-center gap-3 mb-4">
+           <div className="w-8 h-px bg-stone-200" />
+           <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-stone-400">
+             The Common Room
+           </span>
+           <div className="w-8 h-px bg-stone-200" />
         </div>
+        <h3 className="font-serif text-3xl md:text-5xl text-stone-900 mb-4">
+          Community <span className="italic text-stone-400">Notes</span>
+        </h3>
+        <p className="text-stone-500 text-sm md:text-base max-w-md font-light">
+          Real stories and honest impressions from people who have worn this scent.
+        </p>
       </div>
 
-      <div className="grid lg:grid-cols-12 gap-10">
-        
-        {/* INPUT FORM (Sticky) */}
-        <div className="lg:col-span-4 order-2 lg:order-1">
-          <div className="bg-stone-50 p-6 rounded-2xl border border-stone-100 sticky top-24">
-            <h4 className="font-serif text-lg text-stone-800 mb-4">Add your note</h4>
-            {user ? (
-              <form onSubmit={handleSubmit} className="space-y-3">
-                {/* TOOLBAR */}
-                <div className="flex items-center gap-1 mb-2 border-b border-stone-200 pb-2">
-                  <button type="button" onClick={() => insertFormat('**', '**')} className="w-8 h-8 flex items-center justify-center rounded hover:bg-stone-200 text-stone-600 font-bold" title="Bold">B</button>
-                  <button type="button" onClick={() => insertFormat('*', '*')} className="w-8 h-8 flex items-center justify-center rounded hover:bg-stone-200 text-stone-600 italic font-serif" title="Italic">I</button>
-                  <button type="button" onClick={() => insertFormat('> ', '')} className="w-8 h-8 flex items-center justify-center rounded hover:bg-stone-200 text-stone-600" title="Quote">❞</button>
-                </div>
-
+      {/* INPUT AREA */}
+      <div className="mb-20">
+        {user ? (
+          <div className={`bg-white rounded-[2rem] border transition-all duration-500 ${isFocused ? 'border-stone-300 shadow-xl' : 'border-stone-100 shadow-sm'}`}>
+            <form onSubmit={handleSubmit} className="p-2">
+              <div className="relative">
                 <textarea 
                   ref={textareaRef}
                   value={newComment}
+                  onFocus={() => setIsFocused(true)}
+                  onBlur={() => setIsFocused(false)}
                   onChange={(e) => setNewComment(e.target.value)}
-                  placeholder="Does it last? Is it safe for work? (Keywords like 'Office' or 'Date' are auto-tagged)"
-                  className="w-full p-4 bg-white border border-stone-200 rounded-xl text-sm min-h-[140px] focus:ring-1 focus:ring-stone-900 outline-none resize-none shadow-sm placeholder:text-stone-400 font-serif"
+                  placeholder="What's your story with this scent?"
+                  className="w-full p-6 md:p-8 bg-transparent text-stone-800 text-base md:text-lg min-h-[140px] outline-none resize-none placeholder:text-stone-300 font-serif leading-relaxed"
                 />
                 
-                <button 
-                  type="submit" 
-                  disabled={isSubmitting || !newComment.trim()}
-                  className="w-full py-3 bg-stone-900 text-white rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-stone-700 transition disabled:opacity-50"
-                >
-                  {isSubmitting ? 'Publishing...' : 'Publish Note'}
-                </button>
-                <p className="text-[10px] text-stone-400 text-center">
-                  Review marked as "Verified" if in your collection.
-                </p>
-              </form>
-            ) : (
-               <div className="text-center py-6">
-                 <p className="text-stone-500 text-sm mb-4">Log in to contribute.</p>
-                 <Link href="/login" className="inline-block px-6 py-2 border border-stone-300 rounded-full text-xs font-bold uppercase hover:bg-stone-900 hover:text-white transition">Log In</Link>
-               </div>
-            )}
-          </div>
-        </div>
-
-        {/* FEED */}
-        <div className="lg:col-span-8 order-1 lg:order-2 space-y-6">
-          {isFeedLoading ? (
-            <div className="space-y-4">{[1,2,3].map(i => <div key={i} className="h-32 bg-stone-50 animate-pulse rounded-xl" />)}</div>
-          ) : comments.length === 0 ? (
-            <div className="text-center py-16 border-2 border-dashed border-stone-100 rounded-2xl">
-              <h3 className="font-serif text-xl text-stone-400">Quiet in here...</h3>
-              <p className="text-stone-400 text-sm">Be the first to review this scent.</p>
-            </div>
-          ) : (
-            comments.map((comment) => {
-              const detectedBadges = extractContext(comment.content);
-
-              return (
-                <div key={comment.id} className="group relative bg-white p-6 sm:p-8 rounded-2xl border border-stone-100 hover:border-stone-200 hover:shadow-sm transition duration-300">
-                  
-                  {/* USER HEADER */}
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      {/* Avatar */}
-                      <div className="w-10 h-10 rounded-full bg-stone-100 overflow-hidden border border-stone-100 flex items-center justify-center">
-                        {comment.profile?.avatar_url ? (
-                          <img src={comment.profile.avatar_url} alt="User" className="w-full h-full object-cover" />
-                        ) : (
-                          <span className="text-stone-400 font-bold text-xs">{comment.user_name?.[0]}</span>
-                        )}
-                      </div>
-                      
-                      {/* User Info */}
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold text-stone-900 text-sm">{comment.user_name}</span>
-                          
-                          {/* BADGE 1: PROFILE VERIFIED (Blue Tick) */}
-                          {comment.profile?.is_verified && (
-                            <span title="Verified User" className="text-blue-500">
-                              <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 20 20">
-                                 <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" fillRule="evenodd"/>
-                              </svg>
-                            </span>
-                          )}
-
-                          {/* BADGE 2: VERIFIED OWNER (Amber Tag) */}
-                          {comment.is_owner && (
-                             <span className="bg-amber-50 text-amber-700 border border-amber-100 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide flex items-center gap-1 ml-1">
-                               <span className="w-1.5 h-1.5 bg-amber-500 rounded-full"/> Verified Owner
-                             </span>
-                          )}
-                        </div>
-                        <span className="text-[10px] text-stone-400 font-medium">
-                          {mounted ? formatRelativeTime(comment.created_at) : ''}
-                        </span>
-                      </div>
-                    </div>
+                {/* Formatting Tools - Only visible on focus or when text exists */}
+                <div className={`flex items-center justify-between px-4 pb-4 transition-all duration-300 ${isFocused || newComment ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'}`}>
+                  <div className="flex items-center gap-1">
+                    <button type="button" onClick={() => insertFormat('**', '**')} className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-stone-50 text-stone-400 hover:text-stone-900 transition-colors text-xs font-bold">B</button>
+                    <button type="button" onClick={() => insertFormat('*', '*')} className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-stone-50 text-stone-400 hover:text-stone-900 transition-colors text-xs italic font-serif">I</button>
+                    <button type="button" onClick={() => insertFormat('> ', '')} className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-stone-50 text-stone-400 hover:text-stone-900 transition-colors text-xs">❝</button>
                   </div>
 
-                  {/* CONTENT */}
-                  <div className="prose prose-stone prose-sm max-w-none mb-6 font-serif text-stone-700 leading-relaxed text-[15px]">
+                  <button 
+                    type="submit" 
+                    disabled={isSubmitting || !newComment.trim()}
+                    className="px-8 py-3 bg-stone-900 text-white rounded-full text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-stone-800 transition-all disabled:opacity-30 shadow-lg active:scale-95"
+                  >
+                    {isSubmitting ? 'Posting...' : 'Post Note'}
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        ) : (
+          <div className="bg-stone-50/50 border border-dashed border-stone-200 rounded-[2rem] p-12 text-center">
+            <p className="text-stone-400 text-sm mb-6 font-light italic">Join the conversation to share your experience.</p>
+            <Link href="/login" className="inline-flex px-10 py-4 bg-stone-900 text-white rounded-full text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-stone-800 transition-all shadow-md">
+              Log In to Scentia
+            </Link>
+          </div>
+        )}
+      </div>
+
+      {/* FEED */}
+      <div className="space-y-12">
+        {isFeedLoading && !comments.length ? (
+          <div className="space-y-8">
+            {[1, 2].map(i => (
+              <div key={i} className="flex gap-6 animate-pulse">
+                <div className="w-12 h-12 rounded-full bg-stone-100 shrink-0" />
+                <div className="flex-1 space-y-4 pt-2">
+                  <div className="h-4 bg-stone-100 rounded w-1/4" />
+                  <div className="h-20 bg-stone-50 rounded-2xl w-full" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : comments.length === 0 ? (
+          <div className="text-center py-20">
+            <div className="w-16 h-16 bg-stone-50 rounded-full flex items-center justify-center mx-auto mb-6">
+              <span className="text-2xl">✍️</span>
+            </div>
+            <h3 className="font-serif text-xl text-stone-400 mb-2 italic">Be the first to speak</h3>
+            <p className="text-stone-300 text-sm uppercase tracking-widest font-bold">No notes yet</p>
+          </div>
+        ) : (
+          comments.map((comment) => {
+            const detectedBadges = extractContext(comment.content);
+
+            return (
+              <div key={comment.id} className="group flex gap-4 md:gap-8 items-start">
+                {/* User Column */}
+                <div className="shrink-0 flex flex-col items-center gap-3">
+                  <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-white overflow-hidden border border-stone-100 shadow-sm relative group-hover:shadow-md transition-shadow">
+                    {comment.avatar_url ? (
+                      <img src={comment.avatar_url} alt="User" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-stone-50 text-stone-300 font-serif text-xl">
+                        {comment.user_name?.[0]}
+                      </div>
+                    )}
+                  </div>
+                  {comment.is_owner && (
+                    <div className="bg-amber-400 w-5 h-5 rounded-full flex items-center justify-center shadow-sm border-2 border-white -mt-7 z-10" title="Verified Owner">
+                      <svg className="w-2.5 h-2.5 text-stone-900 fill-current" viewBox="0 0 20 20">
+                         <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" fillRule="evenodd"/>
+                      </svg>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Content Column */}
+                <div className="flex-1 pt-2">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-3">
+                    <span className="font-serif text-lg text-stone-900">{comment.user_name}</span>
+                    {comment.is_verified && (
+                      <span title="Verified Collector" className="text-blue-500">
+                        <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
+                           <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" fillRule="evenodd"/>
+                        </svg>
+                      </span>
+                    )}
+                    <span className="text-[10px] font-bold text-stone-300 uppercase tracking-widest pt-0.5">
+                      {mounted ? formatRelativeTime(comment.created_at) : ''}
+                    </span>
+                  </div>
+
+                  <div className="prose prose-stone max-w-none font-serif text-stone-700 leading-relaxed text-base md:text-lg mb-6">
                     <FormattedText text={comment.content} />
                   </div>
 
-                  {/* AUTO-DETECTED TAGS */}
-                  {detectedBadges.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-4">
+                  {/* Badges & Actions */}
+                  <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div className="flex flex-wrap gap-2">
                       {detectedBadges.map((badge, i) => (
-                        <span key={i} className={`text-[9px] uppercase tracking-widest font-bold px-2 py-1 rounded bg-stone-50 text-stone-500 border border-stone-100`}>
+                        <span key={i} className="text-[8px] md:text-[9px] uppercase tracking-widest font-bold px-3 py-1.5 rounded-full bg-stone-50 text-stone-400 border border-stone-100">
                           {badge.label}
                         </span>
                       ))}
                     </div>
-                  )}
 
-                  {/* FOOTER - ONLY EDIT (No Upvote to avoid 404) */}
-                  <div className="flex items-center justify-end pt-4 border-t border-stone-50">
                     {user?.id === comment.user_id && (
-                       <button className="text-[10px] font-bold uppercase text-stone-300 hover:text-stone-900 transition">
+                       <button className="text-[9px] font-bold uppercase tracking-widest text-stone-300 hover:text-stone-900 transition-colors">
                          Edit Note
                        </button>
                     )}
                   </div>
                 </div>
-              );
-            })
-          )}
-        </div>
+              </div>
+            );
+          })
+        )}
       </div>
     </section>
   );

@@ -7,15 +7,17 @@ const nextConfig: NextConfig = {
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [
-      { protocol: "https", hostname: "fimgs.net" },                // Fragrantica images
-      { protocol: "https", hostname: "fimgs.fragrantica.com" },    // Fragrantica images alternate
-      { protocol: "https", hostname: "upload.wikimedia.org" },     // Wikipedia
-      { protocol: "https", hostname: "fmtqqpnhnexwmgpeaidb.supabase.co" }, // Your Supabase Storage
-      { protocol: "https", hostname: "images.unsplash.com" },      // Unsplash
-      { protocol: "https", hostname: "plus.unsplash.com" },      // Unsplash
-      { protocol: "https", hostname: "i.postimg.cc" },             // PostImage
-      { protocol: "https", hostname: "s6.imgcdn.dev" },            // ImgCDN
-      { protocol: "https", hostname: "www.perfumemaster.com" },    // PerfumeMaster images
+      { protocol: "https", hostname: "fimgs.net", pathname: "**" },                // Fragrantica images
+      { protocol: "https", hostname: "fimgs.fragrantica.com", pathname: "**" },    // Fragrantica images alternate
+      { protocol: "https", hostname: "upload.wikimedia.org", pathname: "**" },     // Wikipedia
+      { protocol: "https", hostname: "fmtqqpnhnexwmgpeaidb.supabase.co", pathname: "**" }, // Your Supabase Storage
+      { protocol: "https", hostname: "images.unsplash.com", pathname: "**" },      // Unsplash
+      { protocol: "https", hostname: "plus.unsplash.com", pathname: "**" },      // Unsplash
+      { protocol: "https", hostname: "i.postimg.cc", pathname: "**" },             // PostImage
+      { protocol: "https", hostname: "s6.imgcdn.dev", pathname: "**" },            // ImgCDN
+      { protocol: "https", hostname: "imgur.com", pathname: "**" },                // Imgur
+      { protocol: "https", hostname: "i.imgur.com", pathname: "**" },              // Imgur alternate
+      { protocol: "https", hostname: "www.perfumemaster.com", pathname: "**" },    // PerfumeMaster images
     ],
   },
   async headers() {
