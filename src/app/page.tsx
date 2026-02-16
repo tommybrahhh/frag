@@ -12,7 +12,7 @@ import VisualCategoryNav from '@/components/features/search/VisualCategoryNav';
 import JoinCommunityCTA from '@/components/features/home/JoinCommunityCTA';
 import PageTransition from '@/components/layout/PageTransition'; // Added
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 600; // Revalidate every 10 minutes
 
 export default async function Home() {
   return (

@@ -306,6 +306,64 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_community_stats: {
+        Args: Record<string, never>
+        Returns: {
+          perfumes: number
+          brands: number
+          members: number
+          reviews: number
+        }
+      }
+      get_random_perfume: {
+        Args: Record<string, never>
+        Returns: {
+          id: string
+          name: string
+          slug: string
+          image_url: string | null
+          rating: number | null
+          brand: { name: string }[]
+        }
+      }
+      get_or_create_daily_battle_v2: {
+        Args: Record<string, never>
+        Returns: {
+          id: string
+          votes_a: number
+          votes_b: number
+          perfume_a: {
+            id: string
+            name: string
+            slug: string
+            image_url: string | null
+            brand: { name: string }
+          }
+          perfume_b: {
+            id: string
+            name: string
+            slug: string
+            image_url: string | null
+            brand: { name: string }
+          }
+        }
+      }
+      get_perfume_comments: {
+        Args: {
+          p_perfume_id: string
+        }
+        Returns: {
+          id: string
+          user_id: string
+          perfume_id: string
+          content: string
+          user_name: string
+          created_at: string
+          avatar_url: string | null
+          is_verified: boolean | null
+          is_owner: boolean
+        }[]
+      }
       search_perfumes: {
         Args: {
           keyword: string

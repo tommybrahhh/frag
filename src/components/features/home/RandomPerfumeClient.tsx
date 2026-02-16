@@ -26,10 +26,12 @@ export default function RandomPerfumeClient({ randomPerfume }: RandomPerfumeClie
       <Link href={`/perfume/${randomPerfume.slug}`} className="block group bg-stone-50 border border-stone-100 p-6 rounded-[2rem] hover:bg-white hover:border-stone-200 hover:shadow-xl transition-all duration-500">
         <div className="aspect-square relative mb-4 bg-white rounded-2xl p-4 overflow-hidden">
           {randomPerfume.image_url ? (
-            <img 
+            <Image 
               src={randomPerfume.image_url} 
               alt={randomPerfume.name} 
-              className="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-700" 
+              fill
+              className="object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-700" 
+              sizes="(max-width: 768px) 100vw, 300px"
             />
           ) : (
             <div className="w-full h-full bg-stone-50 flex items-center justify-center text-[10px] text-stone-300">No Image</div>

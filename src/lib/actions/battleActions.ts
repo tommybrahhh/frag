@@ -7,40 +7,25 @@ export async function getDailyBattle() {
   const supabase = await createClient();
   
   try {
-    // Add a timeout to the RPC call to prevent blocking the entire page
-    const battlePromise = supabase.rpc('get_or_create_daily_battle');
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Battle fetch timeout')), 5000)
-    );
-
-    // Race the RPC against a 5s timeout
-    const { data: battleRecord, error } = await Promise.race([
-      battlePromise,
-      timeoutPromise as any
-    ]);
+    // Use the optimized V2 RPC that returns everything in one go
+    const { data: battleData, error } = await supabase.rpc('get_or_create_daily_battle_v2');
     
-    if (error || !battleRecord) {
-      // Use warn for expected timeouts or non-critical failures
-      console.warn('Daily battle skipped:', error?.message || 'No record returned');
+    if (error || !battleData) {
+      console.warn('Daily battle fetch failed:', error?.message || 'No record returned');
       return null;
     }
 
-    // Fetch full details for the two perfumes
-    const { data: perfumes } = await supabase
-      .from('perfumes')
-      .select('id, name, slug, image_url, brand:brands(name)')
-      .in('id', [battleRecord.perfume_a_id, battleRecord.perfume_b_id]);
-
-    if (!perfumes || perfumes.length !== 2) return null;
-
-    const left = perfumes.find(p => p.id === battleRecord.perfume_a_id);
-    const right = perfumes.find(p => p.id === battleRecord.perfume_b_id);
-
     return {
-      id: battleRecord.id,
-      left: { ...left, votes: battleRecord.votes_a },
-      right: { ...right, votes: battleRecord.votes_b },
-      totalVotes: battleRecord.votes_a + battleRecord.votes_b
+      id: battleData.id,
+      left: { 
+        ...battleData.perfume_a, 
+        votes: battleData.votes_a 
+      },
+      right: { 
+        ...battleData.perfume_b, 
+        votes: battleData.votes_b 
+      },
+      totalVotes: battleData.votes_a + battleData.votes_b
     };
   } catch (err) {
     console.error('Unexpected error in getDailyBattle:', err);

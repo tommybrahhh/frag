@@ -10,20 +10,27 @@ export interface CommunityStats {
 export async function getCommunityStats(): Promise<CommunityStats> {
   const supabase = await createClient();
   
-  const [perfumesCount, brandsCount, membersCount, reviewsCount, commentsCount] = await Promise.all([
-    supabase.from('perfumes').select('*', { count: 'exact', head: true }),
-    supabase.from('brands').select('*', { count: 'exact', head: true }),
-    supabase.from('profiles').select('*', { count: 'exact', head: true }),
-    supabase.from('reviews').select('*', { count: 'exact', head: true }),
-    supabase.from('comments').select('*', { count: 'exact', head: true }),
-  ]);
+  const { data, error } = await supabase.rpc('get_community_stats');
 
-  return {
-    perfumes: perfumesCount.count || 0,
-    brands: brandsCount.count || 0,
-    members: membersCount.count || 0,
-    reviews: (reviewsCount.count || 0) + (commentsCount.count || 0)
-  };
+  if (error || !data) {
+    // Fallback to individual queries if RPC fails
+    const [perfumesCount, brandsCount, membersCount, reviewsCount, commentsCount] = await Promise.all([
+      supabase.from('perfumes').select('*', { count: 'exact', head: true }),
+      supabase.from('brands').select('*', { count: 'exact', head: true }),
+      supabase.from('profiles').select('*', { count: 'exact', head: true }),
+      supabase.from('reviews').select('*', { count: 'exact', head: true }),
+      supabase.from('comments').select('*', { count: 'exact', head: true }),
+    ]);
+
+    return {
+      perfumes: perfumesCount.count || 0,
+      brands: brandsCount.count || 0,
+      members: membersCount.count || 0,
+      reviews: (reviewsCount.count || 0) + (commentsCount.count || 0)
+    };
+  }
+
+  return data as CommunityStats;
 }
 
 export type ActivityType = 'review' | 'comment' | 'collection';
@@ -314,7 +321,13 @@ export async function getTrendingPerfumes(limit = 10) {
 export async function getRandomPerfume() {
   const supabase = await createClient();
   
-  // Get total count first to pick a random offset
+  const { data, error } = await supabase.rpc('get_random_perfume');
+
+  if (!error && data) {
+    return data;
+  }
+
+  // Fallback to old method if RPC fails
   const { count } = await supabase
     .from('perfumes')
     .select('*', { count: 'exact', head: true });
@@ -323,7 +336,7 @@ export async function getRandomPerfume() {
   
   const randomOffset = Math.floor(Math.random() * count);
 
-  const { data } = await supabase
+  const { data: fallbackData } = await supabase
     .from('perfumes')
     .select(`
       id,
@@ -336,5 +349,5 @@ export async function getRandomPerfume() {
     .range(randomOffset, randomOffset)
     .single();
 
-  return data;
+  return fallbackData;
 }
