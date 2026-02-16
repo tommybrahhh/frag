@@ -111,9 +111,9 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
     if (showLoading) setIsFeedLoading(true);
     
     try {
-      const { data, error } = await supabase.rpc('get_perfume_comments', { 
+      const { data, error } = await supabase.rpc('get_perfume_comments' as any, { 
         p_perfume_id: perfumeId 
-      });
+      } as any);
 
       if (error) throw error;
       

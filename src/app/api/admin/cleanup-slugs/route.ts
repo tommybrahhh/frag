@@ -8,7 +8,7 @@ export async function GET() {
     const { data: perfumes, error } = await supabase
         .from('perfumes')
         .select('id, slug')
-        .not('slug', 'is', null);
+        .not('slug', 'is', null) as any;
 
     if (error) return NextResponse.json({ error: error.message });
 
@@ -22,8 +22,7 @@ export async function GET() {
         if (parts.length >= 2 && parts[0] === parts[1]) {
             const newSlug = parts.slice(1).join('-');
             
-            await supabase
-                .from('perfumes')
+            await (supabase.from('perfumes') as any)
                 .update({ slug: newSlug })
                 .eq('id', p.id);
             updated++;

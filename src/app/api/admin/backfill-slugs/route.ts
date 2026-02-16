@@ -31,7 +31,7 @@ export async function GET(request: Request) {
         .from('perfumes')
         .select('id, name, brand:brands(name)')
         .range(offset, offset + limit - 1)
-        .order('id');
+        .order('id') as any;
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     
@@ -63,8 +63,7 @@ export async function GET(request: Request) {
 
         // Proactive Fix: Only attempt update if a valid slug exists
         if (slug) {
-            await supabase
-                .from('perfumes')
+            await (supabase.from('perfumes') as any)
                 .update({ slug: slug })
                 .eq('id', p.id);
                 

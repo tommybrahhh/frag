@@ -15,11 +15,11 @@ export async function getCommunityStats(): Promise<CommunityStats> {
   if (error || !data) {
     // Fallback to individual queries if RPC fails
     const [perfumesCount, brandsCount, membersCount, reviewsCount, commentsCount] = await Promise.all([
-      supabase.from('perfumes').select('*', { count: 'exact', head: true }),
-      supabase.from('brands').select('*', { count: 'exact', head: true }),
-      supabase.from('profiles').select('*', { count: 'exact', head: true }),
-      supabase.from('reviews').select('*', { count: 'exact', head: true }),
-      supabase.from('comments').select('*', { count: 'exact', head: true }),
+      supabase.from('perfumes').select('*', { count: 'exact', head: true }) as any,
+      supabase.from('brands').select('*', { count: 'exact', head: true }) as any,
+      supabase.from('profiles').select('*', { count: 'exact', head: true }) as any,
+      supabase.from('reviews').select('*', { count: 'exact', head: true }) as any,
+      supabase.from('comments').select('*', { count: 'exact', head: true }) as any,
     ]);
 
     return {
@@ -118,8 +118,8 @@ export async function getTopContributors(limit = 5): Promise<Contributor[]> {
   const supabase = await createClient();
   
   const [reviews, comments] = await Promise.all([
-    supabase.from('reviews').select('user_id, profiles(display_name)').limit(100),
-    supabase.from('comments').select('user_id, user_name').limit(100)
+    supabase.from('reviews').select('user_id, profiles(display_name)').limit(100) as any,
+    supabase.from('comments').select('user_id, user_name').limit(100) as any
   ]);
 
   const stats: Record<string, Contributor> = {};
@@ -169,7 +169,7 @@ export async function getMostDiscussedPerfumes(limit = 5) {
   const { data: comments } = await supabase
     .from('comments')
     .select('perfume_id, perfumes(name, slug, image_url, brands(name))')
-    .limit(100);
+    .limit(100) as any;
 
   const counts: Record<string, { count: number, perfume: any }> = {};
 
@@ -207,7 +207,7 @@ export async function getRecentActivity(limit = 10): Promise<ActivityItem[]> {
         )
       `)
       .order('created_at', { ascending: false })
-      .limit(limit),
+      .limit(limit) as any,
     
     supabase
       .from('comments')
@@ -224,7 +224,7 @@ export async function getRecentActivity(limit = 10): Promise<ActivityItem[]> {
         )
       `)
       .order('created_at', { ascending: false })
-      .limit(limit)
+      .limit(limit) as any
   ]);
 
   const reviews: ActivityItem[] = (reviewsResult.data || []).map((r: any) => ({
@@ -263,7 +263,7 @@ export async function getTrendingPerfumes(limit = 10) {
   const supabase = await createClient();
 
   const { data: rpcData, error: rpcError } = await supabase
-    .rpc('get_trending_perfumes', { period_days: 30, limit_count: limit });
+    .rpc('get_trending_perfumes' as any, { period_days: 30, limit_count: limit } as any) as any;
 
   if (!rpcError && rpcData && rpcData.length > 0) {
     return rpcData.map((p: any) => ({
@@ -280,7 +280,7 @@ export async function getTrendingPerfumes(limit = 10) {
     .from('comments')
     .select('perfume_id')
     .order('created_at', { ascending: false })
-    .limit(50);
+    .limit(50) as any;
 
   const idCounts: Record<string, number> = {};
   recentIds?.forEach((r: any) => {
@@ -295,10 +295,10 @@ export async function getTrendingPerfumes(limit = 10) {
        .from('perfumes')
        .select('id')
        .order('rating', { ascending: false })
-       .limit(limit);
+       .limit(limit) as any;
      
      if (popular) {
-        const popularIds = popular.map(p => p.id);
+        const popularIds = (popular as any[]).map(p => p.id);
         queryIds = [...new Set([...queryIds, ...popularIds])].slice(0, limit);
      }
   }
@@ -313,7 +313,7 @@ export async function getTrendingPerfumes(limit = 10) {
       rating,
       brand:brands ( name )
     `)
-    .in('id', queryIds);
+    .in('id', queryIds) as any;
 
   return trending || [];
 }
@@ -321,7 +321,7 @@ export async function getTrendingPerfumes(limit = 10) {
 export async function getRandomPerfume() {
   const supabase = await createClient();
   
-  const { data, error } = await supabase.rpc('get_random_perfume');
+  const { data, error } = await supabase.rpc('get_random_perfume' as any) as any;
 
   if (!error && data) {
     return data;

@@ -18,10 +18,10 @@ export async function GET(request: Request) {
 
     // Get user's fragrance preferences
     const { data: preferences } = await supabase
-      .from('user_preferences')
+      .from('user_preferences' as any)
       .select('interests, favorite_notes, avoided_notes')
       .eq('user_id', session.user.id)
-      .single();
+      .single() as any;
 
     // Build recommendation query using existing API pattern
     let query = supabase
@@ -40,7 +40,7 @@ export async function GET(request: Request) {
         best_time,
         occasions,
         brand:brands!perfumes_brand_id_fkey(name, tier)
-      `, { count: 'exact' });
+      `, { count: 'exact' }) as any;
 
     // Apply interest-based filters using Supabase query methods
     if (preferences?.interests?.length) {

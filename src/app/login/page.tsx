@@ -91,7 +91,7 @@ export default function LoginPage() {
         // 1. If it doesn't look like an email, treat it as a Username
         if (!identifier.includes('@')) {
           const { data: lookedUpEmail, error: lookupError } = await supabase
-            .rpc('get_email_by_username', { username_input: identifier });
+            .rpc('get_email_by_username' as any, { username_input: identifier } as any) as any;
 
           if (lookupError) {
              console.error("Username lookup failed:", lookupError);

@@ -30,7 +30,7 @@ export default async function ProfilePage() {
         .from('profiles')
         .select('display_name, bio, signature_scent_id, avatar_url, is_verified')
         .eq('id', user.id)
-        .single();
+        .single() as any;
     
     if (error) {
         // If error is PGRST116 (no rows), we just use defaults.
@@ -71,7 +71,7 @@ export default async function ProfilePage() {
         perfume_notes(type, note:notes(name))
       )
     `)
-    .eq('user_id', user.id);
+    .eq('user_id', user.id) as any;
 
   if (colError) {
     // Check if error is due to missing column (Postgres error 42703: undefined_column)
@@ -95,7 +95,7 @@ export default async function ProfilePage() {
             perfume_notes(type, note:notes(name))
           )
         `)
-        .eq('user_id', user.id);
+        .eq('user_id', user.id) as any;
         
     if (fallbackError) {
         console.error('Fallback collection fetch failed:', fallbackError);
@@ -181,7 +181,7 @@ export default async function ProfilePage() {
 
   // --- NEW: Fetch User Comments ---
   const { data: userComments } = await supabase
-    .rpc('get_user_comments', { p_user_id: user.id });
+    .rpc('get_user_comments' as any, { p_user_id: user.id } as any);
 
   // Render the Client Component with pre-fetched data
   return (

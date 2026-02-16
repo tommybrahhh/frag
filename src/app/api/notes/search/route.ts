@@ -18,7 +18,7 @@ export async function GET(request: Request) {
     .from('notes')
     .select('id, name')
     .ilike('name', `%${query}%`)
-    .limit(100);
+    .limit(100) as any;
 
   if (error) {
     console.error('Notes search error:', error);
@@ -27,7 +27,7 @@ export async function GET(request: Request) {
 
   // Sort results: Exact match > Starts with > Alphabetical
   const lowerQuery = query.toLowerCase();
-  const sortedData = (data || []).sort((a, b) => {
+  const sortedData = (data || []).sort((a: any, b: any) => {
     const nameA = a.name.toLowerCase();
     const nameB = b.name.toLowerCase();
 

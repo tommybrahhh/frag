@@ -36,12 +36,12 @@ export default async function ComparePage(props: { searchParams: Promise<{ a?: s
           note:notes(name, color_hex, url)
         )
       `)
-      .in('id', ids);
+      .in('id', ids) as any;
     
     // Sort to match order of IDs in URL?
     // Not strictly necessary but nice.
     if (data) {
-        perfumes = ids.map(id => data.find(p => p.id === id)).filter(Boolean);
+        perfumes = ids.map(id => data.find((p: any) => p.id === id)).filter(Boolean);
     }
   }
 

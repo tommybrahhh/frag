@@ -38,7 +38,7 @@ export class FragranceService {
         perfume_notes(type, note:notes(name, color_hex, description, url))
       `)
       .eq('slug', slugOrId)
-      .limit(1);
+      .limit(1) as any;
 
     if (slugMatches && slugMatches.length > 0) {
       return slugMatches[0] as unknown as Perfume;
@@ -58,7 +58,7 @@ export class FragranceService {
         perfume_notes(type, note:notes(name, color_hex, description, url))
       `)
       .eq('id', slugOrId)
-      .maybeSingle();
+      .maybeSingle() as any;
 
     return (fallbackPerfume as unknown as Perfume) || null;
   }
@@ -122,7 +122,7 @@ export class FragranceService {
         image_url,
         brand:brands(name)
       `)
-      .in('id', pagedIds);
+      .in('id', pagedIds) as any;
 
     if (error) {
       throw new Error(error.message);
@@ -145,9 +145,9 @@ export class FragranceService {
 
     try {
       // 1. Try RPC first (better for full-text search/ranking if configured)
-      const { data, error } = await this.supabase
+      const { data, error } = await (this.supabase
         .rpc('search_perfumes', { keyword: query })
-        .limit(limit);
+        .limit(limit) as any);
 
       if (error) throw error;
 
@@ -169,7 +169,7 @@ export class FragranceService {
           brand:brands!perfumes_brand_id_fkey(name)
         `)
         .ilike('name', `%${query}%`)
-        .limit(limit);
+        .limit(limit) as any;
 
       if (error) {
         throw new Error(error.message);

@@ -19,9 +19,9 @@ export async function searchPerfumesService(
   
   if (!query || query.length < 2) return [];
 
-  const { data, error } = await client
+  const { data, error } = await (client
     .rpc('search_perfumes', { keyword: query })
-    .abortSignal(signal as any); // Type cast if necessary for older definitions
+    .abortSignal(signal as any) as any); // Type cast if necessary for older definitions
 
   if (error) {
     if (signal?.aborted) return [];

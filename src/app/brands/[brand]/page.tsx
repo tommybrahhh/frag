@@ -16,7 +16,7 @@ async function getBrandData(slug: string) {
     .select('id, name')
     .ilike('name', brandName)
     .limit(1)
-    .maybeSingle();
+    .maybeSingle() as any;
 
   if (brandError || !brandData) {
     return null;
@@ -32,7 +32,7 @@ async function getBrandData(slug: string) {
       perfumer
     `)
     .eq('brand_id', brandData.id)
-    .order('name');
+    .order('name') as any;
 
   if (perfumeError) {
     console.error('Perfume Fetch Error:', perfumeError);

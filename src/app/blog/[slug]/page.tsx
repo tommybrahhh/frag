@@ -15,7 +15,7 @@ export async function generateMetadata(
     .from('blog_posts')
     .select('title, excerpt, image_url, created_at, updated_at')
     .eq('slug', slug)
-    .maybeSingle();
+    .maybeSingle() as any;
 
   if (!post) {
     return { title: 'Post Not Found | Scentia' };
@@ -47,7 +47,7 @@ export default async function BlogPostPage(
     .select('*')
     .eq('slug', slug)
     .eq('is_published', true)
-    .single();
+    .single() as any;
 
   if (error || !post) {
     console.error('Error fetching blog post:', error);

@@ -8,7 +8,7 @@ export async function getDailyBattle() {
   
   try {
     // Use the optimized V2 RPC that returns everything in one go
-    const { data: battleData, error } = await supabase.rpc('get_or_create_daily_battle_v2');
+    const { data: battleData, error } = await supabase.rpc('get_or_create_daily_battle_v2') as any;
     
     if (error || !battleData) {
       console.warn('Daily battle fetch failed:', error?.message || 'No record returned');
@@ -52,10 +52,10 @@ export async function voteInBattle(battleId: string, side: 'left' | 'right') {
   // We need to fetch current first to increment (optimistic) or use a SQL function.
   // Let's write a quick SQL function for atomic vote.
   
-  const { error } = await supabase.rpc('increment_battle_vote', { 
+  const { error } = await supabase.rpc('increment_battle_vote' as any, { 
     battle_uuid: battleId, 
     vote_side: side 
-  });
+  } as any);
 
   if (error) {
      console.error("Vote failed", error);

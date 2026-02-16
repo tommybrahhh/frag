@@ -19,7 +19,7 @@ export async function getLayeringSuggestions(basePerfumeId: string) {
         perfume_notes(type, note:notes(name, color_hex))
     `)
     .eq('id', basePerfumeId)
-    .single();
+    .single() as any;
 
   if (!basePerfume) return [];
 

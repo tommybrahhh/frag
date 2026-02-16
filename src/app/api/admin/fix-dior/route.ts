@@ -5,8 +5,7 @@ export async function GET() {
     const supabase = await createClient();
     
     // Force update Dior Addict
-    const { error } = await supabase
-        .from('perfumes')
+    const { error } = await (supabase.from('perfumes') as any)
         .update({ slug: 'dior-addict' })
         .eq('name', 'Dior Addict'); // Updating by name to be sure
 
