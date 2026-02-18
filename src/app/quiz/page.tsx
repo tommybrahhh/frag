@@ -24,6 +24,7 @@ import { questions, QuizAnswers, QuizOption, buildPersonalityProfile } from '@/l
 import { getRecommendations, Recommendation } from '@/lib/quiz-engine';
 import { createClient } from '@/lib/supabase';
 import Link from 'next/link';
+import { getPerfumeImage } from '@/lib/perfume-utils';
 
 // --- Icons Mapping ---
 const iconMap: Record<string, any> = {
