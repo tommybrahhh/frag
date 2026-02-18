@@ -6,7 +6,7 @@ from supabase import create_client, Client
 # --- CONFIGURATION ---
 SUPABASE_URL = "https://fmtqqpnhnexwmgpeaidb.supabase.co"
 # IMPORTANT: Use your 'service_role' key (revealed in Settings > API)
-SUPABASE_KEY = "sb_secret_W69EUxa1r_tyHgR7OkKqMg_yTTzPm51"
+SUPABASE_KEY = "xxx"
 
 # Path to your CSV file
 CSV_FILE = "data/perfumes.csv"

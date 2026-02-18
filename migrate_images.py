@@ -7,7 +7,7 @@ from supabase import create_client, Client
 SUPABASE_URL = "https://fmtqqpnhnexwmgpeaidb.supabase.co"
 
 # PASTE YOUR SERVICE ROLE KEY HERE (The one you found in Settings > API)
-SUPABASE_KEY = "sb_secret_W69EUxa1r_tyHgR7OkKqMg_yTTzPm51"
+SUPABASE_KEY = "xx"
 
 # Name of your Supabase Storage Bucket
 BUCKET_NAME = "perfumes" 
