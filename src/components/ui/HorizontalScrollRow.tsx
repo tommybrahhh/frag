@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { getPerfumeImage } from '@/lib/perfume-utils';
 
 interface Perfume {
   id: string;
@@ -28,7 +29,7 @@ const HorizontalScrollRow = ({ items }: { items: Perfume[] }) => {
             <div className="bg-white rounded-2xl h-45 sm:h-54 flex items-center justify-center p-4 sm:p-6 border border-stone-100 group-hover:border-stone-300 transition-all duration-500 relative mb-4">
                {p.image_url ? (
                  <Image
-                   src={p.image_url}
+                   src={getPerfumeImage(p.image_url)}
                    alt={`${p.name} by ${p.brand?.name}`}
                    className="h-full w-full object-contain mix-blend-multiply group-hover:scale-105 transition duration-700"
                    width={220}

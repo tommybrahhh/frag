@@ -3,6 +3,7 @@
 import React, { useMemo } from 'react';
 import Link from 'next/link';
 import { Recommendation } from '@/lib/recommendation-engine';
+import { getPerfumeImage } from '@/lib/perfume-utils';
 
 interface DiscoverMatchesProps {
   topMatches: Recommendation[];
@@ -86,7 +87,7 @@ export default function DiscoverMatches({ topMatches }: DiscoverMatchesProps) {
                           </div>
                           
                           {rec.perfume.image_url ? (
-                          <img src={rec.perfume.image_url} alt={rec.perfume.name} className="h-full object-contain mix-blend-multiply opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" />
+                          <img src={getPerfumeImage(rec.perfume.image_url)} alt={rec.perfume.name} className="h-full object-contain mix-blend-multiply opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" />
                           ) : (
                           <span className="text-stone-300 text-xs italic">No Image</span>
                           )}

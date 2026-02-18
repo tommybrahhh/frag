@@ -2,5 +2,7 @@
     "editor.fontLigatures": false,
     "editor.formatOnPaste": true,
     "editor.formatOnSave": true,
-    "diffEditor.experimental.showMoves": false
+    "diffEditor.experimental.showMoves": false,
+    "python-envs.defaultEnvManager": "ms-python.python:system",
+    "python-envs.pythonProjects": []
 }

@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { createClient } from '@/lib/supabase';
 import Link from 'next/link';
 import { SkeletonCard } from '@/components/ui/SkeletonLoader';
+import { getPerfumeImage } from '@/lib/perfume-utils';
 
 interface RecommendationsListProps {
   vibeTags: string[];
@@ -73,7 +74,7 @@ export default function RecommendationsList({ vibeTags, bestSeason }: Recommenda
         <div key={rec.id} className="group bg-white rounded-xl border border-stone-100 p-4 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
           <Link href={`/perfume/${rec.id}`}>
             <div className="h-40 flex items-center justify-center p-2 mb-4 bg-stone-50 rounded-lg group-hover:bg-white transition-colors">
-              <img src={rec.image_url} className="h-full object-contain mix-blend-multiply" />
+              <img src={getPerfumeImage(rec.image_url)} className="h-full object-contain mix-blend-multiply" />
             </div>
             <div className="text-center">
               <div className="text-[9px] font-bold uppercase tracking-widest text-stone-400 truncate">

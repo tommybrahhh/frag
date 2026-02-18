@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { RecommendationCategory } from '@/lib/recommendation-engine';
 import LayeringCard from '@/components/features/perfume/LayeringCard';
 import type { Perfume } from '@/components/features/perfume/PerfumeClientView';
+import { getPerfumeImage } from '@/lib/perfume-utils';
 
 interface PerfumeRecommendationsProps {
   mainPerfume: Perfume;
@@ -58,7 +59,7 @@ const RecommendationSection = ({ category, mainPerfume }: { category: Recommenda
                   onClick={() => handleRecommendationClick(rec.perfume.slug || rec.perfume.id)}
                 >
                   <div className="relative h-[240px] md:h-[320px] bg-stone-50 rounded-2xl mb-4 flex items-center justify-center p-6 transition-colors group-hover:bg-[#F0F0F0] overflow-hidden">
-                    {/* Compare Button */}
+                    {/* Compare Button ... */}
                     <div 
                       className="absolute top-3 left-3 md:top-4 md:left-4 z-30"
                       onClick={(e) => e.stopPropagation()}
@@ -78,7 +79,7 @@ const RecommendationSection = ({ category, mainPerfume }: { category: Recommenda
                       <span className="text-[9px] md:text-[10px] font-bold text-stone-900 tabular-nums">{Math.round(rec.score)}% Match</span>
                     </div>
                     {rec.perfume.image_url ? (
-                      <img src={rec.perfume.image_url} className="h-full w-full object-contain mix-blend-multiply p-4" alt={rec.perfume.name} />
+                      <img src={getPerfumeImage(rec.perfume.image_url)} className="h-full w-full object-contain mix-blend-multiply p-4" alt={rec.perfume.name} />
                     ) : (
                       <span className="text-stone-300 text-xs">No Image</span>
                     )}

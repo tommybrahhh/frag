@@ -11,6 +11,7 @@ import { Recommendation } from '@/lib/recommendation-engine';
 import ProfileSettingsModal from './ProfileSettingsModal';
 import UserCommentsList from '@/components/features/community/UserCommentsList';
 import DiscoverMatches from './DiscoverMatches';
+import { getPerfumeImage } from '@/lib/perfume-utils';
 
 type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row'];
 
@@ -304,7 +305,7 @@ export default function ProfileClientView({
         {/* Image Area */}
         <div className="h-40 flex items-center justify-center p-4 mb-3 bg-stone-50 rounded-lg group-hover:bg-white transition-colors relative">
             {perfume.image_url ? (
-                <img src={perfume.image_url} alt={perfume.name} className="h-full object-contain mix-blend-multiply" />
+                <img src={getPerfumeImage(perfume.image_url)} alt={perfume.name} className="h-full object-contain mix-blend-multiply" />
             ) : (
                 <span className="text-stone-300 text-xs italic">No Image</span>
             )}
@@ -396,7 +397,7 @@ export default function ProfileClientView({
                 <Link href={`/perfume/${signatureScent.slug}`} className="inline-flex items-center gap-3 bg-stone-50 border border-stone-200 pr-4 rounded-full hover:border-stone-400 transition-colors group">
                     <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white border border-stone-100 flex items-center justify-center overflow-hidden">
                         {signatureScent.image_url ? (
-                            <img src={signatureScent.image_url} className="w-6 h-6 md:w-8 md:h-8 object-contain" alt="" />
+                            <img src={getPerfumeImage(signatureScent.image_url)} className="w-6 h-6 md:w-8 md:h-8 object-contain" alt="" />
                         ) : (
                             <span className="text-xs">🧴</span>
                         )}
@@ -713,7 +714,7 @@ export default function ProfileClientView({
                   <Link href={`/perfume/${rec.perfume.slug}`} className="flex-1 flex flex-col">
                     <div className="h-40 flex items-center justify-center p-4 mb-3 bg-stone-50 rounded-lg group-hover:bg-white transition-colors relative overflow-hidden">
                       {rec.perfume.image_url ? (
-                        <img src={rec.perfume.image_url} alt={rec.perfume.name} className="h-full object-contain mix-blend-multiply opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" />
+                        <img src={getPerfumeImage(rec.perfume.image_url)} alt={rec.perfume.name} className="h-full object-contain mix-blend-multiply opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" />
                       ) : (
                         <span className="text-stone-300 text-xs italic">No Image</span>
                       )}

@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { ActivityItem, CommunityStats } from '@/lib/services/communityService';
 import { ArrowRight, MessageCircle, Search as SearchIcon } from 'lucide-react';
 import { formatRelativeTime } from '@/utils/timeUtils';
+import { getPerfumeImage } from '@/lib/perfume-utils';
 
 interface CommunityHeroProps {
   activity: ActivityItem[];
@@ -127,7 +128,7 @@ function ActivityCard({ item, mounted }: { item: ActivityItem; mounted: boolean 
         <div className="relative w-12 h-12 bg-stone-50 rounded-xl overflow-hidden flex-shrink-0 border border-stone-100">
           {item.perfume_image ? (
             <Image 
-              src={item.perfume_image} 
+              src={getPerfumeImage(item.perfume_image)} 
               alt={item.perfume_name} 
               fill 
               className="object-contain p-2 mix-blend-multiply opacity-80 group-hover:scale-105 transition-transform duration-700"

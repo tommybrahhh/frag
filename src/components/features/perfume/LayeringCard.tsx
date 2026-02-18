@@ -5,6 +5,7 @@ import Link from 'next/link';
 import type { Recommendation } from '@/lib/recommendation-engine';
 import type { Perfume } from '@/components/features/perfume/PerfumeClientView';
 import ScentRadar from '@/components/ui/ScentRadar';
+import { getPerfumeImage } from '@/lib/perfume-utils';
 
 interface LayeringCardProps {
   mainPerfume: Perfume;
@@ -82,7 +83,7 @@ export default function LayeringCard({ mainPerfume, recommendation, onRefresh }:
                 <div className="flex flex-col items-center text-center min-w-0">
                   <div className="relative h-20 w-20 md:h-32 md:w-32 bg-stone-50 rounded-xl md:rounded-2xl flex items-center justify-center p-3 md:p-4 mb-3 md:mb-4">
                     {mainPerfume.image_url ? (
-                      <img src={mainPerfume.image_url} alt={mainPerfume.name} className="h-full w-full object-contain mix-blend-multiply" />
+                      <img src={getPerfumeImage(mainPerfume.image_url)} alt={mainPerfume.name} className="h-full w-full object-contain mix-blend-multiply" />
                     ) : (
                       <span className="text-stone-300 text-[8px] md:text-xs">No Image</span>
                     )}
@@ -114,7 +115,7 @@ export default function LayeringCard({ mainPerfume, recommendation, onRefresh }:
                     <Link href={`/perfume/${candidatePerfume.slug || candidatePerfume.id}`} className="flex flex-col items-center text-center group">
                     <div className="relative h-20 w-20 md:h-32 md:w-32 bg-stone-50 rounded-xl md:rounded-2xl flex items-center justify-center p-3 md:p-4 mb-3 md:mb-4 group-hover:bg-stone-100 transition-colors">
                         {candidatePerfume.image_url ? (
-                        <img src={candidatePerfume.image_url} alt={candidatePerfume.name} className="h-full w-full object-contain mix-blend-multiply" />
+                        <img src={getPerfumeImage(candidatePerfume.image_url)} alt={candidatePerfume.name} className="h-full w-full object-contain mix-blend-multiply" />
                         ) : (
                         <span className="text-stone-300 text-[8px] md:text-xs">No Image</span>
                         )}

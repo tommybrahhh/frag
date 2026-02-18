@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { getPerfumeImage } from '@/lib/perfume-utils';
 
 interface RandomPerfumeType {
   slug: string;
@@ -27,7 +28,7 @@ export default function RandomPerfumeClient({ randomPerfume }: RandomPerfumeClie
         <div className="aspect-square relative mb-4 bg-white rounded-2xl p-4 overflow-hidden">
           {randomPerfume.image_url ? (
             <Image 
-              src={randomPerfume.image_url} 
+              src={getPerfumeImage(randomPerfume.image_url)} 
               alt={randomPerfume.name} 
               fill
               className="object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-700" 
