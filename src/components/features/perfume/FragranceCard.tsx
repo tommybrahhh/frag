@@ -22,9 +22,6 @@ export default function FragranceCard({ perfume }: FragranceCardProps) {
             sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 20vw"
           />
         </div>
-            <span className="text-stone-300 text-xs italic">No Image</span>
-          )}
-        </div>
         <div className="text-center">
           <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 truncate mb-1">
             {brandName}
@@ -37,4 +34,3 @@ export default function FragranceCard({ perfume }: FragranceCardProps) {
     </div>
   );
 }
-
