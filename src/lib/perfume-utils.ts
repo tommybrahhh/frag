@@ -75,24 +75,37 @@ export const generateProfileFromVibes = (vibes: string[] | null) => {
 
    */
 
-  export const getPerfumeImage = (imageUrl: string | null | undefined): string => {
-    if (!imageUrl) return '/next.svg';
+  export const PLACEHOLDER_IMAGE = '/logo.svg'; // Using your logo as a high-quality fallback
 
-    // 1. External URL
+  export const getPerfumeImage = (imageUrl: string | null | undefined): string => {
+    if (!imageUrl) return PLACEHOLDER_IMAGE;
+
+    // 1. External URL or Supabase Storage Full URL
     if (imageUrl.startsWith('http') || imageUrl.startsWith('//')) {
       return imageUrl;
     }
 
-    // 2. Clean up the path (remove leading slashes and redundant Img prefix)
+    // 2. Clean up the path
     let cleanPath = imageUrl.startsWith('/') ? imageUrl.slice(1) : imageUrl;
     
-    // If the path already includes Img/, don't add it again
     if (cleanPath.startsWith('Img/')) {
       cleanPath = cleanPath.replace('Img/', '');
     }
 
-    // 3. Encode the path to handle spaces and special characters
-    // We only encode the filename part, not the /Img/ prefix
+    // 3. Normalization for common filename mismatches
+    // Example: "Dior.Sauvage.jpg" -> "dior-sauvage.jpg"
+    // Only apply this to local files (filenames without slashes)
+    if (!cleanPath.includes('/')) {
+        cleanPath = cleanPath.toLowerCase()
+            .replace(/\s+/g, '-') // spaces to hyphens
+            .replace(/\./g, '-')  // dots to hyphens (careful with extension)
+            
+        // Fix the extension dot we accidentally replaced
+        if (cleanPath.includes('-jpg')) cleanPath = cleanPath.replace('-jpg', '.jpg');
+        if (cleanPath.includes('-png')) cleanPath = cleanPath.replace('-png', '.png');
+        if (cleanPath.includes('-webp')) cleanPath = cleanPath.replace('-webp', '.webp');
+    }
+
     return `/Img/${encodeURIComponent(cleanPath)}`;
   };
 

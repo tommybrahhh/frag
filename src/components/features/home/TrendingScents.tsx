@@ -1,10 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { useRef } from 'react';
 import { motion } from 'framer-motion';
-import { getPerfumeImage } from '@/lib/perfume-utils';
+import PerfumeImage from '@/components/ui/PerfumeImage';
 
 interface TrendingPerfume {
   id: string;
@@ -67,8 +66,8 @@ export default function TrendingScents({ perfumes }: TrendingScentsProps) {
                   <div className="relative aspect-square bg-white rounded-3xl overflow-hidden mb-6 transition-all duration-700 group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)]">
                     {perfume.image_url ? (
                       <div className="w-full h-full p-10 md:p-16 relative">
-                        <Image
-                          src={getPerfumeImage(perfume.image_url)}
+                        <PerfumeImage
+                          src={perfume.image_url}
                           alt={perfume.name}
                           fill
                           className="object-contain mix-blend-multiply transition-transform duration-1000 group-hover:scale-110"

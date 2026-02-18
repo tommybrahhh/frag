@@ -1,36 +1,49 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { getPerfumeImage, PLACEHOLDER_IMAGE } from '@/lib/perfume-utils';
 
 interface PerfumeImageProps {
-  src: string | null;
+  src: string | null | undefined;
   alt: string;
   className?: string;
+  fill?: boolean;
+  width?: number;
+  height?: number;
+  sizes?: string;
+  priority?: boolean;
 }
 
-export default function PerfumeImage({ src, alt, className }: PerfumeImageProps) {
-  const [error, setError] = useState(false);
+export default function PerfumeImage({ 
+  src, 
+  alt, 
+  className, 
+  fill = false, 
+  width, 
+  height,
+  sizes,
+  priority = false
+}: PerfumeImageProps) {
+  const [imgSrc, setImgSrc] = useState(getPerfumeImage(src));
 
-  // Fallback Placeholder (A generic bottle silhouette or similar)
-  // You can replace this SVG with a local asset like '/images/bottle-placeholder.png'
-  const fallbackSrc = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23e5e7eb'%3E%3Cpath d='M9 3v2h6V3h-6zm0 4h6v2h-6V7zm-2 4v10h10V11H7z'/%3E%3C/svg%3E`;
-
-  if (!src || error) {
-    return (
-      <div className={`flex items-center justify-center bg-stone-100 ${className}`}>
-        <span className="text-2xl opacity-20">🧴</span>
-      </div>
-    );
-  }
+  // Sync when src prop changes
+  useEffect(() => {
+    setImgSrc(getPerfumeImage(src));
+  }, [src]);
 
   return (
-    <img 
-      src={src} 
+    <Image 
+      src={imgSrc} 
       alt={alt} 
       className={className}
-      onError={() => setError(true)}
-      loading="lazy"
+      fill={fill}
+      width={!fill ? width : undefined}
+      height={!fill ? height : undefined}
+      sizes={sizes}
+      priority={priority}
+      onError={() => setImgSrc(PLACEHOLDER_IMAGE)}
+      unoptimized={src?.startsWith('http')} // Optimization: don't double-process external URLs if they are already optimized
     />
   );
 }
