@@ -69,11 +69,11 @@ export default function TierPageClient({ tierName, initialPerfumes }: TierPageCl
         });
 
         const res = await fetch(`/api/perfumes?${params.toString()}`);
-        const data = await res.json();
+        const { data, count } = await res.json();
         
-        if (data.perfumes) {
-          setPerfumes(prev => page === 1 ? data.perfumes : [...prev, ...data.perfumes]);
-          setHasMore(data.hasMore);
+        if (data) {
+          setPerfumes(prev => page === 1 ? data : [...prev, ...data]);
+          setHasMore(perfumes.length + data.length < (count || 0));
         }
       } catch (err) {
         console.error('Failed to fetch collection', err);

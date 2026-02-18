@@ -5,6 +5,7 @@ import { createClient } from '@/utils/supabase/client';
 import Link from 'next/link';
 import Image from 'next/image';
 import { formatRelativeTime } from '@/utils/timeUtils';
+import { getPerfumeImage } from '@/lib/perfume-utils';
 
 interface CommentWithPerfume {
   id: string;
@@ -100,7 +101,7 @@ const CommunityBuzz = () => {
                 <div className="w-10 h-10 bg-white rounded-lg flex-shrink-0 flex items-center justify-center p-1 border border-stone-100 shadow-sm">
                   {c.perfume?.image_url ? (
                     <Image 
-                      src={c.perfume.image_url} 
+                      src={getPerfumeImage(c.perfume.image_url)} 
                       alt={perfumeName} 
                       width={32} 
                       height={32} 

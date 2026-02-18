@@ -137,7 +137,7 @@ function PerfumeCard({ recommendation, category }: { recommendation: Recommendat
       {/* Image Area - Clean, no borders */}
       <div className="relative aspect-[3/4] bg-[#f5f5f4] rounded-sm overflow-hidden mb-4 flex items-center justify-center">
         {perfume.image_url ? (
-          <img src={perfume.image_url} alt={perfume.name} className="h-3/4 object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-700 opacity-90 group-hover:opacity-100" />
+          <img src={getPerfumeImage(perfume.image_url)} alt={perfume.name} className="h-3/4 object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-700 opacity-90 group-hover:opacity-100" />
         ) : (
           <div className="text-stone-300 text-xs tracking-widest uppercase">No Image</div>
         )}

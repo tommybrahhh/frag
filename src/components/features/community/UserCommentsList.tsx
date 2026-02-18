@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { formatRelativeTime } from '@/utils/timeUtils';
+import { getPerfumeImage } from '@/lib/perfume-utils';
 
 // Simplified type for the comment data passed from the server
 type UserComment = {
@@ -49,7 +50,7 @@ export default function UserCommentsList({ initialData = [] }: UserCommentsListP
             <Link href={`/perfume/${comment.perfume_id}`} className="flex-shrink-0 group">
               <div className="w-16 h-16 bg-stone-50 rounded-lg border border-stone-100 flex items-center justify-center p-1 overflow-hidden">
                 {comment.perfume_image_url ? (
-                  <img src={comment.perfume_image_url} alt={comment.perfume_name} className="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform" />
+                  <img src={getPerfumeImage(comment.perfume_image_url)} alt={comment.perfume_name} className="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform" />
                 ) : (
                   <span className="text-xs text-stone-300">No Img</span>
                 )}

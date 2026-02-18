@@ -2,6 +2,7 @@ import { createClient } from '@/utils/supabase/server';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Metadata } from 'next';
+import { getPerfumeImage } from '@/lib/perfume-utils';
 
 export const revalidate = 3600; // Revalidate every hour
 
@@ -113,7 +114,7 @@ export default async function CreatorPage(props: { params: Promise<{ creator: st
                   
                   <div className="h-48 mb-4 overflow-hidden flex items-center justify-center p-2 relative">
                      {p.image_url ? (
-                       <img src={p.image_url} className="h-full object-contain group-hover:scale-110 transition duration-700" />
+                       <img src={getPerfumeImage(p.image_url)} className="h-full object-contain group-hover:scale-110 transition duration-700" />
                      ) : (
                        <div className="text-stone-300 text-xs">No Image</div>
                      )}

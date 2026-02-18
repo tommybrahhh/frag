@@ -8,7 +8,6 @@ import VisualCategoryNav from '@/components/features/search/VisualCategoryNav';
 import PageTransition from '@/components/layout/PageTransition';
 import { ActivityItem, CommunityStats } from '@/lib/services/communityService';
 import JoinCommunityCTA from '@/components/features/home/JoinCommunityCTA';
-import DailyBattle from '@/components/features/home/DailyBattle';
 import { Search as SearchIcon } from 'lucide-react';
 
 import TierNav from '@/components/features/search/TierNav';
@@ -17,7 +16,6 @@ import { getPerfumeImage } from '@/lib/perfume-utils';
 interface HomeClientProps {
   initialActivity?: ActivityItem[];
   trendingPerfumes?: any[];
-  dailyBattle?: any;
   communityStats?: CommunityStats;
   randomPerfume?: any;
 }
@@ -25,7 +23,6 @@ interface HomeClientProps {
 export default function HomeClient({ 
   initialActivity = [], 
   trendingPerfumes = [],
-  dailyBattle,
   communityStats,
   randomPerfume
 }: HomeClientProps) {
@@ -35,8 +32,6 @@ export default function HomeClient({
         <CommunityHero activity={initialActivity} stats={communityStats} />
         
         <TrendingScents perfumes={trendingPerfumes} />
-
-        <DailyBattle battle={dailyBattle} />
 
         <div className="py-12 md:py-24 space-y-16 md:space-y-32 bg-stone-50/50">
           <div id="discovery" className="max-w-[1400px] mx-auto px-6">

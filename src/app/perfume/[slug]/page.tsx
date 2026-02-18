@@ -3,7 +3,7 @@ import PerfumeClientView from '@/components/features/perfume/PerfumeClientView';
 import { notFound } from 'next/navigation';
 import { RecommendationEngine } from '@/lib/recommendation-engine';
 import { Metadata } from 'next';
-import { generateProfileFromVibes } from '@/lib/perfume-utils';
+import { generateProfileFromVibes, getPerfumeImage } from '@/lib/perfume-utils';
 import { FragranceService, Perfume } from '@/services/fragranceService';
 
 // --- SEO: Dynamic Metadata Generator ---
@@ -25,6 +25,11 @@ export async function generateMetadata(
   const brandName = perfume.brand?.name || 'Unknown Brand';
   const vibes = perfume.vibe_tags?.slice(0, 3).join(', ') || 'Fragrance';
   
+  // Use absolute URL for metadata images
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://scentia.fit';
+  const imageUrl = perfume.image_url ? getPerfumeImage(perfume.image_url) : '';
+  const fullImageUrl = imageUrl.startsWith('http') ? imageUrl : `${baseUrl}${imageUrl}`;
+
   return {
     title: `${perfume.name} by ${brandName} - Reviews & Matches`,
     description: `Discover ${perfume.name} by ${brandName}. A ${vibes} scent rated ${perfume.rating || 'N/A'}/5. See notes, longevity, and layering combinations.`,
@@ -34,7 +39,7 @@ export async function generateMetadata(
     openGraph: {
       title: `${perfume.name} by ${brandName}`,
       description: `Read reviews and find matches for ${perfume.name}.`,
-      images: perfume.image_url ? [perfume.image_url] : [],
+      images: fullImageUrl ? [fullImageUrl] : [],
       url: `/perfume/${slug}`,
     },
   };
@@ -82,11 +87,15 @@ export default async function PerfumePage(
     ? (perfumeData.brand as { name: string }).name 
     : String(perfumeData.brand || 'Unknown');
 
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://scentia.fit';
+  const imageUrl = perfumeData.image_url ? getPerfumeImage(perfumeData.image_url) : '';
+  const fullImageUrl = imageUrl ? (imageUrl.startsWith('http') ? imageUrl : `${baseUrl}${imageUrl}`) : '';
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: perfumeData.name,
-    image: perfumeData.image_url ? [perfumeData.image_url] : [],
+    image: fullImageUrl ? [fullImageUrl] : [],
     description: `Discover ${perfumeData.name} by ${brandName}. Profile: ${perfumeData.vibe_tags?.slice(0,3).join(', ')}.`,
     url: `https://scentia.fit/perfume/${slug}`,
     brand: {

@@ -4,10 +4,12 @@ import time
 from supabase import create_client, Client
 
 # --- CONFIGURATION ---
-SUPABASE_URL = "https://fmtqqpnhnexwmgpeaidb.supabase.co"
+SUPABASE_URL = os.environ.get("SUPABASE_URL")
+SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
 
-# PASTE YOUR SERVICE ROLE KEY HERE (The one you found in Settings > API)
-SUPABASE_KEY = "xx"
+if not SUPABASE_URL or not SUPABASE_KEY:
+    print("Error: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY environment variables must be set.")
+    exit(1)
 
 # Name of your Supabase Storage Bucket
 BUCKET_NAME = "perfumes" 

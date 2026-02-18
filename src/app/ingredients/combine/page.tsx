@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import IngredientSearch from '@/components/features/notes/IngredientSearch';
 import { analyzeIngredientCombination, classifyNoteVolatility } from '@/lib/alchemy';
+import { getPerfumeImage } from '@/lib/perfume-utils';
 
 interface Perfume {
   id: string;
@@ -255,7 +256,7 @@ export default function CombineIngredientsPage() {
                         
                         <div className="h-48 mb-4 overflow-hidden flex items-center justify-center p-2">
                           {p.image_url ? (
-                            <img src={p.image_url} className="h-full object-contain group-hover:scale-110 transition duration-700" />
+                            <img src={getPerfumeImage(p.image_url)} className="h-full object-contain group-hover:scale-110 transition duration-700" />
                           ) : (
                             <div className="text-stone-300 text-xs">No Image</div>
                           )}

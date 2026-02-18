@@ -5,7 +5,6 @@ import { Search as SearchIcon } from 'lucide-react';
 
 import CommunityHeroServer from '@/components/features/home/server-components/CommunityHeroServer';
 import TrendingScentsServer from '@/components/features/home/server-components/TrendingScentsServer';
-import DailyBattleServer from '@/components/features/home/server-components/DailyBattleServer';
 import RandomPerfumeServer from '@/components/features/home/server-components/RandomPerfumeServer';
 import TierNav from '@/components/features/search/TierNav';
 import VisualCategoryNav from '@/components/features/search/VisualCategoryNav'; 
@@ -24,10 +23,6 @@ export default async function Home() {
 
         <Suspense fallback={<div className="py-12 md:py-24 flex items-center justify-center"><Spinner /></div>}>
           <TrendingScentsServer />
-        </Suspense>
-
-        <Suspense fallback={<div className="py-16 md:py-24 flex items-center justify-center"><Spinner /></div>}>
-          <DailyBattleServer />
         </Suspense>
 
         <div className="py-12 md:py-24 space-y-16 md:space-y-32 bg-stone-50/50">

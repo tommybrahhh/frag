@@ -76,35 +76,24 @@ export const generateProfileFromVibes = (vibes: string[] | null) => {
    */
 
   export const getPerfumeImage = (imageUrl: string | null | undefined): string => {
-
-    if (!imageUrl) return '/next.svg'; // Or a placeholder if available
-
-  
+    if (!imageUrl) return '/next.svg';
 
     // 1. External URL
-
     if (imageUrl.startsWith('http') || imageUrl.startsWith('//')) {
-
       return imageUrl;
-
     }
 
-  
-
-    // 2. Already prefixed local path
-
-    if (imageUrl.startsWith('/')) {
-
-      return imageUrl;
-
+    // 2. Clean up the path (remove leading slashes and redundant Img prefix)
+    let cleanPath = imageUrl.startsWith('/') ? imageUrl.slice(1) : imageUrl;
+    
+    // If the path already includes Img/, don't add it again
+    if (cleanPath.startsWith('Img/')) {
+      cleanPath = cleanPath.replace('Img/', '');
     }
 
-  
-
-    // 3. Just a filename - assume it's in /Img/
-
-    return `/Img/${imageUrl}`;
-
+    // 3. Encode the path to handle spaces and special characters
+    // We only encode the filename part, not the /Img/ prefix
+    return `/Img/${encodeURIComponent(cleanPath)}`;
   };
 
   

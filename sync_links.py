@@ -4,9 +4,13 @@ import os
 from supabase import create_client, Client
 
 # --- CONFIGURATION ---
-SUPABASE_URL = "https://fmtqqpnhnexwmgpeaidb.supabase.co"
+SUPABASE_URL = os.environ.get("SUPABASE_URL")
 # IMPORTANT: Use your 'service_role' key (revealed in Settings > API)
-SUPABASE_KEY = "xxx"
+SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
+
+if not SUPABASE_URL or not SUPABASE_KEY:
+    print("Error: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY environment variables must be set.")
+    exit(1)
 
 # Path to your CSV file
 CSV_FILE = "data/perfumes.csv"

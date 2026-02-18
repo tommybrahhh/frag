@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
 import Link from 'next/link';
+import { getPerfumeImage } from '@/lib/perfume-utils';
 
 type Perfume = {
   id: string;
@@ -209,7 +210,7 @@ export default function AllRecommendationsPage() {
             <div key={perfume.id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow flex">
               <div className="w-1/3 bg-stone-50 flex items-center justify-center relative p-3">
                  {perfume.image_url ? (
-                   <img src={perfume.image_url} alt={perfume.name} className="object-contain h-full w-full mix-blend-multiply" />
+                   <img src={getPerfumeImage(perfume.image_url)} alt={perfume.name} className="object-contain h-full w-full mix-blend-multiply" />
                  ) : (
                    <span className="text-4xl">🧴</span>
                  )}
