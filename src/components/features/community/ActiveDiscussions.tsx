@@ -1,9 +1,8 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { MessageSquare } from 'lucide-react';
-import { getPerfumeImage } from '@/lib/perfume-utils';
+import PerfumeImage from '@/components/ui/PerfumeImage';
 
 export default function ActiveDiscussions({ discussions }: { discussions: any[] }) {
   if (!discussions || discussions.length === 0) {
@@ -23,11 +22,13 @@ export default function ActiveDiscussions({ discussions }: { discussions: any[] 
             className="flex items-center gap-3 p-2 -mx-2 rounded-xl hover:bg-stone-50 transition-colors group"
           >
              <div className="w-12 h-12 bg-stone-100 rounded-lg flex-shrink-0 p-1 border border-stone-200">
-                {p.image_url ? (
-                   <Image src={getPerfumeImage(p.image_url)} alt={p.name} width={48} height={48} className="w-full h-full object-contain mix-blend-multiply" />
-                ) : (
-                   <div className="w-full h-full bg-stone-200 rounded" />
-                )}
+                <PerfumeImage 
+                  src={p.image_url} 
+                  alt={p.name} 
+                  width={48} 
+                  height={48} 
+                  className="w-full h-full object-contain mix-blend-multiply" 
+                />
              </div>
              
              <div className="flex-1 min-w-0">

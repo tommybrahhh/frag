@@ -3,9 +3,8 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import Link from 'next/link';
-import Image from 'next/image';
 import { formatRelativeTime } from '@/utils/timeUtils';
-import { getPerfumeImage } from '@/lib/perfume-utils';
+import PerfumeImage from '@/components/ui/PerfumeImage';
 
 interface CommentWithPerfume {
   id: string;
@@ -99,17 +98,13 @@ const CommunityBuzz = () => {
               {/* Footer: Perfume Context */}
               <div className="flex items-center gap-3 bg-stone-50 rounded-xl p-2 pr-4 transition-colors group-hover:bg-stone-100/50">
                 <div className="w-10 h-10 bg-white rounded-lg flex-shrink-0 flex items-center justify-center p-1 border border-stone-100 shadow-sm">
-                  {c.perfume?.image_url ? (
-                    <Image 
-                      src={getPerfumeImage(c.perfume.image_url)} 
-                      alt={perfumeName} 
-                      width={32} 
-                      height={32} 
-                      className="w-full h-full object-contain mix-blend-multiply" 
-                    />
-                  ) : (
-                    <div className="w-2 h-2 rounded-full bg-stone-200" />
-                  )}
+                  <PerfumeImage 
+                    src={c.perfume?.image_url} 
+                    alt={perfumeName} 
+                    width={32} 
+                    height={32} 
+                    className="w-full h-full object-contain mix-blend-multiply" 
+                  />
                 </div>
                 <div className="min-w-0">
                   <div className="text-[9px] text-stone-400 font-bold uppercase tracking-wider mb-0.5">Reviewing</div>

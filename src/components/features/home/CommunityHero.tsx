@@ -3,11 +3,10 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import Image from 'next/image';
 import { ActivityItem, CommunityStats } from '@/lib/services/communityService';
 import { ArrowRight, MessageCircle, Search as SearchIcon } from 'lucide-react';
 import { formatRelativeTime } from '@/utils/timeUtils';
-import { getPerfumeImage } from '@/lib/perfume-utils';
+import PerfumeImage from '@/components/ui/PerfumeImage';
 
 interface CommunityHeroProps {
   activity: ActivityItem[];
@@ -126,17 +125,13 @@ function ActivityCard({ item, mounted }: { item: ActivityItem; mounted: boolean 
       <div className="flex items-center gap-5">
         {/* Perfume Thumbnail */}
         <div className="relative w-12 h-12 bg-stone-50 rounded-xl overflow-hidden flex-shrink-0 border border-stone-100">
-          {item.perfume_image ? (
-            <Image 
-              src={getPerfumeImage(item.perfume_image)} 
-              alt={item.perfume_name} 
-              fill 
-              className="object-contain p-2 mix-blend-multiply opacity-80 group-hover:scale-105 transition-transform duration-700"
-              sizes="48px"
-            />
-          ) : (
-            <div className="w-full h-full bg-stone-100" />
-          )}
+          <PerfumeImage 
+            src={item.perfume_image} 
+            alt={item.perfume_name} 
+            fill 
+            className="object-contain p-2 mix-blend-multiply opacity-80 group-hover:scale-105 transition-transform duration-700"
+            sizes="48px"
+          />
         </div>
 
         {/* Content */}

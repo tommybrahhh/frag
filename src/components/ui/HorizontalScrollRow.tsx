@@ -1,8 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
-import { getPerfumeImage } from '@/lib/perfume-utils';
+import PerfumeImage from '@/components/ui/PerfumeImage';
 
 interface Perfume {
   id: string;
@@ -27,18 +26,13 @@ const HorizontalScrollRow = ({ items }: { items: Perfume[] }) => {
             className="min-w-[135px] w-[135px] sm:min-w-[165px] sm:w-[165px] group flex-shrink-0"
           >
             <div className="bg-white rounded-2xl h-45 sm:h-54 flex items-center justify-center p-4 sm:p-6 border border-stone-100 group-hover:border-stone-300 transition-all duration-500 relative mb-4">
-               {p.image_url ? (
-                 <Image
-                   src={getPerfumeImage(p.image_url)}
-                   alt={`${p.name} by ${p.brand?.name}`}
-                   className="h-full w-full object-contain mix-blend-multiply group-hover:scale-105 transition duration-700"
-                   width={220}
-                   height={288}
-                   quality={85}
-                 />
-               ) : (
-                 <span className="text-xs text-stone-300">No Image</span>
-               )}
+               <PerfumeImage
+                 src={p.image_url}
+                 alt={`${p.name} by ${p.brand?.name}`}
+                 className="h-full w-full object-contain mix-blend-multiply group-hover:scale-105 transition duration-700"
+                 width={220}
+                 height={288}
+               />
             </div>
             <div className="px-2">
                <div className="text-[10px] font-bold tracking-widest text-stone-400 uppercase truncate mb-2">
