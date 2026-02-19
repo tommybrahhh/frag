@@ -2,6 +2,7 @@ import { type NextRequest } from 'next/server'
 import { updateSession } from '@/utils/supabase/middleware'
 
 export async function middleware(request: NextRequest) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   // 1. Basic Bot/Scraper Detection
   const userAgent = request.headers.get('user-agent')?.toLowerCase() || '';
   const isBot = /bot|crawler|spider|python|curl|wget|postman|insomnia|headless|ahrefs|semrush/i.test(userAgent);
