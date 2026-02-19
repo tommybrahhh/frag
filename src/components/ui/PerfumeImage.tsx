@@ -43,7 +43,7 @@ export default function PerfumeImage({
       sizes={sizes}
       priority={priority}
       onError={() => setImgSrc(PLACEHOLDER_IMAGE)}
-      unoptimized={src?.startsWith('http')} // Optimization: don't double-process external URLs if they are already optimized
+      unoptimized // Always unoptimized to avoid Vercel 402 limits
     />
   );
 }

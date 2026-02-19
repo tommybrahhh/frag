@@ -62,7 +62,7 @@ export default function CommunityFeed({ initialActivity }: { initialActivity: Ac
                >
                   <div className="w-10 h-10 bg-white rounded-lg flex-shrink-0 p-1 border border-stone-100">
                      {item.perfume_image ? (
-                        <Image src={item.perfume_image} alt={item.perfume_name} width={40} height={40} className="w-full h-full object-contain mix-blend-multiply" />
+                        <Image src={item.perfume_image} alt={item.perfume_name} width={40} height={40} className="w-full h-full object-contain mix-blend-multiply" unoptimized />
                      ) : (
                         <div className="w-full h-full bg-stone-200 rounded" />
                      )}

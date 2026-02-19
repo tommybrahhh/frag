@@ -2,9 +2,19 @@ import { type NextRequest } from 'next/server'
 import { updateSession } from '@/utils/supabase/middleware'
 
 export async function middleware(request: NextRequest) {
-  const response = await updateSession(request)
+  // 1. Basic Bot/Scraper Detection
+  const userAgent = request.headers.get('user-agent')?.toLowerCase() || '';
+  const isBot = /bot|crawler|spider|python|curl|wget|postman|insomnia|headless|ahrefs|semrush/i.test(userAgent);
+  
+  // Optional: Block aggressive non-search bots (adjust as needed)
+  if (isBot && !/googlebot|bingbot|applebot/i.test(userAgent)) {
+    return new Response('Access Denied', { status: 403 });
+  }
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const response = await updateSession(request)
+  
+  // 2. Add Robot Control Header
+  response.headers.set('X-Robots-Tag', 'index, follow, max-image-preview:large, max-snippet:-1');
   if (!supabaseUrl) {
     // Handle the case where the environment variable is not set
     console.error('Supabase URL environment variable is not set!');

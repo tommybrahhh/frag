@@ -143,7 +143,7 @@ export default function TierPageClient({ tierName, initialPerfumes }: TierPageCl
                     <Link href={`/perfume/${p.slug || p.id}`} className="group block h-full bg-white rounded-2xl border border-stone-100 p-4 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
                     <div className="h-64 flex items-center justify-center mb-4 bg-stone-50 rounded-xl group-hover:bg-white transition-colors relative overflow-hidden">
                         {p.image_url ? (
-                        <Image src={getPerfumeImage(p.image_url)} alt={p.name} fill className="object-contain mix-blend-multiply brightness-[1.05] group-hover:scale-105 transition duration-700 ease-in-out" sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 20vw" />
+                        <Image src={getPerfumeImage(p.image_url)} alt={p.name} fill className="object-contain mix-blend-multiply brightness-[1.05] group-hover:scale-105 transition duration-700 ease-in-out" sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 20vw" unoptimized />
                         ) : (
                         <div className="text-stone-300 text-xs font-bold uppercase tracking-widest">No Image</div>
                         )}

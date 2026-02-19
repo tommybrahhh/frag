@@ -46,6 +46,7 @@ export async function generateMetadata(
 }
 
 // --- Main Page Component ---
+export const revalidate = 3600; // Revalidate every hour
 
 export default async function PerfumePage(
   props: { params: Promise<{ slug: string }> }

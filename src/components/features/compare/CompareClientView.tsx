@@ -235,7 +235,7 @@ export default function CompareClientView({ initialPerfumes }: CompareClientView
                                 <>
                                     <div className="w-8 h-8 relative shrink-0 bg-transparent rounded-md">
                                         {p.image_url ? (
-                                            <Image src={getPerfumeImage(p.image_url)} alt={p.name} fill className="object-contain mix-blend-multiply" sizes="32px" />
+                                            <Image src={getPerfumeImage(p.image_url)} alt={p.name} fill className="object-contain mix-blend-multiply" sizes="32px" unoptimized />
                                         ) : null}
                                     </div>
                                     <div className="min-w-0">
@@ -323,6 +323,7 @@ export default function CompareClientView({ initialPerfumes }: CompareClientView
                                                         fill
                                                         className="object-contain mix-blend-multiply transition-transform duration-500"
                                                         sizes="(max-width: 768px) 100vw, 200px"
+                                                        unoptimized
                                                     />
                                                 </div>
                                             ) : (
