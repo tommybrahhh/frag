@@ -30,10 +30,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Initialize the browser client once, catching any errors
   const supabase = useMemo(() => {
     try {
-      return createClient();
+      console.log('AuthContext: Initializing Supabase client...');
+      const client = createClient();
+      console.log('AuthContext: Supabase client initialized successfully');
+      return client;
     } catch (error: any) {
-      console.error("Error initializing Supabase client:", error.message);
-      setSupabaseInitError(error.message);
+      const msg = error.message || 'Unknown initialization error';
+      console.error("AuthContext: Error initializing Supabase client:", msg);
+      setSupabaseInitError(msg);
       return undefined; // Return undefined if client creation fails
     }
   }, []);
@@ -52,12 +56,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Fetch data and alias to 'rawProfile'
       const { data: rawProfile, error: profileError } = await supabase
         .from('profiles')
-        .select('display_name, bio')
+        .select('display_name, bio, avatar_url, is_verified')
         .eq('id', sessionUser.id)
         .maybeSingle();
       
       // Explicitly cast the result to match our Database schema
-      const profile = rawProfile as { display_name: string | null; bio: string | null; } | null;
+      const profile = rawProfile as { 
+        display_name: string | null; 
+        bio: string | null; 
+        avatar_url: string | null;
+        is_verified: boolean | null;
+      } | null;
 
       if (profileError) {
         console.error('Error fetching profile:', profileError);
@@ -65,7 +74,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           ...sessionUser,
           display_name: sessionUser.email?.split('@')[0],
           bio: null,
-          avatar_url: null
+          avatar_url: null,
+          is_verified: false
         };
       }
       
@@ -73,7 +83,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         ...sessionUser,
         display_name: profile?.display_name || sessionUser.email?.split('@')[0],
         bio: profile?.bio || null,
-        avatar_url: null // Temporarily set to null
+        avatar_url: profile?.avatar_url || null,
+        is_verified: profile?.is_verified || false
       };
     } catch (error) {
       console.error('Error in profile fetch:', error);

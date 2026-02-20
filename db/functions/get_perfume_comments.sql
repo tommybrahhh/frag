@@ -1,3 +1,5 @@
+DROP FUNCTION IF EXISTS get_perfume_comments(UUID);
+
 CREATE OR REPLACE FUNCTION get_perfume_comments(p_perfume_id UUID)
 RETURNS TABLE (
   id UUID,
@@ -5,7 +7,7 @@ RETURNS TABLE (
   perfume_id UUID,
   content TEXT,
   user_name TEXT,
-  created_at TIMESTAMPTZ,
+  created_at TIMESTAMP,
   avatar_url TEXT,
   is_verified BOOLEAN,
   is_owner BOOLEAN
@@ -17,10 +19,10 @@ BEGIN
     c.user_id,
     c.perfume_id,
     c.content,
-    c.user_name,
+    COALESCE(p.display_name, c.user_name) as user_name,
     c.created_at,
     p.avatar_url,
-    p.is_verified,
+    COALESCE(p.is_verified, false) as is_verified,
     EXISTS (
       SELECT 1 
       FROM user_collections uc 

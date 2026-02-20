@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
 import { Database } from '@/types/database';
@@ -83,8 +83,7 @@ const extractContext = (content: string) => {
 };
 
 export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
-  const { user } = useAuth();
-  const supabase = createClient();
+  const { user, supabase, loading: authLoading, supabaseInitError } = useAuth();
   
   // Initialize from cache if available for instant load
   const [comments, setComments] = useState<EnrichedComment[]>(() => {
@@ -100,6 +99,7 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -109,14 +109,29 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
 
   const fetchComments = useCallback(async (showLoading = true) => {
     if (showLoading) setIsFeedLoading(true);
+    setError(null);
+
+    if (!supabase) {
+      if (!authLoading) {
+        setError(supabaseInitError || 'Supabase client failed to initialize');
+        setIsFeedLoading(false);
+      }
+      return;
+    }
+    
+    console.log('CommentsSection: Fetching comments for perfumeId:', perfumeId);
     
     try {
-      const { data, error } = await supabase.rpc('get_perfume_comments' as any, { 
+      const { data, error: rpcError } = await supabase.rpc('get_perfume_comments' as any, { 
         p_perfume_id: perfumeId 
       } as any);
 
-      if (error) throw error;
+      if (rpcError) {
+        console.error('CommentsSection: RPC Error:', rpcError);
+        throw rpcError;
+      }
       
+      console.log('CommentsSection: Received data:', data?.length || 0, 'comments');
       const enriched = data || [];
       setComments(enriched);
       
@@ -125,7 +140,8 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
         timestamp: Date.now()
       };
     } catch (err: any) {
-      console.error('Error fetching comments:', {
+      setError(err.message || 'Failed to load comments');
+      console.error('CommentsSection: Error fetching comments:', {
         message: err.message,
         details: err.details,
         hint: err.hint,
@@ -134,11 +150,13 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
     } finally {
       setIsFeedLoading(false);
     }
-  }, [perfumeId, supabase]);
+  }, [perfumeId, supabase, authLoading, supabaseInitError]);
 
   useEffect(() => { 
-    fetchComments(!comments.length); 
-  }, [fetchComments]);
+    if (mounted && !authLoading) {
+      fetchComments(!comments.length);
+    }
+  }, [fetchComments, mounted, authLoading]);
 
   const insertFormat = (prefix: string, suffix: string) => {
     const el = textareaRef.current;
@@ -158,7 +176,7 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !newComment.trim()) return;
+    if (!user || !newComment.trim() || !supabase) return;
     
     const contentToPost = newComment;
     setNewComment('');
@@ -172,21 +190,22 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
       content: contentToPost,
       user_name: user.display_name || 'Member',
       created_at: new Date().toISOString(),
-      avatar_url: user.user_metadata?.avatar_url || null,
-      is_verified: false,
+      avatar_url: user.avatar_url || null,
+      is_verified: user.is_verified || false,
       is_owner: false,
     };
 
     setComments(prev => [optimisticComment, ...prev]);
     
-    const { error } = await supabase.from('comments').insert({
+    const { error: insertError } = await supabase.from('comments').insert({
         user_id: user.id,
         perfume_id: perfumeId,
         content: contentToPost,
         user_name: user.display_name || 'Member', 
     } as any);
 
-    if (error) {
+    if (insertError) {
+        console.error('CommentsSection: Error posting comment:', insertError);
         setComments(prev => prev.filter(c => c.id !== tempId));
         setNewComment(contentToPost);
     } else {
@@ -272,6 +291,19 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
                 </div>
               </div>
             ))}
+          </div>
+        ) : error && !comments.length ? (
+          <div className="text-center py-20">
+            <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
+              <span className="text-xl">⚠️</span>
+            </div>
+            <h3 className="font-serif text-xl text-stone-900 mb-2">{error}</h3>
+            <button 
+              onClick={() => fetchComments(true)}
+              className="text-[10px] font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 transition-colors"
+            >
+              Try again
+            </button>
           </div>
         ) : comments.length === 0 ? (
           <div className="text-center py-20">

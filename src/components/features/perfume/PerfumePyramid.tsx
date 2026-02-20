@@ -35,23 +35,30 @@ export default function PerfumePyramid({ perfume }: PerfumePyramidProps) {
     const noteSlug = noteName.toLowerCase().replace(/\s+/g, '-');
     const isActive = activeNote === noteName;
 
+    const imageSrc = noteData.note.url;
+
     return (
-      <div className={`relative group overflow-hidden border border-white/50 ${className}`}>
+      <div className={`relative group overflow-hidden border border-white/50 ${className}`} 
+           style={{ backgroundColor: !imageSrc ? (noteData.note.color_hex || '#e7e5e4') : 'transparent' }}>
         <button
           onClick={() => setActiveNote(isActive ? null : noteName)}
           className="w-full h-full relative block"
         >
           {/* Background Image */}
-          <img 
-            src={noteData.note.url || `/assets/notes/${noteSlug}.png`} 
-            alt={noteName}
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-            onError={(e) => {
-                // Fallback to background color if image missing or fails
-                (e.target as HTMLImageElement).style.visibility = 'hidden'; // Hide the broken image icon
-                (e.target as HTMLImageElement).parentElement!.style.backgroundColor = noteData.note.color_hex || '#e7e5e4';
-            }}
-          />
+          {imageSrc ? (
+            <img 
+              src={imageSrc} 
+              alt={noteName}
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              onError={(e) => {
+                  // Fallback to background color if image fails
+                  (e.target as HTMLImageElement).style.opacity = '0';
+                  (e.target as HTMLImageElement).parentElement!.style.backgroundColor = noteData.note.color_hex || '#e7e5e4';
+              }}
+            />
+          ) : (
+            <div className="absolute inset-0 w-full h-full" style={{ backgroundColor: noteData.note.color_hex || '#e7e5e4' }} />
+          )}
           
           {/* Overlay & Text */}
           <div className={`absolute inset-0 transition-all duration-300 flex items-center justify-center p-2 ${isActive ? 'bg-black/50' : 'bg-black/10 group-hover:bg-black/30'}`}>
