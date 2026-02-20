@@ -4,8 +4,8 @@ import time
 from supabase import create_client, Client
 
 # --- CONFIGURATION ---
-SUPABASE_URL = os.environ.get("SUPABASE_URL")
-SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
+SUPABASE_URL = "https://fmtqqpnhnexwmgpeaidb.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZtdHFxcG5obmV4d21ncGVhaWRiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MzgwMDA2NSwiZXhwIjoyMDc5Mzc2MDY1fQ.6g0jCHqH8whq97lBUPMoAa8w7R2ES4iM4tJM9ytb8BE"
 
 if not SUPABASE_URL or not SUPABASE_KEY:
     print("Error: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY environment variables must be set.")

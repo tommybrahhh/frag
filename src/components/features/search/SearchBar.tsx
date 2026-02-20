@@ -15,12 +15,29 @@ export default function SearchBar({ onSearch, className }: SearchBarProps) {
   const router = useRouter();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<any[]>([]);
+  const [suggestions, setSuggestions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
   
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Fetch initial suggestions (Trending)
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      try {
+        const response = await fetch(`/api/search?q=a`); 
+        if (response.ok) {
+          const data = await response.json();
+          setSuggestions(data.slice(0, 5));
+        }
+      } catch (e) {
+        console.error("Failed to load search suggestions", e);
+      }
+    };
+    fetchSuggestions();
+  }, []);
 
   // Close dropdown on click outside
   useEffect(() => {
@@ -69,15 +86,17 @@ export default function SearchBar({ onSearch, className }: SearchBarProps) {
 
   // Keyboard Navigation
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    const displayList = query.length >= 2 ? results : suggestions;
+    
     if (e.key === 'ArrowDown') {
       e.preventDefault();
-      setSelectedIndex(prev => (prev < results.length - 1 ? prev + 1 : prev));
+      setSelectedIndex(prev => (prev < displayList.length - 1 ? prev + 1 : prev));
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
       setSelectedIndex(prev => (prev > 0 ? prev - 1 : 0));
     } else if (e.key === 'Enter') {
-      if (results[selectedIndex]) {
-        const item = results[selectedIndex];
+      if (displayList[selectedIndex]) {
+        const item = displayList[selectedIndex];
         router.push(`/perfume/${item.slug || item.id}`);
         setIsOpen(false);
         setQuery('');
@@ -90,6 +109,8 @@ export default function SearchBar({ onSearch, className }: SearchBarProps) {
       inputRef.current?.blur();
     }
   };
+
+  const displayList = query.length >= 2 ? results : suggestions;
 
   return (
     <div ref={searchRef} className={`relative w-full ${className}`}>
@@ -122,12 +143,19 @@ export default function SearchBar({ onSearch, className }: SearchBarProps) {
       </div>
 
       {/* Results Dropdown */}
-      {isOpen && (query.length >= 2 || results.length > 0) && (
+      {isOpen && (displayList.length > 0 || (query.length >= 2 && results.length === 0)) && (
         <div className="absolute top-full left-0 right-0 mt-3 bg-white rounded-2xl shadow-2xl border border-stone-100 overflow-hidden z-[1000] animate-in fade-in slide-in-from-top-2 duration-300">
           <div className="max-h-[60vh] overflow-y-auto scrollbar-hide py-2">
-            {results.length > 0 ? (
+            
+            {query.length < 2 && suggestions.length > 0 && (
+              <div className="px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-stone-400 border-b border-stone-50 mb-1">
+                Trending Scent Stories
+              </div>
+            )}
+
+            {displayList.length > 0 ? (
               <div className="px-2 space-y-0.5">
-                {results.map((perfume, index) => (
+                {displayList.map((perfume, index) => (
                   <Link
                     key={perfume.id}
                     href={`/perfume/${perfume.slug || perfume.id}`}
@@ -160,15 +188,17 @@ export default function SearchBar({ onSearch, className }: SearchBarProps) {
                 ))}
                 
                 {/* View All Option */}
-                <div className="pt-2 mt-2 border-t border-stone-50">
-                   <Link 
-                    href={`/search?q=${encodeURIComponent(query)}`}
-                    onClick={() => setIsOpen(false)}
-                    className="flex items-center justify-center py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400 hover:text-stone-900 transition-colors"
-                   >
-                     View all results →
-                   </Link>
-                </div>
+                {query.length >= 2 && (
+                  <div className="pt-2 mt-2 border-t border-stone-50">
+                    <Link 
+                      href={`/search?q=${encodeURIComponent(query)}`}
+                      onClick={() => setIsOpen(false)}
+                      className="flex items-center justify-center py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400 hover:text-stone-900 transition-colors"
+                    >
+                      View all results →
+                    </Link>
+                  </div>
+                )}
               </div>
             ) : !loading && query.length >= 2 ? (
               <div className="px-6 py-10 text-center">

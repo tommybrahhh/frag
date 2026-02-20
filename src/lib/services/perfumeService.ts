@@ -4,6 +4,7 @@ import { longevityMappings } from '@/lib/longevity-utils';
 export interface PerfumeFilterParams {
   page?: number;
   limit?: number;
+  q?: string | null;
   price?: string | null;
   gender?: string | null;
   longevity?: string | null;
@@ -22,6 +23,7 @@ export async function getPerfumes(params: PerfumeFilterParams) {
   const {
     page = 1,
     limit = 20,
+    q,
     price,
     gender,
     longevity,
@@ -59,10 +61,13 @@ export async function getPerfumes(params: PerfumeFilterParams) {
       olfactory_family,
       release_year,
       brand_id,
-      brand:brands!perfumes_brand_id_fkey${tier ? '!inner' : ''}(name, tier) 
+      brand:brands!perfumes_brand_id_fkey${(tier || q) ? '!inner' : ''}(name, tier) 
     `, { count: 'exact' });
 
   // Apply Filters
+  if (q) {
+    query = query.or(`name.ilike.%${q}%, brand.name.ilike.%${q}%`);
+  }
   if (price) query = query.in('price_tier', price.split(','));
   if (gender) query = query.in('gender', gender.split(','));
   

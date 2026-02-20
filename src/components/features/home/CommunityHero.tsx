@@ -4,9 +4,10 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { ActivityItem, CommunityStats } from '@/lib/services/communityService';
-import { ArrowRight, MessageCircle, Search as SearchIcon } from 'lucide-react';
+import { ArrowRight, MessageCircle } from 'lucide-react';
 import { formatRelativeTime } from '@/utils/timeUtils';
 import PerfumeImage from '@/components/ui/PerfumeImage';
+import SearchBar from '@/components/features/search/SearchBar';
 
 interface CommunityHeroProps {
   activity: ActivityItem[];
@@ -56,19 +57,7 @@ export default function CommunityHero({ activity, stats }: CommunityHeroProps) {
               Track what you wear, discover what you love, and share it with people who get it.
             </p>
 
-            <div className="relative max-w-md mx-auto lg:mx-0 mb-8 group">
-              <SearchIcon className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400 group-focus-within:text-stone-900 transition-colors" />
-              <input 
-                type="text" 
-                placeholder="Search by note, brand, or vibe..."
-                className="w-full pl-14 pr-6 py-4 bg-stone-50 border border-stone-200 rounded-2xl text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-4 focus:ring-stone-900/5 focus:bg-white focus:border-stone-900 transition-all shadow-sm"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    window.location.href = `/search?q=${encodeURIComponent(e.currentTarget.value)}`;
-                  }
-                }}
-              />
-            </div>
+            <SearchBar className="max-w-md mx-auto lg:mx-0 mb-8" />
 
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-12">
               <Link 

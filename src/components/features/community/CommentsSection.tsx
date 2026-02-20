@@ -113,25 +113,52 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
 
     if (!supabase) {
       if (!authLoading) {
-        setError(supabaseInitError || 'Supabase client failed to initialize');
+        console.log('CommentsSection: Supabase not initialized');
+        setError(supabaseInitError || 'Connection lost. Please refresh.');
         setIsFeedLoading(false);
       }
       return;
     }
     
-    console.log('CommentsSection: Fetching comments for perfumeId:', perfumeId);
+    console.log('CommentsSection: Fetching for perfume:', perfumeId);
     
     try {
-      const { data, error: rpcError } = await supabase.rpc('get_perfume_comments' as any, { 
+      // 1. Primary Method: High-performance RPC
+      let { data, error: rpcError } = await supabase.rpc('get_perfume_comments' as any, { 
         p_perfume_id: perfumeId 
       } as any);
 
+      // 2. Fallback Method: Direct Table Query (if RPC fails or is missing)
       if (rpcError) {
-        console.error('CommentsSection: RPC Error:', rpcError);
-        throw rpcError;
+        console.warn('CommentsSection: RPC failed, trying direct query fallback...', rpcError.message);
+        
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from('comments')
+          .select(`
+            id, user_id, perfume_id, content, user_name, created_at,
+            profiles:user_id (
+              avatar_url,
+              is_verified
+            )
+          `)
+          .eq('perfume_id', perfumeId)
+          .order('created_at', { ascending: false });
+
+        if (fallbackError) {
+          console.error('CommentsSection: Fallback also failed:', fallbackError);
+          throw fallbackError;
+        }
+
+        // Map fallback data to match the expected EnrichedComment structure
+        data = (fallbackData || []).map((c: any) => ({
+          ...c,
+          avatar_url: c.profiles?.avatar_url || null,
+          is_verified: c.profiles?.is_verified || false,
+          is_owner: false // Owner badge skipped in fallback for performance
+        }));
       }
       
-      console.log('CommentsSection: Received data:', data?.length || 0, 'comments');
+      console.log('CommentsSection: Successfully loaded', data?.length || 0, 'notes');
       const enriched = data || [];
       setComments(enriched);
       
@@ -140,13 +167,8 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
         timestamp: Date.now()
       };
     } catch (err: any) {
-      setError(err.message || 'Failed to load comments');
-      console.error('CommentsSection: Error fetching comments:', {
-        message: err.message,
-        details: err.details,
-        hint: err.hint,
-        code: err.code
-      });
+      setError(err.message || 'Unable to load the conversation');
+      console.error('CommentsSection Critical Error:', err);
     } finally {
       setIsFeedLoading(false);
     }
