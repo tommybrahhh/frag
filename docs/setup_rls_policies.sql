@@ -26,7 +26,7 @@ CREATE POLICY "Public read access for comments"
 ON public.comments
 FOR SELECT
 TO public
-USING (true);
+USING (is_visible IS NOT FALSE);
 
 -- Allow authenticated users to insert their own comments
 CREATE POLICY "Authenticated users can post comments"

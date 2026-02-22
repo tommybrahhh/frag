@@ -33,6 +33,7 @@ BEGIN
   FROM comments c
   LEFT JOIN profiles p ON p.id = c.user_id
   WHERE c.perfume_id = p_perfume_id
+    AND (c.is_visible = true OR c.is_visible IS NULL)
   ORDER BY c.created_at DESC;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
