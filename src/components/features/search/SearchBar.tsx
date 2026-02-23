@@ -116,7 +116,7 @@ export default function SearchBar({ onSearch, className }: SearchBarProps) {
     <div ref={searchRef} className={`relative w-full ${className}`}>
       {/* Search Input Container */}
       <div className={`relative flex items-center bg-stone-50 border transition-all duration-500 rounded-full px-5 py-2.5 ${isOpen ? 'border-stone-300 bg-white shadow-lg' : 'border-stone-100'}`}>
-        <svg className={`w-4 h-4 mr-3 transition-colors ${isOpen ? 'text-stone-900' : 'text-stone-300'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className={`w-4 h-4 mr-3 transition-colors ${isOpen ? 'text-stone-900' : 'text-stone-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
         
@@ -128,13 +128,13 @@ export default function SearchBar({ onSearch, className }: SearchBarProps) {
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setIsOpen(true)}
           onKeyDown={handleKeyDown}
-          className="flex-1 bg-transparent text-sm text-stone-800 outline-none placeholder:text-stone-300 font-serif"
+          className="flex-1 bg-transparent text-sm text-stone-800 outline-none placeholder:text-stone-400 font-serif"
         />
 
         {loading && <Spinner size="sm" />}
         
         {!loading && query && (
-          <button onClick={() => setQuery('')} className="ml-2 text-stone-300 hover:text-stone-900 transition-colors">
+          <button onClick={() => setQuery('')} className="ml-2 text-stone-400 hover:text-stone-900 transition-colors">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -148,7 +148,7 @@ export default function SearchBar({ onSearch, className }: SearchBarProps) {
           <div className="max-h-[60vh] overflow-y-auto scrollbar-hide py-2">
             
             {query.length < 2 && suggestions.length > 0 && (
-              <div className="px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-stone-400 border-b border-stone-50 mb-1">
+              <div className="px-4 py-2 text-[11px] font-bold uppercase tracking-widest text-stone-500 border-b border-stone-50 mb-1">
                 Trending Scent Stories
               </div>
             )}
@@ -177,7 +177,7 @@ export default function SearchBar({ onSearch, className }: SearchBarProps) {
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-[9px] font-bold uppercase tracking-widest text-stone-400 truncate">
+                      <div className="text-[10px] font-bold uppercase tracking-widest text-stone-500 truncate">
                         {perfume.brand?.name || perfume.brand_name}
                       </div>
                       <div className="text-sm font-serif text-stone-900 truncate">
@@ -193,7 +193,7 @@ export default function SearchBar({ onSearch, className }: SearchBarProps) {
                     <Link 
                       href={`/search?q=${encodeURIComponent(query)}`}
                       onClick={() => setIsOpen(false)}
-                      className="flex items-center justify-center py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400 hover:text-stone-900 transition-colors"
+                      className="flex items-center justify-center py-2 text-xs font-bold uppercase tracking-[0.2em] text-stone-500 hover:text-stone-900 transition-colors"
                     >
                       View all results →
                     </Link>
@@ -203,7 +203,7 @@ export default function SearchBar({ onSearch, className }: SearchBarProps) {
             ) : !loading && query.length >= 2 ? (
               <div className="px-6 py-10 text-center">
                 <p className="text-stone-900 font-serif text-sm mb-1">No matches found</p>
-                <p className="text-stone-400 text-[11px] italic">Try a different name or brand.</p>
+                <p className="text-stone-500 text-[11px] italic">Try a different name or brand.</p>
               </div>
             ) : null}
           </div>

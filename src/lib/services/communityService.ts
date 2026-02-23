@@ -39,6 +39,7 @@ export interface ActivityItem {
   id: string;
   type: ActivityType;
   user_name: string;
+  user_avatar?: string;
   perfume_name: string;
   perfume_slug: string | null;
   perfume_image: string | null;
@@ -118,8 +119,8 @@ export async function getTopContributors(limit = 5): Promise<Contributor[]> {
   const supabase = await createClient();
   
   const [reviews, comments] = await Promise.all([
-    supabase.from('reviews').select('user_id, profiles(display_name)').limit(100) as any,
-    supabase.from('comments').select('user_id, user_name').limit(100) as any
+    supabase.from('reviews').select('user_id, profiles(display_name, avatar_url)').limit(200) as any,
+    supabase.from('comments').select('user_id, user_name').limit(200) as any
   ]);
 
   const stats: Record<string, Contributor> = {};
@@ -130,6 +131,7 @@ export async function getTopContributors(limit = 5): Promise<Contributor[]> {
         stats[r.user_id] = { 
           id: r.user_id, 
           name: r.profiles?.display_name || 'Anonymous', 
+          avatar_url: r.profiles?.avatar_url || undefined,
           review_count: 0, 
           comment_count: 0, 
           total_activity: 0,
@@ -147,6 +149,7 @@ export async function getTopContributors(limit = 5): Promise<Contributor[]> {
         stats[c.user_id] = { 
           id: c.user_id, 
           name: c.user_name || 'Anonymous', 
+          avatar_url: undefined,
           review_count: 0, 
           comment_count: 0, 
           total_activity: 0,
@@ -159,7 +162,7 @@ export async function getTopContributors(limit = 5): Promise<Contributor[]> {
   });
 
   return Object.values(stats)
-    .sort((a, b) => b.total_activity - a.total_activity)
+    .sort((a, b) => b.comment_count - a.comment_count) // Show users with most comments
     .slice(0, limit);
 }
 
@@ -198,7 +201,7 @@ export async function getRecentActivity(limit = 10): Promise<ActivityItem[]> {
         rating,
         text_content,
         created_at,
-        profiles ( display_name ),
+        profiles ( display_name, avatar_url ),
         perfumes (
           name,
           slug,
@@ -231,6 +234,7 @@ export async function getRecentActivity(limit = 10): Promise<ActivityItem[]> {
     id: r.id,
     type: 'review',
     user_name: r.profiles?.display_name || 'Anonymous',
+    user_avatar: r.profiles?.avatar_url || undefined,
     perfume_name: r.perfumes?.name || 'Unknown Perfume',
     perfume_slug: r.perfumes?.slug || null,
     perfume_image: r.perfumes?.image_url || null,
@@ -244,6 +248,7 @@ export async function getRecentActivity(limit = 10): Promise<ActivityItem[]> {
     id: c.id,
     type: 'comment',
     user_name: c.user_name || 'Anonymous',
+    user_avatar: undefined,
     perfume_name: c.perfumes?.name || 'Unknown Perfume',
     perfume_slug: c.perfumes?.slug || null,
     perfume_image: c.perfumes?.image_url || null,

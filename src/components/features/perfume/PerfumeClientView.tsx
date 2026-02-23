@@ -46,9 +46,10 @@ export type Perfume = Database['public']['Tables']['perfumes']['Row'] & {
 interface PerfumeClientViewProps {
   perfume: Perfume;
   recommendationCategories: RecommendationCategory[];
+  initialComments?: any[];
 }
 
-export default function PerfumeClientView({ perfume, recommendationCategories }: PerfumeClientViewProps) {
+export default function PerfumeClientView({ perfume, recommendationCategories, initialComments = [] }: PerfumeClientViewProps) {
   const [isScrolled, setIsScrolled] = React.useState(false);
 
   React.useEffect(() => {
@@ -80,15 +81,38 @@ export default function PerfumeClientView({ perfume, recommendationCategories }:
   return (
     <div className="min-h-screen bg-[#FAFAF9] text-[#1C1917] pb-20 font-sans selection:bg-[#1C1917] selection:text-[#FAFAF9]">
       {/* Sticky Header */}
-      <div className="px-6 py-3 md:py-4 sticky top-0 bg-[#FAFAF9]/90 backdrop-blur-md z-50 flex justify-between items-center border-b border-[#E7E5E4] transition-all duration-300">
-        <Link href="/" className="text-[10px] md:text-xs font-semibold uppercase tracking-widest text-[#57534E] hover:text-[#1C1917] transition-colors">← Back</Link>
+      <div className="px-6 py-3 md:py-4 sticky top-0 bg-white/90 backdrop-blur-md z-[60] flex justify-between items-center border-b border-stone-100 transition-all duration-300">
+        <div className="flex items-center gap-4">
+          <Link href="/" className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-stone-500 hover:text-stone-900 transition-colors flex items-center gap-2">
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" /></svg>
+            <span className="hidden sm:inline">Back</span>
+          </Link>
+          
+          <div className="hidden md:flex items-center gap-2 text-[10px] uppercase tracking-widest text-stone-400 font-bold">
+            <span>Home</span>
+            <span className="text-stone-200">/</span>
+            <Link href="/search" className="hover:text-stone-600 transition-colors">Library</Link>
+            <span className="text-stone-200">/</span>
+            <span className="text-stone-900 truncate max-w-[100px]">{perfume.name}</span>
+          </div>
+        </div>
         
         <div className={`absolute left-1/2 -translate-x-1/2 text-center transition-all duration-500 ${isScrolled ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'}`}>
-           <div className="text-[8px] font-bold uppercase tracking-widest text-stone-400 leading-none">{perfume.brand?.name}</div>
+           <div className="text-[9px] font-bold uppercase tracking-widest text-stone-500 leading-none mb-0.5">{perfume.brand?.name}</div>
            <div className="text-xs md:text-sm font-serif text-stone-900 truncate max-w-[150px] md:max-w-xs">{perfume.name}</div>
         </div>
 
-        <span className="text-[10px] font-mono uppercase tracking-widest text-[#A8A29E]">Scentia</span>
+        <div className="flex items-center gap-4">
+          {isScrolled && (
+             <button 
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                className="hidden md:flex h-8 px-4 bg-stone-900 text-white text-[9px] font-bold uppercase tracking-widest rounded-full items-center justify-center hover:bg-stone-800 transition-all"
+             >
+                Add to Shelf
+             </button>
+          )}
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">Scentia</span>
+        </div>
       </div>
 
       {/* Hero Section */}
@@ -111,7 +135,7 @@ export default function PerfumeClientView({ perfume, recommendationCategories }:
       <PerfumeRecommendations mainPerfume={perfume} recommendationCategories={recommendationCategories} />
 
       {/* Community Comments */}
-      <CommentsSection perfumeId={perfume.id} />
+      <CommentsSection perfumeId={perfume.id} initialComments={initialComments} />
     </div>
   );
 }

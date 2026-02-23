@@ -85,27 +85,33 @@ export default function PerfumeDashboard({ perfume }: PerfumeDashboardProps) {
 
       {/* Performance */}
       <div>
-        <h4 className="flex items-center gap-3 text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-4 md:mb-6 pb-2 border-b border-stone-200">
+        <h4 className="flex items-center gap-3 text-[10px] md:text-[11px] font-bold uppercase tracking-widest text-stone-500 mb-6 md:mb-8 pb-2 border-b border-stone-200">
           Performance <span className="flex-1 h-px bg-stone-200"></span>
         </h4>
-        <div className="space-y-5 md:space-y-6">
+        <div className="space-y-6 md:space-y-8">
           <div>
-            <div className="flex justify-between items-end mb-2">
-              <span className="text-[9px] font-bold uppercase tracking-widest text-stone-500">Longevity</span>
-              <span className="text-[10px] font-serif italic text-stone-900">{ratingToDescription(perfume.longevity_rating || 0)}</span>
+            <div className="flex justify-between items-end mb-3">
+              <div className="flex items-baseline gap-2">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-stone-600">Longevity</span>
+                <span className="text-[9px] font-black text-stone-300 tracking-tighter">{perfume.longevity_rating || 0}/10</span>
+              </div>
+              <span className="text-xs font-serif italic text-stone-900">{ratingToDescription(perfume.longevity_rating || 0)}</span>
             </div>
-            <div className="flex gap-0.5 md:gap-1 h-1.5 md:h-2">
+            <div className="flex gap-1 h-2">
               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(step => (
                 <div key={step} className={`flex-1 rounded-full transition-all duration-1000 ${(perfume.longevity_rating || 0) >= step ? 'bg-stone-800' : 'bg-stone-100'}`} />
               ))}
             </div>
           </div>
           <div>
-            <div className="flex justify-between items-end mb-2">
-              <span className="text-[9px] font-bold uppercase tracking-widest text-stone-500">Sillage</span>
-              <span className="text-[10px] font-serif italic text-stone-900">{getSillageDescription(perfume.sillage_rating)}</span>
+            <div className="flex justify-between items-end mb-3">
+              <div className="flex items-baseline gap-2">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-stone-600">Sillage</span>
+                <span className="text-[9px] font-black text-stone-300 tracking-tighter">{perfume.sillage_rating || 0}/10</span>
+              </div>
+              <span className="text-xs font-serif italic text-stone-900">{getSillageDescription(perfume.sillage_rating)}</span>
             </div>
-            <div className="flex gap-0.5 md:gap-1 h-1.5 md:h-2">
+            <div className="flex gap-1 h-2">
               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(step => (
                 <div key={step} className={`flex-1 rounded-full transition-all duration-1000 ${(perfume.sillage_rating || 0) >= step ? 'bg-stone-800' : 'bg-stone-100'}`} />
               ))}

@@ -82,11 +82,13 @@ const extractContext = (content: string) => {
   return badges.slice(0, 3);
 };
 
-export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
+export default function CommentsSection({ perfumeId, initialComments }: { perfumeId: string, initialComments?: EnrichedComment[] }) {
   const { user, supabase, loading: authLoading, supabaseInitError } = useAuth();
   
-  // Initialize from cache if available for instant load
+  // Initialize from cache or initialComments for instant load
   const [comments, setComments] = useState<EnrichedComment[]>(() => {
+    if (initialComments && initialComments.length > 0) return initialComments;
+    
     if (typeof window !== 'undefined' && commentsCache[perfumeId]) {
       const cached = commentsCache[perfumeId];
       if (Date.now() - cached.timestamp < CACHE_TTL) return cached.data;
@@ -95,7 +97,7 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
   });
   
   const [newComment, setNewComment] = useState('');
-  const [isFeedLoading, setIsFeedLoading] = useState(!comments.length);
+  const [isFeedLoading, setIsFeedLoading] = useState(initialComments === undefined && comments.length === 0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
@@ -158,7 +160,7 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
         }));
       }
       
-      console.log('CommentsSection: Successfully loaded', data?.length || 0, 'notes');
+      console.log('CommentsSection: Successfully loaded', data?.length || 0, 'reviews');
       const enriched = data || [];
       setComments(enriched);
       
@@ -175,10 +177,10 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
   }, [perfumeId, supabase, authLoading, supabaseInitError]);
 
   useEffect(() => { 
-    if (mounted && !authLoading) {
+    if (mounted && !authLoading && initialComments === undefined) {
       fetchComments(!comments.length);
     }
-  }, [fetchComments, mounted, authLoading]);
+  }, [fetchComments, mounted, authLoading, initialComments]);
 
   const insertFormat = (prefix: string, suffix: string) => {
     const el = textareaRef.current;
@@ -242,17 +244,14 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
       <div className="flex flex-col items-center text-center mb-16">
         <div className="flex items-center gap-3 mb-4">
            <div className="w-8 h-px bg-stone-200" />
-           <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-stone-400">
-             The Common Room
+           <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-stone-500">
+             Member Impressions
            </span>
            <div className="w-8 h-px bg-stone-200" />
         </div>
-        <h3 className="font-serif text-3xl md:text-5xl text-stone-900 mb-4">
-          Community <span className="italic text-stone-400">Notes</span>
-        </h3>
-        <p className="text-stone-500 text-sm md:text-base max-w-md font-light">
-          Real stories and honest impressions from people who have worn this scent.
-        </p>
+        <h2 className="font-serif text-3xl md:text-5xl text-stone-900 mb-4">
+          Community <span className="italic text-stone-400">Reviews</span>
+        </h2>
       </div>
 
       {/* INPUT AREA */}
@@ -284,7 +283,7 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
                     disabled={isSubmitting || !newComment.trim()}
                     className="px-8 py-3 bg-stone-900 text-white rounded-full text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-stone-800 transition-all disabled:opacity-30 shadow-lg active:scale-95"
                   >
-                    {isSubmitting ? 'Posting...' : 'Post Note'}
+                    {isSubmitting ? 'Posting...' : 'Post Review'}
                   </button>
                 </div>
               </div>
@@ -333,7 +332,7 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
               <span className="text-2xl">✍️</span>
             </div>
             <h3 className="font-serif text-xl text-stone-400 mb-2 italic">Be the first to speak</h3>
-            <p className="text-stone-300 text-sm uppercase tracking-widest font-bold">No notes yet</p>
+            <p className="text-stone-300 text-sm uppercase tracking-widest font-bold">No reviews yet</p>
           </div>
         ) : (
           comments.map((comment) => {
@@ -393,7 +392,7 @@ export default function CommentsSection({ perfumeId }: { perfumeId: string }) {
 
                     {user?.id === comment.user_id && (
                        <button className="text-[9px] font-bold uppercase tracking-widest text-stone-300 hover:text-stone-900 transition-colors">
-                         Edit Note
+                         Edit Review
                        </button>
                     )}
                   </div>

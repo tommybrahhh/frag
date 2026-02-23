@@ -16,28 +16,28 @@ export const revalidate = 600; // Revalidate every 10 minutes
 export default async function Home() {
   return (
     <PageTransition>
-      <main className="min-h-screen bg-white text-stone-800 pb-24">
+      <main className="min-h-screen bg-white text-stone-800 pb-20">
         <Suspense fallback={<div className="min-h-[500px] lg:min-h-[600px] flex items-center justify-center"><Spinner /></div>}>
           <CommunityHeroServer />
         </Suspense>
 
-        <Suspense fallback={<div className="py-12 md:py-24 flex items-center justify-center"><Spinner /></div>}>
+        <Suspense fallback={<div className="py-8 md:py-20 flex items-center justify-center"><Spinner /></div>}>
           <TrendingScentsServer />
         </Suspense>
 
-        <div className="py-12 md:py-24 space-y-16 md:space-y-32 bg-stone-50/50">
+        <div className="py-12 md:py-24 space-y-12 md:space-y-24 bg-stone-50/50">
           <div id="discovery" className="max-w-[1400px] mx-auto px-6">
-             <div className="mb-8 md:mb-16">
-                <div className="flex items-center gap-2 mb-2 md:mb-4">
+             <div className="mb-8 md:mb-12">
+                <div className="flex items-center gap-2 mb-3 md:mb-4">
                    <div className="h-px w-4 md:w-8 bg-stone-200" />
-                   <span className="text-[8px] md:text-[10px] font-bold uppercase tracking-[0.3em] text-stone-400">Explore</span>
+                   <span className="text-[10px] md:text-xs font-bold uppercase tracking-[0.3em] text-stone-500">Explore</span>
                 </div>
-                <h2 className="font-serif text-2xl md:text-5xl text-stone-900">
+                <h2 className="font-serif text-3xl md:text-5xl text-stone-900">
                   Find something that <span className="italic text-stone-400">feels like you.</span>
                 </h2>
              </div>
              
-             <div className="space-y-12 md:space-y-24">
+             <div className="space-y-8 md:space-y-16">
                <TierNav />
                <VisualCategoryNav />
              </div>
@@ -52,12 +52,12 @@ export default async function Home() {
 
                <div className="relative z-10 flex-1">
                  <h3 className="font-serif text-3xl md:text-5xl text-stone-900 mb-6 text-balance">Looking for <br className="hidden md:block" /> something specific?</h3>
-                 <p className="text-base md:text-lg text-stone-500 mb-8 max-w-md font-light leading-relaxed">
+                 <p className="text-base md:text-lg text-stone-600 mb-8 max-w-md font-light leading-relaxed">
                     Dive into our entire collection of thousands of fragrances, or let fate decide.
                  </p>
                  <Link 
                     href="/search?sort=newest"
-                    className="inline-flex items-center gap-3 px-8 py-4 bg-stone-900 text-white rounded-full font-bold text-[10px] md:text-xs uppercase tracking-widest hover:bg-stone-800 transition-all shadow-xl"
+                    className="inline-flex items-center gap-3 px-8 py-4 bg-stone-900 text-white rounded-full font-bold text-xs uppercase tracking-widest hover:bg-stone-800 transition-all shadow-xl"
                  >
                     <SearchIcon className="w-4 h-4" />
                     <span>Open Library</span>

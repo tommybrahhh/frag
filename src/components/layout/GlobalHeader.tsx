@@ -25,20 +25,20 @@ export default function GlobalHeader() {
             <span className="font-serif text-xl font-medium tracking-tight text-stone-900">Scentia</span>
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-6">
-            <Link href="/profile" className="text-[11px] font-bold uppercase tracking-[0.15em] text-stone-500 hover:text-stone-900 transition-colors">
+          <nav className="hidden lg:flex items-center gap-8">
+            <Link href="/profile" className="text-xs font-bold uppercase tracking-[0.15em] text-stone-600 hover:text-stone-900 transition-colors">
               My Shelf
             </Link>
-            <Link href="/layering" className="text-[11px] font-bold uppercase tracking-[0.15em] text-stone-500 hover:text-stone-900 transition-colors">
+            <Link href="/layering" className="text-xs font-bold uppercase tracking-[0.15em] text-stone-600 hover:text-stone-900 transition-colors">
               Layering
             </Link>
-            <Link href="/search" className="text-[11px] font-bold uppercase tracking-[0.15em] text-stone-500 hover:text-stone-900 transition-colors">
+            <Link href="/search" className="text-xs font-bold uppercase tracking-[0.15em] text-stone-600 hover:text-stone-900 transition-colors">
               Search
             </Link>
-            <Link href="/compare" className="text-[11px] font-bold uppercase tracking-[0.15em] text-stone-500 hover:text-stone-900 transition-colors">
+            <Link href="/compare" className="text-xs font-bold uppercase tracking-[0.15em] text-stone-600 hover:text-stone-900 transition-colors">
               Compare
             </Link>
-            <Link href="/quiz" className="text-[11px] font-bold uppercase tracking-[0.15em] text-stone-500 hover:text-stone-900 transition-colors">
+            <Link href="/quiz" className="text-xs font-bold uppercase tracking-[0.15em] text-stone-600 hover:text-stone-900 transition-colors">
               Finder
             </Link>
           </nav>

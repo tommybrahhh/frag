@@ -61,8 +61,8 @@ export default function PerfumePyramid({ perfume }: PerfumePyramidProps) {
           )}
           
           {/* Overlay & Text */}
-          <div className={`absolute inset-0 transition-all duration-300 flex items-center justify-center p-2 ${isActive ? 'bg-black/50' : 'bg-black/10 group-hover:bg-black/30'}`}>
-             <span className={`text-white font-bold uppercase tracking-widest drop-shadow-md text-center break-words ${isActive ? 'text-xs' : 'text-[10px] md:text-xs'}`}>
+          <div className={`absolute inset-0 transition-all duration-300 flex items-center justify-center p-2 ${isActive ? 'bg-black/60' : 'bg-black/10 group-hover:bg-black/40'}`}>
+             <span className={`text-white font-bold uppercase tracking-widest drop-shadow-md text-center break-words ${isActive ? 'text-[11px]' : 'text-[9px] md:text-xs'}`}>
                 {noteName}
              </span>
           </div>
@@ -70,18 +70,6 @@ export default function PerfumePyramid({ perfume }: PerfumePyramidProps) {
           {/* Active State Border */}
           {isActive && <div className="absolute inset-0 border-2 border-white z-20"></div>}
         </button>
-
-        {/* Tooltip Popup */}
-        {isActive && (
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-stone-900/95 backdrop-blur text-white text-xs p-4 rounded-xl shadow-2xl w-[90%] md:w-56 text-center z-50 animate-in fade-in zoom-in-95 duration-200 border border-stone-700">
-                <p className="mb-3 font-serif leading-relaxed text-stone-200">
-                    {noteData.note.description || "A defining note."}
-                </p>
-                <Link href={`/ingredients/${encodeURIComponent(noteName)}`} className="inline-block uppercase font-bold tracking-widest text-[9px] text-[#A8A29E] hover:text-white border-b border-stone-700 hover:border-white pb-0.5 transition-colors">
-                    Explore →
-                </Link>
-            </div>
-        )}
       </div>
     );
   };
@@ -128,20 +116,20 @@ export default function PerfumePyramid({ perfume }: PerfumePyramidProps) {
   return (
     <div className="flex flex-col h-full md:min-h-[600px] lg:min-h-[700px]">
       {/* Header - Unified with Dashboard Style */}
-      <div className="pb-2 mb-6 border-b border-stone-200 flex justify-between items-center">
-          <h4 className="flex items-center gap-3 text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-stone-400 w-full">
+      <div className="pb-2 mb-8 border-b border-stone-200 flex justify-between items-center">
+          <h4 className="flex items-center gap-3 text-[10px] md:text-[11px] font-bold uppercase tracking-widest text-stone-500 w-full">
             Scent Architecture <span className="flex-1 h-px bg-stone-200"></span>
           </h4>
-          <span className="text-[8px] md:text-[9px] text-stone-400 uppercase font-bold tracking-tighter whitespace-nowrap ml-4">Tap for info</span>
+          <span className="text-[9px] text-stone-400 uppercase font-bold tracking-tighter whitespace-nowrap ml-4">Tap for info</span>
       </div>
 
-      <div className="flex-1 flex flex-col rounded-2xl overflow-hidden border border-stone-100">
+      <div className="flex-1 flex flex-col rounded-[2rem] overflow-hidden border border-stone-100 shadow-sm">
         {/* 1. TOP NOTES (Smallest - 20%) */}
         <TreemapSection 
            title="Top" 
            type="Top"
            notes={perfume.perfume_notes?.filter(n => n.type === 'Top') || []} 
-           heightClass="h-[120px] md:h-[20%]" 
+           heightClass="h-[140px] md:h-[20%]" 
         />
 
         {/* 2. HEART NOTES (Mid - 30%) */}
@@ -149,7 +137,7 @@ export default function PerfumePyramid({ perfume }: PerfumePyramidProps) {
            title="Heart" 
            type="Heart"
            notes={perfume.perfume_notes?.filter(n => n.type === 'Heart') || []} 
-           heightClass="h-[180px] md:h-[30%]" 
+           heightClass="h-[200px] md:h-[30%]" 
         />
 
         {/* 3. BASE NOTES (Biggest - 50%) */}
@@ -157,9 +145,33 @@ export default function PerfumePyramid({ perfume }: PerfumePyramidProps) {
            title="Base" 
            type="Base"
            notes={perfume.perfume_notes?.filter(n => n.type === 'Base') || []} 
-           heightClass="h-[250px] md:h-[50%]" 
+           heightClass="h-[280px] md:h-[50%]" 
         />
       </div>
+
+      {/* Note Description Display - Better than tooltip on mobile */}
+      {activeNote && (
+         <div className="mt-8 p-6 bg-stone-900 text-white rounded-[2rem] animate-in slide-in-from-bottom-4 duration-500">
+            <div className="flex justify-between items-start mb-4">
+               <div>
+                  <h5 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-1">Active Note</h5>
+                  <h4 className="font-serif text-2xl">{activeNote}</h4>
+               </div>
+               <button onClick={() => setActiveNote(null)} className="p-2 hover:bg-white/10 rounded-full transition-colors">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
+               </button>
+            </div>
+            <p className="font-serif text-lg text-stone-200 leading-relaxed italic mb-6">
+               {perfume.perfume_notes?.find(n => n.note.name === activeNote)?.note.description || "A defining element that shapes the fragrance's core identity."}
+            </p>
+            <Link 
+               href={`/ingredients/${encodeURIComponent(activeNote)}`} 
+               className="inline-flex items-center gap-3 px-6 py-3 bg-white text-stone-900 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-stone-100 transition-all"
+            >
+               Learn more about {activeNote}
+            </Link>
+         </div>
+      )}
     </div>
   );
 }

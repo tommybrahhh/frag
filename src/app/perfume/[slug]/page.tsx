@@ -136,7 +136,12 @@ export default async function PerfumePage(
     ]
   };
 
-  // 3. Render
+  // 3. Fetch Comments on Server
+  const { data: commentsData } = await supabase.rpc('get_perfume_comments' as any, { 
+    p_perfume_id: perfumeData.id 
+  });
+
+  // 4. Render
   return (
     <>
       <script
@@ -150,6 +155,7 @@ export default async function PerfumePage(
       <PerfumeClientView 
         perfume={perfumeData as any} 
         recommendationCategories={recommendationCategories}
+        initialComments={commentsData || []}
       />
     </>
   );

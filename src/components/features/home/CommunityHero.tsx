@@ -35,7 +35,7 @@ export default function CommunityHero({ activity, stats }: CommunityHeroProps) {
         <div className="absolute bottom-[-5%] left-[-5%] w-[20%] h-[40%] bg-stone-100 rounded-full blur-[80px] opacity-40" />
       </div>
 
-      <div className="max-w-[1400px] mx-auto px-6 grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-12 lg:gap-16 w-full pt-24 pb-16 lg:py-20 relative z-10">
+      <div className="max-w-[1400px] mx-auto px-6 grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-12 lg:gap-16 w-full pt-20 pb-16 lg:py-20 relative z-10">
         
         {/* Left: Content */}
         <div className="flex flex-col justify-center text-center lg:text-left">
@@ -45,7 +45,7 @@ export default function CommunityHero({ activity, stats }: CommunityHeroProps) {
             transition={{ duration: 0.8 }}
           >
             <div className="flex items-center justify-center lg:justify-start gap-3 mb-6">
-              <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-stone-400">Scentia / The Circle</span>
+              <span className="text-[11px] font-bold uppercase tracking-[0.3em] text-stone-500">Scentia / The Circle</span>
             </div>
 
             <h1 className="font-serif text-5xl md:text-6xl lg:text-7xl leading-[1.1] mb-8 text-stone-900 tracking-tight">
@@ -53,7 +53,7 @@ export default function CommunityHero({ activity, stats }: CommunityHeroProps) {
               <span className="italic text-stone-400">tells your story.</span>
             </h1>
             
-            <p className="text-base md:text-lg text-stone-500 mb-10 max-w-md mx-auto lg:mx-0 font-light leading-relaxed">
+            <p className="text-base md:text-lg text-stone-600 mb-10 max-w-md mx-auto lg:mx-0 font-light leading-relaxed">
               Track what you wear, discover what you love, and share it with people who get it.
             </p>
 
@@ -62,13 +62,13 @@ export default function CommunityHero({ activity, stats }: CommunityHeroProps) {
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-12">
               <Link 
                 href="/search?sort=newest"
-                className="w-full sm:w-auto px-10 py-4 bg-stone-900 text-stone-50 rounded-full font-bold text-[10px] uppercase tracking-widest hover:bg-stone-800 transition-all shadow-lg"
+                className="w-full sm:w-auto px-10 py-4 bg-stone-900 text-stone-50 rounded-full font-bold text-xs uppercase tracking-widest hover:bg-stone-800 transition-all shadow-lg"
               >
                 Explore library
               </Link>
               <Link 
                 href="/community"
-                className="w-full sm:w-auto px-10 py-4 bg-white border border-stone-200 text-stone-900 rounded-full font-bold text-[10px] uppercase tracking-widest hover:border-stone-900 transition-all flex items-center justify-center gap-2"
+                className="w-full sm:w-auto px-10 py-4 bg-white border border-stone-200 text-stone-900 rounded-full font-bold text-xs uppercase tracking-widest hover:border-stone-900 transition-all flex items-center justify-center gap-2"
               >
                 <span>The Community</span>
                 <ArrowRight className="w-4 h-4" />
@@ -80,31 +80,43 @@ export default function CommunityHero({ activity, stats }: CommunityHeroProps) {
               <div className="flex justify-center lg:justify-start gap-12 pt-8 border-t border-stone-100">
                 <div className="text-center lg:text-left">
                    <div className="text-2xl font-serif text-stone-900 mb-0.5">{formatNumber(stats.perfumes)}</div>
-                   <div className="text-[9px] uppercase tracking-widest text-stone-400 font-bold">Scents</div>
+                   <div className="text-[10px] uppercase tracking-widest text-stone-500 font-bold">Scents</div>
                 </div>
                 <div className="text-center lg:text-left">
                    <div className="text-2xl font-serif text-stone-900 mb-0.5">{formatNumber(stats.members)}</div>
-                   <div className="text-[9px] uppercase tracking-widest text-stone-400 font-bold">Members</div>
+                   <div className="text-[10px] uppercase tracking-widest text-stone-500 font-bold">Members</div>
                 </div>
               </div>
             )}
           </motion.div>
         </div>
 
-        {/* Right: Activity Feed - More compact and subtle */}
-        <div className="relative h-[500px] lg:h-[550px] overflow-hidden hidden md:block">
-            <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white to-transparent z-20 pointer-events-none" />
-            <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white to-transparent z-20 pointer-events-none" />
+        {/* Right: Activity Feed - Visible on desktop, single card preview on mobile */}
+        <div className="relative lg:h-[550px] overflow-hidden">
+            <div className="hidden lg:block absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white to-transparent z-20 pointer-events-none" />
+            <div className="hidden lg:block absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white to-transparent z-20 pointer-events-none" />
             
-            <div className="flex flex-col gap-4 animate-scroll-vertical-slow hover:pause-animation">
+            <div className="hidden lg:flex flex-col gap-4 animate-scroll-vertical-slow hover:pause-animation">
               {[...activity, ...activity].map((item, i) => (
                 <ActivityCard key={`${item.id}-${i}`} item={item} mounted={mounted} />
               ))}
+            </div>
+
+            {/* Mobile Activity Preview */}
+            <div className="lg:hidden">
+              <div className="flex items-center gap-2 mb-4 px-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-[10px] font-bold uppercase tracking-widest text-stone-500">Live in the community</span>
+              </div>
+              {activity.length > 0 && (
+                <ActivityCard item={activity[0]} mounted={mounted} />
+              )}
             </div>
         </div>
 
       </div>
     </section>
+
   );
 }
 
@@ -126,8 +138,8 @@ function ActivityCard({ item, mounted }: { item: ActivityItem; mounted: boolean 
         {/* Content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between mb-1">
-            <h4 className="text-[9px] font-bold text-stone-400 uppercase tracking-[0.2em]">{item.user_name}</h4>
-            <span className="text-[9px] text-stone-300 font-medium">
+            <h4 className="text-[10px] font-bold text-stone-500 uppercase tracking-[0.2em]">{item.user_name}</h4>
+            <span className="text-[10px] text-stone-400 font-medium">
               {mounted ? formatRelativeTime(item.created_at) : ''}
             </span>
           </div>
