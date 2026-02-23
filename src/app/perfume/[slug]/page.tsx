@@ -137,7 +137,7 @@ export default async function PerfumePage(
   };
 
   // 3. Fetch Comments on Server
-  const { data: commentsData } = await supabase.rpc('get_perfume_comments' as any, { 
+  const { data: commentsData } = await (supabase as any).rpc('get_perfume_comments', { 
     p_perfume_id: perfumeData.id 
   });
 
