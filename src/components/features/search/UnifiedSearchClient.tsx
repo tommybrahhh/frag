@@ -13,9 +13,13 @@ const UnifiedSearchClient: React.FC = () => {
   const searchParams = useSearchParams();
   const initialSort = searchParams.get('sort');
   const initialQuery = searchParams.get('q');
+  const initialVibe = searchParams.get('vibe');
+  const initialTier = searchParams.get('tier');
 
-  const [searchMode, setSearchMode] = useState<'notes' | 'general' | 'newest'>(
-    initialSort === 'newest' ? 'newest' : (initialQuery ? 'general' : 'notes')
+  const [searchMode, setSearchMode] = useState<'notes' | 'general' | 'newest' | 'filter'>(
+    initialSort === 'newest' ? 'newest' : 
+    (initialQuery ? 'general' : 
+    (initialVibe || initialTier ? 'filter' : 'notes'))
   );
 
   // State for Filters (for notes search)
@@ -37,7 +41,10 @@ const UnifiedSearchClient: React.FC = () => {
   // Effect to handle initial load or URL changes
   useEffect(() => {
     // Sync state with URL parameters
-    const newMode = initialSort === 'newest' ? 'newest' : (initialQuery ? 'general' : 'notes');
+    const newMode = initialSort === 'newest' ? 'newest' : 
+                   (initialQuery ? 'general' : 
+                   (initialVibe || initialTier ? 'filter' : 'notes'));
+    
     setSearchMode(newMode);
     if (initialQuery !== null) {
       setGeneralSearchQuery(initialQuery);
@@ -46,12 +53,12 @@ const UnifiedSearchClient: React.FC = () => {
     // Reset pagination and results when search mode or parameters change
     setCurrentPage(1);
     setResults([]);
-  }, [initialSort, initialQuery]);
+  }, [initialSort, initialQuery, initialVibe, initialTier]);
 
-  // Effect for fetching perfumes when in 'newest' or 'general' mode
+  // Effect for fetching perfumes when in 'newest', 'general', or 'filter' mode
   useEffect(() => {
     const fetchPerfumes = async () => {
-      if (searchMode !== 'newest' && searchMode !== 'general') return;
+      if (searchMode === 'notes') return;
 
       setLoading(true);
       setError(null);
@@ -62,11 +69,10 @@ const UnifiedSearchClient: React.FC = () => {
         url.searchParams.set('page', currentPage.toString());
         url.searchParams.set('limit', limit.toString());
         
-        if (searchMode === 'newest') {
-          url.searchParams.set('sort', 'newest');
-        } else if (searchMode === 'general' && generalSearchQuery) {
-          url.searchParams.set('q', generalSearchQuery);
-        }
+        // Pass all current search params to the API
+        searchParams.forEach((value, key) => {
+          url.searchParams.set(key, value);
+        });
 
         const response = await fetch(url.toString());
         if (!response.ok) {
@@ -96,7 +102,7 @@ const UnifiedSearchClient: React.FC = () => {
     };
 
     fetchPerfumes();
-  }, [searchMode, currentPage, limit, generalSearchQuery]); // Dependencies
+  }, [searchMode, currentPage, limit, generalSearchQuery, searchParams]); // Added searchParams as dependency
 
   // Search Logic (for notes search mode)
   useEffect(() => {
@@ -187,16 +193,36 @@ const UnifiedSearchClient: React.FC = () => {
     setCurrentPage(prev => prev + 1);
   };
 
+  const getPageTitle = () => {
+    if (searchMode === 'newest') return 'Latest Fragrances';
+    if (searchMode === 'general') return `Search Results for "${generalSearchQuery}"`;
+    if (searchMode === 'filter') {
+      const vibe = searchParams.get('vibe');
+      const tier = searchParams.get('tier');
+      if (vibe) return `${vibe.charAt(0).toUpperCase() + vibe.slice(1)} Fragrances`;
+      if (tier) return `${tier.charAt(0).toUpperCase() + tier.slice(1)} Collection`;
+      return 'Discovery';
+    }
+    return 'Fragrance Finder';
+  };
+
+  const getPageSubtitle = () => {
+    if (searchMode === 'newest') return 'Discover the newest additions to our library.';
+    if (searchMode === 'general') return 'Explore perfumes matching your search.';
+    if (searchMode === 'filter') return 'Curated selection based on your preference.';
+    return 'Search by the notes you love (or hate) to find your perfect match.';
+  };
+
   return (
     <div className="max-w-6xl mx-auto px-6 py-8 md:py-12 min-h-screen bg-[#FAFAF9]">
-            {searchMode === 'newest' || searchMode === 'general' ? (
+            {searchMode !== 'notes' ? (
               <>
                 <div className="mb-8 md:mb-12 text-center">
-                  <h1 className="text-3xl md:text-5xl font-serif text-stone-900 mb-2 md:mb-4">
-                    {searchMode === 'newest' ? 'Latest Fragrances' : `Search Results for "${generalSearchQuery}"`}
+                  <h1 className="text-3xl md:text-5xl font-serif text-stone-900 mb-2 md:mb-4 capitalize">
+                    {getPageTitle()}
                   </h1>
                   <p className="text-xs md:text-sm text-stone-500 max-w-lg mx-auto italic px-4">
-                    {searchMode === 'newest' ? 'Discover the newest additions to our library.' : 'Explore perfumes matching your search.'}
+                    {getPageSubtitle()}
                   </p>
                 </div>
                 <SearchResults
