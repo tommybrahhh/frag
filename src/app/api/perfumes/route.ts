@@ -22,6 +22,7 @@ export async function GET(request: NextRequest) {
     family: searchParams.get('family'),
     vibe: searchParams.get('vibe'),
     brand: searchParams.get('brand'),
+    noteIds: searchParams.get('noteIds')?.split(',') || null,
   };
 
   try {

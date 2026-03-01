@@ -18,6 +18,7 @@ export interface PerfumeFilterParams {
   vibe?: string | null;
   brand?: string | null;
   sort?: string | null;
+  noteIds?: string[] | null;
 }
 
 export async function getPerfumes(params: PerfumeFilterParams) {
@@ -38,6 +39,7 @@ export async function getPerfumes(params: PerfumeFilterParams) {
     vibe,
     brand,
     sort,
+    noteIds,
   } = params;
 
   const offset = (page - 1) * limit;
@@ -125,6 +127,39 @@ export async function getPerfumes(params: PerfumeFilterParams) {
 
   if (vibe) {
     query = query.overlaps('vibe_tags', vibe.split(','));
+  }
+
+  // Handle Note IDs - This is complex for standard PostgREST
+  // If noteIds are provided, we filter the query to only include perfumes that have ALL these notes
+  if (noteIds && noteIds.length > 0) {
+    // We use a subquery/RPC approach or fetch IDs first
+    // For simplicity in PostgREST, we can use the 'in' filter with a list of IDs matching the notes
+    // However, it's better to use the RPC logic if possible.
+    // For now, let's use a simpler approach: fetch perfume IDs that match all notes
+    
+    const { data: perfumeIdsData } = await supabase
+      .from('perfume_notes')
+      .select('perfume_id')
+      .in('note_id', noteIds);
+    
+    if (perfumeIdsData) {
+      // Find perfume_ids that appear noteIds.length times
+      const counts: Record<string, number> = {};
+      perfumeIdsData.forEach((row: any) => {
+        counts[row.perfume_id] = (counts[row.perfume_id] || 0) + 1;
+      });
+      
+      const validIds = Object.entries(counts)
+        .filter(([_, count]) => count === noteIds.length)
+        .map(([id]) => id);
+      
+      if (validIds.length > 0) {
+        query = query.in('id', validIds);
+      } else {
+        // Force no results if notes specified but no perfume matches
+        query = query.eq('id', '00000000-0000-0000-0000-000000000000');
+      }
+    }
   }
 
   if (sort === 'newest') {
