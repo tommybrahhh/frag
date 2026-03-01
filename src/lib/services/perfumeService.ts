@@ -16,6 +16,7 @@ export interface PerfumeFilterParams {
   year?: string | null;
   family?: string | null;
   vibe?: string | null;
+  brand?: string | null;
   sort?: string | null;
 }
 
@@ -35,6 +36,7 @@ export async function getPerfumes(params: PerfumeFilterParams) {
     year,
     family,
     vibe,
+    brand,
     sort,
   } = params;
 
@@ -61,12 +63,15 @@ export async function getPerfumes(params: PerfumeFilterParams) {
       olfactory_family,
       release_year,
       brand_id,
-      brand:brands!perfumes_brand_id_fkey${(tier || q) ? '!inner' : ''}(name, tier) 
+      brand:brands!perfumes_brand_id_fkey${(tier || q || brand) ? '!inner' : ''}(name, tier) 
     `, { count: 'exact' });
 
   // Apply Filters
   if (q) {
     query = query.or(`name.ilike.%${q}%, brand.name.ilike.%${q}%`);
+  }
+  if (brand) {
+    query = query.in('brand.name', brand.split(','));
   }
   if (price) query = query.in('price_tier', price.split(','));
   if (gender) query = query.in('gender', gender.split(','));
@@ -111,7 +116,7 @@ export async function getPerfumes(params: PerfumeFilterParams) {
   }
 
   if (year) {
-    query = query.eq('release_year', year);
+    query = query.in('release_year', year.split(','));
   }
 
   if (family) {

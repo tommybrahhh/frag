@@ -21,6 +21,7 @@ export async function GET(request: NextRequest) {
     year: searchParams.get('year'),
     family: searchParams.get('family'),
     vibe: searchParams.get('vibe'),
+    brand: searchParams.get('brand'),
   };
 
   try {

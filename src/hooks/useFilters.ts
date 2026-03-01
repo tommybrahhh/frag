@@ -11,6 +11,7 @@ export function useFilters(initialFilters?: Partial<FilterValues>) {
   const [tier, setTier] = useState<string[]>(initialFilters?.tier || []);
   const [moment, setMoment] = useState<string[]>(initialFilters?.moment || []);
   const [occasion, setOccasion] = useState<string[]>(initialFilters?.occasion || []);
+  const [year, setYear] = useState<string[]>(initialFilters?.year || []);
 
   // Create a stable reference for the filters object
   const filters = useMemo(() => ({
@@ -21,8 +22,9 @@ export function useFilters(initialFilters?: Partial<FilterValues>) {
     concentration,
     tier,
     moment,
-    occasion
-  }), [price, gender, longevity, season, concentration, tier, moment, occasion]);
+    occasion,
+    year
+  }), [price, gender, longevity, season, concentration, tier, moment, occasion, year]);
 
   // Count active filters
   const activeFilterCount = useMemo(() => {
@@ -40,6 +42,7 @@ export function useFilters(initialFilters?: Partial<FilterValues>) {
       tier: setTier,
       moment: setMoment,
       occasion: setOccasion,
+      year: setYear,
     }[category];
 
     updateState(prev => {
@@ -49,6 +52,24 @@ export function useFilters(initialFilters?: Partial<FilterValues>) {
       setIsModified(true);
       return newValue;
     });
+  }, []);
+
+  // Update filter (replace instead of toggle)
+  const updateFilter = useCallback((category: FilterCategory, values: string[]) => {
+    const updateState = {
+      price: setPrice,
+      gender: setGender,
+      longevity: setLongevity,
+      season: setSeason,
+      concentration: setConcentration,
+      tier: setTier,
+      moment: setMoment,
+      occasion: setOccasion,
+      year: setYear,
+    }[category];
+
+    updateState(values);
+    setIsModified(true);
   }, []);
 
   // Clear all filters
@@ -61,6 +82,7 @@ export function useFilters(initialFilters?: Partial<FilterValues>) {
     setTier([]);
     setMoment([]);
     setOccasion([]);
+    setYear([]);
     setIsModified(true);
   }, []);
 
@@ -69,6 +91,7 @@ export function useFilters(initialFilters?: Partial<FilterValues>) {
     setIsModified,
     activeFilterCount,
     handleFilterChange,
+    updateFilter,
     clearFilters,
     filters
   };

@@ -31,7 +31,7 @@ export default function TierPageClient({ tierName, initialPerfumes }: TierPageCl
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(initialPerfumes.length >= 20);
   const [filters, setFilters] = useState<any>({
-    price: [], gender: [], longevity: [], season: [], concentration: [], tier: [tierName], moment: [], occasion: [], vibe: []
+    price: [], gender: [], longevity: [], season: [], concentration: [], tier: [tierName], moment: [], occasion: [], vibe: [], year: []
   });
 
   const isInitialMount = useRef(true);

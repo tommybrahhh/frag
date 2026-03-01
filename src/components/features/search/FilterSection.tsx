@@ -1,17 +1,27 @@
 import { FilterSectionProps } from './filterTypes';
+import { ReactNode } from 'react';
 
-export default function FilterSection({ title, options, selected, onChange }: FilterSectionProps) {
+export default function FilterSection({ 
+  title, 
+  options, 
+  selected, 
+  onChange,
+  icon
+}: FilterSectionProps & { icon?: ReactNode }) {
   return (
     <section 
       aria-labelledby={`${title.toLowerCase().replace(' ', '-')}-title`}
-      className="w-full"
+      className="w-full group"
     >
-      <h3 
-        id={`${title.toLowerCase().replace(' ', '-')}-title`} 
-        className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-3"
-      >
-        {title}
-      </h3>
+      <div className="flex items-center gap-2 mb-4">
+        {icon && <span className="text-stone-400 group-hover:text-stone-600 transition-colors">{icon}</span>}
+        <h3 
+          id={`${title.toLowerCase().replace(' ', '-')}-title`} 
+          className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400 group-hover:text-stone-500 transition-colors"
+        >
+          {title}
+        </h3>
+      </div>
       <div 
         role="group" 
         aria-labelledby={`${title.toLowerCase().replace(' ', '-')}-title`}
