@@ -401,7 +401,11 @@ export default function CommentsSection({ perfumeId, initialComments }: { perfum
                         <div className="flex flex-col">
                           <div className="flex items-center gap-2">
                             <span className="font-serif text-xl text-stone-900">{comment.user_name}</span>
-                            {comment.is_verified && <ShieldCheck size={16} className="text-stone-300" title="Verified Scentia Member" />}
+                            {comment.is_verified && (
+                              <span title="Verified Scentia Member">
+                                <ShieldCheck size={16} className="text-stone-300" />
+                              </span>
+                            )}
                           </div>
                           <div className={`text-[8px] font-bold uppercase tracking-[0.2em] ${level.color} mt-0.5`}>
                             {level.name}
