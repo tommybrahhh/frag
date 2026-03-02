@@ -288,42 +288,43 @@ export default function ProfileClientView({
 
   // Reusable Perfume Card Component
   const PerfumeCard = ({ perfume }: { perfume: typeof collection[0] }) => (
-    <div className="group relative bg-white rounded-xl border border-stone-100 p-3 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full flex flex-col">
+    <div className="group relative bg-white rounded-lg border border-stone-100 p-4 hover:border-stone-200 hover:shadow-sm transition-all duration-300 h-full flex flex-col">
       {/* Remove Button */}
       <button
         onClick={() => handleRemoveFromCollection(perfume.collection_id)}
         disabled={isRemovingId === perfume.collection_id}
-        className="absolute top-2 right-2 p-1 bg-white rounded-full text-stone-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity z-10 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="absolute top-2 right-2 p-1.5 bg-white rounded-md text-stone-300 hover:text-stone-900 opacity-0 group-hover:opacity-100 transition-all z-10"
         title="Remove"
       >
         {isRemovingId === perfume.collection_id ? (
-          <span className="animate-spin block h-3 w-3 border-2 border-stone-300 border-t-stone-600 rounded-full"/>
-        ) : '✕'}
+          <span className="animate-spin block h-3 w-3 border-2 border-stone-200 border-t-stone-900 rounded-full"/>
+        ) : (
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+        )}
       </button>
 
       <Link href={`/perfume/${perfume.slug}`} className="flex-1 flex flex-col">
         {/* Image Area */}
-        <div className="h-40 flex items-center justify-center p-4 mb-3 bg-stone-50 rounded-lg group-hover:bg-white transition-colors relative">
+        <div className="h-44 flex items-center justify-center p-6 mb-4 bg-stone-50 rounded group-hover:bg-white transition-colors relative">
             {perfume.image_url ? (
                 <img src={getPerfumeImage(perfume.image_url)} alt={perfume.name} className="h-full object-contain mix-blend-multiply" />
             ) : (
-                <span className="text-stone-300 text-xs italic">No Image</span>
+                <span className="text-stone-300 text-[10px] font-bold uppercase tracking-widest">N/A</span>
             )}
         </div>
 
         {/* Content Area */}
         <div className="text-center mt-auto">
-          <div className="text-[9px] font-bold uppercase tracking-widest text-stone-400 truncate mb-1">
+          <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-1">
             {perfume.brand?.name}
           </div>
-          <div className="font-serif text-base text-stone-900 leading-tight truncate mb-2">
+          <div className="font-serif text-lg text-stone-900 leading-tight mb-3">
             {perfume.name}
           </div>
           
           {/* Metadata Footer */}
-          <div className="flex items-center justify-center gap-2 pt-2 border-t border-stone-50">
+          <div className="flex items-center justify-center gap-2 pt-3 border-t border-stone-50">
              <SeasonDots seasons={perfume.best_season} />
-             {/* Could add longevity or sillage icons here too */}
           </div>
         </div>
       </Link>
@@ -339,88 +340,85 @@ export default function ProfileClientView({
   const reviewsCount = initialComments.length;
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] text-gray-800 font-sans pb-20">
+    <div className="min-h-screen bg-white text-stone-900 font-sans pb-20 selection:bg-stone-900 selection:text-white">
       
-      {/* Header Section */}
-      <div className="bg-white border-b border-stone-200 px-6 py-8 md:py-12">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-6 md:gap-8">
+      {/* Refined Header Section */}
+      <div className="bg-stone-50/50 border-b border-stone-100 px-6 py-12 md:py-16">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center md:items-end gap-8 md:gap-12">
           
           {/* Avatar Area */}
-          <div className="relative group mx-auto md:mx-0">
-            <div className="w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden border-4 border-stone-50 bg-stone-100 shadow-sm transition-transform duration-500 group-hover:scale-105">
+          <div className="relative group">
+            <div className="w-28 h-28 md:w-36 md:h-36 rounded-full overflow-hidden border border-stone-200 bg-white shadow-sm transition-all duration-500 group-hover:shadow-md">
                 {profileData.avatarUrl ? (
                     <img src={profileData.avatarUrl} alt="Profile" className="w-full h-full object-cover" />
                 ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-stone-200 text-stone-400 text-3xl md:text-4xl font-bold uppercase">
+                    <div className="w-full h-full flex items-center justify-center bg-stone-50 text-stone-300 text-4xl font-serif">
                         {profileData.displayName?.[0] || userEmail?.[0]}
                     </div>
                 )}
             </div>
             <button 
                 onClick={() => setIsEditModalOpen(true)}
-                className="absolute bottom-1 right-1 w-7 h-7 md:w-8 md:h-8 bg-white rounded-full shadow-md border border-stone-100 flex items-center justify-center text-stone-400"
+                className="absolute bottom-1 right-1 w-8 h-8 bg-white rounded-full shadow-sm border border-stone-100 flex items-center justify-center text-stone-400 hover:text-stone-900 transition-colors"
             >
-                ✎
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
             </button>
           </div>
 
           <div className="flex-1 text-center md:text-left">
-            <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
-                 <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-stone-400">Member Profile</span>
-                 <span className="w-1 h-1 rounded-full bg-stone-300"></span>
-                 <span className="text-[10px] md:text-xs font-bold text-stone-400">Est. {new Date().getFullYear()}</span>
+            <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
+                 <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-stone-400">Member</span>
+                 <div className="w-8 h-[1px] bg-stone-200"></div>
+                 <span className="text-[10px] font-bold text-stone-400 uppercase tracking-widest">{new Date().getFullYear()}</span>
             </div>
             
-            <h1 className="text-3xl md:text-4xl font-serif text-stone-900 mb-2 flex items-center justify-center md:justify-start gap-3">
+            <h1 className="text-4xl md:text-5xl font-serif text-stone-900 mb-4 flex items-center justify-center md:justify-start gap-4">
                 <span>{profileData.displayName || userEmail?.split('@')[0]}</span>
                 {profileData.isVerified && (
                     <svg 
                       xmlns="http://www.w3.org/2000/svg" 
                       viewBox="0 0 20 20" 
                       fill="currentColor" 
-                      className="w-5 h-5 md:w-6 md:h-6 text-sky-500"
+                      className="w-6 h-6 text-stone-400"
                     >
-                      <title>Verified User</title>
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" />
                     </svg>
                 )}
             </h1>
             
-            {profileData.bio ? (
-                 <p className="text-stone-500 max-w-lg mb-4 mx-auto md:mx-0 text-sm md:text-base">{profileData.bio}</p>
-            ) : (
-                 <p className="text-stone-400 italic text-xs md:text-sm mb-4">No bio yet. Tell us about your scent journey.</p>
+            {profileData.bio && (
+                 <p className="text-stone-500 max-w-xl mb-6 mx-auto md:mx-0 text-base font-light leading-relaxed">{profileData.bio}</p>
             )}
 
             {/* Signature Scent Badge */}
             {signatureScent && (
-                <Link href={`/perfume/${signatureScent.slug}`} className="inline-flex items-center gap-3 bg-stone-50 border border-stone-200 pr-4 rounded-full hover:border-stone-400 transition-colors group">
-                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white border border-stone-100 flex items-center justify-center overflow-hidden">
+                <Link href={`/perfume/${signatureScent.slug}`} className="inline-flex items-center gap-4 bg-white border border-stone-100 pr-5 py-1 rounded-full hover:border-stone-300 transition-all group">
+                    <div className="w-10 h-10 rounded-full bg-stone-50 flex items-center justify-center overflow-hidden">
                         {signatureScent.image_url ? (
-                            <img src={getPerfumeImage(signatureScent.image_url)} className="w-6 h-6 md:w-8 md:h-8 object-contain" alt="" />
+                            <img src={getPerfumeImage(signatureScent.image_url)} className="w-7 h-7 object-contain" alt="" />
                         ) : (
                             <span className="text-xs">🧴</span>
                         )}
                     </div>
                     <div className="text-left">
-                        <div className="text-[8px] font-bold uppercase tracking-widest text-stone-400">Signature Scent</div>
-                        <div className="text-xs md:text-sm font-serif text-stone-900">{signatureScent.name}</div>
+                        <div className="text-[9px] font-bold uppercase tracking-wider text-stone-400">Signature</div>
+                        <div className="text-sm font-serif text-stone-900">{signatureScent.name}</div>
                     </div>
                 </Link>
             )}
           </div>
           
-          <div className="flex md:flex-col items-center md:items-end gap-3 w-full md:w-auto justify-center md:justify-start">
-             <div className="flex gap-2">
+          <div className="flex md:flex-col items-center md:items-end gap-4 w-full md:w-auto justify-center">
+             <div className="flex gap-3">
                 <button
                     onClick={() => setIsEditModalOpen(true)}
-                    className="px-4 py-2 bg-white border border-stone-200 text-stone-600 text-[10px] font-bold uppercase tracking-widest rounded-full hover:bg-stone-50 active:scale-95 transition"
+                    className="px-6 py-2.5 bg-white border border-stone-200 text-stone-600 text-[10px] font-bold uppercase tracking-[0.2em] rounded-lg hover:bg-stone-50 transition-all"
                 >
-                    Edit
+                    Edit Profile
                 </button>
                 <button
                     onClick={signOut}
-                    className="px-4 py-2 bg-stone-900 text-white text-[10px] font-bold uppercase tracking-widest rounded-full hover:bg-stone-700 active:scale-95 transition"
+                    className="px-6 py-2.5 bg-stone-900 text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-lg hover:bg-stone-800 transition-all"
                 >
                     Sign Out
                 </button>
@@ -429,27 +427,27 @@ export default function ProfileClientView({
         </div>
       </div>
 
-      {/* Navigation Tabs */}
-      <div className="border-b border-stone-200 bg-white sticky top-0 z-40 shadow-sm">
-        <div className="max-w-6xl mx-auto px-6 overflow-x-auto hide-scrollbar">
-            <div className="flex gap-6 md:gap-8 min-w-max">
+      {/* Navigation Tabs - Minimal */}
+      <div className="border-b border-stone-100 bg-white sticky top-0 z-40">
+        <div className="max-w-6xl mx-auto px-6">
+            <div className="flex gap-10">
                 <button 
                     onClick={() => setActiveTab('wardrobe')}
-                    className={`py-4 text-[10px] md:text-xs font-bold uppercase tracking-widest border-b-2 transition-colors ${activeTab === 'wardrobe' ? 'border-stone-900 text-stone-900' : 'border-transparent text-stone-400 hover:text-stone-600'}`}
+                    className={`py-5 text-[10px] font-bold uppercase tracking-[0.2em] border-b transition-colors ${activeTab === 'wardrobe' ? 'border-stone-900 text-stone-900' : 'border-transparent text-stone-400 hover:text-stone-600'}`}
                 >
-                    Wardrobe ({wardrobeCount})
+                    Wardrobe <span className="ml-1 text-stone-300 font-medium">({wardrobeCount})</span>
                 </button>
                 <button 
                     onClick={() => setActiveTab('wishlist')}
-                    className={`py-4 text-[10px] md:text-xs font-bold uppercase tracking-widest border-b-2 transition-colors ${activeTab === 'wishlist' ? 'border-stone-900 text-stone-900' : 'border-transparent text-stone-400 hover:text-stone-600'}`}
+                    className={`py-5 text-[10px] font-bold uppercase tracking-[0.2em] border-b transition-colors ${activeTab === 'wishlist' ? 'border-stone-900 text-stone-900' : 'border-transparent text-stone-400 hover:text-stone-600'}`}
                 >
-                    Wishlist ({wishlistCount})
+                    Wishlist <span className="ml-1 text-stone-300 font-medium">({wishlistCount})</span>
                 </button>
                 <button 
                     onClick={() => setActiveTab('reviews')}
-                    className={`py-4 text-[10px] md:text-xs font-bold uppercase tracking-widest border-b-2 transition-colors ${activeTab === 'reviews' ? 'border-stone-900 text-stone-900' : 'border-transparent text-stone-400 hover:text-stone-600'}`}
+                    className={`py-5 text-[10px] font-bold uppercase tracking-[0.2em] border-b transition-colors ${activeTab === 'reviews' ? 'border-stone-900 text-stone-900' : 'border-transparent text-stone-400 hover:text-stone-600'}`}
                 >
-                    Reviews ({reviewsCount})
+                    Reviews <span className="ml-1 text-stone-300 font-medium">({reviewsCount})</span>
                 </button>
             </div>
         </div>
@@ -469,52 +467,45 @@ export default function ProfileClientView({
                 />
 
                 {/* Collection Manager Toolbar */}
-                <div className="bg-[#FDFBF7]/95 pt-4 pb-2 mb-6 border-b border-stone-200">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-                        <div className="flex items-baseline gap-3">
-                            <h2 className="font-serif text-xl md:text-2xl text-stone-900">All Fragrances</h2>
-                        </div>
+                <div className="pt-8 pb-4 mb-10 border-b border-stone-100">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-6">
+                        <h2 className="font-serif text-3xl text-stone-900">Collection</h2>
 
-                        <div className="flex items-center gap-2 md:gap-3">
+                        <div className="flex items-center gap-3">
                             {/* Search Input */}
-                            <div className="relative group flex-1 md:flex-none">
+                            <div className="relative flex-1 md:flex-none">
                                 <input
                                     type="text"
-                                    placeholder="Find..."
+                                    placeholder="Search collection..."
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="bg-white border border-stone-200 text-xs md:text-sm rounded-lg pl-3 pr-8 py-2 w-full md:w-48 focus:outline-none focus:ring-1 focus:ring-stone-400 transition-all"
+                                    className="bg-stone-50 border-none text-sm rounded-lg pl-4 pr-10 py-2.5 w-full md:w-56 focus:ring-1 focus:ring-stone-200 transition-all placeholder:text-stone-400"
                                 />
-                                {searchQuery ? (
-                                    <button onClick={() => setSearchQuery('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 text-xs">✕</button>
-                                ) : (
-                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 text-[10px]">🔍</span>
+                                {searchQuery && (
+                                    <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-900 transition-colors">
+                                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                                    </button>
                                 )}
                             </div>
 
                             <div className="flex items-center gap-2">
-                                {/* Filter Toggle */}
                                 <button
                                     onClick={() => setShowFilters(!showFilters)}
-                                    className={`p-2 rounded-lg border transition-colors ${showFilters || (activeFilters.families.length + activeFilters.seasons.length > 0) ? 'bg-stone-900 border-stone-900 text-white' : 'bg-white border-stone-200 text-stone-500 hover:border-stone-400'}`}
-                                    title="Filters"
+                                    className={`p-2.5 rounded-lg border transition-all ${showFilters || (activeFilters.families.length + activeFilters.seasons.length > 0) ? 'bg-stone-900 border-stone-900 text-white' : 'bg-white border-stone-200 text-stone-500 hover:border-stone-400'}`}
                                 >
-                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                                    </svg>
+                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
                                 </button>
 
-                                {/* View Toggle */}
-                                <div className="flex bg-stone-200 rounded-lg p-1">
+                                <div className="flex bg-stone-100 rounded-lg p-1">
                                     <button 
                                         onClick={() => setViewMode('grid')}
-                                        className={`px-2 py-1 md:px-3 md:py-1.5 rounded text-[8px] md:text-[10px] font-bold uppercase tracking-wider transition ${viewMode === 'grid' ? 'bg-white shadow text-stone-900' : 'text-stone-500 hover:text-stone-700'}`}
+                                        className={`px-3 py-1.5 rounded text-[10px] font-bold uppercase tracking-wider transition-all ${viewMode === 'grid' ? 'bg-white shadow-sm text-stone-900' : 'text-stone-400 hover:text-stone-600'}`}
                                     >
                                         Grid
                                     </button>
                                     <button 
                                         onClick={() => setViewMode('season')}
-                                        className={`px-2 py-1 md:px-3 md:py-1.5 rounded text-[8px] md:text-[10px] font-bold uppercase tracking-wider transition ${viewMode === 'season' ? 'bg-white shadow text-stone-900' : 'text-stone-500 hover:text-stone-700'}`}
+                                        className={`px-3 py-1.5 rounded text-[10px] font-bold uppercase tracking-wider transition-all ${viewMode === 'season' ? 'bg-white shadow-sm text-stone-900' : 'text-stone-400 hover:text-stone-600'}`}
                                     >
                                         Season
                                     </button>
@@ -709,37 +700,37 @@ export default function ProfileClientView({
               {discoverySelections.map((rec) => (
                 <div 
                   key={rec.perfume.id} 
-                  className="group relative bg-white rounded-xl border border-stone-100 p-3 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full flex flex-col"
+                  className="group relative bg-white rounded-lg border border-stone-100 p-4 hover:border-stone-200 hover:shadow-sm transition-all duration-300 h-full flex flex-col"
                 >
                   <Link href={`/perfume/${rec.perfume.slug}`} className="flex-1 flex flex-col">
-                    <div className="h-40 flex items-center justify-center p-4 mb-3 bg-stone-50 rounded-lg group-hover:bg-white transition-colors relative overflow-hidden">
+                    <div className="h-44 flex items-center justify-center p-6 mb-4 bg-stone-50 rounded group-hover:bg-white transition-colors relative overflow-hidden">
                       {rec.perfume.image_url ? (
-                        <img src={getPerfumeImage(rec.perfume.image_url)} alt={rec.perfume.name} className="h-full object-contain mix-blend-multiply opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" />
+                        <img src={getPerfumeImage(rec.perfume.image_url)} alt={rec.perfume.name} className="h-full object-contain mix-blend-multiply opacity-90 group-hover:opacity-100 transition-all duration-500" />
                       ) : (
-                        <span className="text-stone-300 text-xs italic">No Image</span>
+                        <span className="text-stone-300 text-[10px] font-bold uppercase tracking-widest">N/A</span>
                       )}
                     </div>
                     
                     <div className="flex-1 flex flex-col text-center">
-                      <div className="text-[9px] font-bold uppercase tracking-widest text-stone-400 truncate mb-1">
+                      <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-1">
                         {rec.perfume.brand?.name}
                       </div>
-                      <div className="font-serif text-base text-stone-900 leading-tight truncate mb-2 group-hover:text-stone-600 transition-colors">
+                      <div className="font-serif text-lg text-stone-900 leading-tight mb-3 group-hover:text-stone-600 transition-colors">
                         {rec.perfume.name}
                       </div>
                       
-                      <div className="mt-auto pt-3 border-t border-stone-50 w-full">
-                        <p className="text-[10px] text-stone-500 leading-relaxed line-clamp-2 italic mb-2">
+                      <div className="mt-auto pt-4 border-t border-stone-50 w-full">
+                        <p className="text-[11px] text-stone-500 leading-relaxed line-clamp-2 italic mb-3">
                             &quot;{rec.reason}&quot;
                         </p>
                          
                         {/* Vibe Chips */}
                         {rec.sharedVibes && rec.sharedVibes.length > 0 && (
                             <div className="flex flex-wrap gap-1 justify-center">
-                            {rec.sharedVibes.slice(0, 3).map((vibe) => (
+                            {rec.sharedVibes.slice(0, 2).map((vibe) => (
                                 <span
                                 key={vibe}
-                                className="text-[8px] uppercase tracking-wider px-1.5 py-0.5 bg-stone-100 text-stone-500 rounded-sm border border-stone-200"
+                                className="text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 bg-stone-50 text-stone-400 rounded-sm border border-stone-100"
                                 >
                                 {vibe}
                                 </span>

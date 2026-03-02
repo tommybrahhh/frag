@@ -78,31 +78,31 @@ export default function DiscoverMatches({ topMatches }: DiscoverMatchesProps) {
                       <Link 
                       key={rec.perfume.id} 
                       href={`/perfume/${rec.perfume.slug || rec.perfume.id}`}
-                      className="group relative bg-white rounded-xl border border-stone-100 p-3 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full flex flex-col"
+                      className="group relative bg-white rounded-lg border border-stone-100 p-4 hover:border-stone-200 hover:shadow-sm transition-all duration-300 h-full flex flex-col"
                       >
-                      <div className="h-40 flex items-center justify-center p-4 mb-3 bg-stone-50 rounded-lg group-hover:bg-white transition-colors relative overflow-hidden">
+                      <div className="h-44 flex items-center justify-center p-6 mb-4 bg-stone-50 rounded group-hover:bg-white transition-colors relative overflow-hidden">
                           {/* Match Badge */}
-                          <div className="absolute top-2 right-2 bg-stone-900/90 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm z-10">
+                          <div className="absolute top-2 right-2 bg-stone-900 text-white text-[10px] font-bold px-2 py-1 rounded shadow-sm z-10">
                           {Math.round(rec.score)}%
                           </div>
                           
                           {rec.perfume.image_url ? (
-                          <img src={getPerfumeImage(rec.perfume.image_url)} alt={rec.perfume.name} className="h-full object-contain mix-blend-multiply opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" />
+                          <img src={getPerfumeImage(rec.perfume.image_url)} alt={rec.perfume.name} className="h-full object-contain mix-blend-multiply opacity-90 group-hover:opacity-100 transition-all duration-500" />
                           ) : (
-                          <span className="text-stone-300 text-xs italic">No Image</span>
+                          <span className="text-stone-300 text-[10px] font-bold uppercase tracking-widest">N/A</span>
                           )}
                       </div>
                       
                       <div className="flex-1 flex flex-col text-center">
-                          <div className="text-[9px] font-bold uppercase tracking-widest text-stone-400 truncate mb-1">
+                          <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-1">
                           {rec.perfume.brand?.name}
                           </div>
-                          <div className="font-serif text-base text-stone-900 leading-tight truncate mb-2 group-hover:text-stone-600 transition-colors">
+                          <div className="font-serif text-lg text-stone-900 leading-tight mb-3 group-hover:text-stone-600 transition-colors">
                           {rec.perfume.name}
                           </div>
                           
-                          <div className="mt-auto pt-3 border-t border-stone-50">
-                              <p className="text-[10px] text-stone-500 leading-relaxed line-clamp-2 italic">
+                          <div className="mt-auto pt-4 border-t border-stone-50">
+                              <p className="text-[11px] text-stone-500 leading-relaxed line-clamp-2 italic">
                                   &quot;{rec.reason}&quot;
                               </p>
                           </div>

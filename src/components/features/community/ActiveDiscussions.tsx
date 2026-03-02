@@ -14,7 +14,7 @@ export default function ActiveDiscussions({ discussions }: { discussions: any[] 
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {discussions.map((item, index) => {
         const p = item.perfume;
         if (!p) return null;
@@ -23,26 +23,26 @@ export default function ActiveDiscussions({ discussions }: { discussions: any[] 
           <Link 
             key={`${p.slug}-${index}`}
             href={`/perfume/${p.slug}`}
-            className="flex items-center gap-4 p-2.5 -mx-2.5 rounded-[20px] hover:bg-stone-50 transition-all duration-500 group"
+            className="flex items-center gap-4 p-2 rounded-lg hover:bg-stone-50 transition-all duration-300 group"
           >
-             <div className="w-12 h-12 bg-[#FDFDFB] rounded-xl flex-shrink-0 p-2.5 border border-stone-50 shadow-sm group-hover:shadow-md transition-all duration-700">
+             <div className="w-10 h-10 bg-stone-50 rounded-lg flex-shrink-0 p-1.5 border border-stone-100 shadow-sm transition-all duration-500">
                 <PerfumeImage 
                   src={p.image_url} 
                   alt={p.name} 
-                  width={48} 
-                  height={48} 
-                  className="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-700" 
+                  width={40} 
+                  height={40} 
+                  className="w-full h-full object-contain mix-blend-multiply" 
                 />
              </div>
              
              <div className="flex-1 min-w-0">
-                <div className="text-[8px] font-black uppercase tracking-[0.2em] text-stone-400 mb-0.5 truncate">{p.brands?.name}</div>
-                <div className="font-serif text-base text-stone-900 truncate group-hover:text-amber-900 transition-colors">{p.name}</div>
+                <div className="text-[10px] font-bold uppercase tracking-wider text-stone-400 mb-0.5 truncate">{p.brands?.name}</div>
+                <div className="font-serif text-[15px] text-stone-900 truncate group-hover:text-stone-600 transition-colors">{p.name}</div>
              </div>
 
-             <div className="flex items-center gap-1 text-stone-300 group-hover:text-amber-500 transition-colors min-w-[24px]">
-                <MessageSquare className="w-3 h-3 fill-current opacity-20 group-hover:opacity-100" />
-                <span className="text-[10px] font-bold text-stone-400 group-hover:text-stone-900">{item.count}</span>
+             <div className="flex items-center gap-1.5 text-stone-300 group-hover:text-stone-600 transition-colors min-w-[24px]">
+                <MessageSquare className="w-3 h-3" />
+                <span className="text-[11px] font-bold text-stone-400 group-hover:text-stone-900">{item.count}</span>
              </div>
           </Link>
         );

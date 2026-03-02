@@ -13,39 +13,34 @@ export default function TopContributors({ contributors }: { contributors: Contri
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {contributors.map((user, index) => (
-        <div key={user.id} className="group flex items-center gap-4">
+        <div key={user.id} className="group flex items-center gap-3">
            
            <div className="relative">
-              <div className="w-12 h-12 rounded-[18px] bg-stone-50 flex items-center justify-center text-stone-400 font-serif text-lg border border-stone-100 overflow-hidden group-hover:border-amber-200 transition-all duration-500 shadow-sm group-hover:shadow-md">
+              <div className="w-10 h-10 rounded-lg bg-stone-50 flex items-center justify-center text-stone-400 font-serif text-sm border border-stone-100 overflow-hidden group-hover:border-stone-200 transition-all duration-300">
                   {user.avatar_url ? (
-                    <img src={user.avatar_url} alt={user.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                    <img src={user.avatar_url} alt={user.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                   ) : (
                     user.name.charAt(0)
                   )}
               </div>
               <div className={`
-                absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-black text-stone-900 shadow-md border border-stone-50 bg-white
+                absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-bold text-stone-600 shadow-sm border border-stone-50 bg-white
               `}>
                 {index + 1}
               </div>
            </div>
 
            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between mb-1">
-                <div className="font-bold text-sm text-stone-900 truncate group-hover:text-amber-800 transition-colors">{user.name}</div>
-                <div className={`text-[8px] font-black uppercase tracking-[0.2em] px-2 py-0.5 rounded-full border ${user.level.border} ${user.level.bg} ${user.level.color}`}>
-                  {user.level.icon}
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="text-[9px] font-bold uppercase tracking-[0.3em] text-stone-400">
-                   {user.comment_count} Comments
-                </div>
-                <div className="text-[9px] font-medium text-stone-500 italic opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-2 group-hover:translate-x-0">
+              <div className="flex items-center justify-between mb-0.5">
+                <div className="font-bold text-[13px] text-stone-900 truncate group-hover:text-stone-600 transition-colors">{user.name}</div>
+                <div className={`text-[7px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border border-stone-100 bg-stone-50 text-stone-500`}>
                   {user.level.name}
                 </div>
+              </div>
+              <div className="text-[10px] font-medium text-stone-400 uppercase tracking-wider">
+                 {user.comment_count} Comments
               </div>
            </div>
 
