@@ -54,8 +54,8 @@ export async function getPerfumes(params: PerfumeFilterParams) {
       .select('id')
       .ilike('name', `%${q}%`);
     
-    if (brandMatches && brandMatches.length > 0) {
-      brandIdsFromQuery = brandMatches.map(b => b.id);
+    if (brandMatches && (brandMatches as any[]).length > 0) {
+      brandIdsFromQuery = (brandMatches as any[]).map(b => b.id);
     }
   }
 
