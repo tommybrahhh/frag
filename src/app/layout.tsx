@@ -97,7 +97,7 @@ export default function RootLayout({
         />
         <AuthProvider>
           <GlobalHeader />
-          <main className="pt-16">
+          <main className="pt-16 md:pt-20 min-h-screen">
             {children}
           </main>
           <MobileNav />
