@@ -1,11 +1,9 @@
 import { Suspense } from 'react';
 import Spinner from '@/components/ui/Spinner';
 import Link from 'next/link';
-import { Search as SearchIcon } from 'lucide-react';
 
 import CommunityHeroServer from '@/components/features/home/server-components/CommunityHeroServer';
 import TrendingScentsServer from '@/components/features/home/server-components/TrendingScentsServer';
-import RandomPerfumeServer from '@/components/features/home/server-components/RandomPerfumeServer';
 import TierNav from '@/components/features/search/TierNav';
 import VisualCategoryNav from '@/components/features/search/VisualCategoryNav'; 
 import JoinCommunityCTA from '@/components/features/home/JoinCommunityCTA';
@@ -41,34 +39,6 @@ export default async function Home() {
                <TierNav />
                <VisualCategoryNav />
              </div>
-          </div>
-
-          <div className="max-w-[1400px] mx-auto px-6">
-            <div className="bg-white rounded-[2rem] md:rounded-[3rem] p-8 md:p-16 text-center md:text-left border border-stone-100 relative overflow-hidden shadow-sm flex flex-col md:flex-row items-center gap-12">
-               {/* Decorative background */}
-               <div className="absolute top-0 left-0 w-full h-full opacity-[0.03] pointer-events-none">
-                  <div className="absolute top-[-10%] right-[-5%] w-[40%] h-[60%] bg-stone-900 rounded-full blur-[120px]" />
-               </div>
-
-               <div className="relative z-10 flex-1">
-                 <h3 className="font-serif text-3xl md:text-5xl text-stone-900 mb-6 text-balance">Looking for <br className="hidden md:block" /> something specific?</h3>
-                 <p className="text-base md:text-lg text-stone-600 mb-8 max-w-md font-light leading-relaxed">
-                    Dive into our entire collection of thousands of fragrances, or let fate decide.
-                 </p>
-                 <Link 
-                    href="/search?sort=newest"
-                    className="inline-flex items-center gap-3 px-8 py-4 bg-stone-900 text-white rounded-full font-bold text-xs uppercase tracking-widest hover:bg-stone-800 transition-all shadow-xl"
-                 >
-                    <SearchIcon className="w-4 h-4" />
-                    <span>Open Library</span>
-                 </Link>
-               </div>
-
-               {/* Random Perfume Section */}
-               <Suspense fallback={<div className="w-full md:w-72 flex items-center justify-center"><Spinner /></div>}>
-                 <RandomPerfumeServer />
-               </Suspense>
-            </div>
           </div>
         </div>
         

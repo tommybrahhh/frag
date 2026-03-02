@@ -45,6 +45,20 @@ export async function getPerfumes(params: PerfumeFilterParams) {
   const offset = (page - 1) * limit;
   const supabase = await createClient();
 
+  // If we have a search query, we want to include brand matches.
+  // To avoid complex PostgREST OR filters on joined tables, we fetch brand IDs first.
+  let brandIdsFromQuery: string[] = [];
+  if (q) {
+    const { data: brandMatches } = await supabase
+      .from('brands')
+      .select('id')
+      .ilike('name', `%${q}%`);
+    
+    if (brandMatches && brandMatches.length > 0) {
+      brandIdsFromQuery = brandMatches.map(b => b.id);
+    }
+  }
+
   let query = supabase
     .from('perfumes')
     .select(`
@@ -65,15 +79,23 @@ export async function getPerfumes(params: PerfumeFilterParams) {
       olfactory_family,
       release_year,
       brand_id,
-      brand:brands!perfumes_brand_id_fkey${(tier || q || brand) ? '!inner' : ''}(name, tier) 
+      brand:brands!perfumes_brand_id_fkey${(tier || brand) ? '!inner' : ''}(name, tier) 
     `, { count: 'exact' });
 
   // Apply Filters
   if (q) {
-    query = query.or(`name.ilike.%${q}%, brand.name.ilike.%${q}%`);
+    if (brandIdsFromQuery.length > 0) {
+      // Use parenthesized OR for clarity: (name matches OR brand_id matches)
+      query = query.or(`name.ilike.%${q}%, brand_id.in.(${brandIdsFromQuery.map(id => `"${id}"`).join(',')})`);
+    } else {
+      query = query.ilike('name', `%${q}%`);
+    }
   }
+
   if (brand) {
-    query = query.in('brand.name', brand.split(','));
+    // For brand name filtering, we can use the relationship filtering
+    // or if we want to be safe, filter by brand names via brands table
+    query = query.in('brands.name', brand.split(','));
   }
   if (price) query = query.in('price_tier', price.split(','));
   if (gender) query = query.in('gender', gender.split(','));
@@ -106,7 +128,7 @@ export async function getPerfumes(params: PerfumeFilterParams) {
   }
 
   if (tier) {
-    query = query.in('brand.tier', tier.split(','));
+    query = query.in('brands.tier', tier.split(','));
   }
 
   if (moment) {
