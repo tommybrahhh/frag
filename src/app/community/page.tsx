@@ -33,23 +33,12 @@ export default async function CommunityPage() {
               </div>
               
               <h1 className="font-serif text-5xl md:text-6xl text-stone-900 mb-8 tracking-tight">
-                The Common Room
+                The Community
               </h1>
               
               <p className="text-lg text-stone-500 max-w-xl font-light leading-relaxed">
                 Connect with fragrance enthusiasts. Share reviews, discover new scents, and join the global conversation.
               </p>
-            </div>
-
-            <div className="flex gap-12 pt-8 md:pt-0 border-t md:border-t-0 md:border-l border-stone-200 md:pl-12">
-              <div className="flex flex-col">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-1">Online</span>
-                <span className="text-3xl font-serif text-stone-900">1,240</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-1">Reviews</span>
-                <span className="text-3xl font-serif text-stone-900">12.5k</span>
-              </div>
             </div>
           </div>
         </div>

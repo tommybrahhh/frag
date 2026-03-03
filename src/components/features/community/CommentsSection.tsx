@@ -260,58 +260,58 @@ export default function CommentsSection({ perfumeId, initialComments }: { perfum
   };
 
   return (
-    <section className="max-w-4xl mx-auto px-6 mt-32 mb-40">
+    <section className="max-w-4xl mx-auto px-4 md:px-6 mt-20 md:mt-32 mb-40">
       {/* HEADER */}
-      <div className="flex flex-col items-center text-center mb-20">
-        <div className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-stone-50 border border-stone-100 mb-6">
+      <div className="flex flex-col items-center text-center mb-12 md:mb-20">
+        <div className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-stone-50 border border-stone-100 mb-4 md:mb-6">
            <MessageSquare size={12} className="text-stone-400" />
            <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-stone-500">
-             Olfactory Journals
+             Community Reviews
            </span>
         </div>
-        <h2 className="font-serif text-4xl md:text-6xl text-stone-900 mb-4">
-          Community <span className="italic text-stone-400">Reviews</span>
+        <h2 className="font-serif text-3xl md:text-6xl text-stone-900 mb-4">
+          The <span className="italic text-stone-400">Discussion</span>
         </h2>
-        <p className="text-stone-500 max-w-lg font-light leading-relaxed">
-          The collective wisdom of Scentia. Read experiences from verified collectors and enthusiasts.
+        <p className="text-stone-500 text-sm md:text-base max-w-lg font-light leading-relaxed">
+          Read what other members are saying about this fragrance and share your own experience.
         </p>
       </div>
 
       {/* INPUT AREA */}
-      <div className="mb-24">
+      <div className="mb-16 md:mb-24">
         {user ? (
-          <div className={`bg-white rounded-[2.5rem] border transition-all duration-700 ${isFocused ? 'border-stone-900 shadow-2xl shadow-stone-200' : 'border-stone-100 shadow-sm'}`}>
+          <div className={`bg-white rounded-3xl md:rounded-[2.5rem] border transition-all duration-700 ${isFocused ? 'border-stone-900 shadow-2xl shadow-stone-200' : 'border-stone-100 shadow-sm'}`}>
             <form onSubmit={handleSubmit}>
-              <div className="p-4 md:p-6">
+              <div className="p-3 md:p-6">
                 <textarea 
                   ref={textareaRef}
                   value={newComment}
                   onFocus={() => setIsFocused(true)}
                   onBlur={() => setIsFocused(false)}
                   onChange={(e) => setNewComment(e.target.value)}
-                  placeholder="Share your experience... (e.g., How does it feel after 4 hours?)"
-                  className="w-full p-4 md:p-6 bg-stone-50/50 rounded-2xl text-stone-800 text-base md:text-lg min-h-[160px] outline-none resize-none placeholder:text-stone-300 font-serif leading-relaxed transition-colors focus:bg-white"
+                  placeholder="What's your take? (e.g., How does it smell on you?)"
+                  className="w-full p-4 md:p-8 bg-stone-50/50 rounded-2xl text-stone-800 text-base md:text-lg min-h-[120px] md:min-h-[160px] outline-none resize-none placeholder:text-stone-300 font-serif leading-relaxed transition-colors focus:bg-white"
                 />
               </div>
               
-              <div className={`flex items-center justify-between px-6 md:px-10 pb-6 md:pb-8 transition-all duration-500 ${isFocused || newComment ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
+              <div className={`flex flex-col sm:flex-row items-center justify-between px-6 md:px-10 pb-6 md:pb-8 gap-4 transition-all duration-500 ${isFocused || newComment ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
                 <div className="flex items-center gap-2">
                   <button type="button" title="Bold" onClick={() => insertFormat('**', '**')} className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-stone-50 text-stone-400 hover:text-stone-900 transition-all border border-transparent hover:border-stone-100"><Bold size={16} /></button>
                   <button type="button" title="Italic" onClick={() => insertFormat('*', '*')} className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-stone-50 text-stone-400 hover:text-stone-900 transition-all border border-transparent hover:border-stone-100"><Italic size={16} /></button>
-                  <button type="button" title="Quote" onClick={() => insertFormat('> ', '')} className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-stone-50 text-stone-400 hover:text-stone-900 transition-all border border-transparent hover:border-stone-100"><Quote size={16} /></button>
+                  <button type="button" title="Quote" onClick={() => insertFormat('> ', '')} className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-stone-50 text-stone-400 hover:text-stone-900 transition-all border border-transparent hover:border-stone-100"><Quote className="w-4 h-4" /></button>
                 </div>
 
                 <button 
                   type="submit" 
                   disabled={isSubmitting || !newComment.trim()}
-                  className="flex items-center gap-3 px-10 py-4 bg-stone-900 text-white rounded-full text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-stone-800 transition-all disabled:opacity-30 shadow-xl active:scale-95"
+                  className="w-full sm:w-auto flex items-center justify-center gap-3 px-10 py-4 bg-stone-900 text-white rounded-full text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-stone-800 transition-all disabled:opacity-30 shadow-xl active:scale-95"
                 >
                   {isSubmitting ? (
                     'Publishing...'
                   ) : (
                     <>
                       <span>Post Review</span>
-                      <Send size={14} className="opacity-50" />
+                      <Send className="w-3.5 h-3.5 opacity-50" />
                     </>
                   )}
                 </button>
@@ -319,35 +319,35 @@ export default function CommentsSection({ perfumeId, initialComments }: { perfum
             </form>
           </div>
         ) : (
-          <div className="bg-[#FDFBF7] border border-stone-100 rounded-[2.5rem] p-16 text-center shadow-inner">
-            <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-8 shadow-sm">
-              <MessageSquare size={24} className="text-stone-300" />
+          <div className="bg-[#FDFBF7] border border-stone-100 rounded-3xl md:rounded-[2.5rem] p-8 md:p-16 text-center shadow-inner">
+            <div className="w-12 h-12 md:w-16 md:h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-6 md:mb-8 shadow-sm">
+              <MessageSquare className="w-5 h-5 md:w-6 md:h-6 text-stone-300" />
             </div>
-            <h3 className="font-serif text-2xl text-stone-900 mb-3">Join the conversation</h3>
-            <p className="text-stone-400 text-sm mb-10 font-light italic max-w-xs mx-auto">Create an account to share your olfactory journey with others.</p>
-            <Link href="/login" className="inline-flex px-12 py-4 bg-stone-900 text-white rounded-full text-[10px] font-bold uppercase tracking-[0.3em] hover:bg-stone-800 transition-all shadow-xl">
-              Enter the Library
+            <h3 className="font-serif text-xl md:text-2xl text-stone-900 mb-3">Join the community</h3>
+            <p className="text-stone-400 text-xs md:text-sm mb-8 md:mb-10 font-light italic max-w-xs mx-auto">Create an account to share your thoughts with other enthusiasts.</p>
+            <Link href="/login" className="inline-flex px-10 py-4 bg-stone-900 text-white rounded-full text-[10px] font-bold uppercase tracking-[0.3em] hover:bg-stone-800 transition-all shadow-xl">
+              Log in to review
             </Link>
           </div>
         )}
       </div>
 
       {/* FEED */}
-      <div className="space-y-16">
+      <div className="space-y-10 md:space-y-16">
         {isFeedLoading && !comments.length ? (
-          <div className="space-y-12">
+          <div className="space-y-8 md:space-y-12">
             {[1, 2].map(i => (
-              <div key={i} className="flex gap-8 animate-pulse">
-                <div className="w-16 h-16 rounded-full bg-stone-100 shrink-0" />
-                <div className="flex-1 space-y-6 pt-2">
+              <div key={i} className="flex flex-col md:flex-row gap-4 md:gap-8 animate-pulse">
+                <div className="w-10 h-10 md:w-16 md:h-16 rounded-full bg-stone-100 shrink-0" />
+                <div className="flex-1 space-y-4 md:space-y-6 pt-2">
                   <div className="h-6 bg-stone-100 rounded-lg w-1/4" />
-                  <div className="h-32 bg-stone-50 rounded-[2rem] w-full" />
+                  <div className="h-24 md:h-32 bg-stone-50 rounded-2xl md:rounded-[2rem] w-full" />
                 </div>
               </div>
             ))}
           </div>
         ) : error && !comments.length ? (
-          <div className="text-center py-20 bg-red-50/30 rounded-[2.5rem] border border-red-100/50">
+          <div className="text-center py-12 md:py-20 bg-red-50/30 rounded-3xl md:rounded-[2.5rem] border border-red-100/50">
             <Flag size={32} className="text-red-200 mx-auto mb-6" />
             <h3 className="font-serif text-xl text-stone-900 mb-2">{error}</h3>
             <button 
@@ -358,11 +358,11 @@ export default function CommentsSection({ perfumeId, initialComments }: { perfum
             </button>
           </div>
         ) : comments.length === 0 ? (
-          <div className="text-center py-32 border-2 border-dashed border-stone-100 rounded-[3rem]">
-            <div className="w-20 h-20 bg-stone-50 rounded-full flex items-center justify-center mx-auto mb-8">
-              <Sparkles size={32} className="text-stone-200" />
+          <div className="text-center py-20 md:py-32 border-2 border-dashed border-stone-100 rounded-[2rem] md:rounded-[3rem]">
+            <div className="w-16 h-16 md:w-20 md:h-20 bg-stone-50 rounded-full flex items-center justify-center mx-auto mb-6 md:mb-8">
+              <Sparkles className="w-7 h-7 md:w-8 md:h-8 text-stone-200" />
             </div>
-            <h3 className="font-serif text-2xl text-stone-400 mb-3 italic font-light">The floor is yours...</h3>
+            <h3 className="font-serif text-xl md:text-2xl text-stone-400 mb-3 italic font-light">The floor is yours...</h3>
             <p className="text-stone-300 text-[10px] uppercase tracking-[0.3em] font-bold">No reviews yet</p>
           </div>
         ) : (
@@ -372,55 +372,80 @@ export default function CommentsSection({ perfumeId, initialComments }: { perfum
 
             return (
               <div key={comment.id} className="group relative">
-                <div className="flex gap-6 md:gap-10 items-start">
-                  {/* User Column */}
-                  <div className="shrink-0 flex flex-col items-center group/avatar">
-                    <div className="relative p-1 rounded-full border border-stone-100 bg-white shadow-sm group-hover/avatar:border-stone-200 transition-all duration-500">
-                      <div className="w-14 h-14 md:w-20 md:h-20 rounded-full overflow-hidden bg-stone-50 relative z-10">
+                <div className="flex flex-col md:flex-row gap-4 md:gap-10 items-start">
+                  {/* User Column / Header on Mobile */}
+                  <div className="w-full md:w-auto shrink-0 flex flex-row md:flex-col items-center md:items-center gap-3 md:gap-0 group/avatar">
+                    <div className="relative p-0.5 md:p-1 rounded-full border border-stone-100 bg-white shadow-sm group-hover/avatar:border-stone-200 transition-all duration-500">
+                      <div className="w-8 h-8 md:w-12 md:h-12 rounded-full overflow-hidden bg-stone-50 relative z-10">
                         {comment.avatar_url ? (
                           <img src={comment.avatar_url} alt="User" className="w-full h-full object-cover group-hover/avatar:scale-110 transition-transform duration-700" />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-stone-300 font-serif text-2xl">
+                          <div className="w-full h-full flex items-center justify-center text-stone-300 font-serif text-base md:text-xl">
                             {comment.user_name?.[0]}
                           </div>
                         )}
                       </div>
                       
                       {comment.is_owner && (
-                        <div className="absolute -bottom-1 -right-1 bg-amber-400 w-6 h-6 rounded-full flex items-center justify-center shadow-lg border-2 border-white z-20" title="Verified Owner">
-                          <CheckCircle2 size={12} className="text-stone-900" />
+                        <div className="absolute -bottom-1 -right-1 bg-amber-400 w-4 h-4 md:w-5 md:h-5 rounded-full flex items-center justify-center shadow-lg border-2 border-white z-20" title="Verified Owner">
+                          <CheckCircle2 className="w-2 h-2 md:w-2.5 md:h-2.5 text-stone-900" />
                         </div>
                       )}
+                    </div>
+
+                    {/* Mobile-only name & info display - now more compact */}
+                    <div className="md:hidden flex flex-col flex-1">
+                      <div className="flex items-center justify-between">
+                        <div className="flex flex-col">
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-serif text-base text-stone-900">{comment.user_name}</span>
+                            {comment.is_verified && (
+                              <span title="Verified Scentia Member">
+                                <ShieldCheck size={12} className="text-stone-300" />
+                              </span>
+                            )}
+                          </div>
+                          <div className={`text-[7px] font-bold uppercase tracking-[0.2em] ${level.color}`}>
+                            {level.name}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1 text-stone-300">
+                          <Clock size={10} />
+                          <span className="text-[9px] font-bold uppercase tracking-widest pt-0.5">
+                            {mounted ? formatRelativeTime(comment.created_at) : ''}
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                   
                   {/* Content Column */}
-                  <div className="flex-1 pt-1">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-                      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-                        <div className="flex flex-col">
+                  <div className="flex-1 w-full pt-0 md:pt-1">
+                    <div className="flex items-center justify-between gap-4 mb-3 md:mb-5">
+                      <div className="flex items-center gap-x-3">
+                        <div className="hidden md:flex flex-col">
                           <div className="flex items-center gap-2">
-                            <span className="font-serif text-xl text-stone-900">{comment.user_name}</span>
+                            <span className="font-serif text-lg text-stone-900">{comment.user_name}</span>
                             {comment.is_verified && (
                               <span title="Verified Scentia Member">
-                                <ShieldCheck size={16} className="text-stone-300" />
+                                <ShieldCheck size={14} className="text-stone-300" />
                               </span>
                             )}
                           </div>
-                          <div className={`text-[8px] font-bold uppercase tracking-[0.2em] ${level.color} mt-0.5`}>
+                          <div className={`text-[7px] font-bold uppercase tracking-[0.2em] ${level.color} mt-0.5`}>
                             {level.name}
                           </div>
                         </div>
-                        <div className="w-1 h-1 bg-stone-200 rounded-full hidden md:block" />
-                        <div className="flex items-center gap-1.5 text-stone-300">
-                          <Clock size={12} />
-                          <span className="text-[10px] font-bold uppercase tracking-widest pt-0.5">
+                        <div className="hidden md:block w-0.5 h-0.5 bg-stone-200 rounded-full" />
+                        <div className="hidden md:flex items-center gap-1.5 text-stone-300">
+                          <Clock size={10} />
+                          <span className="text-[9px] font-bold uppercase tracking-widest pt-0.5">
                             {mounted ? formatRelativeTime(comment.created_at) : ''}
                           </span>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex items-center gap-1 md:gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                          <button className="p-2 hover:bg-stone-50 rounded-lg text-stone-300 hover:text-stone-600 transition-all"><Flag size={14} /></button>
                          {user?.id === comment.user_id && (
                            <>
@@ -431,21 +456,21 @@ export default function CommentsSection({ perfumeId, initialComments }: { perfum
                       </div>
                     </div>
 
-                    <div className="bg-white rounded-[2.5rem] p-8 md:p-10 border border-stone-100 shadow-sm hover:shadow-xl hover:shadow-stone-100 transition-all duration-500 mb-8 relative">
+                    <div className="bg-white rounded-2xl md:rounded-[2.5rem] p-5 md:p-10 border border-stone-100 shadow-sm hover:shadow-xl hover:shadow-stone-100 transition-all duration-500 mb-6 md:mb-8 relative overflow-hidden">
                       {/* Decorative Quote Mark */}
-                      <div className="absolute top-6 left-6 text-stone-50 opacity-20 pointer-events-none">
-                        <Quote size={60} fill="currentColor" />
+                      <div className="absolute top-4 left-4 md:top-6 md:left-6 text-stone-50 opacity-20 pointer-events-none">
+                        <Quote className="w-8 h-8 md:w-16 md:h-16" fill="currentColor" />
                       </div>
                       
-                      <div className="relative z-10 prose prose-stone max-w-none font-serif text-stone-700 leading-relaxed text-lg">
+                      <div className="relative z-10 prose prose-stone max-w-none font-serif text-stone-700 leading-relaxed text-base md:text-lg">
                         <FormattedText text={comment.content} />
                       </div>
                     </div>
 
                     {/* Badges */}
-                    <div className="flex flex-wrap gap-2 px-4">
+                    <div className="flex flex-wrap gap-2 px-2 md:px-4">
                       {detectedBadges.map((badge, i) => (
-                        <span key={i} className={`text-[9px] uppercase tracking-widest font-bold px-4 py-2 rounded-full border flex items-center gap-2 transition-all hover:scale-105 ${badge.color}`}>
+                        <span key={i} className={`text-[8px] md:text-[9px] uppercase tracking-widest font-bold px-3 py-1.5 md:px-4 md:py-2 rounded-full border flex items-center gap-1.5 md:gap-2 transition-all hover:scale-105 ${badge.color}`}>
                           {badge.icon}
                           {badge.label}
                         </span>
