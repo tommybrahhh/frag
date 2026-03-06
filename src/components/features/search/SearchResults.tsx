@@ -28,10 +28,8 @@ const SearchResults: React.FC<SearchResultsProps> = ({ loading, error, results, 
 
   return (
     <div className="mt-8">
-      <h2 className="text-xl font-semibold mb-6">
-        Results <span className="text-stone-400 font-normal text-sm ml-2">({results.length} shown)</span>
-      </h2>
       
+
       {error && (
         <div className="bg-red-50 text-red-700 p-4 rounded-2xl mb-8">{error}</div>
       )}

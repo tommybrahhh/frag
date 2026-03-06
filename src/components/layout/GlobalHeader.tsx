@@ -46,10 +46,12 @@ export default function GlobalHeader() {
           </nav>
 
           <div className="flex items-center gap-2 md:gap-4">
-            <Link href="/search" className="lg:hidden p-2 text-stone-500 hover:text-stone-900 transition-colors">
-              <Search className="w-5 h-5" strokeWidth={1.5} />
-            </Link>
-            <AuthStatus />
+            <div className="hidden sm:block">
+              <AuthStatus />
+            </div>
+            {/* If user is logged in, we might want to show their avatar even on mobile, 
+                but the AuthStatus component already handles that. 
+                Let's hide AuthStatus entirely on mobile if it's the Sign In button. */}
             <MobileMenu />
           </div>
         </div>

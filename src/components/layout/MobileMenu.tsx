@@ -1,28 +1,30 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
-import SearchBar from '@/components/features/search/SearchBar';
-import { Menu, X, ChevronRight, LogOut, User, Sparkles, Layers, Search, BarChart2 } from 'lucide-react';
+import Portal from '@/components/ui/Portal';
+import { X, ChevronRight, LogOut, User, Sparkles, Layers, Search, BarChart2, Menu } from 'lucide-react';
 
 export default function MobileMenu() {
   const [isOpen, setIsOpen] = useState(false);
-  const { user, signOut, loading } = useAuth();
+  const { user, signOut } = useAuth();
 
-  const toggleMenu = () => {
-    setIsOpen(!isOpen);
-    if (!isOpen) {
+  // Prevent background scroll when menu is open
+  useEffect(() => {
+    if (isOpen) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
     }
-  };
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
 
-  const closeMenu = () => {
-    setIsOpen(false);
-    document.body.style.overflow = 'unset';
-  };
+  const toggleMenu = () => setIsOpen(!isOpen);
+  const closeMenu = () => setIsOpen(false);
 
   const navItems = [
     { label: 'My Shelf', href: '/profile', icon: User },
@@ -30,87 +32,99 @@ export default function MobileMenu() {
     { label: 'Compare', href: '/compare', icon: BarChart2 },
     { label: 'Finder', href: '/quiz', icon: Sparkles },
     { label: 'Search', href: '/search', icon: Search },
+    { label: 'Community', href: '/community', icon: Menu },
   ];
 
   return (
-    <div className="lg:hidden flex items-center">
+    <div className="lg:hidden">
+      {/* TRIGGER BUTTON - Always remains in the header */}
       <button
         onClick={toggleMenu}
-        className="p-2 -mr-2 text-stone-600 hover:text-stone-900 transition-colors"
+        className="relative z-[10] p-2 -mr-2 text-stone-900 focus:outline-none"
         aria-label="Toggle mobile menu"
       >
-        <Menu className="w-6 h-6" />
+        {isOpen ? <X size={28} /> : <Menu size={28} />}
       </button>
 
-      {/* Mobile Menu Overlay */}
-      {isOpen && (
-        <div className="fixed inset-0 z-[1001] bg-white animate-in fade-in duration-300">
-          <div className="flex flex-col h-full p-6 pt-16">
-            <button
-              onClick={closeMenu}
-              className="absolute top-5 right-6 p-2 text-stone-600 hover:text-stone-900"
-              aria-label="Close mobile menu"
-            >
-              <X className="w-7 h-7" />
-            </button>
+      {/* RENDER MENU IN PORTAL (Top-level of Body) */}
+      <Portal>
+        {/* OVERLAY */}
+        <div 
+          className={`fixed inset-0 z-[10000] bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+          onClick={closeMenu}
+        />
 
-            <div className="mb-10">
-              <div className="flex items-center gap-3 mb-8">
-                <svg width="32" height="32" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-stone-900">
-                  <path d="M62.5 25C52.5 25 45 32.5 45 42.5C45 52.5 52.5 60 62.5 60H37.5C27.5 60 20 67.5 20 77.5C20 87.5 27.5 95 37.5 95" stroke="currentColor" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                <span className="font-serif text-2xl tracking-tight text-stone-900">Scentia</span>
-              </div>
-              <SearchBar onSearch={closeMenu} />
+        {/* MENU PANEL */}
+        <div 
+          className={`
+            fixed top-0 right-0 bottom-0 z-[10001] w-[85%] max-w-[320px] bg-white shadow-2xl
+            transform transition-transform duration-300 ease-in-out
+            ${isOpen ? 'translate-x-0' : 'translate-x-full'}
+            flex flex-col h-[100dvh]
+          `}
+        >
+          <div className="flex flex-col h-full w-full overflow-hidden bg-white">
+            {/* 1. Header Section */}
+            <div className="p-6 border-b border-stone-100 flex items-center justify-between shrink-0">
+              <Link href="/" onClick={closeMenu} className="flex items-center gap-2">
+                <div className="relative w-8 h-8">
+                  <Image src="/logo.svg" alt="Scentia" fill className="object-contain" />
+                </div>
+                <span className="font-serif text-2xl text-stone-900">Scentia</span>
+              </Link>
+              <button onClick={closeMenu} className="text-stone-400 p-1">
+                <X size={20} />
+              </button>
             </div>
 
-            <nav className="flex flex-col gap-1">
-              {navItems.map((item) => (
-                <Link 
-                  key={item.label}
-                  href={item.href} 
-                  className="flex items-center justify-between py-4 border-b border-stone-50 text-base font-medium text-stone-900 hover:text-stone-600 transition-colors"
-                  onClick={closeMenu}
-                >
-                  <div className="flex items-center gap-4">
-                    <item.icon className="w-5 h-5 text-stone-400" strokeWidth={1.5} />
-                    <span>{item.label}</span>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-stone-300" />
-                </Link>
-              ))}
-            </nav>
-
-            <div className="mt-auto pb-10">
-              {loading ? (
-                <div className="w-full h-12 bg-stone-100 rounded-xl animate-pulse" />
-              ) : user ? (
-                <div className="flex flex-col gap-3">
+            {/* 2. Scrollable Body Section */}
+            <div className="flex-1 overflow-y-auto p-6 bg-white hide-scrollbar">
+              <nav className="flex flex-col gap-2">
+                {navItems.map((item) => (
                   <Link 
-                    href="/profile" 
-                    className="flex items-center gap-4 p-4 rounded-xl bg-stone-50 text-stone-900 hover:bg-stone-100 transition"
+                    key={item.label}
+                    href={item.href} 
+                    className="flex items-center justify-between p-4 rounded-xl bg-stone-50 text-stone-900 hover:bg-stone-100 transition-colors active:bg-stone-200"
                     onClick={closeMenu}
                   >
-                    <div className="w-10 h-10 rounded-full bg-white border border-stone-200 flex items-center justify-center text-sm font-bold">
-                      {user.email?.[0].toUpperCase()}
+                    <div className="flex items-center gap-3">
+                      <item.icon className="w-5 h-5 text-stone-400" />
+                      <span className="text-sm font-medium">{item.label}</span>
                     </div>
-                    <div className="flex-1 overflow-hidden">
-                      <p className="text-sm font-semibold truncate">{user.email}</p>
-                      <p className="text-[10px] text-stone-500 uppercase tracking-widest font-bold">View Profile</p>
-                    </div>
+                    <ChevronRight size={16} className="text-stone-300" />
                   </Link>
+                ))}
+              </nav>
+            </div>
+
+            {/* 3. Footer Section */}
+            <div className="p-6 border-t border-stone-100 bg-stone-50 shrink-0">
+              {user ? (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-white border border-stone-200 flex items-center justify-center text-xs font-bold text-stone-900 overflow-hidden">
+                      {user.user_metadata?.avatar_url ? (
+                          <img src={user.user_metadata.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+                      ) : (
+                          <span>{user.email?.[0].toUpperCase()}</span>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0 text-left">
+                      <p className="text-xs font-semibold truncate text-stone-900">{user.email}</p>
+                      <Link href="/profile" onClick={closeMenu} className="text-[10px] text-stone-500 uppercase tracking-widest font-bold hover:text-stone-900">My Shelf</Link>
+                    </div>
+                  </div>
                   <button
                     onClick={() => { signOut(); closeMenu(); }}
-                    className="flex items-center justify-center gap-2 w-full p-4 rounded-xl text-stone-500 hover:text-red-600 transition-colors text-sm font-medium"
+                    className="w-full py-3 bg-white border border-stone-200 rounded-xl text-[10px] font-bold uppercase tracking-widest text-red-500 hover:bg-red-50 transition-colors shadow-sm"
                   >
-                    <LogOut className="w-4 h-4" />
                     Sign Out
                   </button>
                 </div>
               ) : (
                 <Link
                   href="/login"
-                  className="block w-full bg-stone-900 text-white p-4 rounded-xl text-center font-bold text-sm tracking-widest uppercase hover:bg-stone-800 transition shadow-lg"
+                  className="block w-full bg-stone-900 text-white p-4 rounded-xl text-center font-bold text-xs tracking-widest uppercase hover:bg-stone-800 transition shadow-lg active:scale-[0.98]"
                   onClick={closeMenu}
                 >
                   Sign In to Scentia
@@ -119,7 +133,7 @@ export default function MobileMenu() {
             </div>
           </div>
         </div>
-      )}
+      </Portal>
     </div>
   );
 }

@@ -8,7 +8,7 @@ import ActiveFilters from '@/components/features/search/ActiveFilters';
 import FilterBar from '@/components/features/search/FilterBar'; 
 import { Note, Perfume } from '@/types';
 import { FilterValues } from '@/components/features/search/filterTypes';
-import { Search, SlidersHorizontal, X } from 'lucide-react';
+import { Search, SlidersHorizontal, X, Filter } from 'lucide-react';
 
 const UnifiedSearchClient: React.FC = () => {
   const searchParams = useSearchParams();
@@ -35,6 +35,7 @@ const UnifiedSearchClient: React.FC = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
   const [filterKey, setFilterKey] = useState(0);
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const limit = 12;
 
   // Refs for debouncing and initial load
@@ -94,6 +95,18 @@ const UnifiedSearchClient: React.FC = () => {
     };
   }, [query, selectedNotes, filters, fetchPerfumes]);
 
+  // Prevent scroll when mobile filters open
+  useEffect(() => {
+    if (isMobileFiltersOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isMobileFiltersOpen]);
+
   // Handle Load More
   const handleLoadMore = () => {
     const nextPage = currentPage + 1;
@@ -131,134 +144,203 @@ const UnifiedSearchClient: React.FC = () => {
   const hasActiveFilters = query || selectedNotes.length > 0 || Object.values(filters).some(v => v.length > 0);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16 min-h-screen bg-[#FAFAF9]">
+    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 min-h-screen bg-[#FAFAF9]">
       
       {/* HEADER SECTION */}
-      <div className="text-center mb-12 md:mb-16">
-        <h1 className="text-4xl md:text-6xl font-serif text-stone-900 mb-6 tracking-tight">
+      <div className="mb-8 md:mb-12">
+        <h1 className="text-3xl md:text-5xl font-serif text-stone-900 mb-4 tracking-tight">
           Discovery Engine
         </h1>
-        <p className="text-stone-500 max-w-2xl mx-auto text-sm md:text-base font-light italic px-4">
+        <p className="text-stone-500 max-w-2xl text-sm md:text-base font-light italic">
           Uncover your next signature scent by blending notes, brands, and sensory characteristics.
         </p>
       </div>
 
-      {/* MAIN SEARCH BAR */}
-      <div className="max-w-3xl mx-auto mb-12 relative z-50">
-        <div className="relative group">
-          <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
-            <Search className="h-5 w-5 text-stone-400 group-focus-within:text-stone-900 transition-colors" />
+      <div className="flex flex-col lg:flex-row gap-8 lg:gap-16">
+        
+        {/* MOBILE FILTER TOGGLE */}
+        <div className="lg:hidden flex items-center justify-between mb-4">
+          <button
+            onClick={() => setIsMobileFiltersOpen(true)}
+            className="flex items-center gap-2 bg-stone-900 text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest shadow-sm"
+          >
+            <Filter size={16} />
+            Filters & Notes
+          </button>
+          
+          <div className="text-xs font-serif text-stone-500">
+            {totalCount} Results
           </div>
-          <input
-            type="text"
-            placeholder="Search by name or brand..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="block w-full pl-14 pr-14 py-5 bg-white border border-stone-200 rounded-[2.5rem] shadow-sm hover:shadow-md focus:shadow-xl focus:ring-0 focus:border-stone-300 transition-all text-stone-900 placeholder:text-stone-300 font-serif text-xl outline-none"
-          />
-          {query && (
-            <button 
-              onClick={() => setQuery('')}
-              className="absolute inset-y-0 right-0 pr-6 flex items-center text-stone-300 hover:text-stone-900 transition-colors"
+        </div>
+
+        {/* LEFT SIDEBAR (FILTERS & NOTES) */}
+        <div className={`
+          fixed lg:static inset-y-0 left-0 z-[100] lg:z-auto
+          w-full sm:w-80 lg:w-72 xl:w-80 bg-white lg:bg-transparent
+          transform transition-transform duration-300 ease-in-out
+          ${isMobileFiltersOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+          flex flex-col h-full lg:h-auto overflow-hidden lg:overflow-visible
+          border-r lg:border-none border-stone-100 shadow-2xl lg:shadow-none
+        `}>
+          
+          {/* Mobile Sidebar Header */}
+          <div className="lg:hidden flex items-center justify-between p-6 border-b border-stone-100 bg-white shrink-0">
+            <h2 className="font-serif text-xl text-stone-900">Refine Search</h2>
+            <div className="flex items-center gap-4">
+              {hasActiveFilters ? (
+                <button 
+                  onClick={clearAllSearch}
+                  className="text-[10px] font-bold uppercase tracking-widest text-red-500 underline underline-offset-4"
+                >
+                  Clear All
+                </button>
+              ) : (
+                <button 
+                  onClick={() => setIsMobileFiltersOpen(false)}
+                  className="text-[10px] font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 transition-colors"
+                >
+                  Close
+                </button>
+              )}
+              <button 
+                onClick={() => setIsMobileFiltersOpen(false)}
+                className="p-2 text-stone-400 hover:text-stone-900 transition-colors bg-stone-50 rounded-full"
+                aria-label="Close filters"
+              >
+                <X size={20} />
+              </button>
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-y-auto lg:overflow-visible p-6 lg:p-0 overscroll-contain touch-pan-y scroll-smooth">
+            <div className="flex flex-col gap-10 pb-20 lg:pb-0">
+              {/* Note Explorer */}
+              <div className="bg-white lg:bg-transparent rounded-3xl lg:rounded-none">
+                <div className="mb-4">
+                  <h3 className="font-serif text-xl text-stone-900 mb-2">Olfactory Notes</h3>
+                  <p className="text-xs text-stone-400 italic">Search and blend specific ingredients.</p>
+                </div>
+                
+                <NoteSearchBar onNoteSelected={handleNoteSelected} />
+
+                <ActiveFilters 
+                  selectedNotes={selectedNotes} 
+                  onRemoveNote={handleRemoveNote} 
+                  onClearAll={handleClearAllNotes} 
+                />
+              </div>
+
+              {/* Advanced Filters */}
+              <div className="border-t border-stone-200 lg:border-stone-300 pt-10">
+                <FilterBar key={filterKey} onFilterChange={handleFilterChange} />
+              </div>
+            </div>
+          </div>
+          
+          {/* Mobile Sidebar Footer */}
+          <div className="lg:hidden p-6 border-t border-stone-100 bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.05)] shrink-0 pb-safe">
+            <button
+              onClick={() => setIsMobileFiltersOpen(false)}
+              className="w-full bg-stone-900 text-white rounded-full py-5 text-sm font-bold uppercase tracking-[0.2em] shadow-lg active:scale-[0.98] transition-all"
             >
-              <X className="h-5 w-5" />
+              {loading ? 'Updating...' : `Show ${totalCount} Results`}
             </button>
-          )}
+          </div>
         </div>
-      </div>
 
-      {/* FILTERS INTEGRATION */}
-      <div className="space-y-6 mb-16">
-        
-        {/* Note Search & Active Note Chips */}
-        <div className="bg-white rounded-[2.5rem] p-8 md:p-10 border border-stone-100 shadow-sm max-w-4xl mx-auto transition-all hover:shadow-md">
-          <div className="flex items-center justify-center gap-3 mb-8">
-            <div className="h-[1px] w-8 bg-stone-200" />
-            <label className="text-[10px] font-bold uppercase tracking-[0.25em] text-stone-400 whitespace-nowrap">
-              Olfactory Palette
-            </label>
-            <div className="h-[1px] w-8 bg-stone-200" />
-          </div>
-          
-          <div className="max-w-md mx-auto">
-            <NoteSearchBar onNoteSelected={handleNoteSelected} />
-          </div>
-
-          <ActiveFilters 
-            selectedNotes={selectedNotes} 
-            onRemoveNote={handleRemoveNote} 
-            onClearAll={handleClearAllNotes} 
+        {/* Mobile Sidebar Overlay */}
+        {isMobileFiltersOpen && (
+          <div 
+            className="fixed inset-0 bg-stone-900/40 backdrop-blur-sm z-[90] lg:hidden transition-opacity"
+            onClick={() => setIsMobileFiltersOpen(false)}
+            aria-hidden="true"
           />
+        )}
+
+
+        {/* RIGHT MAIN CONTENT */}
+        <div className="flex-1 min-w-0 flex flex-col gap-8">
           
-          {selectedNotes.length === 0 && (
-            <p className="text-center text-[11px] text-stone-300 mt-6 italic">
-              Try adding 'Vanilla', 'Tobacco', or 'Bergamot' to refine your search.
-            </p>
-          )}
-        </div>
+          {/* Main Search Bar */}
+          <div className="relative group w-full">
+            <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
+              <Search className="h-5 w-5 text-stone-400 group-focus-within:text-stone-900 transition-colors" />
+            </div>
+            <input
+              type="text"
+              placeholder="Search by perfume name or brand..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="block w-full pl-14 pr-14 py-4 md:py-5 bg-white border border-stone-200 rounded-[2rem] shadow-sm hover:shadow-md focus:shadow-xl focus:ring-0 focus:border-stone-300 transition-all text-stone-900 placeholder:text-stone-300 font-serif text-lg md:text-xl outline-none"
+            />
+            {query && (
+              <button 
+                onClick={() => setQuery('')}
+                className="absolute inset-y-0 right-0 pr-6 flex items-center text-stone-300 hover:text-stone-900 transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            )}
+          </div>
 
-        {/* Sensory & Technical Filters */}
-        <div className="relative">
-            <FilterBar key={filterKey} onFilterChange={handleFilterChange} />
-        </div>
-      </div>
-
-      {/* RESULTS SUMMARY & CLEAR ALL */}
-      <div className="flex flex-col md:flex-row items-center justify-between mb-8 pb-4 border-b border-stone-100 gap-4">
-        <div className="flex items-center gap-3">
-            <h2 className="font-serif text-2xl text-stone-900">
+          {/* Results Header */}
+          <div className="hidden lg:flex items-center justify-between pb-4 border-b border-stone-200">
+            <div className="flex items-center gap-3">
+              <h2 className="font-serif text-2xl text-stone-900">
                 {loading && currentPage === 1 ? 'Curating...' : `Found ${totalCount} Scents`}
-            </h2>
-            {loading && <div className="w-4 h-4 border-2 border-stone-200 border-t-stone-800 rounded-full animate-spin" />}
-        </div>
-        
-        {hasActiveFilters && (
-            <button 
+              </h2>
+              {loading && <div className="w-4 h-4 border-2 border-stone-200 border-t-stone-800 rounded-full animate-spin" />}
+            </div>
+            
+            {hasActiveFilters && (
+              <button 
                 onClick={clearAllSearch}
                 className="group flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-stone-400 hover:text-red-500 transition-all"
-            >
+              >
                 <X className="w-3 h-3 group-hover:rotate-90 transition-transform" />
-                Reset All Filters
-            </button>
-        )}
-      </div>
+                Clear All Criteria
+              </button>
+            )}
+          </div>
 
-      {/* RESULTS GRID */}
-      <div className="min-h-[600px] relative">
-        {error ? (
-            <div className="text-center py-20 bg-red-50 rounded-[2rem] border border-red-100">
-                <p className="text-red-800 font-serif mb-4">Something went wrong while searching.</p>
-                <button onClick={() => fetchPerfumes(1, query, selectedNotes, filters)} className="px-6 py-2 bg-red-800 text-white rounded-full text-xs font-bold uppercase tracking-widest">Retry</button>
-            </div>
-        ) : (
-            <SearchResults
-              loading={loading}
-              error={null}
-              results={results}
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onLoadMore={handleLoadMore}
-            />
-        )}
+          {/* RESULTS GRID */}
+          <div className="min-h-[600px] relative">
+            {error ? (
+              <div className="text-center py-20 bg-red-50 rounded-[2rem] border border-red-100">
+                  <p className="text-red-800 font-serif mb-4">Something went wrong while searching.</p>
+                  <button onClick={() => fetchPerfumes(1, query, selectedNotes, filters)} className="px-6 py-2 bg-red-800 text-white rounded-full text-xs font-bold uppercase tracking-widest">Retry</button>
+              </div>
+            ) : (
+              <SearchResults
+                loading={loading}
+                error={null}
+                results={results}
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onLoadMore={handleLoadMore}
+              />
+            )}
 
-        {/* Empty State */}
-        {!loading && results.length === 0 && (
-            <div className="text-center py-32 bg-white rounded-[3rem] border border-dashed border-stone-200">
-                <div className="inline-block p-8 rounded-full bg-stone-50 mb-6">
-                    <SlidersHorizontal className="w-12 h-12 text-stone-200" />
-                </div>
-                <h3 className="font-serif text-2xl text-stone-800 mb-2">No matches found</h3>
-                <p className="text-stone-400 text-sm max-w-xs mx-auto italic">
-                    Your unique combination of notes and filters yielded no results. Try broadening your criteria.
-                </p>
-                <button 
-                    onClick={clearAllSearch}
-                    className="mt-8 text-stone-900 font-bold border-b-2 border-stone-900 pb-1 hover:opacity-60 transition-opacity text-[10px] uppercase tracking-[0.2em]"
-                >
-                    Start Fresh
-                </button>
-            </div>
-        )}
+            {/* Empty State */}
+            {!loading && results.length === 0 && (
+              <div className="text-center py-32 bg-white rounded-[2rem] border border-dashed border-stone-200 mt-4">
+                  <div className="inline-block p-8 rounded-full bg-stone-50 mb-6">
+                      <SlidersHorizontal className="w-12 h-12 text-stone-200" />
+                  </div>
+                  <h3 className="font-serif text-2xl text-stone-800 mb-2">No matches found</h3>
+                  <p className="text-stone-400 text-sm max-w-xs mx-auto italic">
+                      Your unique combination of criteria yielded no results.
+                  </p>
+                  <button 
+                      onClick={clearAllSearch}
+                      className="mt-8 text-stone-900 font-bold border-b-2 border-stone-900 pb-1 hover:opacity-60 transition-opacity text-[10px] uppercase tracking-[0.2em]"
+                  >
+                      Start Fresh
+                  </button>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

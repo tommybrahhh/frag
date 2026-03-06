@@ -14,7 +14,7 @@ export const revalidate = 600; // Revalidate every 10 minutes
 export default async function Home() {
   return (
     <PageTransition>
-      <main className="min-h-screen bg-white text-stone-800 pb-20">
+      <div className="min-h-screen bg-white text-stone-800 pb-24 md:pb-32">
         <Suspense fallback={<div className="min-h-[500px] lg:min-h-[600px] flex items-center justify-center"><Spinner /></div>}>
           <CommunityHeroServer />
         </Suspense>
@@ -43,7 +43,7 @@ export default async function Home() {
         </div>
         
         <JoinCommunityCTA />
-      </main>
+      </div>
     </PageTransition>
   );
 }
