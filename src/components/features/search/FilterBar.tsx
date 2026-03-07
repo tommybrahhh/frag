@@ -12,7 +12,8 @@ import {
   Briefcase,
   History,
   RotateCcw,
-  ChevronDown
+  ChevronDown,
+  X
 } from 'lucide-react';
 import { 
   FilterPanelProps,
@@ -28,7 +29,11 @@ import {
 import FilterSection from './FilterSection';
 import { useEffect, useState } from 'react';
 
-export default function FilterBar({ onFilterChange, initialFilters }: FilterPanelProps & { initialFilters?: any }) {
+export default function FilterBar({ 
+  onFilterChange, 
+  initialFilters,
+  onClose
+}: FilterPanelProps & { initialFilters?: any, onClose?: () => void }) {
   const {
     isModified,
     setIsModified,
@@ -62,15 +67,27 @@ export default function FilterBar({ onFilterChange, initialFilters }: FilterPane
           )}
         </div>
         
-        {activeFilterCount > 0 && (
-          <button
-            onClick={clearFilters}
-            className="flex items-center gap-1.5 text-[10px] font-bold tracking-[0.2em] text-red-500 uppercase hover:text-red-700 transition-colors"
-          >
-            <RotateCcw size={12} />
-            Reset
-          </button>
-        )}
+        <div className="flex items-center gap-4">
+          {activeFilterCount > 0 && (
+            <button
+              onClick={clearFilters}
+              className="flex items-center gap-1.5 text-[10px] font-bold tracking-[0.2em] text-red-500 uppercase hover:text-red-700 transition-colors"
+            >
+              <RotateCcw size={12} />
+              Reset
+            </button>
+          )}
+          
+          {onClose && (
+            <button 
+              onClick={onClose}
+              className="flex items-center gap-1.5 text-[10px] font-bold tracking-[0.2em] text-stone-400 uppercase hover:text-stone-900 transition-colors border-l border-stone-200 pl-4 ml-1"
+            >
+              <X size={12} />
+              Close
+            </button>
+          )}
+        </div>
       </div>
 
       {/* FILTERS LIST */}

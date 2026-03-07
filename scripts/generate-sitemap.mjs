@@ -37,11 +37,26 @@ async function generate() {
   let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`;
 
+  // Helper function to escape XML entities properly
+  function escapeXml(unsafe) {
+    if (!unsafe) return '';
+    return unsafe.replace(/[<>&'"]/g, function (c) {
+      switch (c) {
+        case '<': return '&lt;';
+        case '>': return '&gt;';
+        case '&': return '&amp;';
+        case '\'': return '&apos;';
+        case '"': return '&quot;';
+        default: return c;
+      }
+    });
+  }
+
   // Add Statics
   staticRoutes.forEach(route => {
     xml += `
   <url>
-    <loc>${BASE_URL}${route}</loc>
+    <loc>${escapeXml(BASE_URL + route)}</loc>
     <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>${route === '' ? '1.0' : '0.8'}</priority>
@@ -55,7 +70,7 @@ async function generate() {
     brands.forEach(b => {
       xml += `
   <url>
-    <loc>${BASE_URL}/brands/${encodeURIComponent(b.name)}</loc>
+    <loc>${escapeXml(BASE_URL + '/brands/' + encodeURIComponent(b.name))}</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>`;
@@ -69,7 +84,7 @@ async function generate() {
     notes.forEach(n => {
       xml += `
   <url>
-    <loc>${BASE_URL}/ingredients/${encodeURIComponent(n.name)}</loc>
+    <loc>${escapeXml(BASE_URL + '/ingredients/' + encodeURIComponent(n.name))}</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>`;
@@ -77,11 +92,11 @@ async function generate() {
   }
 
   // 4. Fetch ALL Perfumes using pagination
-  let allPerfumes = [];
   let from = 0;
-  let batchSize = 100;
+  let batchSize = 1000; // Increased batch size for faster fetching
   let to = batchSize - 1;
   let hasMore = true;
+  let totalPerfumes = 0;
 
   console.log('Fetching perfumes with minimal query...');
   while (hasMore) {
@@ -96,8 +111,20 @@ async function generate() {
     }
 
     if (perfumes && perfumes.length > 0) {
-      allPerfumes = allPerfumes.concat(perfumes);
-      console.log(`...fetched ${allPerfumes.length} perfumes`);
+      totalPerfumes += perfumes.length;
+      console.log(`...fetched ${totalPerfumes} perfumes`);
+      
+      // Append directly to the XML string to save memory
+      perfumes.forEach(p => {
+        xml += `
+  <url>
+    <loc>${escapeXml(BASE_URL + '/perfume/' + encodeURIComponent(p.slug))}</loc>
+    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>`;
+      });
+
       from += batchSize;
       to += batchSize;
       await new Promise(resolve => setTimeout(resolve, 50));
@@ -105,16 +132,6 @@ async function generate() {
       hasMore = false;
     }
   }
-
-  allPerfumes.forEach(p => {
-    xml += `
-  <url>
-    <loc>${BASE_URL}/perfume/${p.slug}</loc>
-    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>`;
-  });
 
   xml += `
 </urlset>`;

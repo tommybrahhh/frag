@@ -12,40 +12,25 @@ export default function TopContributors({ contributors }: { contributors: Contri
   }
 
   return (
-    <div className="flex flex-col gap-0 border-t border-stone-100">
+    <div className="flex flex-col">
       {contributors.map((user, index) => (
-        <div key={user.id} className="group flex items-center justify-between py-4 border-b border-stone-100/60 last:border-b-0 hover:bg-stone-50 transition-colors px-2 -mx-2 rounded-xl">
-           
-           <div className="flex items-center gap-4">
-               <div className="font-serif text-sm font-bold text-stone-300 w-4 text-right">
+        <div key={user.id} className="flex items-baseline justify-between py-3 border-b border-stone-100 last:border-0 hover:bg-stone-50/50 transition-colors -mx-2 px-2 rounded-lg">
+           <div className="flex items-baseline gap-3">
+               <span className="font-serif text-sm text-stone-400 w-3">
                   {index + 1}
-               </div>
-               
-               <div className="w-12 h-12 rounded-full bg-stone-50 flex items-center justify-center text-stone-500 font-serif text-sm overflow-hidden border border-stone-100 shadow-sm">
-                   {user.avatar_url ? (
-                     <img src={user.avatar_url} alt={user.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                   ) : (
-                     <span className="text-xs">{user.name.charAt(0)}</span>
-                   )}
-               </div>
-    
-               <div className="flex flex-col">
-                  <div className="font-bold text-[14px] text-stone-900 truncate tracking-tight">{user.name}</div>
-                  <div className={`text-[9px] font-bold uppercase tracking-widest text-stone-400 mt-0.5`}>
-                    {user.level.name}
-                  </div>
-               </div>
+               </span>
+               <span className="text-sm text-stone-800 tracking-tight">
+                  {user.name}
+               </span>
            </div>
-
-           <div className="text-right pr-2">
-              <div className="font-serif text-xl font-bold text-stone-900 leading-none">
+           <div className="flex items-baseline gap-1.5">
+              <span className="font-serif text-sm text-stone-900">
                  {user.comment_count}
-              </div>
-              <div className="text-[9px] font-medium uppercase tracking-[0.2em] text-stone-300 mt-1">
+              </span>
+              <span className="text-[10px] text-stone-400 uppercase tracking-widest">
                  Posts
-              </div>
+              </span>
            </div>
-
         </div>
       ))}
     </div>

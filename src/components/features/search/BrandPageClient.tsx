@@ -188,7 +188,11 @@ export default function BrandPageClient({
                   </div>
 
                   <div className="flex-1 overflow-y-auto lg:overflow-visible p-6 lg:p-0 hide-scrollbar">
-                    <FilterBar onFilterChange={handleFilterChange} initialFilters={{ brand: [brand] }} />
+                    <FilterBar 
+                      onFilterChange={handleFilterChange} 
+                      initialFilters={{ brand: [brand] }} 
+                      onClose={() => setIsMobileFiltersOpen(false)}
+                    />
                   </div>
 
                   <div className="lg:hidden p-6 border-t border-stone-100 bg-white shrink-0">

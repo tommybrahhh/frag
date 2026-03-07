@@ -23,10 +23,10 @@ export default async function CommunityPage() {
   return (
     <main className="min-h-screen bg-[#FAFAF9] pb-20 selection:bg-stone-900 selection:text-stone-50">
       {/* REFINED HERO SECTION */}
-      <div className="bg-stone-50/50 border-b border-stone-100 pt-16 pb-16 overflow-hidden">
+      <div className="bg-stone-50/50 border-b border-stone-100 pt-8 pb-10 overflow-hidden">
          <div className="relative max-w-[1400px] mx-auto px-6 lg:px-12 flex flex-col items-center text-center">
             
-            <div className="flex items-center gap-3 mb-6 px-4 py-1.5 bg-white rounded-full border border-stone-200 shadow-sm">
+            <div className="flex items-center gap-3 mb-4 px-4 py-1.5 bg-white rounded-full border border-stone-200 shadow-sm">
                <span className="relative flex h-2 w-2">
                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-stone-400 opacity-75"></span>
                  <span className="relative inline-flex rounded-full h-2 w-2 bg-stone-900"></span>
@@ -34,11 +34,11 @@ export default async function CommunityPage() {
                <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-stone-900">Live Collective Feed</span>
             </div>
             
-            <h1 className="font-serif text-4xl md:text-5xl text-stone-900 mb-4 tracking-tight">
+            <h1 className="font-serif text-3xl md:text-4xl text-stone-900 mb-2 tracking-tight">
                The Community
             </h1>
             
-            <p className="text-base md:text-lg text-stone-500 max-w-2xl font-light leading-relaxed">
+            <p className="text-sm md:text-base text-stone-500 max-w-xl font-light leading-relaxed">
                A real-time stream of what our enthusiasts are discovering, reviewing, and recommending right now.
             </p>
          </div>

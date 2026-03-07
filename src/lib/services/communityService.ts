@@ -68,17 +68,33 @@ export interface Contributor {
   };
 }
 
-export async function getTopContributors(limit = 5): Promise<Contributor[]> {
+export async function getTopContributors(limitCount = 5): Promise<Contributor[]> {
   const supabase = await createClient();
-  
+
+  // Call the new RPC get_top_contributors if available, else fallback
+  const { data: rpcData, error: rpcError } = await supabase.rpc('get_top_contributors' as any, { limit_count: limitCount } as any) as any;
+
+  if (!rpcError && rpcData && rpcData.length > 0) {
+    return rpcData.map((user: any) => ({
+      id: user.user_id,
+      name: user.name || 'Anonymous',
+      avatar_url: user.avatar_url,
+      review_count: user.review_count || 0,
+      comment_count: user.comment_count || 0,
+      total_activity: user.total_activity || 0,
+      level: getContributorLevel(user.total_activity || 0)
+    }));
+  }
+
+  // Fallback if RPC doesn't exist (aggregates up to 1000 latest to be more accurate than 200)
   const [reviews, comments] = await Promise.all([
-    supabase.from('reviews').select('user_id, profiles(display_name, avatar_url)').limit(200) as any,
-    supabase.from('comments').select('user_id, user_name').limit(200) as any
+    supabase.from('reviews').select('user_id, profiles(display_name, avatar_url)').limit(1000),
+    supabase.from('comments').select('user_id, user_name').limit(1000)
   ]);
 
   const stats: Record<string, Contributor> = {};
 
-  reviews.data?.forEach((r: any) => {
+  (reviews.data || []).forEach((r: any) => {
     if (!r.user_id) return;
     if (!stats[r.user_id]) {
         stats[r.user_id] = { 
@@ -96,7 +112,7 @@ export async function getTopContributors(limit = 5): Promise<Contributor[]> {
     stats[r.user_id].level = getContributorLevel(stats[r.user_id].total_activity);
   });
 
-  comments.data?.forEach((c: any) => {
+  (comments.data || []).forEach((c: any) => {
      if (!c.user_id) return;
      if (!stats[c.user_id]) {
         stats[c.user_id] = { 
@@ -116,16 +132,32 @@ export async function getTopContributors(limit = 5): Promise<Contributor[]> {
 
   return Object.values(stats)
     .sort((a, b) => b.comment_count - a.comment_count) // Show users with most comments
-    .slice(0, limit);
+    .slice(0, limitCount);
 }
 
 export async function getMostDiscussedPerfumes(limit = 5) {
   const supabase = await createClient();
-  
+
+  // Call the new RPC get_most_discussed_perfumes if available, else fallback
+  const { data: rpcData, error: rpcError } = await supabase.rpc('get_most_discussed_perfumes' as any, { limit_count: limit } as any) as any;
+
+  if (!rpcError && rpcData && rpcData.length > 0) {
+    return rpcData.map((p: any) => ({
+      count: p.discussion_count || 0,
+      perfume: {
+        name: p.name,
+        slug: p.slug,
+        image_url: p.image_url,
+        brands: { name: p.brand_name }
+      }
+    }));
+  }
+
+  // Fallback if RPC doesn't exist (aggregates up to 1000 latest to be more accurate than 100)
   const { data: comments } = await supabase
     .from('comments')
     .select('perfume_id, perfumes(name, slug, image_url, brands(name))')
-    .limit(100) as any;
+    .limit(1000) as any;
 
   const counts: Record<string, { count: number, perfume: any }> = {};
 

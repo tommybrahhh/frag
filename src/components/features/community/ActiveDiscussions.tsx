@@ -14,7 +14,7 @@ export default function ActiveDiscussions({ discussions }: { discussions: any[] 
   }
 
   return (
-    <div className="flex flex-col border-t border-stone-100">
+    <div className="flex flex-col">
       {discussions.map((item, index) => {
         const p = item.perfume;
         if (!p) return null;
@@ -23,26 +23,35 @@ export default function ActiveDiscussions({ discussions }: { discussions: any[] 
           <Link 
             key={`${p.slug}-${index}`}
             href={`/perfume/${p.slug}`}
-            className="flex items-center gap-4 py-4 px-2 -mx-2 border-b border-stone-100/60 last:border-0 hover:bg-stone-50 transition-colors group rounded-xl"
+            className="flex items-center justify-between py-3 border-b border-stone-100 last:border-0 hover:bg-stone-50/50 transition-colors -mx-2 px-2 rounded-lg group"
           >
-             <div className="w-14 h-14 bg-stone-50 rounded-2xl flex-shrink-0 p-1.5 border border-stone-100 shadow-sm overflow-hidden">
-                <PerfumeImage 
-                  src={p.image_url} 
-                  alt={p.name} 
-                  width={44} 
-                  height={44} 
-                  className="w-full h-full object-contain mix-blend-multiply transition-transform duration-500 group-hover:scale-110" 
-                />
-             </div>
-             
-             <div className="flex-1 min-w-0">
-                <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400 mb-1 truncate">{p.brands?.name}</div>
-                <div className="font-serif text-[15px] text-stone-900 leading-tight truncate tracking-tight">{p.name}</div>
+             <div className="flex items-center gap-3">
+                <div className="w-8 h-8 flex-shrink-0 bg-stone-50 rounded p-1 border border-stone-100">
+                    <PerfumeImage 
+                      src={p.image_url} 
+                      alt={p.name} 
+                      width={24} 
+                      height={24} 
+                      className="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-300" 
+                    />
+                </div>
+                <div className="flex flex-col gap-0">
+                    <span className="text-[13px] text-stone-800 tracking-tight leading-tight">
+                       {p.name}
+                    </span>
+                    <span className="text-[9px] text-stone-400 uppercase tracking-widest leading-tight">
+                       {p.brands?.name}
+                    </span>
+                </div>
              </div>
 
-             <div className="flex flex-col items-center justify-center min-w-[32px] gap-1.5 pr-1">
-                <MessageSquare className="w-4 h-4 text-stone-300 group-hover:text-stone-600 transition-colors" />
-                <span className="font-serif text-[11px] font-bold text-stone-400 group-hover:text-stone-700 transition-colors">{item.count}</span>
+             <div className="flex items-baseline gap-1.5 pl-2">
+                <span className="font-serif text-[13px] text-stone-900">
+                   {item.count}
+                </span>
+                <span className="text-[9px] text-stone-400 uppercase tracking-widest flex items-center gap-1">
+                   Comments
+                </span>
              </div>
           </Link>
         );

@@ -232,7 +232,11 @@ const UnifiedSearchClient: React.FC = () => {
 
               {/* Advanced Filters */}
               <div className="border-t border-stone-200 lg:border-stone-300 pt-10">
-                <FilterBar key={filterKey} onFilterChange={handleFilterChange} />
+                <FilterBar 
+                  key={filterKey} 
+                  onFilterChange={handleFilterChange} 
+                  onClose={() => setIsMobileFiltersOpen(false)}
+                />
               </div>
             </div>
           </div>
