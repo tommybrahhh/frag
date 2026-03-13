@@ -172,7 +172,8 @@ export default function CommentsSection({ perfumeId, initialComments }: { perfum
             )
           `)
           .eq('perfume_id', perfumeId)
-          .order('created_at', { ascending: false });
+          .order('created_at', { ascending: false })
+          .order('id', { ascending: true });
 
         if (fallbackError) throw fallbackError;
 

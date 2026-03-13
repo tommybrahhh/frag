@@ -185,9 +185,14 @@ export async function getPerfumes(params: PerfumeFilterParams) {
   }
 
   if (sort === 'newest') {
-    query = query.order('created_at', { ascending: false }).order('release_year', { ascending: false });
+    query = query
+      .order('created_at', { ascending: false })
+      .order('release_year', { ascending: false })
+      .order('id', { ascending: true });
   } else {
-    query = query.order('created_at', { ascending: false });
+    query = query
+      .order('created_at', { ascending: false })
+      .order('id', { ascending: true });
   }
 
   query = query.range(offset, offset + limit - 1);

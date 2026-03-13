@@ -43,6 +43,7 @@ export async function getLayeringSuggestions(basePerfumeId: string) {
     `)
     .neq('id', basePerfumeId)
     .order('rating', { ascending: false })
+    .order('id', { ascending: true })
     .limit(50);
 
   if (!candidatePool) return [];

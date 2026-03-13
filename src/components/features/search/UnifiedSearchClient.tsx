@@ -69,7 +69,16 @@ const UnifiedSearchClient: React.FC = () => {
       
       const { data, count } = await response.json();
 
-      setResults(prev => isAppend ? [...prev, ...(data || [])] : (data || []));
+      setResults(prev => {
+        const newData = data || [];
+        if (!isAppend) return newData;
+        
+        // Deduplicate to prevent issues with unstable database sorting or race conditions
+        const existingIds = new Set(prev.map(p => p.id));
+        const uniqueNewData = newData.filter((p: any) => !existingIds.has(p.id));
+        
+        return [...prev, ...uniqueNewData];
+      });
       setTotalPages(Math.ceil((count || 0) / limit));
       setTotalCount(count || 0);
     } catch (err: any) {

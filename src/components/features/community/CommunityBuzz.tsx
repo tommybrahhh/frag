@@ -45,6 +45,7 @@ const CommunityBuzz = () => {
           )
         `)
         .order('created_at', { ascending: false })
+        .order('id', { ascending: true })
         .limit(3);
 
       if (!error && data) {

@@ -48,6 +48,7 @@ export async function getPopularPerfumesService(client: SupabaseClient): Promise
     .from('perfumes')
     .select('id, name, image_url, brand:brands(name)')
     .order('rating', { ascending: false }) 
+    .order('id', { ascending: true })
     .limit(5);
   
   return (data as any[]) || [];

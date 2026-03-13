@@ -64,6 +64,7 @@ console.log('Constructed query filters:', {
 
 const { data, error, count } = await query
   .order('rating', { ascending: false })
+  .order('id', { ascending: true })
   .limit(100);
 
 console.log('Query results count:', count);

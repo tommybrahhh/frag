@@ -195,6 +195,7 @@ export async function getRecentActivity(limit = 10): Promise<ActivityItem[]> {
         )
       `)
       .order('created_at', { ascending: false })
+      .order('id', { ascending: true })
       .limit(limit) as any,
     
     supabase
@@ -212,6 +213,7 @@ export async function getRecentActivity(limit = 10): Promise<ActivityItem[]> {
         )
       `)
       .order('created_at', { ascending: false })
+      .order('id', { ascending: true })
       .limit(limit) as any
   ]);
 
@@ -270,6 +272,7 @@ export async function getTrendingPerfumes(limit = 10) {
     .from('comments')
     .select('perfume_id')
     .order('created_at', { ascending: false })
+    .order('id', { ascending: true })
     .limit(50) as any;
 
   const idCounts: Record<string, number> = {};
@@ -285,6 +288,7 @@ export async function getTrendingPerfumes(limit = 10) {
        .from('perfumes')
        .select('id')
        .order('rating', { ascending: false })
+       .order('id', { ascending: true })
        .limit(limit) as any;
      
      if (popular) {

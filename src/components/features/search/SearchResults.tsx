@@ -37,8 +37,8 @@ const SearchResults: React.FC<SearchResultsProps> = ({ loading, error, results, 
       {results.length > 0 ? (
         <>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {results.map((perfume, index) => (
-              <FragranceCard key={`${perfume.id}-${index}`} perfume={perfume} />
+            {results.map((perfume) => (
+              <FragranceCard key={perfume.id} perfume={perfume} />
             ))}
           </div>
 
