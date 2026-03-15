@@ -7,7 +7,8 @@ export type FilterCategory =
   | 'tier'
   | 'moment'
   | 'occasion'
-  | 'year';
+  | 'year'
+  | 'brand';
 
 export type FilterValues = {
   price: string[];
@@ -19,6 +20,7 @@ export type FilterValues = {
   moment: string[];
   occasion: string[];
   year: string[];
+  brand: string[];
 };
 
 export type FilterChangeHandler = (filters: FilterValues) => void;

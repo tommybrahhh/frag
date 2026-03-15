@@ -12,6 +12,7 @@ export function useFilters(initialFilters?: Partial<FilterValues>) {
   const [moment, setMoment] = useState<string[]>(initialFilters?.moment || []);
   const [occasion, setOccasion] = useState<string[]>(initialFilters?.occasion || []);
   const [year, setYear] = useState<string[]>(initialFilters?.year || []);
+  const [brand, setBrand] = useState<string[]>(initialFilters?.brand || []);
 
   // Create a stable reference for the filters object
   const filters = useMemo(() => ({
@@ -23,8 +24,9 @@ export function useFilters(initialFilters?: Partial<FilterValues>) {
     tier,
     moment,
     occasion,
-    year
-  }), [price, gender, longevity, season, concentration, tier, moment, occasion, year]);
+    year,
+    brand
+  }), [price, gender, longevity, season, concentration, tier, moment, occasion, year, brand]);
 
   // Count active filters
   const activeFilterCount = useMemo(() => {
@@ -43,7 +45,10 @@ export function useFilters(initialFilters?: Partial<FilterValues>) {
       moment: setMoment,
       occasion: setOccasion,
       year: setYear,
+      brand: setBrand,
     }[category];
+
+    if (!updateState) return;
 
     updateState(prev => {
       const newValue = prev.includes(value) 
@@ -66,7 +71,10 @@ export function useFilters(initialFilters?: Partial<FilterValues>) {
       moment: setMoment,
       occasion: setOccasion,
       year: setYear,
+      brand: setBrand,
     }[category];
+
+    if (!updateState) return;
 
     updateState(values);
     setIsModified(true);
@@ -83,6 +91,7 @@ export function useFilters(initialFilters?: Partial<FilterValues>) {
     setMoment([]);
     setOccasion([]);
     setYear([]);
+    setBrand([]);
     setIsModified(true);
   }, []);
 

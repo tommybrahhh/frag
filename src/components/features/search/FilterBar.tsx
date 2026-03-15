@@ -13,7 +13,8 @@ import {
   History,
   RotateCcw,
   ChevronDown,
-  X
+  X,
+  Search
 } from 'lucide-react';
 import { 
   FilterPanelProps,
@@ -45,6 +46,41 @@ export default function FilterBar({
   } = useFilters(initialFilters);
 
   const [isYearOpen, setIsYearOpen] = useState(true);
+  const [isBrandOpen, setIsBrandOpen] = useState(true);
+  const [brandQuery, setBrandQuery] = useState('');
+  const [brandResults, setBrandResults] = useState<{id: string, name: string}[]>([]);
+  const [isBrandLoading, setIsBrandLoading] = useState(false);
+
+  // Brand Search Logic
+  useEffect(() => {
+    if (brandQuery.length < 2) {
+      setBrandResults([]);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setIsBrandLoading(true);
+      try {
+        const res = await fetch(`/api/brands/search?q=${encodeURIComponent(brandQuery)}`);
+        const data = await res.json();
+        setBrandResults(data);
+      } catch (err) {
+        console.error('Brand search failed', err);
+      } finally {
+        setIsBrandLoading(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [brandQuery]);
+
+  const toggleBrand = (brandName: string) => {
+    const current = filters.brand || [];
+    const next = current.includes(brandName)
+      ? current.filter(b => b !== brandName)
+      : [...current, brandName];
+    updateFilter('brand', next);
+  };
 
   // Call onFilterChange immediately when filters change
   useEffect(() => {
@@ -92,6 +128,78 @@ export default function FilterBar({
 
       {/* FILTERS LIST */}
       <div className="flex flex-col gap-8">
+        {/* Brand House Filter */}
+        <div className="w-full group">
+          <button
+            onClick={() => setIsBrandOpen(!isBrandOpen)}
+            className="w-full flex items-center justify-between mb-4 group/btn"
+          >
+            <div className="flex items-center gap-2">
+              <span className="text-stone-400 group-hover:text-stone-600 transition-colors group-hover/btn:text-stone-600">
+                <Store size={14} />
+              </span>
+              <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400 group-hover:text-stone-500 transition-colors group-hover/btn:text-stone-500">
+                Brand House
+              </h3>
+            </div>
+            <ChevronDown 
+              size={14} 
+              className={`text-stone-400 transition-transform duration-300 ${isBrandOpen ? 'rotate-180' : ''}`} 
+            />
+          </button>
+          
+          {isBrandOpen && (
+            <div className="space-y-4 animate-in fade-in slide-in-from-top-1 duration-200">
+              {/* Search Input */}
+              <div className="relative">
+                <Search size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
+                <input 
+                  type="text"
+                  placeholder="Search brands..."
+                  value={brandQuery}
+                  onChange={(e) => setBrandQuery(e.target.value)}
+                  className="w-full bg-stone-50 border border-stone-100 text-[11px] rounded-xl pl-9 pr-4 py-2.5 focus:outline-none focus:ring-1 focus:ring-stone-200 transition-all text-stone-900 placeholder:text-stone-300 shadow-sm"
+                />
+              </div>
+
+              {/* Search Results */}
+              {brandResults.length > 0 && (
+                <div className="bg-white border border-stone-100 rounded-xl overflow-hidden shadow-sm max-h-40 overflow-y-auto">
+                  {brandResults.map(brand => (
+                    <button
+                      key={brand.id}
+                      onClick={() => {
+                        toggleBrand(brand.name);
+                        setBrandQuery('');
+                        setBrandResults([]);
+                      }}
+                      className="w-full text-left px-4 py-2 text-[11px] text-stone-600 hover:bg-stone-50 transition-colors border-b border-stone-50 last:border-0"
+                    >
+                      {brand.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Selected Brands */}
+              {filters.brand && filters.brand.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {filters.brand.map(b => (
+                    <button
+                      key={b}
+                      onClick={() => toggleBrand(b)}
+                      className="flex items-center gap-1.5 bg-stone-900 text-white px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-wider hover:bg-stone-800 transition-all"
+                    >
+                      {b}
+                      <X size={10} />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
         <FilterSection 
           title="Price Point"
           icon={<DollarSign size={14} />}

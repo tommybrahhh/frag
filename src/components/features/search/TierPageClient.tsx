@@ -5,20 +5,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import FilterBar from '@/components/features/search/FilterBar';
 import PageTransition from '@/components/layout/PageTransition';
-import Spinner from '@/components/ui/Spinner';
+import FragranceCard from '@/components/features/perfume/FragranceCard';
 import { Search as SearchIcon, Filter, X, SlidersHorizontal, ChevronRight } from 'lucide-react';
-import { getPerfumeImage } from '@/lib/perfume-utils';
-
-interface Perfume {
-  id: string;
-  name: string;
-  slug?: string | null;
-  brand: { name: string; tier?: string } | string; 
-  image_url: string;
-  rating?: number;
-  vibe_tags?: string[];
-  scent_profile?: Record<string, number>;
-}
+import { Perfume } from '@/types';
 
 interface TierPageClientProps {
   tierName: string;
@@ -85,7 +74,14 @@ export default function TierPageClient({ tierName, initialPerfumes }: TierPageCl
         const { data, count } = await res.json();
         
         if (data) {
-          setPerfumes(prev => page === 1 ? data : [...prev, ...data]);
+          setPerfumes(prev => {
+            if (page === 1) return data;
+            
+            // Deduplicate
+            const existingIds = new Set(prev.map(p => p.id));
+            const uniqueNewData = data.filter((p: any) => !existingIds.has(p.id));
+            return [...prev, ...uniqueNewData];
+          });
           setHasMore((page * 20) < (count || 0));
           setTotalCount(count || 0);
         }
@@ -199,64 +195,17 @@ export default function TierPageClient({ tierName, initialPerfumes }: TierPageCl
                       </div>
                     )}
 
-                    <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-8">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     {perfumes.map((p, index) => {
                         if (!p) return null;
                         const isLast = index === perfumes.length - 1;
-                        const brandName = p.brand && typeof p.brand === 'object' ? p.brand.name : (p.brand || 'Unknown Brand');
                         
                         return (
-                        <div key={`${p.id}-${index}`} ref={isLast ? lastPerfumeElementRef : null}>
-                            <Link href={`/perfume/${p.slug || p.id}`} className="group block h-full bg-white rounded-3xl border border-stone-100 p-4 md:p-6 hover:shadow-2xl hover:-translate-y-1 transition-all duration-500">
-                            <div className="aspect-[4/5] flex items-center justify-center mb-6 bg-stone-50 rounded-2xl group-hover:bg-white transition-colors relative overflow-hidden">
-                                {p.image_url ? (
-                                <Image src={getPerfumeImage(p.image_url)} alt={p.name} fill className="object-contain p-6 md:p-10 mix-blend-multiply brightness-[1.02] group-hover:scale-105 transition duration-700 ease-in-out" sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw" unoptimized />
-                                ) : (
-                                <div className="text-stone-300 text-[10px] font-bold uppercase tracking-widest">No Image</div>
-                                )}
-                                
-                                {p.rating && (
-                                <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-bold text-stone-900 shadow-sm z-10">
-                                    ★ {p.rating.toFixed(1)}
-                                </div>
-                                )}
-
-                                <div className="absolute inset-0 bg-white/95 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-500 p-6 flex flex-col justify-center gap-6 z-20">
-                                {p.scent_profile && (
-                                    <div className="space-y-3">
-                                        <div className="text-[9px] font-black uppercase tracking-widest text-stone-400 border-b border-stone-100 pb-1">Notes</div>
-                                        <div className="space-y-2">
-                                            {Object.entries(p.scent_profile).sort(([,a], [,b]): number => (b as number) - (a as number)).slice(0, 3).map(([accord, score], i, arr) => {
-                                            const total = arr.reduce((sum, [,val]) => sum + (val as number), 0);
-                                            const pct = Math.round(((score as number) / total) * 100);
-                                            return (
-                                                <div key={accord} className="flex flex-col gap-1">
-                                                    <div className="flex justify-between text-[10px] uppercase tracking-tighter">
-                                                        <span className="font-bold text-stone-700">{accord}</span>
-                                                        <span className="text-stone-400">{pct}%</span>
-                                                    </div>
-                                                    <div className="h-1 bg-stone-100 rounded-full overflow-hidden">
-                                                        <div className="h-full bg-stone-800 rounded-full" style={{ width: `${pct}%` }}></div>
-                                                    </div>
-                                                </div>
-                                            );
-                                            })}
-                                        </div>
-                                    </div>
-                                )}
-                                </div>
-                            </div>
-                            
-                            <div className="px-1">
-                                <div className="text-[9px] font-black tracking-[0.2em] text-stone-400 uppercase mb-1 truncate">
-                                {brandName}
-                                </div>
-                                <h4 className="font-serif text-lg md:text-xl text-stone-900 leading-tight truncate group-hover:text-stone-600 transition-colors">
-                                {p.name}
-                                </h4>
-                            </div>
-                            </Link>
-                        </div>
+                          <FragranceCard 
+                            key={p.id} 
+                            perfume={p} 
+                            ref={isLast ? lastPerfumeElementRef : null} 
+                          />
                         );
                     })}
                     </div>

@@ -83,7 +83,14 @@ export default function BrandPageClient({
         const { data, count } = await res.json();
         
         if (data) {
-          setPerfumes(prev => page === 1 ? data : [...prev, ...data]);
+          setPerfumes(prev => {
+            if (page === 1) return data;
+            
+            // Deduplicate
+            const existingIds = new Set(prev.map(p => p.id));
+            const uniqueNewData = data.filter((p: any) => !existingIds.has(p.id));
+            return [...prev, ...uniqueNewData];
+          });
           setHasMore((page * 20) < (count || 0));
           setTotalCount(count || 0);
         }
@@ -224,19 +231,19 @@ export default function BrandPageClient({
                       </div>
                     )}
 
-                    <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-8">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                       {perfumes.map((p, index) => {
                         if (!p) return null;
                         const isLast = index === perfumes.length - 1;
                         return (
-                          <div key={`${p.id}-${index}`} ref={isLast ? lastPerfumeElementRef : null}>
-                            <FragranceCard
-                              perfume={{
-                                ...p,
-                                brand: p.brand && typeof p.brand === 'object' ? p.brand.name : (p.brand || brand),
-                              }}
-                            />
-                          </div>
+                          <FragranceCard
+                            key={p.id}
+                            ref={isLast ? lastPerfumeElementRef : null}
+                            perfume={{
+                              ...p,
+                              brand: p.brand && typeof p.brand === 'object' ? p.brand.name : (p.brand || brand),
+                            }}
+                          />
                         );
                       })}
                     </div>

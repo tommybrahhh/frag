@@ -1,3 +1,4 @@
+import React, { forwardRef } from 'react';
 import Link from 'next/link';
 import { Perfume } from '@/types';
 import PerfumeImage from '@/components/ui/PerfumeImage';
@@ -6,12 +7,12 @@ interface FragranceCardProps {
   perfume: Perfume;
 }
 
-export default function FragranceCard({ perfume }: FragranceCardProps) {
+const FragranceCard = forwardRef<HTMLDivElement, FragranceCardProps>(({ perfume }, ref) => {
   // Proactive Fix: Handle case where brand is an object to prevent React crash
   const brandName = perfume.brand && typeof perfume.brand === 'object' ? (perfume.brand as any).name : (perfume.brand || 'Unknown Brand');
 
   return (
-    <div className="group rounded-xl p-4 transition-all duration-300 hover:bg-stone-100 hover:shadow-lg hover:-translate-y-1">
+    <div ref={ref} className="group rounded-xl p-4 transition-all duration-300 hover:bg-stone-100 hover:shadow-lg hover:-translate-y-1">
       <Link href={`/perfume/${perfume.slug || perfume.id}`}>
         <div className="h-48 flex items-center justify-center p-4 mb-4 rounded-lg transition-colors relative">
           <PerfumeImage 
@@ -33,4 +34,8 @@ export default function FragranceCard({ perfume }: FragranceCardProps) {
       </Link>
     </div>
   );
-}
+});
+
+FragranceCard.displayName = 'FragranceCard';
+
+export default FragranceCard;

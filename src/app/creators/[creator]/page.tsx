@@ -2,7 +2,7 @@ import { createClient } from '@/utils/supabase/server';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Metadata } from 'next';
-import { getPerfumeImage } from '@/lib/perfume-utils';
+import FragranceCard from '@/components/features/perfume/FragranceCard';
 
 export const revalidate = 3600; // Revalidate every hour
 
@@ -106,33 +106,9 @@ export default async function CreatorPage(props: { params: Promise<{ creator: st
           {perfumes.length === 0 ? (
             <div className="text-stone-400 italic">No perfumes found by this creator yet.</div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {perfumes.map((p: any) => (
-                <div key={p.id} className="group relative bg-white rounded-xl p-4 hover:shadow-xl transition duration-500 border border-transparent hover:border-stone-100">
-                  {/* Full card link */}
-                  <Link href={`/perfume/${p.id}`} className="absolute inset-0 z-10" aria-label={`View ${p.name}`} />
-                  
-                  <div className="h-48 mb-4 overflow-hidden flex items-center justify-center p-2 relative">
-                     {p.image_url ? (
-                       <img src={getPerfumeImage(p.image_url)} className="h-full object-contain group-hover:scale-110 transition duration-700" />
-                     ) : (
-                       <div className="text-stone-300 text-xs">No Image</div>
-                     )}
-                  </div>
-                  <div className="text-center relative">
-                    {/* Brand Link */}
-                    <Link
-                      href={`/brands/${encodeURIComponent(p.brand?.name || 'Unknown House')}`}
-                      className="inline-block text-[10px] font-bold tracking-widest text-stone-400 uppercase mb-1 hover:text-stone-600 transition-colors relative z-20"
-                    >
-                      {p.brand?.name}
-                    </Link>
-                    <div className="font-serif text-lg text-stone-900 leading-tight group-hover:text-stone-600 transition">{p.name}</div>
-                    {p.rating && (
-                      <div className="text-xs text-stone-400 mt-1">⭐ {p.rating}/5</div>
-                    )}
-                  </div>
-                </div>
+                <FragranceCard key={p.id} perfume={p} />
               ))}
             </div>
           )}
