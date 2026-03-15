@@ -25,7 +25,10 @@ const UnifiedSearchClient: React.FC = () => {
     tier: [],
     moment: [],
     occasion: [],
-    year: []
+    year: [],
+    brand: [],
+    vibe: [],
+    family: []
   });
 
   const [results, setResults] = useState<Perfume[]>([]);
@@ -145,7 +148,7 @@ const UnifiedSearchClient: React.FC = () => {
     setSelectedNotes([]);
     setFilters({
       price: [], gender: [], longevity: [], season: [], concentration: [],
-      tier: [], moment: [], occasion: [], year: []
+      tier: [], moment: [], occasion: [], year: [], brand: [], vibe: [], family: []
     });
     setFilterKey(prev => prev + 1);
   };

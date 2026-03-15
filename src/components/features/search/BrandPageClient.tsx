@@ -31,7 +31,7 @@ export default function BrandPageClient({
   const [totalCount, setTotalCount] = useState(initialPerfumes.length);
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const [filters, setFilters] = useState<any>({
-    price: [], gender: [], longevity: [], season: [], concentration: [], tier: [], moment: [], occasion: [], vibe: [], year: [], brand: [brand]
+    price: [], gender: [], longevity: [], season: [], concentration: [], tier: [], moment: [], occasion: [], vibe: [], year: [], brand: [brand], family: []
   });
 
   // Prevent scroll when mobile filters open

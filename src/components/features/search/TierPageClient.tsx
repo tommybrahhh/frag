@@ -22,7 +22,7 @@ export default function TierPageClient({ tierName, initialPerfumes }: TierPageCl
   const [totalCount, setTotalCount] = useState(initialPerfumes.length);
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const [filters, setFilters] = useState<any>({
-    price: [], gender: [], longevity: [], season: [], concentration: [], tier: [tierName], moment: [], occasion: [], vibe: [], year: []
+    price: [], gender: [], longevity: [], season: [], concentration: [], tier: [tierName], moment: [], occasion: [], vibe: [], year: [], brand: [], family: []
   });
 
   // Prevent scroll when mobile filters open

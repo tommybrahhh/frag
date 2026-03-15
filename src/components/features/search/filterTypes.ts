@@ -8,7 +8,9 @@ export type FilterCategory =
   | 'moment'
   | 'occasion'
   | 'year'
-  | 'brand';
+  | 'brand'
+  | 'vibe'
+  | 'family';
 
 export type FilterValues = {
   price: string[];
@@ -21,6 +23,8 @@ export type FilterValues = {
   occasion: string[];
   year: string[];
   brand: string[];
+  vibe: string[];
+  family: string[];
 };
 
 export type FilterChangeHandler = (filters: FilterValues) => void;
