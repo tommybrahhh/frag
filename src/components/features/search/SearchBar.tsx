@@ -9,10 +9,11 @@ import { Search, X } from 'lucide-react';
 
 interface SearchBarProps {
   onSearch?: () => void;
+  onFocusChange?: (isFocused: boolean) => void;
   className?: string;
 }
 
-export default function SearchBar({ onSearch, className }: SearchBarProps) {
+export default function SearchBar({ onSearch, onFocusChange, className }: SearchBarProps) {
   const router = useRouter();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<any[]>([]);
@@ -23,6 +24,11 @@ export default function SearchBar({ onSearch, className }: SearchBarProps) {
   
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Notify parent of focus changes
+  useEffect(() => {
+    onFocusChange?.(isOpen);
+  }, [isOpen, onFocusChange]);
 
   // Fetch initial suggestions (Trending)
   useEffect(() => {
