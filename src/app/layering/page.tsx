@@ -13,6 +13,8 @@ import MixingControls from '@/components/features/layering/MixingControls';
 import LayeringAnalysis from '@/components/features/layering/LayeringAnalysis';
 import Spinner from '@/components/ui/Spinner';
 
+export const runtime = "edge";
+
 // Mock "Curated Blends" to solve the blank canvas problem
 const CURATED_BLENDS = [
   { id: 'special-1', name: 'Cozy Cabin', desc: 'Tobacco + Vanilla', ids: ['45e31a93-5910-4246-8684-25b33bf18c1c', '7fbe126c-e44d-41f5-985a-9295947a5066'] }, // Tobacco Oud Intense + Vanilla Sex

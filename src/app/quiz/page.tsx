@@ -26,6 +26,8 @@ import { createClient } from '@/lib/supabase';
 import Link from 'next/link';
 import { getPerfumeImage } from '@/lib/perfume-utils';
 
+export const runtime = "edge";
+
 // --- Icons Mapping ---
 const iconMap: Record<string, any> = {
   'silk': Wind,

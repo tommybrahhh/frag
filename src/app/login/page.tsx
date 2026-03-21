@@ -5,6 +5,8 @@ import { useAuth } from '@/context/AuthContext'; // Use central auth context
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
+export const runtime = "edge";
+
 export default function LoginPage() {
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');

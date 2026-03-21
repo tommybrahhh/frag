@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { Metadata } from 'next';
 import { getPerfumeImage } from '@/lib/perfume-utils';
 
+export const runtime = "edge";
+
 export const revalidate = 3600; // Revalidate every hour
 
 interface Perfume {

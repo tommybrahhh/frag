@@ -6,6 +6,8 @@ import { Metadata } from 'next';
 import { generateProfileFromVibes, getPerfumeImage } from '@/lib/perfume-utils';
 import { FragranceService, Perfume } from '@/services/fragranceService';
 
+export const runtime = "edge";
+
 // --- SEO: Dynamic Metadata Generator ---
 export async function generateMetadata(
   props: { params: Promise<{ slug: string }> }

@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import BrandPageClient from '@/components/features/search/BrandPageClient';
 
+export const runtime = "edge";
+
 async function getBrandData(slug: string) {
   const brandName = decodeURIComponent(slug);
   const supabase = await createClient();

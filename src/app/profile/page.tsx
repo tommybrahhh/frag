@@ -5,6 +5,8 @@ import { Database } from '@/types/database';
 import { analyzeWardrobe } from '@/lib/analytics';
 import { RecommendationEngine, Recommendation } from '@/lib/recommendation-engine';
 
+export const runtime = "edge";
+
 // Type definitions for clarity
 type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row'];
 type Profiles = Tables<'profiles'>;

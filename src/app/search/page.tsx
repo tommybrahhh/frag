@@ -3,6 +3,8 @@ import React, { Suspense } from 'react';
 import UnifiedSearchClient from '@/components/features/search/UnifiedSearchClient';
 import { Metadata } from 'next';
 
+export const runtime = "edge";
+
 export const metadata: Metadata = {
   title: 'Search Fragrances',
   description: 'Search for perfumes by name, brand, or notes.',

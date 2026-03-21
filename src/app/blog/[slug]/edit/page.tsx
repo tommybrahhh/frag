@@ -3,6 +3,8 @@ import { notFound, redirect } from 'next/navigation';
 import EditBlogForm from '@/components/features/blog/EditBlogForm';
 import Link from 'next/link';
 
+export const runtime = "edge";
+
 interface PostData {
   author_id: string;
   [key: string]: any;
