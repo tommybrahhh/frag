@@ -22,19 +22,20 @@ export default async function EditBlogPostPage(
   }
 
   // 2. Fetch the post
-  const { data: post, error: fetchError } = await supabase
+  const { data, error: fetchError } = await (supabase as any)
     .from('blog_posts')
     .select('*')
     .eq('slug', slug)
     .single();
+
+  const post = data as any;
 
   if (fetchError || !post) {
     notFound();
   }
 
   // 3. Check ownership
-  // Use any cast to bypass strict check if the DB schema isn't fully synced with types
-  if ((post as any).author_id !== user.id) {
+  if (post.author_id !== user.id) {
     redirect(`/blog/${slug}`);
   }
 
