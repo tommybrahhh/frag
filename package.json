@@ -28,7 +28,6 @@
     "@types/node": "^20",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "babel-plugin-react-compiler": "15.0.0-beta-215167d-20241219",
     "eslint": "^9",
     "eslint-config-next": "^15.1.0",
     "tailwindcss": "^4",
