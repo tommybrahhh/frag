@@ -4,9 +4,7 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  turbopack: {
-    root: process.cwd(),
-  },
+
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [
