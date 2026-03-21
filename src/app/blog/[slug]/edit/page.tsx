@@ -3,6 +3,11 @@ import { notFound, redirect } from 'next/navigation';
 import EditBlogForm from '@/components/features/blog/EditBlogForm';
 import Link from 'next/link';
 
+interface PostData {
+  author_id: string;
+  [key: string]: any;
+}
+
 export default async function EditBlogPostPage(
   props: { params: Promise<{ slug: string }> }
 ) {
@@ -28,7 +33,8 @@ export default async function EditBlogPostPage(
   }
 
   // 3. Check ownership
-  if (post.author_id !== user.id) {
+  const currentPost = post as PostData;
+  if (currentPost.author_id !== user.id) {
     redirect(`/blog/${slug}`);
   }
 
@@ -36,8 +42,8 @@ export default async function EditBlogPostPage(
     <div className="min-h-screen bg-white text-stone-800 pb-24 pt-20 md:pt-32">
       <div className="max-w-4xl mx-auto px-6">
         <div className="mb-12">
-          <Link 
-            href={`/blog/${slug}`} 
+          <Link
+            href={`/blog/${slug}`}
             className="text-stone-400 text-[10px] font-bold uppercase tracking-[0.2em] hover:text-stone-900 mb-8 inline-flex items-center gap-2 transition-colors"
           >
             <span className="text-lg">←</span> Back to Post
