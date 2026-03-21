@@ -33,8 +33,8 @@ export default async function EditBlogPostPage(
   }
 
   // 3. Check ownership
-  const currentPost = post as PostData;
-  if (currentPost.author_id !== user.id) {
+  // Use any cast to bypass strict check if the DB schema isn't fully synced with types
+  if ((post as any).author_id !== user.id) {
     redirect(`/blog/${slug}`);
   }
 
