@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
 import Portal from '@/components/ui/Portal';
-import { X, ChevronRight, LogOut, User, Sparkles, Layers, Search, BarChart2, Menu } from 'lucide-react';
+import { X, ChevronRight, LogOut, User, Sparkles, Layers, Search, BarChart2, Menu, BookOpen } from 'lucide-react';
 
 export default function MobileMenu() {
   const [isOpen, setIsOpen] = useState(false);
@@ -31,6 +31,7 @@ export default function MobileMenu() {
     { label: 'Layering', href: '/layering', icon: Layers },
     { label: 'Compare', href: '/compare', icon: BarChart2 },
     { label: 'Finder', href: '/quiz', icon: Sparkles },
+    { label: 'Blog', href: '/blog', icon: BookOpen },
     { label: 'Search', href: '/search', icon: Search },
     { label: 'Community', href: '/community', icon: Menu },
   ];

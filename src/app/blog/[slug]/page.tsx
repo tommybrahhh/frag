@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Metadata } from 'next';
+import { Edit3 } from 'lucide-react';
 
 export async function generateMetadata(
   props: { params: Promise<{ slug: string }> }
@@ -42,6 +43,10 @@ export default async function BlogPostPage(
   const slug = params.slug;
   const supabase = await createClient();
 
+  // 1. Get the current user
+  const { data: { user } } = await supabase.auth.getUser();
+
+  // 2. Fetch the post
   const { data: post, error } = await supabase
     .from('blog_posts')
     .select('*')
@@ -53,6 +58,9 @@ export default async function BlogPostPage(
     console.error('Error fetching blog post:', error);
     notFound();
   }
+
+  // Check if current user is the author
+  const isAuthor = user && user.id === post.author_id;
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -92,9 +100,22 @@ export default async function BlogPostPage(
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
         
         <div className="relative w-full max-w-4xl mx-auto px-6 pb-12 md:pb-20">
-           <Link href="/" className="text-white/70 text-[10px] font-bold uppercase tracking-[0.2em] hover:text-white mb-8 inline-flex items-center gap-2 transition-colors">
-             <span className="text-lg">←</span> Back to Home
-           </Link>
+           <div className="flex items-center justify-between mb-8">
+             <Link href="/" className="text-white/70 text-[10px] font-bold uppercase tracking-[0.2em] hover:text-white inline-flex items-center gap-2 transition-colors">
+               <span className="text-lg">←</span> Back to Home
+             </Link>
+             
+             {isAuthor && (
+               <Link 
+                 href={`/blog/${post.slug}/edit`}
+                 className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-full text-white text-[10px] font-bold uppercase tracking-widest transition-all"
+               >
+                 <Edit3 size={12} />
+                 Edit Post
+               </Link>
+             )}
+           </div>
+
            {post.excerpt && (
              <p className="text-stone-300 text-[10px] md:text-xs font-bold uppercase tracking-[0.3em] mb-4 drop-shadow-sm">
                {post.excerpt}

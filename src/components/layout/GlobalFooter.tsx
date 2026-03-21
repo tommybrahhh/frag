@@ -28,6 +28,7 @@ export default function GlobalFooter() {
             <li><Link href="/layering" className="text-xs text-stone-500 hover:text-stone-900 transition">Scent Layering</Link></li>
             <li><Link href="/compare" className="text-xs text-stone-500 hover:text-stone-900 transition">Compare Perfumes</Link></li>
             <li><Link href="/quiz" className="text-xs text-stone-500 hover:text-stone-900 transition">Find Your Fragrance</Link></li>
+            <li><Link href="/blog" className="text-xs text-stone-500 hover:text-stone-900 transition">Blog</Link></li>
           </ul>
         </div>
 

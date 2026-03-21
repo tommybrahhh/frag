@@ -16,7 +16,7 @@ type PerfumeWithRelations = Database['public']['Tables']['perfumes']['Row'] & {
 
 export interface Recommendation {
   perfume: PerfumeWithRelations;
-  type: 'similar' | 'discovery' | 'note_isolator' | 'performance_upgrade' | 'structural_shift' | 'vibe_evolution' | 'layering';
+  type: 'similar' | 'discovery' | 'note_isolator' | 'performance_upgrade' | 'structural_shift' | 'vibe_evolution' | 'layering' | 'niche_leap' | 'seasonal_mirror';
   score: number;
   reason: string;
   sharedNotes?: string[];
@@ -24,6 +24,11 @@ export interface Recommendation {
   sharedFamilies?: string[];
   priceComparison?: 'cheaper' | 'similar' | 'premium';
   guidance?: string;
+  intensityShift?: {
+    label: string;
+    value: number; // Percentage shift, e.g., 25 for "25% Fresher"
+    isPositive: boolean;
+  };
   tradeOffs?: {
     longevityDiff: string;
     missingNotes: string[];
@@ -45,6 +50,7 @@ export interface RecommendationCategory {
   title: string;
   description: string;
   recommendations: Recommendation[];
+  isPath?: boolean;
 }
 
 type ScentProfileAnalysis = ReturnType<typeof RecommendationEngine.analyzeScentProfile>;
@@ -216,6 +222,32 @@ export class RecommendationEngine {
     return (accordScore * 60) + (noteScore * 20) + (familyScore * 20);
   }
 
+  /**
+   * Compares two scent profiles to find the biggest "difference" (e.g., 30% more Floral).
+   */
+  private static calculateIntensityShift(main: PerfumeWithRelations, target: PerfumeWithRelations) {
+    const prof1 = main.scent_profile as Record<string, number> | null;
+    const prof2 = target.scent_profile as Record<string, number> | null;
+    
+    if (!prof1 || !prof2) return null;
+
+    // Find the accord with the biggest increase in the target
+    const differences = Object.keys(prof2).map(key => {
+        const val1 = prof1[key] || 0;
+        const val2 = prof2[key] || 0;
+        return { key, diff: val2 - val1 };
+    }).sort((a, b) => b.diff - a.diff);
+
+    if (differences.length > 0 && differences[0].diff > 0.1) {
+        return {
+            label: differences[0].key.charAt(0).toUpperCase() + differences[0].key.slice(1),
+            value: Math.round(differences[0].diff * 100),
+            isPositive: true
+        };
+    }
+    return null;
+  }
+
   // ------------------------------------------------------------------
   // COMPOSITE PROFILE (For "You" Analysis)
   // ------------------------------------------------------------------
@@ -333,7 +365,6 @@ export class RecommendationEngine {
 
     return this.processCandidates(
       main, candidates, profile, 'note_isolator',
-      // Scorer
       (candidate, cProfile) => {
         const cNotes = candidate.perfume_notes || [];
         const match = cNotes.find(n => n.note?.name === targetNote);
@@ -346,15 +377,13 @@ export class RecommendationEngine {
 
         return { score: 85 + (isInName ? 10 : 0), targetNote };
       },
-      // Mapper
       (match, template) => ({
         perfume: match.perfume, type: 'note_isolator', score: match.score,
         reason: template.replace('{note}', match.targetNote),
         sharedNotes: [match.targetNote]
       }),
-      // Templates
       [
-        `If you're just chasing that {note} hit, this is the purest way to get it.`,
+        `Obsessed with the {note} here? This is the raw, uncut version of that note.`,
         `Strips away the noise and focuses entirely on the {note}.`,
         `A reference-class {note}. Minimalist, clean, and direct.`
       ]
@@ -366,33 +395,29 @@ export class RecommendationEngine {
 
     return this.processCandidates(
       main, candidates, profile, 'performance_upgrade',
-      // Scorer
       (candidate, cProfile) => {
-        // ABSOLUTE REQUIREMENT: Must be a true "Beast" (Rated 8+ out of 10)
-        // If the rating is missing, we assume 5 (Moderate), so it fails this check.
         if ((candidate.longevity_rating || 5) < 8) return null;
 
-        // Use Holistic Similarity as baseline (must be > 40 to be comparable)
         const similarity = this.calculateSimilarity(main, candidate);
         if (similarity < 40) return null;
 
         const longevityBoost = (candidate.longevity_rating || 5) - profile.longevity;
-        const sillageBoost = (candidate.sillage_rating || 5) - profile.sillage;
-        if ((longevityBoost + sillageBoost) < 1.5) return null;
+        if (longevityBoost < 1.0) return null;
 
         const sharedNotes = profile.allNoteNames.filter(n => cProfile.allNoteNames.includes(n));
-        return { score: 80 + (similarity / 5), longevityBoost, sharedNotes };
+        const intensityShift = this.calculateIntensityShift(main, candidate);
+
+        return { score: 80 + (similarity / 5), longevityBoost, sharedNotes, intensityShift };
       },
-      // Mapper
       (match, template) => ({
         perfume: match.perfume, type: 'performance_upgrade', score: match.score,
         reason: template,
         sharedNotes: match.sharedNotes.slice(0, 3),
+        intensityShift: match.intensityShift || undefined,
         tradeOffs: { longevityDiff: `+${match.longevityBoost.toFixed(1)} Rating`, missingNotes: [], complexity: 'Similar', savings: 0 }
       }),
-      // Templates
       [
-        `Fixes the longevity issue. Same scent profile, but actually lasts all day.`,
+        `Love the scent but wish it lasted? This is the high-concentration version of this DNA.`,
         `The "Beast Mode" alternative. Expect 10+ hours of performance.`,
         `Wear this when you want to be smelled from across the room.`
       ]
@@ -506,30 +531,31 @@ export class RecommendationEngine {
     const mainSeasons = main.best_season || [];
     if (mainSeasons.length === 0) return [];
 
-    // Define opposites
     const isWinterHeavy = mainSeasons.includes('Winter') || mainSeasons.includes('Fall');
     const targetSeason = isWinterHeavy ? 'Summer' : 'Winter';
 
     return this.processCandidates(
-      main, candidates, profile, 'vibe_evolution',
+      main, candidates, profile, 'seasonal_mirror',
       (candidate, cProfile) => {
-        // 1. Must be appropriate for the OPPOSITE season
         if (!candidate.best_season?.includes(targetSeason)) return null;
 
-        // 2. But must still share DNA (Notes or Family) to feel "familiar"
-        const sharedNotes = profile.allNoteNames.filter(n => cProfile.allNoteNames.includes(n));
-        if (sharedNotes.length < 2) return null;
+        const similarity = this.calculateSimilarity(main, candidate);
+        if (similarity < 40) return null;
 
-        return { score: 80, targetSeason, sharedNotes };
+        const sharedNotes = profile.allNoteNames.filter(n => cProfile.allNoteNames.includes(n));
+        const intensityShift = this.calculateIntensityShift(main, candidate);
+
+        return { score: 80 + (similarity / 10), targetSeason, sharedNotes, intensityShift };
       },
       (match, template) => ({
-        perfume: match.perfume, type: 'vibe_evolution', score: match.score,
+        perfume: match.perfume, type: 'seasonal_mirror', score: match.score,
         reason: template.replace('{season}', match.targetSeason),
-        sharedNotes: match.sharedNotes.slice(0, 3)
+        sharedNotes: match.sharedNotes.slice(0, 3),
+        intensityShift: match.intensityShift || undefined
       }),
       [
-        `How to wear this style in the {season} without choking everyone out.`,
-        `The {season} version of this DNA. Lighter, fresher, but familiar.`,
+        `Love this DNA? Here is how you wear this style in the {season}.`,
+        `The {season} version of this DNA. Different texture, familiar soul.`,
         `Keeps the vibe alive, even in the {season} weather.`
       ]
     );
@@ -540,32 +566,27 @@ export class RecommendationEngine {
    * "Stop wearing what everyone else is wearing."
    */
   private static getNicheGatewayRecommendations(main: PerfumeWithRelations, candidates: PerfumeWithRelations[], profile: ScentProfileAnalysis) {
-    // Only works if the Main perfume is "Designer" or "Celebrity"
     if (!main.brand?.tier || ['Niche', 'Indie', 'Historical'].includes(main.brand.tier)) return [];
 
     return this.processCandidates(
-      main, candidates, profile, 'performance_upgrade', // Reusing this type for "Upgrade" visual
+      main, candidates, profile, 'niche_leap',
       (candidate, cProfile) => {
-        // 1. Candidate MUST be Niche/Indie
         if (!candidate.brand?.tier || !['Niche', 'Indie'].includes(candidate.brand.tier)) return null;
 
-        // 2. Must be highly similar (High Score) to be a safe gateway
-        const sharedNotes = profile.allNoteNames.filter(n => cProfile.allNoteNames.includes(n));
-        const sharedFamilies = profile.families.filter(f => cProfile.families.includes(f));
-        
-        let similarity = (sharedNotes.length * 10) + (sharedFamilies.length * 20);
+        const similarity = this.calculateSimilarity(main, candidate);
         if (similarity < 40) return null;
 
-        return { score: 90 + similarity, tier: candidate.brand.tier, sharedNotes };
+        const intensityShift = this.calculateIntensityShift(main, candidate);
+        return { score: 90 + (similarity / 10), tier: candidate.brand.tier, intensityShift };
       },
       (match, template) => ({
-        perfume: match.perfume, type: 'performance_upgrade', score: match.score,
+        perfume: match.perfume, type: 'niche_leap', score: match.score,
         reason: template.replace('{tier}', match.tier),
-        sharedNotes: match.sharedNotes.slice(0, 3),
-        priceComparison: 'premium' // Usually more expensive
+        intensityShift: match.intensityShift || undefined,
+        priceComparison: 'premium'
       }),
       [
-        `A massive step up in quality. You can actually smell the difference in ingredients.`,
+        `Ready to graduate? This is the high-art, complex interpretation of this vibe.`,
         `This is the high-end, {tier} interpretation of that profile.`,
         `Deeper, richer, and more complex. A true {tier} experience.`
       ]
@@ -678,29 +699,29 @@ export class RecommendationEngine {
 
   public static getEnhancedRecommendations(mainPerfume: PerfumeWithRelations, allPerfumes: PerfumeWithRelations[]): RecommendationCategory[] {
     const mainProfile = this.analyzeScentProfile(mainPerfume);
-    const categories: RecommendationCategory[] = [];
-
-    const addCategory = (type: string, title: string, desc: string, recs: Recommendation[]) => {
-      if (recs.length > 0) categories.push({ type, title, description: desc, recommendations: recs });
-    };
-
-    // 1. The "Niche Upgrade" (High value for upsell/discovery)
-    addCategory('niche_upgrade', 'The Niche Upgrade', 'Higher quality ingredients, deeper complexity.',
-      this.getNicheGatewayRecommendations(mainPerfume, allPerfumes, mainProfile));
-
-    // 2. The "Similar Vibe" (Core Recommendation)
-    addCategory('similar', 'Similar Vibe', 'Fragrances that share the same DNA and character.',
-      this.getSimilarRecommendations(mainPerfume, allPerfumes));
-
-    // ... (Keep your existing categories below: Isolator, Structure, etc.) ...
     
-    addCategory('isolator', `Pure ${mainProfile.signatureNote}`, `For the true ${mainProfile.signatureNote} lovers.`, 
-      this.getNoteIsolatorRecommendations(mainPerfume, allPerfumes, mainProfile));
+    // We fetch one of each "type" to ensure variety in the 4 items
+    const niche = this.getNicheGatewayRecommendations(mainPerfume, allPerfumes, mainProfile).slice(0, 1);
+    const performance = this.getPerformanceUpgradeRecommendations(mainPerfume, allPerfumes, mainProfile).slice(0, 1);
+    const seasonal = this.getSeasonalPivotRecommendations(mainPerfume, allPerfumes, mainProfile).slice(0, 1);
+    const similar = this.getSimilarRecommendations(mainPerfume, allPerfumes, 4);
 
-    addCategory('performance_beast', 'Performance Beasts', 'For when you need it to last 12+ hours.', 
-      this.getPerformanceUpgradeRecommendations(mainPerfume, allPerfumes, mainProfile));
+    // Combine and deduplicate by ID
+    const allRecs = [...niche, ...performance, ...seasonal, ...similar];
+    const seen = new Set();
+    const uniqueRecs = allRecs.filter(r => {
+      if (seen.has(r.perfume.id)) return false;
+      seen.add(r.perfume.id);
+      return true;
+    }).slice(0, 4); // Hard limit to 4 items total
 
-    return categories;
+    return [{
+      type: 'discovery',
+      title: 'Curated Discovery',
+      description: 'Hand-picked alternatives based on scent DNA, performance, and character.',
+      recommendations: uniqueRecs,
+      isPath: false // Reverting to standard UI
+    }];
   }
 
   private static getLayeringRecommendations(main: PerfumeWithRelations, all: PerfumeWithRelations[]): Recommendation[] {

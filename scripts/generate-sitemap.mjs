@@ -12,8 +12,8 @@ const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const BASE_URL = 'https://scentia.fit';
 
 if (!supabaseUrl || !supabaseKey) {
-  console.error('Missing Supabase credentials in env files.');
-  process.exit(1);
+  console.warn('⚠️  Supabase credentials not found in environment. Skipping sitemap generation.');
+  process.exit(0);
 }
 
 const supabase = createClient(supabaseUrl, supabaseKey);
