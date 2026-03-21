@@ -1,7 +1,6 @@
 import { createClient } from '@/utils/supabase/server';
 import CompareClientView from '@/components/features/compare/CompareClientView';
 
-export const runtime = "edge";
 
 export default async function ComparePage(props: { searchParams: Promise<{ a?: string, b?: string, ids?: string }> }) {
   const searchParams = await props.searchParams;

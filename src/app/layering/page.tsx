@@ -13,7 +13,6 @@ import MixingControls from '@/components/features/layering/MixingControls';
 import LayeringAnalysis from '@/components/features/layering/LayeringAnalysis';
 import Spinner from '@/components/ui/Spinner';
 
-export const runtime = "edge";
 
 // Mock "Curated Blends" to solve the blank canvas problem
 const CURATED_BLENDS = [

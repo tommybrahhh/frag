@@ -6,7 +6,6 @@ import ActiveDiscussions from '@/components/features/community/ActiveDiscussions
 import Spinner from '@/components/ui/Spinner';
 import { MessageCircle, Trophy, Activity } from 'lucide-react';
 
-export const runtime = "edge";
 
 export const metadata = {
   title: 'Community | Fragrance App',

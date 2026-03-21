@@ -9,7 +9,6 @@ import VisualCategoryNav from '@/components/features/search/VisualCategoryNav';
 import JoinCommunityCTA from '@/components/features/home/JoinCommunityCTA';
 import PageTransition from '@/components/layout/PageTransition'; // Added
 
-export const runtime = 'edge';
 export const revalidate = 600; // Revalidate every 10 minutes
 
 export default async function Home() {

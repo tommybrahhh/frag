@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { Metadata } from 'next';
 import BlogHero from '@/components/features/blog/BlogHero';
 
-export const runtime = "edge";
 
 export const metadata: Metadata = {
   title: 'Blog | Scentia',

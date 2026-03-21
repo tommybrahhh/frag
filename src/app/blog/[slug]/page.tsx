@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { Metadata } from 'next';
 import { Edit3 } from 'lucide-react';
 
-export const runtime = "edge";
 
 export async function generateMetadata(
   props: { params: Promise<{ slug: string }> }

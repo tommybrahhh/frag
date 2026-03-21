@@ -7,7 +7,6 @@ import IngredientSearch from '@/components/features/notes/IngredientSearch';
 import { analyzeIngredientCombination, classifyNoteVolatility } from '@/lib/alchemy';
 import { getPerfumeImage } from '@/lib/perfume-utils';
 
-export const runtime = "edge";
 
 interface Perfume {
   id: string;

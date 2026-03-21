@@ -7,7 +7,6 @@ import { createClient } from '@/lib/supabase';
 import Link from 'next/link';
 import { getPerfumeImage } from '@/lib/perfume-utils';
 
-export const runtime = "edge";
 
 type Perfume = {
   id: string;

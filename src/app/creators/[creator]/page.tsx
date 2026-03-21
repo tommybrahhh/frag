@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { Metadata } from 'next';
 import FragranceCard from '@/components/features/perfume/FragranceCard';
 
-export const runtime = "edge";
 
 export const revalidate = 3600; // Revalidate every hour
 
