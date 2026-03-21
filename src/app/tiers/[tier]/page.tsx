@@ -4,8 +4,6 @@ import TierPageClient from '@/components/features/search/TierPageClient';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
-export const runtime = "edge";
-
 interface Props {
   params: Promise<{ tier: string }>;
 }
